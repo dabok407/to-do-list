@@ -68,4 +68,65 @@ void main() {
     expect(await repository.occurrences(), isEmpty);
     expect(await repository.db.query('events'), isEmpty);
   });
+  test('이번 회차 수정은 재생성되지 않고 다음 반복과 등록 수를 유지', () async {
+    await repository.saveTask(make(repeat: RepeatUnit.daily));
+    final original = (await repository.occurrences()).first;
+    final edited = Task.fromMap({
+      ...original.task.toMap(),
+      'title': '이번만 작은 청소',
+      'due': original.originalDue
+          .add(const Duration(hours: 2))
+          .toIso8601String(),
+    });
+    await repository.editOccurrence(original, edited, onlyThis: true);
+    await repository.materialize();
+    final all = await repository.occurrences();
+    expect(all.any((o) => o.id == original.id), false);
+    expect(all.where((o) => o.task.title == '이번만 작은 청소').length, 1);
+    expect(all.where((o) => o.task.id == 't').isNotEmpty, true);
+    expect((await repository.stats())['registered'], 1);
+    await repository.deleteTask(all.first.task.id);
+    expect(await repository.occurrences(), isEmpty);
+  });
+  test('앞으로 수정은 지난 완료를 보존하고 이후 규칙을 분리', () async {
+    await repository.saveTask(make(repeat: RepeatUnit.daily));
+    final before = await repository.occurrences();
+    await repository.act(before.first.id, 'complete');
+    final selected = before[1];
+    final edited = Task.fromMap({
+      ...selected.task.toMap(),
+      'due': selected.originalDue.toIso8601String(),
+      'title': '새 반복',
+    });
+    await repository.editOccurrence(selected, edited, onlyThis: false);
+    final all = await repository.occurrences();
+    expect(
+      all.firstWhere((o) => o.id == before.first.id).status,
+      TaskStatus.completed,
+    );
+    expect(
+      all.where(
+        (o) => o.task.id == 't' && o.originalDue.isAfter(selected.originalDue),
+      ),
+      isEmpty,
+    );
+    expect(all.where((o) => o.task.title == '새 반복').length, greaterThan(1));
+    expect((await repository.stats())['registered'], 1);
+  });
+  test('예정 시간 전에 완료한 일도 완료 수와 분모에 포함', () async {
+    final t = make();
+    await repository.saveTask(
+      Task.fromMap({
+        ...t.toMap(),
+        'due': DateTime.now().add(const Duration(days: 1)).toIso8601String(),
+      }),
+    );
+    await repository.act(
+      (await repository.occurrences()).single.id,
+      'complete',
+    );
+    final stats = await repository.stats();
+    expect(stats['completed'], 1);
+    expect(stats['total'], 1);
+  });
 }

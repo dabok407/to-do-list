@@ -1,17 +1,5 @@
-# hangeoreum
+# 한걸음 모바일
 
-A new Flutter project.
+Flutter + SQLite + OS 로컬 알림을 사용하는 iOS·Android 앱입니다.
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+상위 [README](../README.md)에 구조·DB·기능·빌드·실행 방법을 정리했습니다. 스토어 제출은 [RELEASE.md](RELEASE.md)를 참고하세요. 실제 OS 위젯은 아직 구현하지 않았습니다.

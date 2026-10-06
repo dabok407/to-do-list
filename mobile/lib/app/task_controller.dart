@@ -31,6 +31,20 @@ class TaskController extends ChangeNotifier {
 
   Future<void> save(Task task) async {
     await repository.saveTask(task);
+    try {
+      await reminders.requestPermissions();
+    } catch (_) {
+      /* Saving is independent of permission. */
+    }
+    await reconcile();
+  }
+
+  Future<void> editOccurrence(
+    Occurrence original,
+    Task task, {
+    required bool onlyThis,
+  }) async {
+    await repository.editOccurrence(original, task, onlyThis: onlyThis);
     await reconcile();
   }
 

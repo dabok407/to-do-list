@@ -12,13 +12,21 @@ Future<void> main() async {
     final repository = await TaskRepository.open();
     final reminders = ReminderScheduler();
     final controller = TaskController(repository, reminders);
-    await reminders.initialize();
+    try {
+      await reminders.initialize();
+    } catch (_) {
+      controller.warning = '알림을 준비하지 못했습니다. 할 일은 로컬에 저장됩니다.';
+    }
     reminders.onAction = (id, action) async {
       await repository.act(id, action);
       await controller.reconcile();
     };
     await controller.reconcile();
-    await reminders.handleLaunch();
+    try {
+      await reminders.handleLaunch();
+    } catch (_) {
+      /* Keep local tasks usable. */
+    }
     runApp(HangeoreumApp(controller: controller));
   } catch (_) {
     runApp(

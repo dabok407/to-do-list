@@ -61,14 +61,73 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     }
   }
 
-  Future<void> edit([Task? task]) async {
+  Future<void> edit([Task? task, Occurrence? occurrence]) async {
+    bool? onlyThis;
+    if (occurrence != null && task!.repeat != RepeatUnit.none) {
+      onlyThis = await showDialog<bool>(
+        context: context,
+        builder: (ctx) {
+          bool? choice;
+          return StatefulBuilder(
+            builder: (ctx, setChoice) => AlertDialog(
+              title: const Text('어떤 일정을 수정할까요?'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CheckboxListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('이번 일정만'),
+                    value: choice == true,
+                    onChanged: (v) =>
+                        setChoice(() => choice = v == true ? true : null),
+                  ),
+                  CheckboxListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('이번부터 앞으로'),
+                    value: choice == false,
+                    onChanged: (v) =>
+                        setChoice(() => choice = v == true ? false : null),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('취소'),
+                ),
+                FilledButton(
+                  onPressed: choice == null
+                      ? null
+                      : () => Navigator.pop(ctx, choice),
+                  child: const Text('계속'),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+      if (onlyThis == null || !mounted) return;
+      task = Task.fromMap({
+        ...task.toMap(),
+        'due': occurrence.originalDue.toIso8601String(),
+        if (onlyThis) 'repeat_unit': 'none',
+        if (onlyThis) 'end_date': null,
+      });
+    }
+    if (!mounted) return;
     final result = await Navigator.push<Task>(
       context,
       MaterialPageRoute(
         builder: (_) => TaskEditor(task: task, initialDate: selected),
       ),
     );
-    if (result != null) await run(() => c.save(result));
+    if (result != null) {
+      await run(
+        () => onlyThis != null
+            ? c.editOccurrence(occurrence!, result, onlyThis: onlyThis)
+            : c.save(result),
+      );
+    }
   }
 
   Future<void> detail(Occurrence original) async {
@@ -166,8 +225,32 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     OutlinedButton(
                       onPressed: busy
                           ? null
-                          : () => run(() => c.act(o, 'snooze', minutes: 120)),
-                      child: const Text('오늘 나중에 · 2시간 뒤'),
+                          : () {
+                              final now = DateTime.now();
+                              final remaining = DateTime(
+                                now.year,
+                                now.month,
+                                now.day,
+                                23,
+                                59,
+                              ).difference(now).inMinutes;
+                              if (remaining < 1) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('오늘 남은 시간이 없어요. 날짜를 변경해주세요.'),
+                                  ),
+                                );
+                                return;
+                              }
+                              run(
+                                () => c.act(
+                                  o,
+                                  'snooze',
+                                  minutes: remaining < 120 ? remaining : 120,
+                                ),
+                              );
+                            },
+                      child: const Text('오늘 나중에'),
                     ),
                     FutureBuilder<int>(
                       future: c.repository.todaySnoozes(o.id),
@@ -220,7 +303,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       TextButton.icon(
                         onPressed: () {
                           Navigator.pop(ctx);
-                          edit(o.task);
+                          edit(o.task, o);
                         },
                         icon: const Icon(Icons.edit_outlined),
                         label: const Text('수정'),
@@ -303,6 +386,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           if (o.task.priority == 2)
             const Text('● 높음', style: TextStyle(color: priorityRed)),
           Text(stateNames[o.status.index]),
+          if (page != 0) Text('· ${dayKey(o.originalDue)}'),
           if (o.task.repeat != RepeatUnit.none) const Text('· 반복'),
           if (o.status == TaskStatus.paused)
             Text('· ${timeLabel(o.reminder)} 재알림'),
@@ -626,7 +710,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         ),
         const SizedBox(height: 16),
         const Text(
-          '완료율은 최근 30일 동안 예정 시간이 지난 회차를 기준으로 계산합니다. 반복 일정의 각 회차를 별도로 집계합니다.',
+          '완료율은 최근 30일 예정 시간이 지난 회차와 미리 완료한 회차를 기준으로 계산합니다. 반복 일정은 각 회차를 별도로 집계합니다.',
         ),
       ],
     );

@@ -10,14 +10,29 @@ class TaskRepository {
   static Future<TaskRepository> open({String? databasePath}) async {
     final db = await openDatabase(
       databasePath ?? path.join(await getDatabasesPath(), 'hangeoreum.db'),
-      version: 1,
+      version: 2,
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          await db.execute(
+            "ALTER TABLE tasks ADD COLUMN series_id TEXT NOT NULL DEFAULT ''",
+          );
+          await db.execute('UPDATE tasks SET series_id=id');
+          await db.execute(
+            'ALTER TABLE tasks ADD COLUMN derived INTEGER NOT NULL DEFAULT 0',
+          );
+          await db.execute(
+            'CREATE TABLE recurrence_exceptions(task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE, original_due TEXT NOT NULL, PRIMARY KEY(task_id,original_due))',
+          );
+        }
+      },
       onConfigure: (db) async => db.execute('PRAGMA foreign_keys=ON'),
       onCreate: (db, version) async {
         await db.execute(
           '''CREATE TABLE tasks(id TEXT PRIMARY KEY, title TEXT NOT NULL,
           note TEXT NOT NULL, small_step TEXT NOT NULL, priority INTEGER NOT NULL,
           due TEXT NOT NULL, created TEXT NOT NULL, repeat_unit TEXT NOT NULL,
-          repeat_interval INTEGER NOT NULL, weekdays TEXT NOT NULL, end_date TEXT, month_week INTEGER NOT NULL)''',
+          repeat_interval INTEGER NOT NULL, weekdays TEXT NOT NULL, end_date TEXT, month_week INTEGER NOT NULL,
+          series_id TEXT NOT NULL, derived INTEGER NOT NULL DEFAULT 0)''',
         );
         await db.execute(
           '''CREATE TABLE occurrences(id TEXT PRIMARY KEY, task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
@@ -34,6 +49,9 @@ class TaskRepository {
           'CREATE INDEX occurrence_due ON occurrences(original_due)',
         );
         await db.execute('CREATE INDEX event_time ON events(at)');
+        await db.execute(
+          'CREATE TABLE recurrence_exceptions(task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE, original_due TEXT NOT NULL, PRIMARY KEY(task_id,original_due))',
+        );
       },
     );
     return TaskRepository(db);
@@ -68,20 +86,107 @@ class TaskRepository {
     await materialize();
   }
 
-  Future<void> deleteTask(String id) async =>
-      db.delete('tasks', where: 'id=?', whereArgs: [id]);
+  Future<void> deleteTask(String id) async {
+    final rows = await db.query('tasks', where: 'id=?', whereArgs: [id]);
+    if (rows.isNotEmpty) {
+      await db.delete(
+        'tasks',
+        where: 'series_id=?',
+        whereArgs: [rows.first['series_id']],
+      );
+    }
+  }
+
+  Future<void> editOccurrence(
+    Occurrence original,
+    Task edited, {
+    required bool onlyThis,
+  }) async {
+    final source = original.task;
+    if (source.repeat == RepeatUnit.none) {
+      await saveTask(edited);
+      return;
+    }
+    final replacement = Task.fromMap({
+      ...edited.toMap(),
+      'id': 't${DateTime.now().microsecondsSinceEpoch}',
+      'series_id': source.seriesId,
+      'derived': 1,
+      if (onlyThis) 'repeat_unit': 'none',
+      if (onlyThis) 'end_date': null,
+    });
+    await db.transaction((tx) async {
+      await tx.insert('tasks', replacement.toMap());
+      if (onlyThis) {
+        await tx.insert('recurrence_exceptions', {
+          'task_id': source.id,
+          'original_due': original.originalDue.toIso8601String(),
+        }, conflictAlgorithm: ConflictAlgorithm.ignore);
+      } else {
+        await tx.update(
+          'tasks',
+          {
+            'end_date': dayOf(original.originalDue)
+                .subtract(const Duration(days: 1))
+                .toIso8601String(),
+          },
+          where: 'id=?',
+          whereArgs: [source.id],
+        );
+        await tx.delete(
+          'occurrences',
+          where: "task_id=? AND original_due>=? AND id<>? AND state='pending' AND snoozes=0",
+          whereArgs: [
+            source.id,
+            original.originalDue.toIso8601String(),
+            original.id,
+          ],
+        );
+      }
+      final newId = '${replacement.id}@${replacement.due.toIso8601String()}';
+      final row = (await tx.query(
+        'occurrences',
+        where: 'id=?',
+        whereArgs: [original.id],
+      )).first;
+      await tx.insert('occurrences', {
+        ...row,
+        'id': newId,
+        'task_id': replacement.id,
+        'original_due': replacement.due.toIso8601String(),
+        'reminder': original.status == TaskStatus.pending
+            ? replacement.due.toIso8601String()
+            : original.reminder.toIso8601String(),
+      });
+      await tx.update(
+        'events',
+        {'occurrence_id': newId},
+        where: 'occurrence_id=?',
+        whereArgs: [original.id],
+      );
+      await tx.delete('occurrences', where: 'id=?', whereArgs: [original.id]);
+    });
+    await materialize();
+  }
+
   Future<void> materialize({DateTime? through}) async {
     final now = DateTime.now();
     final until = through ?? DateTime(now.year, now.month + 3, 0);
     final all = await tasks();
     await db.transaction((tx) async {
       for (final t in all) {
+        final exceptions = (await tx.query(
+          'recurrence_exceptions',
+          where: 'task_id=?',
+          whereArgs: [t.id],
+        )).map((e) => e['original_due']).toSet();
         final cutoff = now.subtract(const Duration(days: 30));
         final from = t.due.isAfter(cutoff) ? t.due : cutoff;
         final dates = t.repeat == RepeatUnit.none
             ? [t.due]
             : RecurrenceCalculator.between(t, from, until);
         for (final due in dates) {
+          if (exceptions.contains(due.toIso8601String())) continue;
           await tx.insert('occurrences', {
             'id': '${t.id}@${due.toIso8601String()}',
             'task_id': t.id,
@@ -185,23 +290,24 @@ class TaskRepository {
     final now = DateTime.now().toIso8601String();
     final registered =
         Sqflite.firstIntValue(
-          await db.rawQuery('SELECT COUNT(*) FROM tasks WHERE created>=?', [
-            from,
-          ]),
+          await db.rawQuery(
+            'SELECT COUNT(*) FROM tasks WHERE created>=? AND derived=0',
+            [from],
+          ),
         ) ??
         0;
     final total =
         Sqflite.firstIntValue(
           await db.rawQuery(
-            'SELECT COUNT(*) FROM occurrences WHERE original_due BETWEEN ? AND ?',
-            [from, now],
+            "SELECT COUNT(*) FROM occurrences WHERE original_due BETWEEN ? AND ? OR (state='completed' AND completed BETWEEN ? AND ?)",
+            [from, now, from, now],
           ),
         ) ??
         0;
     final completed =
         Sqflite.firstIntValue(
           await db.rawQuery(
-            "SELECT COUNT(*) FROM occurrences WHERE original_due BETWEEN ? AND ? AND state='completed'",
+            "SELECT COUNT(*) FROM occurrences WHERE completed BETWEEN ? AND ? AND state='completed'",
             [from, now],
           ),
         ) ??

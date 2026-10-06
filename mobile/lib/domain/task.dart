@@ -10,6 +10,9 @@ String dayKey(DateTime d) =>
 
 class Task {
   final String id, title, note, smallStep;
+  final String? groupId;
+  final bool derived;
+  String get seriesId => groupId ?? id;
   final int priority, interval, monthWeek;
   final DateTime due, created;
   final DateTime? end;
@@ -28,6 +31,8 @@ class Task {
     this.weekdays = const [],
     this.end,
     this.monthWeek = 1,
+    this.groupId,
+    this.derived = false,
   });
   Map<String, Object?> toMap() => {
     'id': id,
@@ -42,6 +47,8 @@ class Task {
     'weekdays': jsonEncode(weekdays),
     'end_date': end?.toIso8601String(),
     'month_week': monthWeek,
+    'series_id': seriesId,
+    'derived': derived ? 1 : 0,
   };
   factory Task.fromMap(Map<String, Object?> m) => Task(
     id: m['id'] as String,
@@ -56,6 +63,8 @@ class Task {
     weekdays: (jsonDecode(m['weekdays'] as String) as List).cast<int>(),
     end: m['end_date'] == null ? null : DateTime.parse(m['end_date'] as String),
     monthWeek: m['month_week'] as int,
+    groupId: m['series_id'] as String?,
+    derived: m['derived'] == 1,
   );
 }
 

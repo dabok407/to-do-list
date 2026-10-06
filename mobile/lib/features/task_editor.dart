@@ -82,202 +82,209 @@ class _TaskEditorState extends State<TaskEditor> {
       key: form,
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          TextFormField(
-            controller: title,
-            decoration: const InputDecoration(labelText: '할 일'),
-            maxLength: 100,
-            validator: (v) =>
-                v == null || v.trim().isEmpty ? '제목을 입력해주세요' : null,
-          ),
-          const SizedBox(height: 16),
-          TextFormField(
-            controller: note,
-            decoration: const InputDecoration(labelText: '메모'),
-            minLines: 2,
-            maxLines: 4,
-          ),
-          const SizedBox(height: 16),
-          TextFormField(
-            controller: small,
-            decoration: const InputDecoration(
-              labelText: '작은 첫걸음',
-              hintText: '운동복 입고 5분만 움직이기',
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextFormField(
+              controller: title,
+              decoration: const InputDecoration(labelText: '할 일'),
+              maxLength: 100,
+              validator: (v) =>
+                  v == null || v.trim().isEmpty ? '제목을 입력해주세요' : null,
             ),
-          ),
-          const SizedBox(height: 24),
-          OutlinedButton.icon(
-            onPressed: () => pickDate(false),
-            icon: const Icon(Icons.calendar_today_outlined),
-            label: Text(dayKey(due)),
-          ),
-          const SizedBox(height: 8),
-          OutlinedButton.icon(
-            onPressed: () async {
-              final value = await showTimePicker(
-                context: context,
-                initialTime: TimeOfDay.fromDateTime(due),
-              );
-              if (value != null && mounted) {
-                setState(
-                  () => due = DateTime(
-                    due.year,
-                    due.month,
-                    due.day,
-                    value.hour,
-                    value.minute,
-                  ),
-                );
-              }
-            },
-            icon: const Icon(Icons.schedule),
-            label: Text(TimeOfDay.fromDateTime(due).format(context)),
-          ),
-          const SizedBox(height: 16),
-          DropdownButtonFormField<int>(
-            initialValue: priority,
-            decoration: const InputDecoration(labelText: '우선순위'),
-            items: const [
-              DropdownMenuItem(value: 0, child: Text('낮음')),
-              DropdownMenuItem(value: 1, child: Text('보통')),
-              DropdownMenuItem(value: 2, child: Text('높음')),
-            ],
-            onChanged: (v) => setState(() => priority = v!),
-          ),
-          const SizedBox(height: 16),
-          DropdownButtonFormField<RepeatUnit>(
-            initialValue: repeat,
-            decoration: const InputDecoration(labelText: '반복'),
-            items: RepeatUnit.values
-                .map(
-                  (r) => DropdownMenuItem(
-                    value: r,
-                    child: Text(
-                      [
-                        '한 번',
-                        '매일',
-                        '매주 · 요일 선택',
-                        '매월 같은 날짜',
-                        '매월 특정 번째 요일',
-                      ][r.index],
-                    ),
-                  ),
-                )
-                .toList(),
-            onChanged: (v) => setState(() => repeat = v!),
-          ),
-          if (repeat != RepeatUnit.none) ...[
             const SizedBox(height: 16),
             TextFormField(
-              controller: interval,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText:
-                    '반복 간격 (${repeat == RepeatUnit.daily
-                        ? '일'
-                        : repeat == RepeatUnit.weekly
-                        ? '주'
-                        : '개월'})',
-              ),
-              validator: (v) =>
-                  int.tryParse(v ?? '') == null ||
-                      int.parse(v!) < 1 ||
-                      int.parse(v) > 365
-                  ? '1~365를 입력해주세요'
-                  : null,
+              controller: note,
+              decoration: const InputDecoration(labelText: '메모'),
+              minLines: 2,
+              maxLines: 4,
             ),
-            if (repeat == RepeatUnit.weekly ||
-                repeat == RepeatUnit.monthlyWeekday) ...[
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: small,
+              decoration: const InputDecoration(
+                labelText: '작은 첫걸음',
+                hintText: '운동복 입고 5분만 움직이기',
+              ),
+            ),
+            const SizedBox(height: 24),
+            OutlinedButton.icon(
+              onPressed: () => pickDate(false),
+              icon: const Icon(Icons.calendar_today_outlined),
+              label: Text(dayKey(due)),
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              onPressed: () async {
+                final value = await showTimePicker(
+                  context: context,
+                  initialTime: TimeOfDay.fromDateTime(due),
+                );
+                if (value != null && mounted) {
+                  setState(
+                    () => due = DateTime(
+                      due.year,
+                      due.month,
+                      due.day,
+                      value.hour,
+                      value.minute,
+                    ),
+                  );
+                }
+              },
+              icon: const Icon(Icons.schedule),
+              label: Text(TimeOfDay.fromDateTime(due).format(context)),
+            ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<int>(
+              initialValue: priority,
+              decoration: const InputDecoration(labelText: '우선순위'),
+              items: const [
+                DropdownMenuItem(value: 0, child: Text('낮음')),
+                DropdownMenuItem(value: 1, child: Text('보통')),
+                DropdownMenuItem(value: 2, child: Text('높음')),
+              ],
+              onChanged: (v) => setState(() => priority = v!),
+            ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<RepeatUnit>(
+              initialValue: repeat,
+              decoration: const InputDecoration(labelText: '반복'),
+              items: RepeatUnit.values
+                  .map(
+                    (r) => DropdownMenuItem(
+                      value: r,
+                      child: Text(
+                        [
+                          '한 번',
+                          '매일',
+                          '매주 · 요일 선택',
+                          '매월 같은 날짜',
+                          '매월 특정 번째 요일',
+                        ][r.index],
+                      ),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (v) => setState(() => repeat = v!),
+            ),
+            if (repeat != RepeatUnit.none) ...[
               const SizedBox(height: 16),
-              Wrap(
-                spacing: 6,
-                children: List.generate(
-                  7,
-                  (i) => FilterChip(
-                    label: Text(['월', '화', '수', '목', '금', '토', '일'][i]),
-                    selected: weekdays.contains(i + 1),
-                    onSelected: (selected) => setState(() {
-                      if (repeat == RepeatUnit.monthlyWeekday) weekdays.clear();
-                      if (selected) {
-                        weekdays.add(i + 1);
-                      } else {
-                        weekdays.remove(i + 1);
-                      }
-                    }),
+              TextFormField(
+                controller: interval,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText:
+                      '반복 간격 (${repeat == RepeatUnit.daily
+                          ? '일'
+                          : repeat == RepeatUnit.weekly
+                          ? '주'
+                          : '개월'})',
+                ),
+                validator: (v) =>
+                    int.tryParse(v ?? '') == null ||
+                        int.parse(v!) < 1 ||
+                        int.parse(v) > 365
+                    ? '1~365를 입력해주세요'
+                    : null,
+              ),
+              if (repeat == RepeatUnit.weekly ||
+                  repeat == RepeatUnit.monthlyWeekday) ...[
+                const SizedBox(height: 16),
+                Wrap(
+                  spacing: 6,
+                  children: List.generate(
+                    7,
+                    (i) => FilterChip(
+                      label: Text(['월', '화', '수', '목', '금', '토', '일'][i]),
+                      selected: weekdays.contains(i + 1),
+                      onSelected: (selected) => setState(() {
+                        if (repeat == RepeatUnit.monthlyWeekday) {
+                          weekdays.clear();
+                        }
+                        if (selected) {
+                          weekdays.add(i + 1);
+                        } else {
+                          weekdays.remove(i + 1);
+                        }
+                      }),
+                    ),
                   ),
                 ),
-              ),
-            ],
-            if (repeat == RepeatUnit.monthlyWeekday) ...[
-              const SizedBox(height: 16),
-              DropdownButtonFormField<int>(
-                initialValue: monthWeek,
-                decoration: const InputDecoration(labelText: '몇 번째 주'),
-                items: [1, 2, 3, 4, -1]
-                    .map(
-                      (v) => DropdownMenuItem(
-                        value: v,
-                        child: Text(v == -1 ? '마지막' : '$v번째'),
-                      ),
-                    )
-                    .toList(),
-                onChanged: (v) => setState(() => monthWeek = v!),
-              ),
-            ],
-            const SizedBox(height: 16),
-            OutlinedButton.icon(
-              onPressed: () => pickDate(true),
-              icon: const Icon(Icons.event_available_outlined),
-              label: Text(end == null ? '종료 날짜 없음' : '${dayKey(end!)}까지'),
-            ),
-            if (end != null)
-              TextButton(
-                onPressed: () => setState(() => end = null),
-                child: const Text('종료 날짜 해제'),
-              ),
-          ],
-          if (widget.task != null && widget.task!.repeat != RepeatUnit.none)
-            const Padding(
-              padding: EdgeInsets.only(top: 16),
-              child: Text('저장하면 이 반복 일정의 예정 회차를 변경합니다. 완료·보류·진행 기록은 유지됩니다.'),
-            ),
-          const SizedBox(height: 32),
-          FilledButton(
-            onPressed: () {
-              if (!form.currentState!.validate()) return;
-              if ((repeat == RepeatUnit.weekly ||
-                      repeat == RepeatUnit.monthlyWeekday) &&
-                  weekdays.isEmpty) {
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(const SnackBar(content: Text('반복할 요일을 선택해주세요')));
-                return;
-              }
-              final now = DateTime.now();
-              Navigator.pop(
-                context,
-                Task(
-                  id: widget.task?.id ?? 't${now.microsecondsSinceEpoch}',
-                  title: title.text.trim(),
-                  note: note.text.trim(),
-                  smallStep: small.text.trim(),
-                  due: due,
-                  created: widget.task?.created ?? now,
-                  priority: priority,
-                  repeat: repeat,
-                  interval: int.tryParse(interval.text) ?? 1,
-                  weekdays: weekdays.toList()..sort(),
-                  end: repeat == RepeatUnit.none ? null : end,
-                  monthWeek: monthWeek,
+              ],
+              if (repeat == RepeatUnit.monthlyWeekday) ...[
+                const SizedBox(height: 16),
+                DropdownButtonFormField<int>(
+                  initialValue: monthWeek,
+                  decoration: const InputDecoration(labelText: '몇 번째 주'),
+                  items: [1, 2, 3, 4, -1]
+                      .map(
+                        (v) => DropdownMenuItem(
+                          value: v,
+                          child: Text(v == -1 ? '마지막' : '$v번째'),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (v) => setState(() => monthWeek = v!),
                 ),
-              );
-            },
-            child: const Padding(
-              padding: EdgeInsets.all(12),
-              child: Text('저장'),
+              ],
+              const SizedBox(height: 16),
+              OutlinedButton.icon(
+                onPressed: () => pickDate(true),
+                icon: const Icon(Icons.event_available_outlined),
+                label: Text(end == null ? '종료 날짜 없음' : '${dayKey(end!)}까지'),
+              ),
+              if (end != null)
+                TextButton(
+                  onPressed: () => setState(() => end = null),
+                  child: const Text('종료 날짜 해제'),
+                ),
+            ],
+            if (widget.task != null && widget.task!.repeat != RepeatUnit.none)
+              const Padding(
+                padding: EdgeInsets.only(top: 16),
+                child: Text('저장하면 이 반복 일정의 예정 회차를 변경합니다. 완료·보류·진행 기록은 유지됩니다.'),
+              ),
+            const SizedBox(height: 32),
+            FilledButton(
+              onPressed: () {
+                if (!form.currentState!.validate()) return;
+                if ((repeat == RepeatUnit.weekly ||
+                        repeat == RepeatUnit.monthlyWeekday) &&
+                    weekdays.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('반복할 요일을 선택해주세요')),
+                  );
+                  return;
+                }
+                final now = DateTime.now();
+                Navigator.pop(
+                  context,
+                  Task(
+                    id: widget.task?.id ?? 't${now.microsecondsSinceEpoch}',
+                    title: title.text.trim(),
+                    note: note.text.trim(),
+                    smallStep: small.text.trim(),
+                    due: due,
+                    created: widget.task?.created ?? now,
+                    priority: priority,
+                    repeat: repeat,
+                    interval: int.tryParse(interval.text) ?? 1,
+                    weekdays: weekdays.toList()..sort(),
+                    end: repeat == RepeatUnit.none ? null : end,
+                    monthWeek: monthWeek,
+                    groupId: widget.task?.groupId,
+                    derived: widget.task?.derived ?? false,
+                  ),
+                );
+              },
+              child: const Padding(
+                padding: EdgeInsets.all(12),
+                child: Text('저장'),
+              ),
             ),
-          ),
-        ]),
+          ],
+        ),
       ),
     ),
   );
