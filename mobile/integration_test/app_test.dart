@@ -54,7 +54,12 @@ void main() {
       await controller.reminders.plugin.pendingNotificationRequests(),
       isEmpty,
     );
-    await tester.tap(find.text('완료'));
+    await tester.tap(
+      find.descendant(
+        of: find.byType(NavigationBar),
+        matching: find.text('완료'),
+      ),
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('완료 해제'));
     await tester.pumpAndSettle();
