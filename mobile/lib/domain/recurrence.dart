@@ -1,6 +1,29 @@
 import 'task.dart';
 
 class RecurrenceCalculator {
+  static DateTime? next(Task task, DateTime from) {
+    if (task.end != null && dayOf(from).isAfter(dayOf(task.end!))) return null;
+    final interval = task.interval < 1 ? 1 : task.interval;
+    final limit = switch (task.repeat) {
+      RepeatUnit.weekly || RepeatUnit.weeklyGoal => DateTime(
+        from.year,
+        from.month,
+        from.day + interval * 7 + 7,
+      ),
+      RepeatUnit.monthly || RepeatUnit.monthlyWeekday => DateTime(
+        from.year,
+        from.month + interval + 1,
+        0,
+      ),
+      _ => DateTime(from.year, from.month, from.day + interval + 1),
+    };
+    return between(
+      task,
+      from,
+      limit,
+    ).where((d) => !d.isBefore(from)).firstOrNull;
+  }
+
   static bool matches(Task t, DateTime date) {
     final d = dayOf(date), anchor = dayOf(t.due);
     if (d.isBefore(anchor) || (t.end != null && d.isAfter(dayOf(t.end!)))) {
@@ -18,7 +41,8 @@ class RecurrenceCalculator {
       case RepeatUnit.daily:
         return days % interval == 0;
       case RepeatUnit.weekly:
-        final monday = anchor.subtract(Duration(days: anchor.weekday - 1));
+      case RepeatUnit.weeklyGoal:
+        final monday = weekOf(anchor);
         final weeks =
             (DateTime.utc(d.year, d.month, d.day)
                         .difference(
@@ -28,9 +52,10 @@ class RecurrenceCalculator {
                     7)
                 .floor();
         return weeks % interval == 0 &&
-            (t.weekdays.isEmpty ? [anchor.weekday] : t.weekdays).contains(
-              d.weekday,
-            );
+            (t.repeat == RepeatUnit.weeklyGoal ||
+                (t.weekdays.isEmpty ? [anchor.weekday] : t.weekdays).contains(
+                  d.weekday,
+                ));
       case RepeatUnit.monthly:
         final months = (d.year - anchor.year) * 12 + d.month - anchor.month;
         final last = DateTime(d.year, d.month + 1, 0).day;
@@ -42,7 +67,7 @@ class RecurrenceCalculator {
         return months % interval == 0 &&
             d.weekday == weekday &&
             (t.monthWeek == -1
-                ? d.add(const Duration(days: 7)).month != d.month
+                ? DateTime(d.year, d.month, d.day + 7).month != d.month
                 : ((d.day - 1) ~/ 7 + 1) == t.monthWeek);
     }
   }

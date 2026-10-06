@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:orientation="vertical" android:paddingBottom="10dp">
+    <LinearLayout android:id="@+id/widget_task_content"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:paddingTop="3dp" android:paddingBottom="4dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical">
+            <TextView android:id="@+id/widget_task_title"
+                android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                android:textColor="#272B30" android:textSize="14sp" android:textStyle="bold"
+                android:maxLines="1" android:ellipsize="end" />
+            <TextView android:id="@+id/widget_priority"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginStart="6dp" android:text="높음" android:textSize="10sp"
+                android:textColor="#8F303A" />
+        </LinearLayout>
+        <TextView android:id="@+id/widget_task_due"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="4dp" android:textColor="#7B8087" android:textSize="11sp"
+            android:maxLines="1" android:ellipsize="end" />
+    </LinearLayout>
+    <LinearLayout android:id="@+id/widget_task_actions"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:layout_marginTop="6dp">
+        <TextView android:id="@+id/widget_start"
+            android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1"
+            android:gravity="center" android:text="지금 시작" android:textColor="#FFFFFF"
+            android:textSize="12sp" android:textStyle="bold" android:background="@drawable/widget_button_dark" />
+        <TextView android:id="@+id/widget_snooze"
+            android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1"
+            android:layout_marginStart="8dp" android:gravity="center" android:text="10분 미루기"
+            android:textColor="#50565E" android:textSize="12sp" android:background="@drawable/widget_button_light" />
+    </LinearLayout>
+</LinearLayout>

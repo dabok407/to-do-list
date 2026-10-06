@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_description">가까운 할 일을 확인하고 바로 시작하거나 10분 미룹니다.</string>
+    <string name="widget_name">한걸음 · 다음 할 일</string>
+</resources>

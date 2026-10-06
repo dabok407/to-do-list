@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:padding="16dp"
+    android:background="@drawable/widget_background">
+    <LinearLayout android:id="@+id/widget_header"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:gravity="center_vertical">
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:orientation="vertical">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="한걸음" android:textColor="#272B30" android:textSize="16sp"
+                android:textStyle="bold" android:fontFamily="sans-serif" />
+            <TextView android:id="@+id/widget_date"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="3dp" android:textColor="#7B8087" android:textSize="11sp" />
+        </LinearLayout>
+        <TextClock android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:format12Hour="HH:mm" android:format24Hour="HH:mm"
+            android:textColor="#7B8087" android:textSize="12sp" />
+    </LinearLayout>
+    <LinearLayout android:id="@+id/widget_tasks"
+        android:layout_width="match_parent" android:layout_height="0dp"
+        android:layout_weight="1" android:layout_marginTop="12dp" android:orientation="vertical"
+        android:visibility="gone" />
+    <TextView android:id="@+id/widget_empty"
+        android:layout_width="match_parent" android:layout_height="0dp"
+        android:layout_weight="1" android:gravity="center_vertical"
+        android:text="지금은 한가해요.\n다음 한 걸음을 준비해 볼까요?"
+        android:textColor="#50565E" android:textSize="14sp" android:lineSpacingExtra="5dp" />
+    <TextView android:id="@+id/widget_footer"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginTop="8dp" android:textColor="#7B8087" android:textSize="10sp"
+        android:maxLines="1" android:ellipsize="end" />
+</LinearLayout>

@@ -1,13 +1,16 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
 import '../domain/task.dart';
+import 'notification_plan.dart';
 
 class ReminderScheduler {
   final plugin = FlutterLocalNotificationsPlugin();
   Future<void> Function(String id, String action)? onAction;
+  NotificationPlan? lastPlan;
   Future<void> initialize() async {
     tzdata.initializeTimeZones();
     final zone = await FlutterTimezone.getLocalTimezone();
@@ -47,12 +50,14 @@ class ReminderScheduler {
     );
   }
 
-  void respond(NotificationResponse response) {
+  Future<void> respond(NotificationResponse response) async {
     final id = response.payload;
-    if (id != null &&
-        response.actionId != null &&
-        response.actionId!.isNotEmpty) {
-      onAction?.call(id, response.actionId!);
+    if (id != null) {
+      final action = response.actionId;
+      await onAction?.call(
+        id,
+        action == null || action.isEmpty ? 'open' : action,
+      );
     }
   }
 
@@ -60,7 +65,7 @@ class ReminderScheduler {
     final launch = await plugin.getNotificationAppLaunchDetails();
     if (launch?.didNotificationLaunchApp == true &&
         launch?.notificationResponse != null) {
-      respond(launch!.notificationResponse!);
+      await respond(launch!.notificationResponse!);
     }
   }
 
@@ -123,39 +128,69 @@ class ReminderScheduler {
       presentSound: true,
     ),
   );
-  Future<void> sync(List<Occurrence> items) async {
+  Future<bool?> enabled() async {
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      return plugin
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >()
+          ?.areNotificationsEnabled();
+    }
+    return (await plugin
+            .resolvePlatformSpecificImplementation<
+              IOSFlutterLocalNotificationsPlugin
+            >()
+            ?.checkPermissions())
+        ?.isEnabled;
+  }
+
+  static int notificationId(String value) {
+    var hash = 0x811c9dc5;
+    for (final unit in value.codeUnits) {
+      hash = ((hash ^ unit) * 0x01000193) & 0x7fffffff;
+    }
+    return hash == 0 ? 1 : hash;
+  }
+
+  Future<void> sync(
+    List<Occurrence> items, {
+    Map<String, List<DateTime>> exceptions = const {},
+  }) async {
     final zone = await FlutterTimezone.getLocalTimezone();
     tz.setLocalLocation(tz.getLocation(zone.identifier));
     final now = DateTime.now(), scheduleMode = await mode();
-    final jobs = <({Occurrence occurrence, DateTime at, int followup})>[];
-    for (final o in items.where((o) => o.active)) {
-      if (!o.reminder.isAfter(now)) continue;
-      jobs.add((occurrence: o, at: o.reminder, followup: 0));
-      if (o.status == TaskStatus.paused) {
-        for (final minutes in [30, 60]) {
-          final at = o.reminder.add(Duration(minutes: minutes));
-          if (dayOf(at) == dayOf(o.reminder)) {
-            jobs.add((occurrence: o, at: at, followup: minutes));
-          }
-        }
+    lastPlan = NotificationPlan.build(
+      items,
+      now: now,
+      capacity: defaultTargetPlatform == TargetPlatform.android ? 400 : 60,
+      exceptions: exceptions,
+    );
+    // Deleted and completed reminders disappear, while active alerts survive refill.
+    for (final notification in await plugin.getActiveNotifications()) {
+      final payload = notification.payload;
+      if (payload == null || notification.id == null) continue;
+      final occurrence = resolveReminderPayload(items, payload, now);
+      if (occurrence == null || !occurrence.active) {
+        await plugin.cancel(id: notification.id!);
       }
     }
-    jobs.sort((a, b) => a.at.compareTo(b.at));
-    // Stay below Apple's pending-notification cap; refill on launches and actions.
-    await plugin.cancelAll();
-    var id = 1;
-    for (final job in jobs.take(60)) {
-      final o = job.occurrence;
+    // Preserve visible alerts on a background refill; only remove terminal tasks.
+    for (final o in items.where((o) => !o.active)) {
+      for (final key in [o.id, '${o.id}:30', '${o.id}:60']) {
+        await plugin.cancel(id: notificationId(key));
+      }
+    }
+    await plugin.cancelAllPendingNotifications();
+    final ids = <int>{};
+    for (final job in lastPlan!.jobs) {
+      var id = notificationId(job.key);
+      while (!ids.add(id)) {
+        id = (id + 1) & 0x7fffffff;
+      }
       await plugin.zonedSchedule(
-        id: id++,
-        title: o.task.title,
-        body: o.status == TaskStatus.progressing
-            ? '진행은 어떤가요? 완료했거나 잠시 쉬어도 괜찮아요.'
-            : job.followup > 0
-            ? '아까 하기로 한 일이 있어요. 5분만 시작해볼까요?'
-            : o.status == TaskStatus.paused
-            ? '아까 하기로 했어요. 지금 시작해볼까요?'
-            : '지금 시작해볼까요?',
+        id: id,
+        title: job.title,
+        body: job.body,
         scheduledDate: tz.TZDateTime(
           tz.local,
           job.at.year,
@@ -167,7 +202,13 @@ class ReminderScheduler {
         ),
         notificationDetails: details(),
         androidScheduleMode: scheduleMode,
-        payload: o.id,
+        payload: job.payload,
+        matchDateTimeComponents: switch (job.repeat) {
+          NotificationRepeat.daily => DateTimeComponents.time,
+          NotificationRepeat.weekly => DateTimeComponents.dayOfWeekAndTime,
+          NotificationRepeat.monthly => DateTimeComponents.dayOfMonthAndTime,
+          null => null,
+        },
       );
     }
   }

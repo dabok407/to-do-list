@@ -7,9 +7,13 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: mobile-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   android:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     defaults:
       run:
         working-directory: mobile
@@ -27,33 +31,47 @@ jobs:
       - run: flutter analyze
       - run: flutter test
       - run: flutter build apk --debug
+      - name: Preserve normal app for native lifecycle checks
+        run: cp build/app/outputs/flutter-apk/app-debug.apk build/native-debug.apk
+      - name: Build release bundle without store credentials
+        run: flutter build appbundle --release
       - name: Enable emulator acceleration
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-      - uses: reactivecircus/android-emulator-runner@v2
+      - name: Android device integration and native lifecycle
+        timeout-minutes: 20
+        uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 35
           arch: x86_64
           disable-animations: true
           script: |
-            adb install -r mobile/build/app/outputs/flutter-apk/app-debug.apk
+            adb install -r mobile/build/native-debug.apk
             adb shell pm grant com.dabok407.hangeoreum android.permission.POST_NOTIFICATIONS
             adb shell appops set com.dabok407.hangeoreum SCHEDULE_EXACT_ALARM allow
-            cd mobile && flutter drive --driver=test_driver/integration_test.dart --target=integration_test/app_test.dart
+            cd mobile && timeout 600 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/app_test.dart
+            cd mobile && bash tool/verify_android_native.sh
+            adb shell pm clear com.dabok407.hangeoreum
+            adb shell pm revoke com.dabok407.hangeoreum android.permission.POST_NOTIFICATIONS
+            adb shell pm set-permission-flags com.dabok407.hangeoreum android.permission.POST_NOTIFICATIONS user-set user-fixed
+            cd mobile && timeout 600 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/permission_test.dart
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: android-integration-results
           path: mobile/build/integration_test
-          if-no-files-found: ignore
+          if-no-files-found: warn
       - uses: actions/upload-artifact@v4
         with:
-          name: android-debug-apk
-          path: mobile/build/app/outputs/flutter-apk/app-debug.apk
+          name: android-builds
+          path: |
+            mobile/build/native-debug.apk
+            mobile/build/app/outputs/bundle/release/*.aab
   ios:
     runs-on: macos-26
+    timeout-minutes: 45
     defaults:
       run:
         working-directory: mobile
@@ -65,8 +83,48 @@ jobs:
           cache: true
       - run: flutter pub get
       - run: flutter build ios --simulator --debug
+      - name: Preserve normal simulator app
+        run: |
+          mkdir -p build/native
+          cp -R build/ios/iphonesimulator/Runner.app build/native/Runner.app
+      - name: Boot an available iPhone simulator
+        run: |
+          SIMULATOR_ID=$(xcrun simctl list devices available --json | python3 -c 'import json,sys; d=json.load(sys.stdin); print(next(x["udid"] for runtime,items in d["devices"].items() if "iOS" in runtime for x in items if "iPhone" in x["name"]))')
+          echo "SIMULATOR_ID=$SIMULATOR_ID" >> "$GITHUB_ENV"
+          xcrun simctl boot "$SIMULATOR_ID"
+          xcrun simctl bootstatus "$SIMULATOR_ID" -b
+          xcrun simctl install "$SIMULATOR_ID" build/native/Runner.app
+      - name: Configure simulator notification permission
+        run: |
+          brew tap wix/brew
+          brew install applesimutils
+          applesimutils --byId "$SIMULATOR_ID" --bundle com.dabok407.hangeoreum --setPermissions notifications=YES
+      - name: iPhone runtime integration
+        timeout-minutes: 10
+        run: flutter drive -d "$SIMULATOR_ID" --driver=test_driver/integration_test.dart --target=integration_test/app_test.dart
+      - name: Restore production Flutter entry point before native XCTest
+        run: flutter build ios --simulator --debug
+      - name: Native WidgetKit tests and view rendering
+        timeout-minutes: 10
+        run: xcodebuild test -workspace ios/Runner.xcworkspace -scheme Runner -destination "platform=iOS Simulator,id=$SIMULATOR_ID" -resultBundlePath build/integration_test/native-widget.xcresult CODE_SIGNING_ALLOWED=NO
+      - name: Export native widget render attachments
+        run: xcrun xcresulttool export attachments --path build/integration_test/native-widget.xcresult --output-path build/integration_test/widget-renders
+      - name: Restore normal app and verify native deep link
+        timeout-minutes: 5
+        run: bash tool/verify_ios_native.sh "$SIMULATOR_ID"
+      - name: iPhone notification permission denial
+        timeout-minutes: 10
+        run: |
+          applesimutils --byId "$SIMULATOR_ID" --bundle com.dabok407.hangeoreum --setPermissions notifications=NO
+          flutter drive -d "$SIMULATOR_ID" --driver=test_driver/integration_test.dart --target=integration_test/permission_test.dart
       - run: flutter build ios --release --no-codesign
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ios-integration-results
+          path: mobile/build/integration_test
+          if-no-files-found: warn
       - uses: actions/upload-artifact@v4
         with:
           name: ios-simulator-app
-          path: mobile/build/ios/iphonesimulator/*.app
+          path: mobile/build/native/*.app

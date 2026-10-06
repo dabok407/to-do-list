@@ -15,7 +15,7 @@ class _TaskEditorState extends State<TaskEditor> {
   late TextEditingController title, note, small, interval;
   late DateTime due;
   DateTime? end;
-  int priority = 1, monthWeek = 1;
+  int priority = 1, monthWeek = 1, countPerWeek = 1;
   RepeatUnit repeat = RepeatUnit.none;
   Set<int> weekdays = {};
   @override
@@ -39,6 +39,7 @@ class _TaskEditorState extends State<TaskEditor> {
     repeat = t?.repeat ?? RepeatUnit.none;
     weekdays = (t?.weekdays ?? [due.weekday]).toSet();
     monthWeek = t?.monthWeek ?? 1;
+    countPerWeek = t?.countPerWeek ?? 1;
   }
 
   @override
@@ -161,12 +162,20 @@ class _TaskEditorState extends State<TaskEditor> {
                           '매주 · 요일 선택',
                           '매월 같은 날짜',
                           '매월 특정 번째 요일',
+                          '요일 자유 · 주 N회',
                         ][r.index],
                       ),
                     ),
                   )
                   .toList(),
-              onChanged: (v) => setState(() => repeat = v!),
+              onChanged: (v) => setState(() {
+                repeat = v!;
+                if (repeat == RepeatUnit.monthlyWeekday &&
+                    weekdays.length > 1) {
+                  final first = weekdays.toList()..sort();
+                  weekdays = {first.first};
+                }
+              }),
             ),
             if (repeat != RepeatUnit.none) ...[
               const SizedBox(height: 16),
@@ -177,7 +186,7 @@ class _TaskEditorState extends State<TaskEditor> {
                   labelText:
                       '반복 간격 (${repeat == RepeatUnit.daily
                           ? '일'
-                          : repeat == RepeatUnit.weekly
+                          : repeat == RepeatUnit.weekly || repeat == RepeatUnit.weeklyGoal
                           ? '주'
                           : '개월'})',
                 ),
@@ -188,6 +197,26 @@ class _TaskEditorState extends State<TaskEditor> {
                     ? '1~365를 입력해주세요'
                     : null,
               ),
+              if (repeat == RepeatUnit.weeklyGoal) ...[
+                const SizedBox(height: 16),
+                DropdownButtonFormField<int>(
+                  initialValue: countPerWeek,
+                  isExpanded: true,
+                  decoration: const InputDecoration(labelText: '일주일 목표'),
+                  items: List.generate(
+                    7,
+                    (i) => DropdownMenuItem(
+                      value: i + 1,
+                      child: Text('주 ${i + 1}회'),
+                    ),
+                  ),
+                  onChanged: (v) => setState(() => countPerWeek = v!),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  '요일을 정하지 않고 하루에 한 번 할 수 있어요. 이번 주 목표를 채우면 남은 날의 알림은 쉬고 다음 주에 다시 시작합니다.',
+                ),
+              ],
               if (repeat == RepeatUnit.weekly ||
                   repeat == RepeatUnit.monthlyWeekday) ...[
                 const SizedBox(height: 16),
@@ -273,6 +302,7 @@ class _TaskEditorState extends State<TaskEditor> {
                     weekdays: weekdays.toList()..sort(),
                     end: repeat == RepeatUnit.none ? null : end,
                     monthWeek: monthWeek,
+                    countPerWeek: countPerWeek,
                     groupId: widget.task?.groupId,
                     derived: widget.task?.derived ?? false,
                   ),

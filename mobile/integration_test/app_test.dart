@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -6,6 +8,7 @@ import 'package:hangeoreum/domain/task.dart';
 import 'package:hangeoreum/data/task_repository.dart';
 import 'package:hangeoreum/app/task_controller.dart';
 import 'package:hangeoreum/services/reminder_scheduler.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -31,6 +34,15 @@ void main() {
     );
     await tester.tap(find.text('저장'));
     await tester.pumpAndSettle();
+    // Anchor the alarm in the future; the editor's default time can cross midnight
+    // while CI is building and installing the app.
+    await controller.save(
+      Task.fromMap({
+        ...controller.items.single.task.toMap(),
+        'due': DateTime.now().add(const Duration(minutes: 5)).toIso8601String(),
+      }),
+    );
+    await tester.pumpAndSettle();
     final occurrence = controller.items.single;
     expect(occurrence.task.title, '안방 대청소 통합 테스트');
     expect(
@@ -42,11 +54,19 @@ void main() {
     await controller.act(occurrence, 'snooze', minutes: 30);
     await tester.pumpAndSettle();
     expect(controller.items.single.status, TaskStatus.paused);
+    // Follow-ups stop at the local day boundary.
+    final expected =
+        1 +
+        [30, 60].where((minutes) {
+          final reminder = controller.items.single.reminder;
+          return dayOf(reminder.add(Duration(minutes: minutes))) ==
+              dayOf(reminder);
+        }).length;
     expect(
       (await controller.reminders.plugin.pendingNotificationRequests())
           .where((n) => n.payload == occurrence.id)
           .length,
-      3,
+      expected,
     );
     await controller.act(controller.items.single, 'complete');
     await tester.pumpAndSettle();
@@ -65,13 +85,25 @@ void main() {
     await tester.pumpAndSettle();
     expect(controller.items.single.status, TaskStatus.paused);
     await controller.reminders.testNotification();
-    await Future<void>.delayed(const Duration(seconds: 12));
-    expect(
-      (await controller.reminders.plugin.getActiveNotifications()).any(
-        (n) => n.id == 100000,
-      ),
-      true,
-    );
+    await tester.runAsync(() async {
+      await Future<void>.delayed(const Duration(seconds: 12));
+    });
+    if (Platform.isAndroid) {
+      expect(
+        (await controller.reminders.plugin.getActiveNotifications()).any(
+          (n) => n.id == 100000,
+        ),
+        true,
+      );
+    } else {
+      // iOS foreground banners are not necessarily retained in Notification Center.
+      expect(
+        (await controller.reminders.plugin.pendingNotificationRequests()).any(
+          (n) => n.id == 100000,
+        ),
+        false,
+      );
+    }
     await tester.pumpWidget(const MaterialApp(home: SizedBox()));
     await tester.pumpAndSettle();
     await controller.repository.db.close();
@@ -84,8 +116,24 @@ void main() {
     await tester.pumpWidget(app.HangeoreumApp(controller: restored));
     await tester.pumpAndSettle();
     expect(find.text('캘린더'), findsWidgets);
-    await binding.convertFlutterSurfaceToImage();
+    if (Platform.isAndroid) await binding.convertFlutterSurfaceToImage();
     await tester.pumpAndSettle();
     await binding.takeScreenshot('calendar');
-  });
+    if (Platform.isAndroid) {
+      // The host script replaces the test binary with the normal app, backgrounds
+      // it, kills its process and observes these OS-owned alarms. Force-stop is
+      // intentionally excluded because Android cancels alarms for stopped apps.
+      for (final probe in [(100001, 90), (100002, 240)]) {
+        await reminders.plugin.zonedSchedule(
+          id: probe.$1,
+          title: '한걸음 종료 상태 테스트 ${probe.$1}',
+          body: '네이티브 AlarmManager 검증',
+          scheduledDate: tz.TZDateTime.now(tz.local)
+              .add(Duration(seconds: probe.$2)),
+          notificationDetails: reminders.details(),
+          androidScheduleMode: await reminders.mode(),
+        );
+      }
+    }
+  }, timeout: const Timeout(Duration(minutes: 3)));
 }

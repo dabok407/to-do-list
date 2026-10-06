@@ -129,4 +129,163 @@ void main() {
     expect(stats['completed'], 1);
     expect(stats['total'], 1);
   });
+  test('요일 자유 주 2회 목표 달성 및 완료 해제는 남은 알림 후보를 복원', () async {
+    final monday = weekOf(DateTime.now());
+    await repository.saveTask(
+      Task(
+        id: 'goal',
+        title: '주 2회 운동',
+        due: DateTime(monday.year, monday.month, monday.day, 19),
+        created: DateTime.now(),
+        repeat: RepeatUnit.weeklyGoal,
+        countPerWeek: 2,
+      ),
+    );
+    final week = (await repository.occurrences())
+        .where((o) => weekOf(o.originalDue) == monday)
+        .toList();
+    await repository.act(week[0].id, 'complete');
+    await repository.act(week[1].id, 'complete');
+    final achieved = await repository.occurrences();
+    expect(achieved.where((o) => o.quotaSkipped).isNotEmpty, true);
+    expect(
+      achieved.where(
+        (o) =>
+            weekOf(o.originalDue) ==
+                DateTime(monday.year, monday.month, monday.day + 7) &&
+            o.active,
+      ),
+      isNotEmpty,
+    );
+    await repository.act(week[1].id, 'uncomplete');
+    final restored = await repository.occurrences();
+    expect(restored.where((o) => o.quotaSkipped), isEmpty);
+    expect(restored.singleWhere((o) => o.id == week[1].id).active, true);
+  });
+  test('사용자가 건너뛴 주간 목표 회차는 목표 해제 때 복원하지 않음', () async {
+    final today = dayOf(DateTime.now());
+    await repository.saveTask(
+      Task(
+        id: 'goal',
+        title: '운동',
+        due: today,
+        created: today,
+        repeat: RepeatUnit.weeklyGoal,
+      ),
+    );
+    final first = (await repository.occurrences()).first;
+    await repository.act(first.id, 'skip');
+    await repository.reconcileWeeklyGoals();
+    final skipped = (await repository.occurrences()).first;
+    expect(skipped.status, TaskStatus.skipped);
+    expect(skipped.quotaSkipped, false);
+  });
+  test('foreground/background 알림 예약 lease는 서로 덮어쓰지 않음', () async {
+    expect(await repository.acquireReminderLease('ui'), true);
+    expect(await repository.acquireReminderLease('background'), false);
+    await repository.releaseReminderLease('background');
+    expect(await repository.acquireReminderLease('background'), false);
+    await repository.releaseReminderLease('ui');
+    expect(await repository.acquireReminderLease('background'), true);
+  });
+  test('OS 반복 알림 payload는 현재 회차를 찾아 완료 기록을 남김', () async {
+    await repository.saveTask(make(repeat: RepeatUnit.daily));
+    final o = await repository.resolveNotification('repeat:t');
+    expect(o, isNotNull);
+    expect(dayOf(o!.originalDue), dayOf(DateTime.now()));
+    await repository.act(o.id, 'complete');
+    expect(
+      (await repository.occurrences())
+          .singleWhere((item) => item.id == o.id)
+          .status,
+      TaskStatus.completed,
+    );
+  });
+  test('미래 이번만 수정 후 그 이전에서 앞으로 수정하면 회차가 중복되지 않음', () async {
+    final anchor = dayOf(DateTime.now());
+    await repository.saveTask(
+      Task(
+        id: 'r',
+        title: '매일 청소',
+        due: DateTime(anchor.year, anchor.month, anchor.day, 19),
+        created: anchor,
+        repeat: RepeatUnit.daily,
+      ),
+    );
+    var all = await repository.occurrences();
+    final exception = all[5];
+    await repository.editOccurrence(
+      exception,
+      Task.fromMap({
+        ...exception.task.toMap(),
+        'due': exception.originalDue.toIso8601String(),
+        'title': '이번만 다른 청소',
+      }),
+      onlyThis: true,
+    );
+    all = await repository.occurrences();
+    final split = all.firstWhere(
+      (o) =>
+          dayOf(o.originalDue) ==
+          DateTime(anchor.year, anchor.month, anchor.day + 2),
+    );
+    await repository.editOccurrence(
+      split,
+      Task.fromMap({
+        ...split.task.toMap(),
+        'due': split.originalDue.toIso8601String(),
+        'title': '앞으로 새 청소',
+      }),
+      onlyThis: false,
+    );
+    await repository.materialize();
+    final day = (await repository.occurrences())
+        .where((o) => dayOf(o.originalDue) == dayOf(exception.originalDue))
+        .toList();
+    expect(day, hasLength(1));
+    expect(day.single.task.title, '앞으로 새 청소');
+  });
+  test('반복 이번 회차 삭제와 앞으로 삭제는 이전 기록을 유지', () async {
+    await repository.saveTask(make(repeat: RepeatUnit.daily));
+    final all = await repository.occurrences();
+    await repository.act(all.first.id, 'complete');
+    await repository.deleteOccurrence(all[1], scope: 'this');
+    await repository.materialize();
+    expect(
+      (await repository.occurrences()).any((o) => o.id == all[1].id),
+      false,
+    );
+    await repository.deleteOccurrence(all[3], scope: 'future');
+    await repository.materialize();
+    final retained = await repository.occurrences();
+    expect(
+      retained.singleWhere((o) => o.id == all.first.id).status,
+      TaskStatus.completed,
+    );
+    expect(
+      retained.any((o) => !o.originalDue.isBefore(all[3].originalDue)),
+      false,
+    );
+  });
+  test('장기 미래에 시작하는 반복도 예정 목록에 첫 회차를 표시', () async {
+    final now = DateTime.now();
+    final future = DateTime(now.year, now.month + 6, 15, 19);
+    await repository.saveTask(
+      Task(
+        id: 'future',
+        title: '6개월 뒤 반복',
+        due: future,
+        created: now,
+        repeat: RepeatUnit.daily,
+      ),
+    );
+    expect((await repository.occurrences()).single.originalDue, future);
+  });
+  test('지난 주간 알림을 다시 눌러도 완료한 최신 회차 대신 이전 회차를 변경하지 않음', () async {
+    await repository.saveTask(make(repeat: RepeatUnit.daily));
+    final today = (await repository.occurrences()).first;
+    await repository.act(today.id, 'complete');
+    final resolved = await repository.resolveNotification('repeat:t:0');
+    expect(resolved?.status, TaskStatus.completed);
+  });
 }

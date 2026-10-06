@@ -1,16 +1,30 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../data/task_repository.dart';
 import '../domain/task.dart';
 import '../services/reminder_scheduler.dart';
+import '../services/widget_service.dart';
 
 class TaskController extends ChangeNotifier {
   final TaskRepository repository;
   final ReminderScheduler reminders;
+  final WidgetService widgets;
   List<Occurrence> items = [];
   Map<String, Object> statistics = {};
   String? warning;
-  TaskController(this.repository, this.reminders);
+  String? pendingOpenId;
+  Future<void> _tail = Future.value();
+  Timer? _retryTimer;
+  TaskController(this.repository, this.reminders, {WidgetService? widgets})
+    : widgets = widgets ?? WidgetService();
+  Future<void> _serial(Future<void> Function() action) {
+    final current = _tail.then((_) => action());
+    _tail = current.catchError((Object _) {});
+    return current;
+  }
+
   Future<void> refresh({DateTime? through}) async {
     await repository.materialize(through: through);
     items = await repository.occurrences();
@@ -18,53 +32,117 @@ class TaskController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> reconcile() async {
+  Future<void> reconcile() => _serial(_reconcile);
+  Future<void> _reconcile() async {
     await refresh();
+    final owner = 'ui${DateTime.now().microsecondsSinceEpoch}';
+    var leased = await repository.acquireReminderLease(owner);
+    for (var attempt = 0; !leased && attempt < 15; attempt++) {
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+      leased = await repository.acquireReminderLease(owner);
+    }
     try {
-      await reminders.sync(items);
-      warning = null;
+      if (leased) {
+        _retryTimer?.cancel();
+        await refresh();
+        await reminders.sync(
+          items,
+          exceptions: await repository.notificationExceptions(),
+        );
+      }
+      if (!leased) {
+        _retryTimer?.cancel();
+        _retryTimer = Timer(const Duration(seconds: 2), () {
+          reconcile();
+        });
+      }
+      await widgets.sync(items);
+      final enabled = await reminders.enabled();
+      warning = enabled == false
+          ? '알림이 꺼져 있어요. 설정에서 알림을 켜면 예정된 시간에 알려드릴 수 있어요.'
+          : null;
     } catch (_) {
       warning = '일정은 저장했지만 알림을 예약하지 못했습니다. 설정에서 알림 권한을 확인해주세요.';
+    } finally {
+      if (leased) await repository.releaseReminderLease(owner);
     }
     notifyListeners();
   }
 
-  Future<void> save(Task task) async {
+  Future<void> save(Task task) => _serial(() async {
     await repository.saveTask(task);
     try {
       await reminders.requestPermissions();
     } catch (_) {
       /* Saving is independent of permission. */
     }
-    await reconcile();
-  }
+    await _reconcile();
+  });
 
   Future<void> editOccurrence(
     Occurrence original,
     Task task, {
     required bool onlyThis,
-  }) async {
+  }) => _serial(() async {
     await repository.editOccurrence(original, task, onlyThis: onlyThis);
-    await reconcile();
-  }
+    await _reconcile();
+  });
 
-  Future<void> delete(Task task) async {
+  Future<void> delete(Task task) => _serial(() async {
     await repository.deleteTask(task.id);
-    await reconcile();
-  }
+    await _reconcile();
+  });
 
-  Future<void> act(
-    Occurrence occurrence,
-    String action, {
-    int minutes = 10,
-  }) async {
-    await repository.act(occurrence.id, action, minutes: minutes);
-    await reconcile();
-  }
+  Future<void> deleteOccurrence(
+    Occurrence occurrence, {
+    required String scope,
+  }) => _serial(() async {
+    await repository.deleteOccurrence(occurrence, scope: scope);
+    await _reconcile();
+  });
+
+  Future<void> act(Occurrence occurrence, String action, {int minutes = 10}) =>
+      _serial(() async {
+        await repository.act(occurrence.id, action, minutes: minutes);
+        await _reconcile();
+      });
+
+  Future<void> handleNotification(String payload, String action) =>
+      _serial(() async {
+        final occurrence = await repository.resolveNotification(payload);
+        if (occurrence == null || !occurrence.active) return;
+        if (action == 'open') {
+          pendingOpenId = occurrence.id;
+        } else {
+          await repository.act(occurrence.id, action);
+        }
+        await _reconcile();
+      });
+
+  Future<void> handleWidgetLaunch(String uri) => _serial(() async {
+    final launch = WidgetService.parseLaunch(uri);
+    if (launch == null) return;
+    final occurrence = (await repository.occurrences())
+        .where((o) => o.id == launch.id)
+        .firstOrNull;
+    if (occurrence == null) return;
+    if (launch.action != 'open' && occurrence.active) {
+      await repository.act(occurrence.id, launch.action);
+    }
+    pendingOpenId = occurrence.id;
+    await _reconcile();
+  });
 
   List<Occurrence> get queue {
     final now = DateTime.now();
-    final result = items.where((o) => o.active).toList();
+    final result = items
+        .where(
+          (o) =>
+              o.active &&
+              !(o.task.repeat == RepeatUnit.weeklyGoal &&
+                  dayOf(o.originalDue).isBefore(dayOf(now))),
+        )
+        .toList();
     int rank(Occurrence o) => o.status == TaskStatus.progressing
         ? 0
         : o.reminder.isBefore(now)
@@ -80,5 +158,11 @@ class TaskController extends ChangeNotifier {
       return time == 0 ? b.task.priority.compareTo(a.task.priority) : time;
     });
     return result;
+  }
+
+  @override
+  void dispose() {
+    _retryTimer?.cancel();
+    super.dispose();
   }
 }

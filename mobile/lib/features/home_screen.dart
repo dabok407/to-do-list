@@ -21,16 +21,35 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       month = DateTime(DateTime.now().year, DateTime.now().month);
   int page = 0, summary = 0;
   bool week = false, busy = false;
+  bool detailVisible = false;
   TaskController get c => widget.controller;
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     c.addListener(changed);
+    WidgetsBinding.instance.addPostFrameCallback((_) => openRequestedTask());
   }
 
   void changed() {
     if (mounted) setState(() {});
+    if (mounted && c.pendingOpenId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => openRequestedTask());
+    }
+  }
+
+  void openRequestedTask() {
+    if (!mounted || detailVisible || c.pendingOpenId == null) return;
+    final id = c.pendingOpenId;
+    c.pendingOpenId = null;
+    final occurrence = c.items.where((o) => o.id == id).firstOrNull;
+    if (occurrence == null) return;
+    setState(() {
+      page = 0;
+      selected = dayOf(occurrence.originalDue);
+      month = DateTime(selected.year, selected.month);
+    });
+    detail(occurrence);
   }
 
   @override
@@ -131,6 +150,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   Future<void> detail(Occurrence original) async {
+    if (detailVisible) return;
+    detailVisible = true;
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -295,6 +316,20 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       onPressed: () => run(() => c.act(o, 'uncomplete')),
                       child: const Text('완료 해제'),
                     ),
+                  if (o.status == TaskStatus.skipped && !o.quotaSkipped)
+                    OutlinedButton(
+                      onPressed: () => run(() => c.act(o, 'unskip')),
+                      child: const Text('다시 할 일로'),
+                    ),
+                  if (o.task.repeat == RepeatUnit.weeklyGoal)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: Text(
+                        o.quotaSkipped
+                            ? '이번 주 목표를 채웠어요. 다음 주에 다시 시작해요.'
+                            : '요일 자유 · 주 ${o.task.countPerWeek}회 목표',
+                      ),
+                    ),
                   const SizedBox(height: 24),
                   const Divider(),
                   const SizedBox(height: 16),
@@ -311,25 +346,44 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       const Spacer(),
                       TextButton.icon(
                         onPressed: () async {
-                          final confirmed = await showDialog<bool>(
+                          final scope = await showDialog<String>(
                             context: ctx,
                             builder: (d) => AlertDialog(
                               title: const Text('할 일을 삭제할까요?'),
-                              content: const Text('이 할 일의 반복 일정과 기록도 삭제됩니다.'),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Text('선택한 범위의 일정과 기록이 삭제됩니다.'),
+                                  const SizedBox(height: 12),
+                                  ListTile(
+                                    title: const Text('이번 일정만 삭제'),
+                                    onTap: () => Navigator.pop(d, 'this'),
+                                  ),
+                                  if (o.task.repeat != RepeatUnit.none ||
+                                      o.task.derived) ...[
+                                    ListTile(
+                                      title: const Text('이번부터 앞으로 삭제'),
+                                      onTap: () => Navigator.pop(d, 'future'),
+                                    ),
+                                    ListTile(
+                                      title: const Text('전체 반복과 기록 삭제'),
+                                      onTap: () => Navigator.pop(d, 'series'),
+                                    ),
+                                  ],
+                                ],
+                              ),
                               actions: [
                                 TextButton(
-                                  onPressed: () => Navigator.pop(d, false),
+                                  onPressed: () => Navigator.pop(d),
                                   child: const Text('취소'),
-                                ),
-                                TextButton(
-                                  onPressed: () => Navigator.pop(d, true),
-                                  child: const Text('삭제'),
                                 ),
                               ],
                             ),
                           );
-                          if (confirmed == true) {
-                            await run(() => c.delete(o.task));
+                          if (scope != null) {
+                            await run(
+                              () => c.deleteOccurrence(o, scope: scope),
+                            );
                             if (ctx.mounted) Navigator.pop(ctx);
                           }
                         },
@@ -345,6 +399,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         },
       ),
     );
+    detailVisible = false;
+    openRequestedTask();
   }
 
   Widget row(Occurrence o) => ListTile(
@@ -385,7 +441,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         children: [
           if (o.task.priority == 2)
             const Text('● 높음', style: TextStyle(color: priorityRed)),
-          Text(stateNames[o.status.index]),
+          Text(o.quotaSkipped ? '이번 주 목표 달성' : stateNames[o.status.index]),
           if (page != 0) Text('· ${dayKey(o.originalDue)}'),
           if (o.task.repeat != RepeatUnit.none) const Text('· 반복'),
           if (o.status == TaskStatus.paused)
@@ -397,10 +453,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     onTap: () => detail(o),
   );
   Widget calendar() {
-    final first = week
-        ? selected.subtract(Duration(days: selected.weekday - 1))
-        : DateTime(month.year, month.month);
-    final start = first.subtract(Duration(days: first.weekday - 1));
+    final daySize = 26.0 * (MediaQuery.textScalerOf(context).scale(13) / 13).clamp(1.0, 1.6);
+    final first = week ? weekOf(selected) : DateTime(month.year, month.month);
+    final start = weekOf(first);
     final count = week
         ? 7
         : ((first.weekday - 1 + DateTime(month.year, month.month + 1, 0).day) /
@@ -487,8 +542,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
-                          width: 26,
-                          height: 26,
+                          width: daySize,
+                          height: daySize,
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
                             color: d == now ? const Color(0xff3569ed) : null,

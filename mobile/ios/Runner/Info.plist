@@ -26,6 +26,17 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>FlutterDeepLinkingEnabled</key>
+	<false/>
+	<key>UIBackgroundModes</key>
+	<array><string>fetch</string></array>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array><string>com.dabok407.hangeoreum.refresh</string></array>
+	<key>CFBundleURLTypes</key>
+	<array><dict>
+		<key>CFBundleURLName</key><string>com.dabok407.hangeoreum.widget</string>
+		<key>CFBundleURLSchemes</key><array><string>hangeoreum</string></array>
+	</dict></array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
