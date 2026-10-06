@@ -76,3 +76,7 @@ npm test
 
 다음 순서: UI 사용자 테스트 → occurrence 기반 DB 정리 → Flutter 앱 구현 → iOS 로컬 알림 실기기 검증 → WidgetKit / Android AppWidget → TestFlight / Play 내부 테스트.
 
+
+## 출시 목표
+
+iOS·Android 동시 개발 및 App Store·Google Play 동시 제출을 목표로 합니다. 공유 모바일 앱과 로컬 DB를 구현하고, 양쪽 플랫폼의 알림·위젯을 실기기로 검증한 뒤 TestFlight와 Play 내부 테스트를 병행합니다. 현재 저장소는 웹 프로토타입이며 네이티브 앱은 아직 구현하지 않았습니다. 높은 우선순위는 다크 레드(#8f303a), 주요 동작은 파란색으로 구분합니다.

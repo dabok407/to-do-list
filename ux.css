@@ -24,3 +24,9 @@ dialog>.actions:last-child{margin-top:28px;padding-top:20px;border-top:1px solid
 @media(max-width:380px){.fields .row{grid-template-columns:minmax(0,1fr)}.scope-options{flex-wrap:wrap}.scope-options label{min-height:32px}.calendar-controls{gap:0}.summary p{white-space:normal}.action-controls{max-width:105px}}
 @media(min-width:381px){#repeat-options>.row:first-child{grid-template-columns:minmax(65px,.65fr) minmax(0,1.35fr)}.fields>.row{grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr)}}
 .cal-event.important{color:#8f303a;background:#f8ecee}.cal-event.important i,.calendar-legend i.important,.dots i.important,.widget-row i.important,.priority-dot{background:#8f303a}.cal-event.completed.important{color:#adb5c0;background:#f3f5f6}.cal-event.completed.important i,.dots i.completed.important{background:#b6bfc9}
+
+/* Shared high-priority accent across calendar, list and widget previews. */
+.cal-event.important{color:#8f303a;background:#f8ecee}
+.cal-event.important i,.calendar-legend i.important,.dots i.important,.widget-row i.important,.priority-dot{background:#8f303a}
+.cal-event.completed.important{color:#adb5c0;background:#f3f5f6}
+.cal-event.completed.important i,.dots i.completed.important{background:#b6bfc9}
