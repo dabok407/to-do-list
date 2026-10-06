@@ -1,0 +1,14 @@
+const assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs');
+const c=vm.createContext({});vm.runInContext(fs.readFileSync('recurrence.js','utf8'),c);
+const next=(task,after)=>{c.task=task;c.after=after;return vm.runInContext('followingDue(task,after)',c)};
+assert.equal(next({repeat:'monthly',anchor:'2026-01-31T09:00',every:1},'2026-01-31T09:00'),'2026-02-28T09:00');
+assert.equal(next({repeat:'monthly',anchor:'2026-01-31T09:00'},'2026-02-28T09:00'),'2026-03-31T09:00');
+assert.equal(next({repeat:'monthly',anchor:'2028-01-31T09:00'},'2028-01-31T09:00'),'2028-02-29T09:00');
+assert.equal(next({repeat:'monthlyWeek',anchor:'2026-10-01T09:00',monthNth:-1,monthWeekday:5},'2026-10-01T09:00'),'2026-10-30T09:00');
+assert.equal(next({repeat:'monthlyWeek',anchor:'2026-10-01T09:00',monthNth:2,monthWeekday:6},'2026-10-01T09:00'),'2026-10-10T09:00');
+assert.equal(next({repeat:'days',anchor:'2026-10-05T18:00',days:[1,4],every:2},'2026-10-08T18:00'),'2026-10-19T18:00');
+assert.equal(next({repeat:'daily',anchor:'2026-10-01T08:00',every:3},'2026-10-01T08:00'),'2026-10-04T08:00');
+assert.equal(next({repeat:'weekly',anchor:'2026-10-10T10:00',endDate:'2026-10-16'},'2026-10-10T10:00'),null);
+assert.equal(next({repeat:'weekly',anchor:'2026-10-10T10:00',endDate:'2026-10-17'},'2026-10-10T10:00'),'2026-10-17T10:00');
+assert.equal(next({repeat:'monthly',anchor:'2026-12-31T23:00',every:2},'2026-12-31T23:00'),'2027-02-28T23:00');
+console.log('PASS: month-end, leap year, monthly weekday, biweekly weekdays, daily interval, inclusive end date, year rollover');

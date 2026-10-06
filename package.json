@@ -1,0 +1,2 @@
+{"name":"hangeoreum-prototype","private":true,"version":"0.1.0","scripts":{"start":"node server.cjs","build":"node build.cjs","check":"node --check app.js","test":"node verify.cjs && node recurrence.test.cjs"}}
+
