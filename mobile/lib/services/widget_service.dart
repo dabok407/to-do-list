@@ -73,11 +73,11 @@ class WidgetService {
     if (defaultTargetPlatform == TargetPlatform.android) {
       final preferences = await SharedPreferences.getInstance();
       await preferences.setString(
-      'widget_snapshot',
-      jsonEncode({
-        'updatedAt': DateTime.now().millisecondsSinceEpoch,
-        'tasks': snapshot,
-      }),
+        'widget_snapshot',
+        jsonEncode({
+          'updatedAt': DateTime.now().millisecondsSinceEpoch,
+          'tasks': snapshot,
+        }),
       );
     }
     try {

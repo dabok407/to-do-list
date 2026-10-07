@@ -10,14 +10,12 @@ import 'package:hangeoreum/app/task_controller.dart';
 import 'package:hangeoreum/services/reminder_scheduler.dart';
 import 'package:timezone/timezone.dart' as tz;
 
+import 'bootstrap.dart';
+
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   testWidgets('실제 기기 CRUD·알림 예약·완료 해제·DB 재연결', (tester) async {
-    await app.main();
-    await tester.pumpAndSettle();
-    final controller = tester
-        .widget<app.HangeoreumApp>(find.byType(app.HangeoreumApp))
-        .controller;
+    final controller = await launchApplication(tester);
     await tester.tap(find.byTooltip('할 일 추가'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).first, '안방 대청소 통합 테스트');

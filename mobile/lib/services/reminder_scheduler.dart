@@ -90,6 +90,10 @@ class ReminderScheduler {
         ?.requestExactAlarmsPermission();
   }
 
+  Future<void> openSettings() async {
+    await plugin.openAppNotificationSettings();
+  }
+
   Future<AndroidScheduleMode> mode() async {
     final exact = await plugin
         .resolvePlatformSpecificImplementation<

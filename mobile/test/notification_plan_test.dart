@@ -128,16 +128,56 @@ void main() {
   });
   test('지난 알림은 완료한 오늘 회차 대신 어제의 미완료 회차를 선택하지 않음', () {
     final t = task();
-    final yesterday = DateTime(2026, 10, 5, 19), today = DateTime(2026, 10, 6, 19);
-    final rows = [Occurrence(id: 'yesterday', task: t, originalDue: yesterday, reminder: yesterday), Occurrence(id: 'today', task: t, originalDue: today, reminder: today, status: TaskStatus.completed)];
-    expect(resolveReminderPayload(rows, 'repeat:t:0', DateTime(2026, 10, 6, 20))?.id, 'today');
-    expect(resolveReminderPayload(rows, 'repeat:t:0', DateTime(2026, 10, 6, 20))?.active, false);
+    final yesterday = DateTime(2026, 10, 5, 19),
+        today = DateTime(2026, 10, 6, 19);
+    final rows = [
+      Occurrence(
+        id: 'yesterday',
+        task: t,
+        originalDue: yesterday,
+        reminder: yesterday,
+      ),
+      Occurrence(
+        id: 'today',
+        task: t,
+        originalDue: today,
+        reminder: today,
+        status: TaskStatus.completed,
+      ),
+    ];
+    expect(
+      resolveReminderPayload(rows, 'repeat:t:0', DateTime(2026, 10, 6, 20))?.id,
+      'today',
+    );
+    expect(
+      resolveReminderPayload(
+        rows,
+        'repeat:t:0',
+        DateTime(2026, 10, 6, 20),
+      )?.active,
+      false,
+    );
   });
   test('요일마다 남은 주간 알림은 자기 요일 회차에 적용', () {
     final t = task(repeat: RepeatUnit.weekly);
-    final tuesday = DateTime(2026, 10, 6, 19), friday = DateTime(2026, 10, 9, 19);
-    final rows = [Occurrence(id: 'tuesday', task: t, originalDue: tuesday, reminder: tuesday), Occurrence(id: 'friday', task: t, originalDue: friday, reminder: friday)];
-    expect(resolveReminderPayload(rows, 'repeat:t:2', DateTime(2026, 10, 9, 20))?.id, 'tuesday');
-    expect(resolveReminderPayload(rows, 'repeat:t:5', DateTime(2026, 10, 9, 20))?.id, 'friday');
+    final tuesday = DateTime(2026, 10, 6, 19),
+        friday = DateTime(2026, 10, 9, 19);
+    final rows = [
+      Occurrence(
+        id: 'tuesday',
+        task: t,
+        originalDue: tuesday,
+        reminder: tuesday,
+      ),
+      Occurrence(id: 'friday', task: t, originalDue: friday, reminder: friday),
+    ];
+    expect(
+      resolveReminderPayload(rows, 'repeat:t:2', DateTime(2026, 10, 9, 20))?.id,
+      'tuesday',
+    );
+    expect(
+      resolveReminderPayload(rows, 'repeat:t:5', DateTime(2026, 10, 9, 20))?.id,
+      'friday',
+    );
   });
 }

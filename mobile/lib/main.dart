@@ -36,7 +36,11 @@ Future<void> main() async {
     } catch (_) {
       /* OS scheduling budgets do not block local CRUD. */
     }
-  } catch (_) {
+  } catch (error, stack) {
+    assert(() {
+      debugPrint('App initialization failed: $error\n$stack');
+      return true;
+    }());
     runApp(
       const MaterialApp(
         home: Scaffold(

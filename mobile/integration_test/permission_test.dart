@@ -3,17 +3,14 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:hangeoreum/main.dart' as app;
 import 'package:hangeoreum/domain/task.dart';
+
+import 'bootstrap.dart';
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   testWidgets('OS 알림 권한을 거부해도 저장·완료·해제·삭제가 동작한다', (tester) async {
-    await app.main();
-    await tester.pumpAndSettle();
-    final controller = tester
-        .widget<app.HangeoreumApp>(find.byType(app.HangeoreumApp))
-        .controller;
+    final controller = await launchApplication(tester);
     expect(await controller.reminders.enabled(), false);
     for (final task in controller.items.map((o) => o.task).toList()) {
       await controller.delete(task);

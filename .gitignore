@@ -9,5 +9,6 @@ mobile/build/
 mobile/.flutter-plugins-dependencies
 mobile/android/local.properties
 mobile/android/key.properties
+mobile/android/.kotlin/
 *.jks
 *.keystore

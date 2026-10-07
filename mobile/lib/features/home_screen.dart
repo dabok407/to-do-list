@@ -453,7 +453,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     onTap: () => detail(o),
   );
   Widget calendar() {
-    final daySize = 26.0 * (MediaQuery.textScalerOf(context).scale(13) / 13).clamp(1.0, 1.6);
+    final daySize =
+        26.0 *
+        (MediaQuery.textScalerOf(context).scale(13) / 13).clamp(1.0, 1.6);
     final first = week ? weekOf(selected) : DateTime(month.year, month.month);
     final start = weekOf(first);
     final count = week
@@ -787,6 +789,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         },
         icon: const Icon(Icons.notifications_outlined),
         label: const Text('알림 권한 설정'),
+      ),
+      const SizedBox(height: 12),
+      OutlinedButton(
+        onPressed: () => run(c.reminders.openSettings),
+        child: const Text('기기 알림 설정 열기'),
       ),
       const SizedBox(height: 12),
       OutlinedButton(

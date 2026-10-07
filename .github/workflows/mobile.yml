@@ -97,6 +97,7 @@ jobs:
       - name: Configure simulator notification permission
         run: |
           brew tap wix/brew
+          brew trust --formula wix/brew/applesimutils
           brew install applesimutils
           applesimutils --byId "$SIMULATOR_ID" --bundle com.dabok407.hangeoreum --setPermissions notifications=YES
       - name: iPhone runtime integration
