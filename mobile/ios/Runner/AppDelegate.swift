@@ -13,13 +13,20 @@ import workmanager_apple
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    WorkmanagerPlugin.registerLaunchHandlers()
     WorkmanagerPlugin.setPluginRegistrantCallback { registry in
       GeneratedPluginRegistrant.register(with: registry)
       if let registrar = registry.registrar(forPlugin: "HangeoreumWidgetSnapshot") {
         BackgroundWidgetSnapshotPlugin.register(with: registrar)
       }
     }
+    // Register the known refresh handler before UIKit finishes launching. The
+    // first Dart submission must already have a native handler, not only the
+    // handlers restored from a previous launch's persisted task registrations.
+    WorkmanagerPlugin.registerPeriodicTask(
+      withIdentifier: "com.dabok407.hangeoreum.refresh",
+      earliestBeginInSeconds: NSNumber(value: 6 * 60 * 60)
+    )
+    WorkmanagerPlugin.registerLaunchHandlers()
     UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
     if var documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
       var values = URLResourceValues()

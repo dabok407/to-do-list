@@ -13,6 +13,7 @@ for ((attempt=0; attempt<60; attempt++)); do
 done
 adb logcat -d > "$results/android-probe-bootstrap.log"
 grep -q 'NATIVE_LIFECYCLE_PROBES_READY' "$results/android-probe-bootstrap.log"
+adb shell dumpsys alarm > "$results/android-probes-scheduled.txt"
 stop_app_process() {
   adb shell input keyevent KEYCODE_HOME
   sleep 2
@@ -30,6 +31,7 @@ stop_app_process() {
   fi
 }
 stop_app_process
+adb shell dumpsys alarm > "$results/android-probes-after-eviction.txt"
 
 wait_for_notification() {
   local id="$1" attempts="$2"
@@ -45,7 +47,7 @@ wait_for_notification() {
   exit 1
 }
 
-# 100001 is scheduled for +90 seconds by Flutter, 100002 for +240 seconds.
+# The debug entry point schedules +90/+240 second probes after driver cleanup.
 wait_for_notification 100001 60
 adb exec-out screencap -p > "$results/android-background-notification.png"
 adb reboot
@@ -122,4 +124,30 @@ PY
 adb exec-out screencap -p > "$results/android-widget-start.png"
 adb shell dumpsys alarm > "$results/android-alarm-manager.txt"
 adb shell dumpsys jobscheduler > "$results/android-background-jobs.txt"
+
+# Exercise the real Workmanager headless engine without waiting six hours. This
+# activity/entry point exists only in debug builds and schedules the same worker.
+read_database
+previous_refresh=$(python3 - "$results/hangeoreum.db" <<'PY'
+import sqlite3,sys
+row=sqlite3.connect(sys.argv[1]).execute("select value from settings where key='last_background_refresh'").fetchone()
+print(row[0] if row else '')
+PY
+)
+adb logcat -c
+adb shell am start -W -n "$package/.NativeBackgroundTestActivity"
+background_ok=0
+for ((attempt=0; attempt<30; attempt++)); do
+  read_database
+  if python3 - "$results/hangeoreum.db" "$previous_refresh" <<'PY'
+import sqlite3,sys
+row=sqlite3.connect(sys.argv[1]).execute("select value from settings where key='last_background_refresh'").fetchone()
+sys.exit(0 if row and row[0] != sys.argv[2] else 1)
+PY
+  then background_ok=1; break; fi
+  sleep 2
+done
+adb logcat -d > "$results/android-headless-refresh.log"
+test "$background_ok" = 1
+echo 'ANDROID_HEADLESS_REFRESH_OK'
 

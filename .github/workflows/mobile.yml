@@ -105,6 +105,7 @@ jobs:
       - name: iPhone runtime integration
         timeout-minutes: 10
         run: |
+          set -o pipefail
           mkdir -p build/integration_test
           flutter drive --verbose -d "$SIMULATOR_ID" --driver=test_driver/integration_test.dart --target=integration_test/app_test.dart 2>&1 | tee build/integration_test/ios-driver.log
       - name: Restore production Flutter entry point before native XCTest

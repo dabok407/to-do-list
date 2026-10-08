@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:timezone/timezone.dart' as tz;
+import 'package:workmanager/workmanager.dart';
 
 import 'app/task_controller.dart';
 import 'data/task_repository.dart';
@@ -55,12 +56,17 @@ Future<void> main() async {
   }
 }
 
-// Invoked only by the debug-only native lifecycle harness after flutter drive
-// force-stops its own process. Store builds have no activity exposing this entry.
+// Debug-only harness for the production scheduler after driver force-stop. It
+// omits HomeScreen's resume reconciliation so synthetic probes stay scheduled.
 @pragma('vm:entry-point')
 Future<void> nativeLifecycleProbe() async {
   if (!kDebugMode) return;
-  await main();
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(
+    const MaterialApp(
+      home: Scaffold(body: Center(child: Text('알림 종료 상태 검증'))),
+    ),
+  );
   final scheduler = ReminderScheduler();
   await scheduler.initialize();
   for (final probe in [(100001, 90), (100002, 240)]) {
@@ -75,6 +81,23 @@ Future<void> nativeLifecycleProbe() async {
     );
   }
   debugPrint('NATIVE_LIFECYCLE_PROBES_READY');
+}
+
+@pragma('vm:entry-point')
+Future<void> nativeBackgroundProbe() async {
+  if (!kDebugMode) return;
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(
+    const MaterialApp(
+      home: Scaffold(body: Center(child: Text('백그라운드 갱신 검증'))),
+    ),
+  );
+  await BackgroundRefresh.register();
+  await Workmanager().registerOneOffTask(
+    '$refreshTask.verification',
+    refreshTask,
+  );
+  debugPrint('NATIVE_BACKGROUND_PROBE_REGISTERED');
 }
 
 class HangeoreumApp extends StatelessWidget {

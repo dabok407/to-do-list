@@ -8,7 +8,6 @@ import 'package:hangeoreum/domain/task.dart';
 import 'package:hangeoreum/data/task_repository.dart';
 import 'package:hangeoreum/app/task_controller.dart';
 import 'package:hangeoreum/services/reminder_scheduler.dart';
-import 'package:timezone/timezone.dart' as tz;
 
 import 'bootstrap.dart';
 
@@ -117,21 +116,5 @@ void main() {
     if (Platform.isAndroid) await binding.convertFlutterSurfaceToImage();
     await tester.pumpAndSettle();
     await binding.takeScreenshot('calendar');
-    if (Platform.isAndroid) {
-      // The host script replaces the test binary with the normal app, backgrounds
-      // it, kills its process and observes these OS-owned alarms. Force-stop is
-      // intentionally excluded because Android cancels alarms for stopped apps.
-      for (final probe in [(100001, 90), (100002, 240)]) {
-        await reminders.plugin.zonedSchedule(
-          id: probe.$1,
-          title: '한걸음 종료 상태 테스트 ${probe.$1}',
-          body: '네이티브 AlarmManager 검증',
-          scheduledDate: tz.TZDateTime.now(tz.local)
-              .add(Duration(seconds: probe.$2)),
-          notificationDetails: reminders.details(),
-          androidScheduleMode: await reminders.mode(),
-        );
-      }
-    }
   }, timeout: const Timeout(Duration(minutes: 3)));
 }

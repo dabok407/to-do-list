@@ -6,3 +6,7 @@ import io.flutter.embedding.android.FlutterActivity
 class NativeLifecycleTestActivity : FlutterActivity() {
     override fun getDartEntrypointFunctionName(): String = "nativeLifecycleProbe"
 }
+
+class NativeBackgroundTestActivity : FlutterActivity() {
+    override fun getDartEntrypointFunctionName(): String = "nativeBackgroundProbe"
+}
