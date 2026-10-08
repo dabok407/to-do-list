@@ -8,13 +8,19 @@ import '../domain/task.dart';
 import 'notification_plan.dart';
 
 class ReminderScheduler {
+  // Foundation can return GMT rather than an IANA region on iOS simulators
+  // and devices configured to a zero-offset time zone.
+  static tz.Location resolveTimeZone(String identifier) =>
+      identifier == 'GMT' || identifier == 'UTC'
+      ? tz.UTC
+      : tz.getLocation(identifier);
   final plugin = FlutterLocalNotificationsPlugin();
   Future<void> Function(String id, String action)? onAction;
   NotificationPlan? lastPlan;
   Future<void> initialize() async {
     tzdata.initializeTimeZones();
     final zone = await FlutterTimezone.getLocalTimezone();
-    tz.setLocalLocation(tz.getLocation(zone.identifier));
+    tz.setLocalLocation(resolveTimeZone(zone.identifier));
     await plugin.initialize(
       settings: InitializationSettings(
         android: const AndroidInitializationSettings('ic_notification'),
@@ -161,7 +167,7 @@ class ReminderScheduler {
     Map<String, List<DateTime>> exceptions = const {},
   }) async {
     final zone = await FlutterTimezone.getLocalTimezone();
-    tz.setLocalLocation(tz.getLocation(zone.identifier));
+    tz.setLocalLocation(resolveTimeZone(zone.identifier));
     final now = DateTime.now(), scheduleMode = await mode();
     lastPlan = NotificationPlan.build(
       items,

@@ -69,10 +69,14 @@ adb shell appwidget grantbind --package "$package" --user 0
 for height in 130 220 330; do
   adb logcat -c
   adb shell am start -W -n "$package/.WidgetTestActivity" --ei widgetHeight "$height" --ei widgetWidth 330 --es expectedTitle "'안방 대청소 통합 테스트'"
-  sleep 3
-  adb logcat -d -s HangeoreumWidgetTest:I > "$results/widget-$height.log"
-  grep -q "WIDGET_RENDER_OK:330x$height" "$results/widget-$height.log"
+  for ((attempt=0; attempt<20; attempt++)); do
+    adb logcat -d > "$results/widget-$height.log"
+    if grep -q "WIDGET_RENDER_OK:330x$height" "$results/widget-$height.log"; then break; fi
+    if grep -q 'FATAL EXCEPTION' "$results/widget-$height.log"; then break; fi
+    sleep 1
+  done
   adb exec-out screencap -p > "$results/android-widget-$height.png"
+  grep -q "WIDGET_RENDER_OK:330x$height" "$results/widget-$height.log"
 done
 
 read_database() {
