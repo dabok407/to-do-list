@@ -5,6 +5,14 @@ package=com.dabok407.hangeoreum
 results=build/integration_test
 mkdir -p "$results"
 adb install -r build/native-debug.apk
+adb logcat -c
+adb shell am start -W -n "$package/.NativeLifecycleTestActivity"
+for ((attempt=0; attempt<60; attempt++)); do
+  if adb logcat -d | grep -q 'NATIVE_LIFECYCLE_PROBES_READY'; then break; fi
+  sleep 1
+done
+adb logcat -d > "$results/android-probe-bootstrap.log"
+grep -q 'NATIVE_LIFECYCLE_PROBES_READY' "$results/android-probe-bootstrap.log"
 adb shell input keyevent KEYCODE_HOME
 adb shell am kill "$package"
 sleep 2

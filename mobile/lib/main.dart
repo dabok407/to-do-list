@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 import 'app/task_controller.dart';
 import 'data/task_repository.dart';
@@ -51,6 +53,28 @@ Future<void> main() async {
       ),
     );
   }
+}
+
+// Invoked only by the debug-only native lifecycle harness after flutter drive
+// force-stops its own process. Store builds have no activity exposing this entry.
+@pragma('vm:entry-point')
+Future<void> nativeLifecycleProbe() async {
+  if (!kDebugMode) return;
+  await main();
+  final scheduler = ReminderScheduler();
+  await scheduler.initialize();
+  for (final probe in [(100001, 90), (100002, 240)]) {
+    await scheduler.plugin.zonedSchedule(
+      id: probe.$1,
+      title: '한걸음 종료 상태 테스트 ${probe.$1}',
+      body: '네이티브 AlarmManager 검증',
+      scheduledDate: tz.TZDateTime.now(tz.local)
+          .add(Duration(seconds: probe.$2)),
+      notificationDetails: scheduler.details(),
+      androidScheduleMode: await scheduler.mode(),
+    );
+  }
+  debugPrint('NATIVE_LIFECYCLE_PROBES_READY');
 }
 
 class HangeoreumApp extends StatelessWidget {

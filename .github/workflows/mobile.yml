@@ -70,7 +70,7 @@ jobs:
             mobile/build/native-debug.apk
             mobile/build/app/outputs/bundle/release/*.aab
   ios:
-    runs-on: macos-26
+    runs-on: macos-15
     timeout-minutes: 45
     defaults:
       run:
@@ -102,7 +102,9 @@ jobs:
           applesimutils --byId "$SIMULATOR_ID" --bundle com.dabok407.hangeoreum --setPermissions notifications=YES
       - name: iPhone runtime integration
         timeout-minutes: 10
-        run: flutter drive -d "$SIMULATOR_ID" --driver=test_driver/integration_test.dart --target=integration_test/app_test.dart
+        run: |
+          mkdir -p build/integration_test
+          flutter drive --verbose -d "$SIMULATOR_ID" --driver=test_driver/integration_test.dart --target=integration_test/app_test.dart 2>&1 | tee build/integration_test/ios-driver.log
       - name: Restore production Flutter entry point before native XCTest
         run: flutter build ios --simulator --debug
       - name: Native WidgetKit tests and view rendering
