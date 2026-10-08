@@ -13,13 +13,23 @@ for ((attempt=0; attempt<60; attempt++)); do
 done
 adb logcat -d > "$results/android-probe-bootstrap.log"
 grep -q 'NATIVE_LIFECYCLE_PROBES_READY' "$results/android-probe-bootstrap.log"
-adb shell input keyevent KEYCODE_HOME
-adb shell am kill "$package"
-sleep 2
-if adb shell pidof "$package" | grep -q '[0-9]'; then
-  echo 'The app process is still running; background alarm check would be invalid.' >&2
-  exit 1
-fi
+stop_app_process() {
+  adb shell input keyevent KEYCODE_HOME
+  sleep 2
+  adb shell am kill "$package"
+  # am kill may retain a recently visible process. SIGKILL under the debug app's
+  # own UID models OS eviction and preserves alarms, unlike am force-stop.
+  for pid in $(adb shell pidof "$package" | tr -d '\r'); do
+    [[ "$pid" =~ ^[0-9]+$ ]] || exit 1
+    adb shell run-as "$package" kill -9 "$pid"
+  done
+  sleep 1
+  if adb shell pidof "$package" | grep -q '[0-9]'; then
+    echo 'The app process survived eviction; background check is invalid.' >&2
+    exit 1
+  fi
+}
+stop_app_process
 
 wait_for_notification() {
   local id="$1" attempts="$2"
@@ -100,8 +110,7 @@ assert row, 'The saved paused occurrence did not survive process replacement/reb
 print('hangeoreum://task?'+urllib.parse.urlencode({'id':row[0],'action':'start'}))
 PY
 )
-adb shell input keyevent KEYCODE_HOME
-adb shell am kill "$package"
+stop_app_process
 adb shell am start -W -a android.intent.action.VIEW -d "'$uri'" "$package"
 sleep 5
 read_database
