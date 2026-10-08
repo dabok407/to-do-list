@@ -62,8 +62,9 @@ class TaskController extends ChangeNotifier {
           ? '알림이 꺼져 있어요. 설정에서 알림을 켜면 예정된 시간에 알려드릴 수 있어요.'
           : null;
     } catch (error, stack) {
-      if (kDebugMode)
+      if (kDebugMode) {
         debugPrint('Reminder reconciliation failed: $error\n$stack');
+      }
       warning = '일정은 저장했지만 알림을 예약하지 못했습니다. 설정에서 알림 권한을 확인해주세요.';
     } finally {
       if (leased) await repository.releaseReminderLease(owner);
