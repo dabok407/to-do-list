@@ -5,6 +5,8 @@ package=com.dabok407.hangeoreum
 results=build/integration_test
 mkdir -p "$results"
 adb install -r build/native-debug.apk
+adb shell pm grant "$package" android.permission.POST_NOTIFICATIONS
+adb shell appops set "$package" SCHEDULE_EXACT_ALARM allow
 adb logcat -c
 adb shell am start -W -n "$package/.NativeLifecycleTestActivity"
 for ((attempt=0; attempt<60; attempt++)); do

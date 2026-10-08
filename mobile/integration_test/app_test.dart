@@ -42,11 +42,15 @@ void main() {
     await tester.pumpAndSettle();
     final occurrence = controller.items.single;
     expect(occurrence.task.title, '안방 대청소 통합 테스트');
+    final pending = await controller.reminders.plugin
+        .pendingNotificationRequests();
     expect(
-      (await controller.reminders.plugin.pendingNotificationRequests()).any(
-        (n) => n.payload == occurrence.id,
-      ),
+      pending.any((n) => n.payload == occurrence.id),
       true,
+      reason:
+          'warning=${controller.warning}; enabled=${await controller.reminders.enabled()}; '
+          'planned=${controller.reminders.lastPlan?.jobs.map((j) => '${j.payload}@${j.at}').toList()}; '
+          'pending=${pending.map((n) => '${n.id}:${n.payload}').toList()}; occurrence=${occurrence.id}',
     );
     await controller.act(occurrence, 'snooze', minutes: 30);
     await tester.pumpAndSettle();
