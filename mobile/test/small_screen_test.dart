@@ -11,13 +11,19 @@ import 'package:hangeoreum/main.dart';
 import 'package:hangeoreum/services/reminder_scheduler.dart';
 import 'package:sqflite/sqflite.dart';
 
-const _layoutScale = String.fromEnvironment('QA_TEXT_SCALE', defaultValue: '1.5');
+const _layoutScale = String.fromEnvironment(
+  'QA_TEXT_SCALE',
+  defaultValue: '1.5',
+);
 
 class _LayoutSubscription extends SubscriptionService {
   final bool premium;
   _LayoutSubscription({this.premium = true});
   @override
   bool get hasAccess => premium;
+  // Cached paid access may stay true while the latest network request failed.
+  @override
+  bool get paidAccess => premium;
   @override
   Future<void> refresh() async {}
 }
@@ -97,7 +103,9 @@ class _LayoutController extends TaskController {
 void _smallScreen(WidgetTester tester) {
   tester.view.devicePixelRatio = 1;
   tester.view.physicalSize = const Size(320, 640);
-  tester.platformDispatcher.textScaleFactorTestValue = double.parse(_layoutScale);
+  tester.platformDispatcher.textScaleFactorTestValue = double.parse(
+    _layoutScale,
+  );
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
   addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
@@ -117,7 +125,9 @@ void main() {
     RepeatUnit.monthlyWeekday,
     RepeatUnit.weeklyGoal,
   ]) {
-    testWidgets('320px · 글꼴 $_layoutScale배 ${repeat.name} 폼에서 저장 가능', (tester) async {
+    testWidgets('320px · 글꼴 $_layoutScale배 ${repeat.name} 폼에서 저장 가능', (
+      tester,
+    ) async {
       _smallScreen(tester);
       final controller = _LayoutController();
       addTearDown(controller.dispose);
@@ -178,7 +188,9 @@ void main() {
     });
   }
 
-  testWidgets('320px · 글꼴 $_layoutScale배 캘린더에서 월·주 전환과 날짜 선택 가능', (tester) async {
+  testWidgets('320px · 글꼴 $_layoutScale배 캘린더에서 월·주 전환과 날짜 선택 가능', (
+    tester,
+  ) async {
     _smallScreen(tester);
     final controller = _LayoutController();
     addTearDown(controller.dispose);
@@ -516,9 +528,22 @@ void main() {
           expect(tester.takeException(), isNull, reason: label);
         }
         expect(find.text('나의 일정은, 나의 기기에만'), findsOneWidget);
+        expect(
+          find.text(premium ? '한걸음 Pro 이용 중' : '무료 캘린더 이용 중'),
+          findsOneWidget,
+        );
         await tester.tap(find.byIcon(Icons.auto_graph));
         await tester.pumpAndSettle();
         expect(find.text('무료로 계속'), findsOneWidget);
+        if (premium) {
+          await tester.scrollUntilVisible(find.byType(FilledButton), 150);
+          await tester.pumpAndSettle();
+          expect(find.text('Pro 이용 중'), findsWidgets);
+          expect(
+            tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
+            isNull,
+          );
+        }
         expect(tester.takeException(), isNull);
         await tester.pumpWidget(const SizedBox.shrink());
         controller.dispose();

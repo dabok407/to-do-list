@@ -1219,7 +1219,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: const Icon(Icons.auto_graph),
         title: Text(
-          subscription.active
+          subscription.paidAccess
               ? '한걸음 Pro 이용 중'
               : subscription.trialActive
               ? '전체 기능 7일 체험 중'
@@ -1278,7 +1278,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       title: Text(
-        subscription.active
+        subscription.paidAccess
             ? 'Pro 이용 중'
             : subscription.trialActive
             ? '전체 기능 7일 체험 중'
