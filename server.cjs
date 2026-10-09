@@ -1,2 +1,26 @@
-const http=require('node:http'),fs=require('node:fs'),path=require('node:path');
-const root=__dirname;http.createServer((req,res)=>{const name=decodeURIComponent(req.url.split('?')[0]);const file=path.resolve(root,'.'+(name==='/'?'/index.html':name));if(!file.startsWith(root+path.sep)){res.writeHead(403);return res.end()}fs.readFile(file,(err,data)=>{if(err){res.writeHead(404);return res.end('Not found')}res.setHeader('Content-Type',({'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.woff2':'font/woff2','.ttf':'font/ttf','.wasm':'application/wasm','.json':'application/json'})[path.extname(file)]||'application/octet-stream');res.end(data)})}).listen(5173,'127.0.0.1',()=>console.log('한걸음: http://127.0.0.1:5173'));
+const http = require('node:http'), fs = require('node:fs'), path = require('node:path');
+const root = __dirname;
+const pages = new Set(['index.html', 'design-review.html', 'app.js', 'app-core.js',
+  'calendar-ui.js', 'editor-ui.js', 'ux-ui.js', 'recurrence.js', 'style.css', 'design.css', 'ux.css']);
+const mime = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8',
+  '.js': 'text/javascript; charset=utf-8', '.woff2': 'font/woff2', '.ttf': 'font/ttf',
+  '.wasm': 'application/wasm', '.json': 'application/json', '.png': 'image/png',
+  '.jpg': 'image/jpeg', '.svg': 'image/svg+xml' };
+http.createServer((req, res) => {
+  let name;
+  try { name = decodeURIComponent(req.url.split('?')[0]); }
+  catch { res.writeHead(400); return res.end('Invalid path'); }
+  const file = path.resolve(root, '.' + (name === '/' ? '/index.html' : name));
+  const relative = path.relative(root, file).split(path.sep).join('/');
+  // Only browser assets are public, never signing keys, source configuration or .git.
+  const allowed = file.startsWith(root + path.sep) && !relative.split('/').some(p => p.startsWith('.')) &&
+    (pages.has(relative) || ['preview/', 'assets/', 'mobile/assets/fonts/'].some(p => relative.startsWith(p)));
+  if (!allowed) { res.writeHead(403); return res.end('Forbidden'); }
+  fs.readFile(file, (err, data) => {
+    if (err) { res.writeHead(404); return res.end('Not found'); }
+    res.setHeader('Content-Type', mime[path.extname(file)] || 'application/octet-stream');
+    res.setHeader('Cache-Control', 'no-store');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.end(data);
+  });
+}).listen(5173, '127.0.0.1', () => console.log('한걸음: http://127.0.0.1:5173'));
