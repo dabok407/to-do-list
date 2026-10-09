@@ -526,9 +526,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         if (o.active && o.status != TaskStatus.progressing)
           IconButton(
             key: ValueKey('start-${o.id}'),
-            tooltip: '${o.task.title} 지금 시작',
+            tooltip:
+                '${o.task.title} 지금 시작${subscription.hasAccess ? '' : ' · Pro'}',
             onPressed: busy ? null : () => taskAction(o, 'start'),
-            icon: const Icon(Icons.play_arrow_rounded, size: 23),
+            icon: Icon(
+              subscription.hasAccess
+                  ? Icons.play_arrow_rounded
+                  : Icons.lock_outline,
+              size: 23,
+            ),
           ),
       ],
     ),
@@ -1070,13 +1076,17 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              '꾸준함을 눈으로 확인해요',
+            Text(
+              subscription.access?.paidUntil != null
+                  ? '구독을 다시 확인해주세요'
+                  : '꾸준함을 눈으로 확인해요',
               style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
             ),
             const SizedBox(height: 8),
-            const Text(
-              '7일 체험이 끝났어요. Pro를 구독하면 알림·미루기와 30일·90일 통계를 계속 사용할 수 있어요. 기존 기록은 그대로 남아 있어요.',
+            Text(
+              subscription.access?.paidUntil != null
+                  ? '오프라인 이용 기간이 끝났어요. 인터넷에 연결한 뒤 구매 복원으로 구독을 확인해주세요. 기존 기록은 그대로 남아 있어요.'
+                  : '7일 체험이 끝났어요. Pro를 구독하면 알림·미루기와 30일·90일 통계를 계속 사용할 수 있어요. 기존 기록은 그대로 남아 있어요.',
             ),
             const SizedBox(height: 12),
             OutlinedButton(onPressed: openPro, child: const Text('Pro 알아보기')),

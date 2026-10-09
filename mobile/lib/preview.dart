@@ -79,6 +79,7 @@ class _PreviewRepository extends TaskRepository {
 class PreviewController extends TaskController {
   final List<Task> _tasks = [];
   final Map<String, Occurrence> _states = {};
+  final Map<String, List<int>> _snoozeMinutes = {};
   final Set<String> _hidden = {};
   PreviewController() : super(_PreviewRepository(), ReminderScheduler()) {
     final now = DateTime.now();
@@ -156,7 +157,14 @@ class PreviewController extends TaskController {
       'total': items.where((o) => !o.originalDue.isAfter(now)).length,
       'completed': done,
       'snoozes': items.fold<int>(0, (n, o) => n + o.snoozes),
-      'average': 10,
+      'average':
+          items.fold<int>(
+            0,
+            (sum, o) =>
+                sum +
+                (_snoozeMinutes[o.id] ?? []).fold<int>(0, (a, b) => a + b),
+          ) /
+          (items.fold<int>(0, (sum, o) => sum + o.snoozes).clamp(1, 1000000)),
       'hour': '21시',
     };
     (repository as _PreviewRepository).sample = items;
@@ -236,6 +244,7 @@ class PreviewController extends TaskController {
     int minutes = 10,
   }) async {
     final o = occurrence;
+    if (action == 'snooze') (_snoozeMinutes[o.id] ??= []).add(minutes);
     final state = switch (action) {
       'complete' => TaskStatus.completed,
       'uncomplete' => o.beforeComplete ?? TaskStatus.pending,
