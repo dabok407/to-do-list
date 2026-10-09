@@ -64,14 +64,23 @@ cp "$database" "$results/ios-local-database.db"
 # app, and require a new visible notification in SpringBoard Notification Center.
 xcrun simctl terminate "$device" "$package" || true
 xcrun simctl launch "$device" "$package" --clear-delivered-notifications
+notification_results="$results/maestro-notification-$(date +%s)"
 set +e
-maestro --device "$device" test --debug-output="$results/maestro-notification" \
-  --test-output-dir="$results/maestro-notification" tool/ios_background_notification.yaml \
+maestro --device "$device" test --debug-output="$notification_results" \
+  --test-output-dir="$notification_results" tool/ios_background_notification.yaml \
   > "$results/ios-background-notification-ui.log" 2>&1
 notification_status=$?
 set -e
-xcrun simctl io "$device" screenshot "$results/ios-background-notification.png"
+xcrun simctl io "$device" screenshot "$results/ios-after-notification-flow.png"
 test "$notification_status" = 0
+# Maestro closes Notification Center while stopping its driver. OCR must inspect
+# pixels captured inside the flow immediately after the visible-text assertions.
+python3 - "$notification_results" "$results/ios-background-notification.png" <<'PY'
+import pathlib, shutil, sys
+images = list(pathlib.Path(sys.argv[1]).rglob('ios-background-notification.png'))
+assert len(images) == 1, f'Expected one screenshot from this flow, found {images}'
+shutil.copyfile(images[0], sys.argv[2])
+PY
 swift tool/verify_ios_screen.swift "$results/ios-background-notification.png" \
   "한걸음 테스트" "앱 밖에서도" > "$results/ios-background-notification-ocr.log"
 echo 'IOS_TERMINATED_NOTIFICATION_OK'
