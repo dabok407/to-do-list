@@ -123,6 +123,9 @@ class HangeoreumWidgetProvider : AppWidgetProvider() {
                 SimpleDateFormat("M월 d일 EEEE", Locale.KOREAN).format(Date(now)),
             )
             views.setOnClickPendingIntent(R.id.widget_header, appIntent(context))
+            // A compact widget keeps the task's date/status instead of spending
+            // another line on the header date, which can clip the task subtitle.
+            views.setViewVisibility(R.id.widget_date, if (minHeight < 180) View.GONE else View.VISIBLE)
             views.setOnClickPendingIntent(R.id.widget_empty, appIntent(context))
             views.removeAllViews(R.id.widget_tasks)
             views.setViewVisibility(R.id.widget_empty, if (tasks.isEmpty()) View.VISIBLE else View.GONE)

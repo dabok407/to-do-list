@@ -6,6 +6,7 @@ import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.graphics.Color
+import android.graphics.Rect
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
@@ -90,6 +91,7 @@ class WidgetTestActivity : Activity() {
                     .getString("tasks", null)
                 check(expected in titles) { "Expected '$expected', rendered $titles; shared=$shared; native=$native." }
             }
+            verifyTaskTextBounds(widget)
             Log.i(TAG, "WIDGET_RENDER_OK:${width}x$height")
         }
         widget.postDelayed({ verifyRendered(0) }, 500)
@@ -120,6 +122,19 @@ class WidgetTestActivity : Activity() {
     }
 
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
+
+    private fun verifyTaskTextBounds(view: View) {
+        if (view is TextView && view.isShown &&
+            (view.id == R.id.widget_task_title || view.id == R.id.widget_task_due)) {
+            val bounds = Rect()
+            check(view.height > 0 && view.getLocalVisibleRect(bounds) && bounds.height() == view.height) {
+                "Widget text is vertically clipped: '${view.text}', height=${view.height}, visible=$bounds"
+            }
+        }
+        if (view is android.view.ViewGroup) {
+            for (index in 0 until view.childCount) verifyTaskTextBounds(view.getChildAt(index))
+        }
+    }
 
     companion object { private const val TAG = "HangeoreumWidgetTest" }
 }
