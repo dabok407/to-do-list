@@ -21,12 +21,24 @@ print('hangeoreum://task?'+urllib.parse.urlencode({'id':row[0],'action':'start'}
 PY
 )
 xcrun simctl openurl "$device" "$uri"
-sleep 5
+xcrun simctl io "$device" screenshot "$results/ios-native-launch.png"
+set +e
 python3 - "$database" <<'PY'
-import sqlite3,sys
-assert sqlite3.connect(sys.argv[1]).execute("select count(*) from occurrences where state='progressing'").fetchone()[0] == 1
-print('IOS_COLD_WIDGET_DEEP_LINK_OK')
+import sqlite3,sys,time
+for attempt in range(30):
+    with sqlite3.connect(sys.argv[1]) as db:
+        rows=db.execute("select id,state from occurrences").fetchall()
+    if sum(state=='progressing' for _,state in rows)==1:
+        print('IOS_COLD_WIDGET_DEEP_LINK_OK')
+        sys.exit(0)
+    time.sleep(1)
+print('Cold widget link did not update SQLite:', rows, file=sys.stderr)
+sys.exit(1)
 PY
+status=$?
+set -e
 xcrun simctl io "$device" screenshot "$results/ios-native-start.png"
+xcrun simctl spawn "$device" log show --last 3m --style compact --predicate 'process == "Runner"' > "$results/ios-native-launch.log" || true
+test "$status" = 0
 cp "$database" "$results/ios-local-database.db"
 
