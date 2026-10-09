@@ -116,24 +116,125 @@ class HangeoreumApp extends StatelessWidget {
       fontFamily: 'Pretendard',
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: const Color(0xff394c40),
-        primary: const Color(0xff273c32),
-        secondary: const Color(0xff7a6654),
-        surface: Colors.white,
+        seedColor: const Color(0xff343833),
+        primary: const Color(0xff292c29),
+        onPrimary: Colors.white,
+        primaryContainer: const Color(0xffeeede8),
+        onPrimaryContainer: const Color(0xff292c29),
+        secondary: const Color(0xff78736a),
+        secondaryContainer: const Color(0xffeeede8),
+        onSecondaryContainer: const Color(0xff292c29),
+        surface: const Color(0xfffdfcf9),
+        onSurface: const Color(0xff292c29),
+        outline: const Color(0xffcac8c1),
+        outlineVariant: const Color(0xffe7e5df),
       ),
-      scaffoldBackgroundColor: Colors.white,
+      scaffoldBackgroundColor: const Color(0xfffdfcf9),
+      textTheme: const TextTheme(
+        headlineSmall: TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.w600,
+          letterSpacing: -.6,
+          height: 1.35,
+        ),
+        titleLarge: TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.w600,
+          letterSpacing: -.5,
+        ),
+        titleMedium: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          letterSpacing: -.2,
+        ),
+        bodyLarge: TextStyle(fontSize: 16, height: 1.45, letterSpacing: -.2),
+        bodyMedium: TextStyle(fontSize: 14, height: 1.45, letterSpacing: -.1),
+        labelLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+      ),
       appBarTheme: const AppBarTheme(
-        backgroundColor: Colors.white,
+        backgroundColor: Color(0xfffdfcf9),
         surfaceTintColor: Colors.transparent,
+        centerTitle: false,
+        titleTextStyle: TextStyle(
+          fontFamily: 'Pretendard',
+          fontSize: 22,
+          fontWeight: FontWeight.w600,
+          letterSpacing: -.5,
+          color: Color(0xff292c29),
+        ),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          minimumSize: const Size(48, 48),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size(48, 48),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          side: const BorderSide(color: Color(0xffd4d1c9)),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+      ),
+      iconButtonTheme: IconButtonThemeData(
+        style: IconButton.styleFrom(minimumSize: const Size(48, 48)),
+      ),
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: Color(0xff292c29),
+        foregroundColor: Colors.white,
+        elevation: 1,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+        ),
+      ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: Color(0xfffdfcf9),
+        surfaceTintColor: Colors.transparent,
+        showDragHandle: true,
+      ),
+      chipTheme: ChipThemeData(
+        showCheckmark: false,
+        selectedColor: const Color(0xffeeede8),
+        backgroundColor: const Color(0xfffdfcf9),
+        side: const BorderSide(color: Color(0xffe0ddd6)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
       inputDecorationTheme: InputDecorationTheme(
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         contentPadding: const EdgeInsets.all(16),
       ),
-      navigationBarTheme: const NavigationBarThemeData(
-        backgroundColor: Colors.white,
-        indicatorColor: Color(0xffeaf0e9),
-        height: 74,
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: const Color(0xfffdfcf9),
+        surfaceTintColor: Colors.transparent,
+        indicatorColor: Colors.transparent,
+        iconTheme: WidgetStateProperty.resolveWith(
+          (states) => IconThemeData(
+            size: 23,
+            color: states.contains(WidgetState.selected)
+                ? const Color(0xff292c29)
+                : const Color(0xff93928c),
+          ),
+        ),
+        labelTextStyle: WidgetStateProperty.resolveWith(
+          (states) => TextStyle(
+            fontFamily: 'Pretendard',
+            fontSize: 12,
+            fontWeight: states.contains(WidgetState.selected)
+                ? FontWeight.w600
+                : FontWeight.w400,
+            color: states.contains(WidgetState.selected)
+                ? const Color(0xff292c29)
+                : const Color(0xff85847e),
+          ),
+        ),
+        height: 68,
       ),
     ),
     home: HomeScreen(controller: controller, subscription: subscription),

@@ -27,12 +27,12 @@ class _ProScreenState extends State<ProScreen> {
           padding: const EdgeInsets.all(24),
           children: [
             const Text(
-              '작은 시작이\n쌓이는 곳.',
+              '나의 실행 기록을\n조금 더 자세하게',
               style: TextStyle(
-                fontSize: 32,
+                fontSize: 28,
                 height: 1.3,
-                fontWeight: FontWeight.w700,
-                letterSpacing: -1,
+                fontWeight: FontWeight.w600,
+                letterSpacing: -.6,
               ),
             ),
             const SizedBox(height: 16),

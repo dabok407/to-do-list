@@ -17,6 +17,7 @@ class _UnusedDatabase implements Database {
 
 class _LayoutController extends TaskController {
   Task? savedTask;
+  final actions = <String>[];
 
   _LayoutController()
     : super(TaskRepository(_UnusedDatabase()), ReminderScheduler()) {
@@ -48,6 +49,29 @@ class _LayoutController extends TaskController {
   @override
   Future<void> save(Task task) async {
     savedTask = task;
+    notifyListeners();
+  }
+
+  @override
+  Future<void> act(
+    Occurrence occurrence,
+    String action, {
+    int minutes = 10,
+  }) async {
+    actions.add(action);
+    items = [
+      Occurrence(
+        id: occurrence.id,
+        task: occurrence.task,
+        originalDue: occurrence.originalDue,
+        reminder: occurrence.reminder,
+        status: action == 'complete'
+            ? TaskStatus.completed
+            : action == 'start'
+            ? TaskStatus.progressing
+            : TaskStatus.pending,
+      ),
+    ];
     notifyListeners();
   }
 }
@@ -172,6 +196,158 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
     expect(find.textContaining(RegExp(r'^\d+월 15일$')), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('날짜 선택 후 스크롤·상세 진입 없이 시작·완료·해제 가능', (tester) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(390, 844);
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final controller = _LayoutController();
+    addTearDown(controller.dispose);
+    await tester.pumpWidget(HangeoreumApp(controller: controller));
+    await tester.pumpAndSettle();
+    final day = find
+        .descendant(
+          of: find.byType(GridView),
+          matching: find.text('${DateTime.now().day}'),
+        )
+        .first;
+    expect(
+      day.hitTestable(),
+      findsOneWidget,
+      reason: '날짜를 찾기 위해 스크롤할 필요가 없어야 한다',
+    );
+    await tester.tap(day);
+    await tester.pumpAndSettle();
+    expect(find.text('월 보기'), findsOneWidget);
+    final start = find.byTooltip('${controller.items.single.task.title} 지금 시작');
+    expect(
+      start.hitTestable(),
+      findsOneWidget,
+      reason: '날짜 선택 한 번으로 시작 버튼이 보여야 한다',
+    );
+    expect(tester.getSize(start).width, greaterThanOrEqualTo(48));
+    expect(tester.getSize(start).height, greaterThanOrEqualTo(48));
+    await tester.tap(start);
+    await tester.pumpAndSettle();
+    expect(controller.actions, ['start']);
+    await tester.tap(find.byTooltip('완료 처리'));
+    await tester.pumpAndSettle();
+    expect(find.byTooltip('완료 해제').hitTestable(), findsOneWidget);
+    await tester.tap(find.byTooltip('완료 해제'));
+    await tester.pumpAndSettle();
+    expect(controller.actions, ['start', 'complete', 'uncomplete']);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('기한 지난 할 일은 첫 화면 상단에서 찾고 완료하면 사라짐', (tester) async {
+    _smallScreen(tester);
+    final controller = _LayoutController();
+    addTearDown(controller.dispose);
+    final task = controller.items.single.task;
+    final due = DateTime.now().subtract(const Duration(days: 2));
+    controller.items = [
+      Occurrence(id: 'old', task: task, originalDue: due, reminder: due),
+    ];
+    await tester.pumpWidget(HangeoreumApp(controller: controller));
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const Key('overdue-banner')).hitTestable(),
+      findsOneWidget,
+    );
+    await tester.tap(find.byKey(const Key('overdue-banner')));
+    await tester.pumpAndSettle();
+    expect(find.byTooltip('완료 처리').hitTestable(), findsOneWidget);
+    await tester.tap(find.byTooltip('완료 처리'));
+    await tester.pumpAndSettle();
+    expect(find.text('남은 일을 모두 마쳤어요.'), findsOneWidget);
+    expect(controller.overdue, isEmpty);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('미완료 배너와 하루 여러 일정이 있어도 작은 달력 셀이 넘치지 않음', (tester) async {
+    _smallScreen(tester);
+    final controller = _LayoutController();
+    addTearDown(controller.dispose);
+    final task = controller.items.single.task;
+    final now = DateTime.now();
+    controller.items = List.generate(4, (i) {
+      final due = DateTime(now.year, now.month, now.day - 1, 12 + i);
+      return Occurrence(
+        id: 'dense-$i',
+        task: task,
+        originalDue: due,
+        reminder: due,
+      );
+    });
+    await tester.pumpWidget(HangeoreumApp(controller: controller));
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const Key('overdue-banner')).hitTestable(),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('작은 화면에서 미완료 재알림을 끄고 저장 가능', (tester) async {
+    _smallScreen(tester);
+    final controller = _LayoutController();
+    addTearDown(controller.dispose);
+    await tester.pumpWidget(HangeoreumApp(controller: controller));
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextFormField).first, '필터 청소');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('미완료 재알림'),
+      180,
+      scrollable: find
+          .descendant(
+            of: find.byType(TaskEditor),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('미완료 재알림'));
+    await tester.pumpAndSettle();
+    final interval = find.byKey(const Key('overdue-interval'));
+    await tester.ensureVisible(interval);
+    await tester.pumpAndSettle();
+    await tester.tap(interval);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('알리지 않음').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('저장'));
+    await tester.pumpAndSettle();
+    expect(controller.savedTask?.overdueDays, 0);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('새 할 일은 제목 입력 후 아래 고정 저장 버튼으로 완료', (tester) async {
+    _smallScreen(tester);
+    final controller = _LayoutController();
+    addTearDown(controller.dispose);
+    await tester.pumpWidget(HangeoreumApp(controller: controller));
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextFormField).first, '분리수거');
+    expect(
+      find.text('저장').hitTestable(),
+      findsOneWidget,
+      reason: '폼 아래로 스크롤하지 않아도 저장할 수 있어야 한다',
+    );
+    await tester.tap(find.text('저장'));
+    await tester.pumpAndSettle();
+    expect(controller.savedTask?.title, '분리수거');
+    expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
   });
 }

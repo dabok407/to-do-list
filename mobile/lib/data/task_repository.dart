@@ -11,8 +11,16 @@ class TaskRepository {
     final db = await openDatabase(
       databasePath ?? path.join(await getDatabasesPath(), 'hangeoreum.db'),
       singleInstance: false,
-      version: 4,
+      version: 5,
       onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 5) {
+          await db.execute(
+            'ALTER TABLE tasks ADD COLUMN overdue_days INTEGER NOT NULL DEFAULT 1',
+          );
+          await db.execute(
+            'ALTER TABLE tasks ADD COLUMN overdue_minute INTEGER',
+          );
+        }
         if (oldVersion < 4) {
           await db.execute(
             "ALTER TABLE tasks ADD COLUMN category TEXT NOT NULL DEFAULT '생활'",
@@ -54,7 +62,8 @@ class TaskRepository {
           due TEXT NOT NULL, created TEXT NOT NULL, repeat_unit TEXT NOT NULL,
           repeat_interval INTEGER NOT NULL, weekdays TEXT NOT NULL, end_date TEXT, month_week INTEGER NOT NULL,
           series_id TEXT NOT NULL, derived INTEGER NOT NULL DEFAULT 0,
-          count_per_week INTEGER NOT NULL DEFAULT 1)''',
+          count_per_week INTEGER NOT NULL DEFAULT 1,
+          overdue_days INTEGER NOT NULL DEFAULT 1, overdue_minute INTEGER)''',
         );
         await db.execute(
           '''CREATE TABLE occurrences(id TEXT PRIMARY KEY, task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,

@@ -18,6 +18,7 @@ void main() {
     repeat: repeat,
     weekdays: const [2, 5],
     end: end,
+    overdueDays: 0, // Recurrence scheduling tests isolate the primary trigger.
   );
   List<Occurrence> occurrences(Task t) =>
       RecurrenceCalculator.between(t, t.due, DateTime(2027, 3))
@@ -85,7 +86,7 @@ void main() {
     );
     expect(plan.jobs.every((j) => j.repeat == null), true);
   });
-  test('첫 미루기 알림이 지나도 앞으로 올 추가 알림은 유지', () {
+  test('미룬 시간을 무시하는 30분·60분 추가 알림은 보내지 않음', () {
     final t = task(repeat: RepeatUnit.none);
     final o = Occurrence(
       id: 'paused',
@@ -96,7 +97,7 @@ void main() {
       snoozes: 1,
     );
     final plan = NotificationPlan.build([o], now: now, capacity: 60);
-    expect(plan.jobs.map((j) => j.at.difference(now).inMinutes), [20, 50]);
+    expect(plan.jobs, isEmpty);
   });
   test('OS 예약 한도에서는 먼 요청을 보류하고 가까운 순서로 예약', () {
     final plan = NotificationPlan.build(

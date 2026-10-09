@@ -115,7 +115,7 @@ class ReminderScheduler {
     android: AndroidNotificationDetails(
       'tasks_v1',
       '할 일 알림',
-      channelDescription: '예정된 할 일과 보류 후 재알림',
+      channelDescription: '예정된 할 일과 미완료 재알림',
       importance: Importance.high,
       priority: Priority.high,
       actions: [
@@ -186,7 +186,12 @@ class ReminderScheduler {
     }
     // Preserve visible alerts on a background refill; only remove terminal tasks.
     for (final o in items.where((o) => !o.active)) {
-      for (final key in [o.id, '${o.id}:30', '${o.id}:60']) {
+      for (final key in [
+        o.id,
+        '${o.id}:30',
+        '${o.id}:60',
+        'overdue:${o.id}:repeat',
+      ]) {
         await plugin.cancel(id: notificationId(key));
       }
     }

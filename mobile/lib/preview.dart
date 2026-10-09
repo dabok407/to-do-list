@@ -79,12 +79,18 @@ class PreviewController extends TaskController {
       ('책 10쪽 읽기', '배움', 21, RepeatUnit.daily),
       ('이번 주 업무 정리', '업무', 16, RepeatUnit.weekly),
       ('안방 대청소', '생활', 14, RepeatUnit.none),
+      ('에어컨 필터 청소', '생활', 12, RepeatUnit.none),
     ];
     for (var i = 0; i < examples.length; i++) {
       final e = examples[i];
       final date = i < 2
           ? DateTime(today.year, today.month, today.day - 25, e.$3)
-          : DateTime(today.year, today.month, today.day, e.$3);
+          : DateTime(
+              today.year,
+              today.month,
+              today.day - (i == 4 ? 1 : 0),
+              e.$3,
+            );
       _tasks.add(
         Task(
           id: 'sample-$i',
@@ -94,7 +100,7 @@ class PreviewController extends TaskController {
           created: date,
           repeat: e.$4,
           weekdays: [today.weekday],
-          priority: i == 3 ? 2 : 1,
+          priority: i >= 3 ? 2 : 1,
           smallStep: i == 3 ? '바닥에 놓인 물건 3개만 제자리에 두기' : '준비하고 5분만 해보기',
           note: i == 3 ? '한 번에 전부 하지 않아도 괜찮아요. 바닥부터 차근차근.' : '나를 위한 작은 약속',
         ),
@@ -126,7 +132,7 @@ class PreviewController extends TaskController {
             task: t,
             originalDue: due,
             reminder: due,
-            status: past
+            status: past && t.id != 'sample-4'
                 ? (due.day % 4 == 0 ? TaskStatus.skipped : TaskStatus.completed)
                 : TaskStatus.pending,
             completed: past && due.day % 4 != 0 ? due : null,

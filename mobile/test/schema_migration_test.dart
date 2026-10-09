@@ -149,9 +149,15 @@ void main() {
     await legacy.close();
 
     repository = await TaskRepository.open(databasePath: databasePath);
-    expect(await repository.db.getVersion(), 4);
+    expect(await repository.db.getVersion(), 5);
     expect(await repository.db.query('tasks'), [
-      {...task, 'count_per_week': 1, 'category': '생활'},
+      {
+        ...task,
+        'count_per_week': 1,
+        'category': '생활',
+        'overdue_days': 1,
+        'overdue_minute': null,
+      },
     ]);
     final migrated = (await repository.tasks()).single;
     expect(migrated.countPerWeek, 1);
@@ -204,7 +210,7 @@ void main() {
     await repository.db.close();
 
     repository = await TaskRepository.open(databasePath: databasePath);
-    expect(await repository.db.getVersion(), 4);
+    expect(await repository.db.getVersion(), 5);
     final weeklyGoal = (await repository.tasks()).singleWhere(
       (t) => t.id == 'weekly-goal',
     );

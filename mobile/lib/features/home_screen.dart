@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../app/task_controller.dart';
@@ -33,6 +35,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   bool detailVisible = false;
   late final subscription = widget.subscription ?? SubscriptionService();
   final quickTitle = TextEditingController();
+  final bodyScroll = ScrollController();
+  Timer? clockRefresh;
   String quickCategory = '생활';
   TaskController get c => widget.controller;
   @override
@@ -41,6 +45,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     c.addListener(changed);
     subscription.addListener(changed);
+    clockRefresh = Timer.periodic(const Duration(minutes: 1), (_) {
+      if (mounted) setState(() {});
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       openRequestedTask();
       subscription.refresh();
@@ -74,6 +81,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     subscription.removeListener(changed);
     if (widget.subscription == null) subscription.dispose();
     quickTitle.dispose();
+    bodyScroll.dispose();
+    clockRefresh?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -183,8 +192,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         builder: (ctx, _) {
           final o = c.items.where((x) => x.id == original.id).firstOrNull;
           if (o == null) return const SizedBox.shrink();
-          return FractionallySizedBox(
-            heightFactor: .9,
+          return ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.sizeOf(ctx).height * .86,
+            ),
             child: SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
               child: Column(
@@ -451,7 +462,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     title: Text(
       o.task.title,
       style: TextStyle(
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w500,
         color: o.status == TaskStatus.completed ? Colors.grey : null,
         decoration: o.status == TaskStatus.completed
             ? TextDecoration.lineThrough
@@ -473,7 +484,22 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         ],
       ),
     ),
-    trailing: Text(timeLabel(o.originalDue)),
+    trailing: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          timeLabel(o.originalDue),
+          style: const TextStyle(fontSize: 12, color: Color(0xff777970)),
+        ),
+        if (o.active && o.status != TaskStatus.progressing)
+          IconButton(
+            key: ValueKey('start-${o.id}'),
+            tooltip: '${o.task.title} 지금 시작',
+            onPressed: busy ? null : () => run(() => c.act(o, 'start')),
+            icon: const Icon(Icons.play_arrow_rounded, size: 23),
+          ),
+      ],
+    ),
     onTap: () => detail(o),
   );
   Widget calendar() {
@@ -489,164 +515,173 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   .ceil() *
               7;
     final now = dayOf(DateTime.now());
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xffe6eaf0)),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 14, 8, 10),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    '${month.year}년 ${month.month}월',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                ),
-                IconButton(
-                  tooltip: '이전',
-                  onPressed: () => move(-1),
-                  icon: const Icon(Icons.chevron_left),
-                ),
-                IconButton(
-                  tooltip: '다음',
-                  onPressed: () => move(1),
-                  icon: const Icon(Icons.chevron_right),
-                ),
-              ],
-            ),
-          ),
-          Row(
-            children: List.generate(
-              7,
-              (i) => Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  child: Center(
-                    child: Text(
-                      ['월', '화', '수', '목', '금', '토', '일'][i],
-                      style: TextStyle(
-                        color: i == 6 ? priorityRed : Colors.grey,
-                        fontSize: 12,
+    final scale = (MediaQuery.textScalerOf(context).scale(11) / 11).clamp(
+      1.0,
+      1.6,
+    );
+    final reservedHeight = c.overdue.isEmpty ? 300 : 390;
+    final cellHeight =
+        ((MediaQuery.sizeOf(context).height - reservedHeight) / (count / 7))
+            .clamp(60.0, 86.0);
+    final previewCount = cellHeight < 82 ? 1 : 2;
+    return GestureDetector(
+      onHorizontalDragEnd: (details) {
+        final velocity = details.primaryVelocity ?? 0;
+        if (velocity.abs() > 250) move(velocity < 0 ? 1 : -1);
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: const Color(0xffe7e5df))),
+        ),
+        child: Column(
+          children: [
+            Row(
+              children: List.generate(
+                7,
+                (i) => Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 7),
+                    child: Center(
+                      child: Text(
+                        ['월', '화', '수', '목', '금', '토', '일'][i],
+                        style: TextStyle(
+                          color: i == 6 ? priorityRed : Colors.grey,
+                          fontSize: 12,
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 7,
-              mainAxisExtent:
-                  100 *
-                  (MediaQuery.textScalerOf(context).scale(11) / 11).clamp(
-                    1.0,
-                    1.6,
-                  ),
-            ),
-            itemCount: count,
-            itemBuilder: (ctx, i) {
-              final d = DateTime(start.year, start.month, start.day + i),
-                  all = c.items
-                      .where((o) => dayOf(o.originalDue) == d)
-                      .toList();
-              return Semantics(
-                label: '${dayKey(d)}, 할 일 ${all.length}개',
-                selected: d == selected,
-                child: InkWell(
-                  onTap: () => setState(() => selected = d),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: d == selected ? const Color(0xfff4f3ef) : null,
-                      border: Border.all(
-                        color: const Color(0xffedf0f4),
-                        width: .5,
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 7,
+                mainAxisExtent: (week ? 48 : cellHeight) * scale,
+              ),
+              itemCount: count,
+              itemBuilder: (ctx, i) {
+                final d = DateTime(start.year, start.month, start.day + i),
+                    all = c.items
+                        .where((o) => dayOf(o.originalDue) == d)
+                        .toList();
+                return Semantics(
+                  label: '${dayKey(d)}, 할 일 ${all.length}개',
+                  selected: d == selected,
+                  child: InkWell(
+                    onTap: () {
+                      setState(() {
+                        selected = d;
+                        month = DateTime(d.year, d.month);
+                        week = true;
+                      });
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (mounted && bodyScroll.hasClients) {
+                          bodyScroll.animateTo(
+                            0,
+                            duration: const Duration(milliseconds: 180),
+                            curve: Curves.easeOut,
+                          );
+                        }
+                      });
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: !week && d == selected
+                            ? const Color(0xfff0eee8)
+                            : null,
+                        border: week
+                            ? null
+                            : const Border(
+                                top: BorderSide(
+                                  color: Color(0xffeae7e0),
+                                  width: .5,
+                                ),
+                              ),
                       ),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: daySize,
-                          height: daySize,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: d == now ? const Color(0xff283b31) : null,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Text(
-                            '${d.day}',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: d == now
-                                  ? Colors.white
-                                  : d.month != month.month
-                                  ? Colors.grey.shade400
-                                  : null,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        ...all.take(2).map((o) {
-                          final color = o.task.priority == 2
-                              ? priorityRed
-                              : categoryColors[o.task.category] ?? Colors.grey;
-                          return Container(
-                            width: double.infinity,
-                            margin: const EdgeInsets.fromLTRB(2, 0, 2, 3),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 3,
-                              vertical: 2,
-                            ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: daySize,
+                            height: daySize,
+                            alignment: Alignment.center,
                             decoration: BoxDecoration(
-                              color: color.withValues(alpha: .11),
-                              borderRadius: BorderRadius.circular(3),
+                              color: d == selected
+                                  ? const Color(0xff30332e)
+                                  : null,
+                              border: d == now && d != selected
+                                  ? Border.all(color: const Color(0xffaaa99f))
+                                  : null,
+                              shape: BoxShape.circle,
                             ),
                             child: Text(
-                              o.task.title,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                              '${d.day}',
                               style: TextStyle(
-                                fontSize: 10,
-                                color: o.status == TaskStatus.completed
-                                    ? Colors.grey
-                                    : color,
-                                decoration: o.status == TaskStatus.completed
-                                    ? TextDecoration.lineThrough
+                                fontSize: 13,
+                                color: d == selected
+                                    ? Colors.white
+                                    : d.month != month.month
+                                    ? Colors.grey.shade400
                                     : null,
                               ),
                             ),
-                          );
-                        }),
-                        if (all.length > 2)
-                          Text(
-                            '+${all.length - 2}',
-                            style: const TextStyle(
-                              fontSize: 9,
-                              color: Colors.grey,
-                            ),
                           ),
-                      ],
+                          SizedBox(height: previewCount == 1 ? 2 : 6),
+                          if (!week)
+                            ...all.take(previewCount).map((o) {
+                              final color = o.task.priority == 2
+                                  ? priorityRed
+                                  : categoryColors[o.task.category] ??
+                                        Colors.grey;
+                              return Container(
+                                width: double.infinity,
+                                margin: const EdgeInsets.fromLTRB(2, 0, 2, 3),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 3,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: color.withValues(alpha: .075),
+                                  borderRadius: BorderRadius.circular(3),
+                                ),
+                                child: Text(
+                                  o.task.title,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    height: 1.1,
+                                    color: o.status == TaskStatus.completed
+                                        ? Colors.grey
+                                        : color,
+                                    decoration: o.status == TaskStatus.completed
+                                        ? TextDecoration.lineThrough
+                                        : null,
+                                  ),
+                                ),
+                              );
+                            }),
+                          if (!week && all.length > previewCount)
+                            Text(
+                              '+${all.length - previewCount}',
+                              style: const TextStyle(
+                                fontSize: 9,
+                                height: 1.1,
+                                color: Colors.grey,
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              );
-            },
-          ),
-          const Padding(
-            padding: EdgeInsets.all(12),
-            child: Text(
-              '● 높은 우선순위',
-              style: TextStyle(color: priorityRed, fontSize: 11),
+                );
+              },
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -666,6 +701,100 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       }
     });
     run(() => c.refresh(through: DateTime(month.year, month.month + 1, 0)));
+  }
+
+  Future<void> showOverdue() => showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    builder: (ctx) => SafeArea(
+      child: SizedBox(
+        height: MediaQuery.sizeOf(ctx).height * .7,
+        child: ListenableBuilder(
+          listenable: c,
+          builder: (ctx, _) => ListView(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+            children: [
+              Text(
+                '아직 남은 일 ${c.overdue.length}개',
+                style: Theme.of(ctx).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 8),
+              const Text('예정 시간이 지났지만 아직 완료하지 않은 일이에요.'),
+              const SizedBox(height: 16),
+              if (c.overdue.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.all(24),
+                  child: Text('남은 일을 모두 마쳤어요.'),
+                ),
+              ...c.overdue.map(
+                (o) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${dayKey(o.originalDue)} 예정',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xff777970),
+                      ),
+                    ),
+                    row(o),
+                    const Divider(height: 20),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+
+  Widget overdueBanner() {
+    final remaining = c.overdue;
+    if (remaining.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 4),
+      child: Material(
+        color: const Color(0xfff2ede6),
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          key: const Key('overdue-banner'),
+          borderRadius: BorderRadius.circular(12),
+          onTap: showOverdue,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
+            child: Row(
+              children: [
+                const Icon(Icons.schedule, size: 21, color: Color(0xff796a56)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '아직 남은 일 ${remaining.length}개',
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        '${remaining.first.task.title}${remaining.length > 1 ? ' 외 ${remaining.length - 1}개' : ''}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Color(0xff716d64),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.chevron_right, size: 20),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Widget calendarPage() {
@@ -690,26 +819,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               !dayOf(o.originalDue).isAfter(end),
         )
         .toList();
-    final next = c.queue.firstOrNull;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Wrap(
-          spacing: 6,
-          children: List.generate(
-            3,
-            (i) => ChoiceChip(
-              label: Text(['오늘', '이번 주', '이번 달'][i]),
-              selected: summary == i,
-              onSelected: (_) => setState(() => summary = i),
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
-        Text(
-          '${summarized.where((o) => o.active).length}개 남음 · ${summarized.where((o) => o.status == TaskStatus.completed).length}개 완료',
-        ),
-        const SizedBox(height: 20),
+        overdueBanner(),
         Row(
           children: [
             TextButton(
@@ -729,47 +842,50 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ],
         ),
         calendar(),
-        if (next != null)
-          Container(
-            margin: const EdgeInsets.only(top: 20),
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: const Color(0xfff1f3ec),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  '다음 한 가지',
-                  style: TextStyle(color: Color(0xff52674f)),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 12,
+            children: [
+              PopupMenuButton<int>(
+                tooltip: '요약 기간',
+                initialValue: summary,
+                onSelected: (value) => setState(() => summary = value),
+                itemBuilder: (_) => List.generate(
+                  3,
+                  (i) => PopupMenuItem(
+                    value: i,
+                    child: Text(['오늘', '이번 주', '이번 달'][i]),
+                  ),
                 ),
-                const SizedBox(height: 10),
-                Text(
-                  next.task.title,
-                  style: Theme.of(context).textTheme.titleMedium,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(['오늘', '이번 주', '이번 달'][summary]),
+                      const Icon(Icons.expand_more, size: 18),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 10),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    FilledButton(
-                      onPressed: busy
-                          ? null
-                          : () => run(() => c.act(next, 'start')),
-                      child: const Text('지금 시작'),
-                    ),
-                    OutlinedButton(
-                      onPressed: () => detail(next),
-                      child: const Text('상태 확인'),
-                    ),
-                  ],
-                ),
-              ],
+              ),
+              Text(
+                '${summarized.where((o) => o.active).length}개 남음  ·  ${summarized.where((o) => o.status == TaskStatus.completed).length}개 완료',
+                style: const TextStyle(fontSize: 13, color: Color(0xff777970)),
+              ),
+            ],
+          ),
+        ),
+        if (!week)
+          const Padding(
+            padding: EdgeInsets.only(bottom: 16),
+            child: Text(
+              '날짜를 누르면 그날의 할 일이 바로 펼쳐져요.',
+              style: TextStyle(fontSize: 12, color: Color(0xff88877f)),
             ),
           ),
-        const SizedBox(height: 28),
+        const SizedBox(height: 8),
         Text(
           '${selected.month}월 ${selected.day}일',
           style: Theme.of(context).textTheme.titleLarge,
@@ -787,12 +903,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           if (items.isEmpty) return <Widget>[];
           return <Widget>[
             Padding(
-              padding: const EdgeInsets.only(top: 20, bottom: 4),
+              padding: const EdgeInsets.only(top: 14, bottom: 2),
               child: Row(
                 children: [
                   Container(
-                    width: 6,
-                    height: 16,
+                    width: 4,
+                    height: 12,
                     decoration: BoxDecoration(
                       color: entry.value,
                       borderRadius: BorderRadius.circular(3),
@@ -818,7 +934,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ];
         }),
         const SizedBox(height: 20),
-        quickAdd(),
+        ExpansionTile(
+          tilePadding: EdgeInsets.zero,
+          title: const Text('간단히 추가', style: TextStyle(fontSize: 14)),
+          children: [quickAdd()],
+        ),
       ],
     );
   }
@@ -1073,15 +1193,31 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       ),
       const SizedBox(height: 20),
       const Text(
-        '보류 후에는 선택한 시간에 다시 알립니다. 진행 중 확인은 30분 뒤, 작은 시작 확인은 5분 뒤입니다. 권한·집중 모드·배터리 설정에 따라 알림 전달이 달라질 수 있습니다.',
+        '미완료 재알림은 기본 매일 한 번, 예정 시간과 같은 시각입니다. 각 할 일의 수정 화면에서 간격·시각을 바꾸거나 끌 수 있어요. 미루기는 선택한 시간까지 기다립니다. 진행 중 확인은 30분 뒤, 작은 시작 확인은 5분 뒤입니다. 배너 표시 여부는 기기 알림 권한·집중 모드·배터리 설정을 따릅니다.',
       ),
     ],
   );
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      title: Text(['캘린더', '예정된 할 일', '완료한 일', '나의 흐름', '설정'][page]),
+      title: Text(
+        page == 0
+            ? '${month.year}년 ${month.month}월'
+            : ['캘린더', '예정된 할 일', '완료한 일', '나의 흐름', '설정'][page],
+      ),
       actions: [
+        if (page == 0) ...[
+          IconButton(
+            tooltip: '이전',
+            onPressed: () => move(-1),
+            icon: const Icon(Icons.chevron_left),
+          ),
+          IconButton(
+            tooltip: '다음',
+            onPressed: () => move(1),
+            icon: const Icon(Icons.chevron_right),
+          ),
+        ],
         if (busy)
           const Padding(
             padding: EdgeInsets.all(18),
@@ -1096,7 +1232,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     body: RefreshIndicator(
       onRefresh: c.reconcile,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 12, 20, 100),
+        controller: bodyScroll,
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
         children: [
           if (c.warning != null)
             Padding(
@@ -1120,15 +1257,19 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       ),
     ),
     floatingActionButton: page < 3
-        ? FloatingActionButton(
+        ? FloatingActionButton.extended(
             onPressed: () => edit(),
             tooltip: '할 일 추가',
-            child: const Icon(Icons.add),
+            icon: const Icon(Icons.add, size: 21),
+            label: const Text('할 일'),
           )
         : null,
     bottomNavigationBar: NavigationBar(
       selectedIndex: page,
-      onDestinationSelected: (i) => setState(() => page = i),
+      onDestinationSelected: (i) {
+        setState(() => page = i);
+        if (bodyScroll.hasClients) bodyScroll.jumpTo(0);
+      },
       destinations: const [
         NavigationDestination(
           icon: Icon(Icons.calendar_month_outlined),

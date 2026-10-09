@@ -163,6 +163,16 @@ class TaskController extends ChangeNotifier {
     return result;
   }
 
+  List<Occurrence> get overdue {
+    final now = DateTime.now();
+    final result = queue.where((o) => o.originalDue.isBefore(now)).toList();
+    result.sort((a, b) {
+      final priority = b.task.priority.compareTo(a.task.priority);
+      return priority != 0 ? priority : a.originalDue.compareTo(b.originalDue);
+    });
+    return result;
+  }
+
   @override
   void dispose() {
     _retryTimer?.cancel();

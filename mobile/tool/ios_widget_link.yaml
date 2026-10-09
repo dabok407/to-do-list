@@ -1,8 +1,7 @@
 appId: com.dabok407.hangeoreum
 ---
 - openLink: ${TASK_URI}
-- runFlow:
-    when:
-      visible: Open
-    commands:
-      - tapOn: Open
+- extendedWaitUntil:
+    visible: Open
+    timeout: 30000
+- tapOn: Open

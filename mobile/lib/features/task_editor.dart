@@ -16,6 +16,8 @@ class _TaskEditorState extends State<TaskEditor> {
   late DateTime due;
   DateTime? end;
   int priority = 1, monthWeek = 1, countPerWeek = 1;
+  int overdueDays = 1;
+  int? overdueMinute;
   RepeatUnit repeat = RepeatUnit.none;
   String category = '생활';
   Set<int> weekdays = {};
@@ -42,6 +44,8 @@ class _TaskEditorState extends State<TaskEditor> {
     weekdays = (t?.weekdays ?? [due.weekday]).toSet();
     monthWeek = t?.monthWeek ?? 1;
     countPerWeek = t?.countPerWeek ?? 1;
+    overdueDays = t?.overdueDays ?? 1;
+    overdueMinute = t?.overdueMinute;
   }
 
   @override
@@ -78,9 +82,56 @@ class _TaskEditorState extends State<TaskEditor> {
     }
   }
 
+  Widget saveButton() => FilledButton(
+    onPressed: () {
+      if (!form.currentState!.validate()) return;
+      if ((repeat == RepeatUnit.weekly ||
+              repeat == RepeatUnit.monthlyWeekday) &&
+          weekdays.isEmpty) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('반복할 요일을 선택해주세요')));
+        return;
+      }
+      final now = DateTime.now();
+      Navigator.pop(
+        context,
+        Task(
+          id: widget.task?.id ?? 't${now.microsecondsSinceEpoch}',
+          title: title.text.trim(),
+          note: note.text.trim(),
+          smallStep: small.text.trim(),
+          due: due,
+          created: widget.task?.created ?? now,
+          priority: priority,
+          category: category,
+          repeat: repeat,
+          interval: int.tryParse(interval.text) ?? 1,
+          weekdays: weekdays.toList()..sort(),
+          end: repeat == RepeatUnit.none ? null : end,
+          monthWeek: monthWeek,
+          countPerWeek: countPerWeek,
+          groupId: widget.task?.groupId,
+          derived: widget.task?.derived ?? false,
+          overdueDays: overdueDays,
+          overdueMinute: overdueMinute,
+        ),
+      );
+    },
+    child: const Padding(padding: EdgeInsets.all(12), child: Text('저장')),
+  );
+
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: Text(widget.task == null ? '할 일 추가' : '반복·할 일 수정')),
+    bottomNavigationBar: AnimatedPadding(
+      duration: const Duration(milliseconds: 160),
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      child: SafeArea(
+        top: false,
+        minimum: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+        child: saveButton(),
+      ),
+    ),
     body: Form(
       key: form,
       child: SingleChildScrollView(
@@ -90,6 +141,8 @@ class _TaskEditorState extends State<TaskEditor> {
           children: [
             TextFormField(
               controller: title,
+              autofocus: widget.task == null,
+              textInputAction: TextInputAction.done,
               decoration: const InputDecoration(labelText: '할 일'),
               maxLength: 100,
               validator: (v) =>
@@ -160,6 +213,73 @@ class _TaskEditorState extends State<TaskEditor> {
                 DropdownMenuItem(value: 2, child: Text('높음')),
               ],
               onChanged: (v) => setState(() => priority = v!),
+            ),
+            const SizedBox(height: 16),
+            ExpansionTile(
+              key: const Key('overdue-settings'),
+              tilePadding: EdgeInsets.zero,
+              childrenPadding: const EdgeInsets.only(bottom: 16),
+              title: const Text('미완료 재알림'),
+              subtitle: Text(
+                overdueDays == 0
+                    ? '꺼짐'
+                    : '${overdueDays == 1 ? '매일' : '$overdueDays일마다'} · ${overdueMinute == null ? '예정 시간과 같게' : TimeOfDay(hour: overdueMinute! ~/ 60, minute: overdueMinute! % 60).format(context)}',
+              ),
+              children: [
+                DropdownButtonFormField<int>(
+                  key: const Key('overdue-interval'),
+                  initialValue: overdueDays,
+                  decoration: const InputDecoration(labelText: '재알림 간격'),
+                  items: const [
+                    DropdownMenuItem(value: 0, child: Text('알리지 않음')),
+                    DropdownMenuItem(value: 1, child: Text('매일 한 번 (기본)')),
+                    DropdownMenuItem(value: 2, child: Text('2일마다 한 번')),
+                    DropdownMenuItem(value: 3, child: Text('3일마다 한 번')),
+                    DropdownMenuItem(value: 7, child: Text('일주일마다 한 번')),
+                  ],
+                  onChanged: (v) => setState(() => overdueDays = v!),
+                ),
+                if (overdueDays > 0) ...[
+                  const SizedBox(height: 12),
+                  SwitchListTile.adaptive(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('예정 시간과 같게'),
+                    value: overdueMinute == null,
+                    onChanged: (same) => setState(
+                      () => overdueMinute = same
+                          ? null
+                          : due.hour * 60 + due.minute,
+                    ),
+                  ),
+                  if (overdueMinute != null)
+                    OutlinedButton.icon(
+                      icon: const Icon(Icons.schedule),
+                      label: Text(
+                        '재알림 ${TimeOfDay(hour: overdueMinute! ~/ 60, minute: overdueMinute! % 60).format(context)}',
+                      ),
+                      onPressed: () async {
+                        final picked = await showTimePicker(
+                          context: context,
+                          initialTime: TimeOfDay(
+                            hour: overdueMinute! ~/ 60,
+                            minute: overdueMinute! % 60,
+                          ),
+                        );
+                        if (picked != null && mounted) {
+                          setState(
+                            () => overdueMinute =
+                                picked.hour * 60 + picked.minute,
+                          );
+                        }
+                      },
+                    ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '기한이 지난 뒤 $overdueDays일 후부터 알려드려요. 완료·건너뛰기·삭제하면 멈춥니다. 미루기를 선택하면 그 시간까지 기다려요.',
+                    style: const TextStyle(fontSize: 13),
+                  ),
+                ],
+              ],
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<RepeatUnit>(
@@ -289,45 +409,6 @@ class _TaskEditorState extends State<TaskEditor> {
                 child: Text('저장하면 이 반복 일정의 예정 회차를 변경합니다. 완료·보류·진행 기록은 유지됩니다.'),
               ),
             const SizedBox(height: 32),
-            FilledButton(
-              onPressed: () {
-                if (!form.currentState!.validate()) return;
-                if ((repeat == RepeatUnit.weekly ||
-                        repeat == RepeatUnit.monthlyWeekday) &&
-                    weekdays.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('반복할 요일을 선택해주세요')),
-                  );
-                  return;
-                }
-                final now = DateTime.now();
-                Navigator.pop(
-                  context,
-                  Task(
-                    id: widget.task?.id ?? 't${now.microsecondsSinceEpoch}',
-                    title: title.text.trim(),
-                    note: note.text.trim(),
-                    smallStep: small.text.trim(),
-                    due: due,
-                    created: widget.task?.created ?? now,
-                    priority: priority,
-                    category: category,
-                    repeat: repeat,
-                    interval: int.tryParse(interval.text) ?? 1,
-                    weekdays: weekdays.toList()..sort(),
-                    end: repeat == RepeatUnit.none ? null : end,
-                    monthWeek: monthWeek,
-                    countPerWeek: countPerWeek,
-                    groupId: widget.task?.groupId,
-                    derived: widget.task?.derived ?? false,
-                  ),
-                );
-              },
-              child: const Padding(
-                padding: EdgeInsets.all(12),
-                child: Text('저장'),
-              ),
-            ),
           ],
         ),
       ),

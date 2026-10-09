@@ -61,6 +61,9 @@ class Task {
   final bool derived;
   String get seriesId => groupId ?? id;
   final int priority, interval, monthWeek, countPerWeek;
+  // 0 disables overdue follow-ups; null time keeps the original deadline clock.
+  final int overdueDays;
+  final int? overdueMinute;
   final DateTime due, created;
   final DateTime? end;
   final RepeatUnit repeat;
@@ -82,6 +85,8 @@ class Task {
     this.countPerWeek = 1,
     this.groupId,
     this.derived = false,
+    this.overdueDays = 1,
+    this.overdueMinute,
   });
   Map<String, Object?> toMap() => {
     'id': id,
@@ -100,6 +105,8 @@ class Task {
     'count_per_week': countPerWeek,
     'series_id': seriesId,
     'derived': derived ? 1 : 0,
+    'overdue_days': overdueDays,
+    'overdue_minute': overdueMinute,
   };
   factory Task.fromMap(Map<String, Object?> m) => Task(
     id: m['id'] as String,
@@ -118,6 +125,8 @@ class Task {
     countPerWeek: m['count_per_week'] as int? ?? 1,
     groupId: m['series_id'] as String?,
     derived: m['derived'] == 1,
+    overdueDays: m['overdue_days'] as int? ?? 1,
+    overdueMinute: m['overdue_minute'] as int?,
   );
 }
 

@@ -15,7 +15,7 @@
 - 이번 회차·이번부터 앞으로·전체 시리즈 삭제
 - 10분·30분·1시간·오늘 나중에 미루기, 하루 세 번째 미루기 후 5분 시작
 - iOS·Android 로컬 알림 예약 및 시작·10분 미루기·완료 액션
-- 보류 후 같은 날 두 번 추가 재알림, 진행 상태 확인 알림
+- 미완료 일정은 기본 매일 같은 시각 재알림, 간격·시각 변경 및 끄기, 진행 상태 확인 알림
 - Android 홈 화면 위젯·iOS WidgetKit 위젯, 할 일 열기·시작·10분 미루기
 - OS 반복 알림과 백그라운드 예약 보충·위젯 갱신
 - 최근 30일 등록 수·완료 수·완료율·미루기 수·평균 지연·완료 시간대
@@ -25,7 +25,7 @@
 
 위젯은 실제 OS 홈 화면에 추가하는 네이티브 위젯이다. 위젯·알림 액션은 앱을 열어 로컬 DB에 반영한다. 동기화·광고는 포함하지 않으며 스토어에 게시된 상태는 아니다. Pro 결제는 Apple StoreKit 2·Google Play Billing을 사용한다. [상품 등록 및 결제 검증](mobile/BILLING.md)을 참고한다.
 
-로컬 `flutter analyze`와 `flutter test` 46개는 통과했으며, 최신 소스 커밋·CI·네이티브 실행 검증·서명 빌드·실기기 결과는 [검증 보고서](VERIFICATION.md)에 구분해 기록한다. 기능 구현 완료를 스토어 배포 검증 완료로 간주하지 않는다.
+로컬 `flutter analyze`와 `flutter test` 57개는 통과했으며, 최신 소스 커밋·CI·네이티브 실행 검증·서명 빌드·실기기 결과는 [검증 보고서](VERIFICATION.md)에 구분해 기록한다. 기능 구현 완료를 스토어 배포 검증 완료로 간주하지 않는다.
 
 ## 프로젝트 구조
 
@@ -33,7 +33,7 @@
 | --- | --- |
 | mobile/lib/main.dart | 앱 초기화, 한국어·테마, 알림 액션 연결 |
 | mobile/lib/domain | Task·Occurrence·반복 계산 |
-| mobile/lib/data/task_repository.dart | SQLite schema v4·migration·분류·회차·주간 목표·삭제 범위·통계·예약 동시 실행 제어 |
+| mobile/lib/data/task_repository.dart | SQLite schema v5·migration·분류·회차·주간 목표·삭제 범위·통계·예약 동시 실행 제어 |
 | mobile/lib/app/task_controller.dart | 화면 상태·우선순위 큐·알림/위젯 동기화·액션 연결 |
 | mobile/lib/features | 캘린더·목록·상세·등록·반복 수정·통계·설정 |
 | mobile/lib/services/reminder_scheduler.dart | 기기 시간대·권한·OS 예약·취소·알림 액션 |
@@ -49,7 +49,7 @@
 | .github/workflows/mobile.yml | Android 빌드/에뮬레이터·iOS 빌드/시뮬레이터·네이티브 위젯 검증 |
 | VERIFICATION.md | 커밋별 검증 결과와 남은 실기기·서명 검증 |
 
-DB는 tasks(원본·분류·반복 규칙·시리즈·주간 목표), occurrences(실제 회차·상태·원래 시간·재알림 시간), events(미루기·시작·완료), recurrence_exceptions(회차 예외), settings(백그라운드 갱신 기록·예약 동시 실행 제어)로 구성한다. schema v4로 기존 DB를 마이그레이션한다. 완료 해제는 이전 상태와 완료 통계를 복원한다. iOS 위젯에는 `group.com.dabok407.hangeoreum` App Group의 읽기용 스냅샷을 제공한다.
+DB는 tasks(원본·분류·반복 규칙·시리즈·주간 목표), occurrences(실제 회차·상태·원래 시간·재알림 시간), events(미루기·시작·완료), recurrence_exceptions(회차 예외), settings(백그라운드 갱신 기록·예약 동시 실행 제어)로 구성한다. schema v5로 기존 DB를 마이그레이션한다. 완료 해제는 이전 상태와 완료 통계를 복원한다. iOS 위젯에는 `group.com.dabok407.hangeoreum` App Group의 읽기용 스냅샷을 제공한다.
 
 알림 흐름: DB에 저장 → 알림/위젯 갱신 → OS 알림 → 사용자 액션으로 DB 갱신 → 완료 알림 취소 또는 다음 확인 예약. Android는 정확한 알람 권한을 확인하고 거부 시 지연 가능한 예약을 사용하며 재부팅 예약 복구 receiver를 포함한다. iOS는 로컬 예약·알림 category action을 사용한다. 앱 진입·액션과 OS가 허용한 백그라운드 실행에서 예약을 보충한다.
 
