@@ -18,9 +18,9 @@ AI·Pro·결제·광고·클라우드는 초기 제품 범위에서 제외된 �
 
 ## 자동 검증
 
-2026-10-07 로컬 실행: `flutter analyze --no-pub` 오류 없음, `flutter test --no-pub` 40개 통과. 320px·글꼴 1.5배 화면 조작과 실제 파일 DB 2→3 마이그레이션도 포함한다.
+2026-10-09 로컬 실행: `flutter analyze` 오류 없음, `flutter test` 42개 통과. iOS GMT 시간대 회귀 검증, 320px·글꼴 1.5배 화면 조작과 실제 파일 DB 2→3 마이그레이션도 포함한다.
 
-최신 네이티브 검증: [GitHub Actions 실행](https://github.com/dabok407/to-do-list/actions/runs/37723443588), 소스 커밋 `6104f97`. 결과 확정 후 이 기록을 갱신한다.
+최신 네이티브 검증: [GitHub Actions 실행](https://github.com/dabok407/to-do-list/actions/runs/37870372059), 소스 커밋 `dc82488`. 아직 전체 검증 완료 상태가 아니다. [앞선 실행](https://github.com/dabok407/to-do-list/actions/runs/37868704812)에서 Android 종료 후 알림·재부팅 알림, iOS 앱 실행 통합 테스트·WidgetKit XCTest가 통과했다. Flutter driver가 Android 앱까지 자동 삭제하는 동작을 수정했고, iOS 콜드 링크의 상태 변경 실패를 추가 진단 중이다. 결과 확정 후 이 기록을 갱신한다.
 
 | 검증 | 현재 증거 |
 | --- | --- |
@@ -28,13 +28,13 @@ AI·Pro·결제·광고·클라우드는 초기 제품 범위에서 제외된 �
 | 알림 권한 거부·직렬 액션·완료 해제 | 로컬 테스트 통과, 네이티브 통합 검증 진행 |
 | Android Kotlin 컴파일 | 로컬 컴파일 통과 |
 | Android debug APK·release AAB | 이전 CI 빌드 통과, 로컬 서명 release AAB 최종 빌드·서명 검증 통과 |
-| Android 실제 에뮬레이터 알림·프로세스 종료·재부팅·위젯 | CI 통합 검증 진행 |
+| Android 실제 에뮬레이터 알림·프로세스 종료·재부팅·위젯 | 종료·재부팅 알림 통과, 위젯 검증 실패 원인 확인 중 |
 | iOS 앱 및 WidgetKit 시뮬레이터 빌드 | CI 빌드 통과 |
-| iPhone 시뮬레이터 UI·알림·권한 거부·콜드 링크 | CI 통합 검증 진행 |
-| WidgetKit 데이터·소형/중형 화면 렌더링 | CI XCTest 진행 |
+| iPhone 시뮬레이터 UI·알림·권한 거부·콜드 링크 | UI·알림·DB 재연결 통과, 권한 거부·콜드 링크 검증 진행 |
+| WidgetKit 데이터·소형/중형 화면 렌더링 | CI XCTest 통과, 소형·중형 렌더링 이미지 확인 |
 | iOS release 빌드, 서명 제외 | CI 검증 진행 |
 
-Android 서명 결과: `mobile/build/app/outputs/bundle/release/app-release.aab`, 약 55.5 MB. SHA-256: `9E3DCAD753DD43E16F5F0908844771A323A2F4E371CC5108685546536B0FA825`. JDK jarsigner 검증 결과 `jar verified`. Android 업로드 키는 일반적인 자체 서명 인증서를 사용하며 스토어 계정에는 아직 연결하지 않았다.
+Android 서명 결과(제품 소스 `7a169d8`, 후속 커밋은 테스트 도구만 수정): `mobile/build/app/outputs/bundle/release/app-release.aab`, 약 55.5 MB. SHA-256: `7EFEE964CDE94350399503D337EEEE167BAF4EF9E0EE1F593F4ADA821F121B0B`. JDK jarsigner 검증 결과 `jar verified`. 최종 제품 소스 확정 후 다시 빌드한다. Android 업로드 키는 일반적인 자체 서명 인증서를 사용하며 스토어 계정에는 아직 연결하지 않았다.
 
 ## 재현
 

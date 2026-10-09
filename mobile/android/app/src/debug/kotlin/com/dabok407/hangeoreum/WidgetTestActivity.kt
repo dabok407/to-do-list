@@ -1,6 +1,7 @@
 package com.dabok407.hangeoreum
 
 import android.app.Activity
+import android.app.NotificationManager
 import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
@@ -20,6 +21,12 @@ class WidgetTestActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Alarm delivery has already been verified; keep its heads-up banner out
+        // of the widget render screenshots.
+        getSystemService(NotificationManager::class.java)?.apply {
+            cancel(100001)
+            cancel(100002)
+        }
         host = AppWidgetHost(this, 7201)
         widgetId = host.allocateAppWidgetId()
         val manager = AppWidgetManager.getInstance(this)
@@ -48,6 +55,9 @@ class WidgetTestActivity : Activity() {
         val info = manager.getAppWidgetInfo(widgetId)
         checkNotNull(info) { "Widget provider metadata is unavailable." }
         val widget = host.createView(this, widgetId, info)
+        // AppWidget options describe the provider's content area. A launcher
+        // allocates host padding separately; this test uses the content size.
+        widget.setPadding(0, 0, 0, 0)
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_HORIZONTAL

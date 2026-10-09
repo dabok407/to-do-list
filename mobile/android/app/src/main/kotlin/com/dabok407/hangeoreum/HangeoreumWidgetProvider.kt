@@ -136,6 +136,7 @@ class HangeoreumWidgetProvider : AppWidgetProvider() {
 
             tasks.take(capacity).forEachIndexed { index, task ->
                 val row = RemoteViews(context.packageName, R.layout.widget_task_row)
+                if (minHeight < 180) row.setViewPadding(R.id.widget_task_row, 0, 0, 0, 0)
                 val taskId = task.optString("id")
                 val title = task.optString("title")
                 val highPriority = task.optInt("priority") == 2

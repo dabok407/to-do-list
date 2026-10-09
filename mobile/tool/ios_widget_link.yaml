@@ -1,0 +1,11 @@
+appId: com.dabok407.hangeoreum
+---
+- openLink: ${TASK_URI}
+- runFlow:
+    when:
+      visible: Open
+    commands:
+      - tapOn: Open
+- extendedWaitUntil:
+    visible: "안방 대청소 통합 테스트"
+    timeout: 60000

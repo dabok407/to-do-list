@@ -20,7 +20,10 @@ assert row, 'SQLite task state did not survive simulator app termination/reinsta
 print('hangeoreum://task?'+urllib.parse.urlencode({'id':row[0],'action':'start'}))
 PY
 )
-xcrun simctl openurl "$device" "$uri"
+set +e
+maestro --device "$device" test -e TASK_URI="$uri" tool/ios_widget_link.yaml > "$results/ios-deep-link-ui.log" 2>&1
+ui_status=$?
+set -e
 xcrun simctl io "$device" screenshot "$results/ios-native-launch.png"
 set +e
 python3 - "$database" <<'PY'
@@ -40,5 +43,6 @@ set -e
 xcrun simctl io "$device" screenshot "$results/ios-native-start.png"
 xcrun simctl spawn "$device" log show --last 3m --style compact --predicate 'process == "Runner"' > "$results/ios-native-launch.log" || true
 test "$status" = 0
+test "$ui_status" = 0
 cp "$database" "$results/ios-local-database.db"
 
