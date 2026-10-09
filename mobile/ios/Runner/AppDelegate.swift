@@ -14,6 +14,9 @@ import workmanager_apple
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
+    #if DEBUG
+    NSLog("HANGEOREUM_START: application launch")
+    #endif
     WorkmanagerPlugin.setPluginRegistrantCallback { registry in
       GeneratedPluginRegistrant.register(with: registry)
       if let registrar = registry.registrar(forPlugin: "HangeoreumWidgetSnapshot") {
@@ -28,6 +31,9 @@ import workmanager_apple
       earliestBeginInSeconds: NSNumber(value: 6 * 60 * 60)
     )
     WorkmanagerPlugin.registerLaunchHandlers()
+    #if DEBUG
+    NSLog("HANGEOREUM_START: background handlers registered")
+    #endif
     UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
     if var documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
       var values = URLResourceValues()
@@ -35,10 +41,17 @@ import workmanager_apple
       do { try documents.setResourceValues(values) }
       catch { NSLog("Unable to exclude local task database from backup") }
     }
-    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    let launched = super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    #if DEBUG
+    NSLog("HANGEOREUM_START: application launch finished")
+    #endif
+    return launched
   }
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
+    #if DEBUG
+    NSLog("HANGEOREUM_START: implicit Flutter engine initialized")
+    #endif
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
     subscriptions = SubscriptionBridge(messenger: engineBridge.applicationRegistrar.messenger())
     let channel = FlutterMethodChannel(name: "com.dabok407.hangeoreum/widget", binaryMessenger: engineBridge.applicationRegistrar.messenger())

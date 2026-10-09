@@ -12,9 +12,9 @@ runtime="$results/ios-$name-runtime.log"
 flutter build ios --simulator --debug --target "$target"
 xcrun simctl terminate "$device" "$package" || true
 xcrun simctl install "$device" build/ios/iphonesimulator/Runner.app
-xcrun simctl launch --console-pty "$device" "$package" \
+xcrun simctl launch --console "$device" "$package" \
   --enable-dart-profiling --disable-vm-service-publication --start-paused --enable-checked-mode \
-  --verify-entry-points --vm-service-port=8181 > "$runtime" 2>&1 &
+  --verify-entry-points --verbose-logging --vm-service-port=8181 < /dev/null > "$runtime" 2>&1 &
 launcher=$!
 trap 'kill "$launcher" 2>/dev/null || true' EXIT
 uri=''
@@ -32,6 +32,11 @@ PY
 done
 if [[ -z "$uri" ]]; then
   cat "$runtime"
+  xcrun simctl spawn "$device" log show --last 3m --style compact \
+    --predicate 'process == "Runner"' > "$results/ios-$name-system.log" 2>&1 || true
+  for app_pid in $(pgrep -x Runner || true); do
+    sample "$app_pid" 3 -file "$results/ios-$name-stack-$app_pid.txt" || true
+  done
   xcrun simctl io "$device" screenshot "$results/ios-$name-startup-failed.png" || true
   echo 'Simulator did not expose a VM service within 90 seconds.' >&2
   exit 1
