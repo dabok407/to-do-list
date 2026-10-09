@@ -59,3 +59,20 @@ done
 test "$screen_ok" = 1
 cp "$database" "$results/ios-local-database.db"
 
+# A consumed pending request alone does not prove that a user saw an alert.
+# Clear old deliveries, schedule via the real Settings button, terminate the
+# app, and require a new visible notification in SpringBoard Notification Center.
+xcrun simctl terminate "$device" "$package" || true
+xcrun simctl launch "$device" "$package" --clear-delivered-notifications
+set +e
+maestro --device "$device" test --debug-output="$results/maestro-notification" \
+  --test-output-dir="$results/maestro-notification" tool/ios_background_notification.yaml \
+  > "$results/ios-background-notification-ui.log" 2>&1
+notification_status=$?
+set -e
+xcrun simctl io "$device" screenshot "$results/ios-background-notification.png"
+test "$notification_status" = 0
+swift tool/verify_ios_screen.swift "$results/ios-background-notification.png" \
+  "한걸음 테스트" "앱 밖에서도" > "$results/ios-background-notification-ocr.log"
+echo 'IOS_TERMINATED_NOTIFICATION_OK'
+

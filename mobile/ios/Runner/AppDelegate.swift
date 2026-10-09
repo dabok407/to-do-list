@@ -14,6 +14,13 @@ import workmanager_apple
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
+    #if targetEnvironment(simulator)
+    // CI clears previously delivered banners before testing a fresh local alert.
+    // This hook is absent from physical-device / App Store builds.
+    if ProcessInfo.processInfo.arguments.contains("--clear-delivered-notifications") {
+      UNUserNotificationCenter.current().removeAllDeliveredNotifications()
+    }
+    #endif
     #if DEBUG
     NSLog("HANGEOREUM_START: application launch")
     #endif

@@ -1,0 +1,24 @@
+appId: com.dabok407.hangeoreum
+---
+- launchApp:
+    stopApp: false
+- extendedWaitUntil:
+    visible: ".*설정.*"
+    timeout: 30000
+- tapOn: ".*설정.*"
+- scrollUntilVisible:
+    element:
+      text: "10초 뒤 테스트 알림"
+    direction: DOWN
+    timeout: 30000
+- tapOn: "10초 뒤 테스트 알림"
+- pressKey: home
+- stopApp
+- swipe:
+    start: "20%, 1%"
+    end: "20%, 85%"
+    duration: 1000
+- extendedWaitUntil:
+    visible: ".*한걸음 테스트.*"
+    timeout: 30000
+- assertVisible: ".*앱 밖에서도 알림이 도착하는지 확인해주세요.*"
