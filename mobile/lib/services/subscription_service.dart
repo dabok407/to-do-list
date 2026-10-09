@@ -11,6 +11,7 @@ class SubscriptionService extends ChangeNotifier {
   final MethodChannel channel;
   final FeatureAccess? access;
   bool get hasAccess => access?.enabled ?? active;
+  bool get paidAccess => access?.paidActive ?? active;
   DateTime? get trialEnds => access?.trialEnds;
   bool get trialActive => access?.trialActive ?? false;
   bool busy = false, active = false, pending = false;
@@ -71,7 +72,7 @@ class SubscriptionService extends ChangeNotifier {
               )
             : null;
         message = result['message'] as String?;
-        if (method != 'manage') {
+        if (method != 'manage' && result['active'] is bool) {
           await access?.verifiedStore(active: active, expires: expires);
         }
       }
@@ -80,8 +81,8 @@ class SubscriptionService extends ChangeNotifier {
       available = false;
       message = '이 환경에서는 스토어 결제를 사용할 수 없어요.';
     } catch (_) {
-      // Fail closed if the store cannot establish current access. Basic tasks
-      // remain available offline; the last verified 24h access lease is retained.
+      // Connection failure is not evidence of expiry or refund. Retain the last
+      // verified entitlement and enforce a known store expiry locally.
       active = false;
       available = false;
       message = '스토어에서 구독을 확인하지 못했어요. 인터넷 연결을 확인한 뒤 다시 시도해주세요.';

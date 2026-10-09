@@ -87,6 +87,10 @@ class SubscriptionBridge(private val activity: Activity, messenger: BinaryMessen
     }
 
     private fun status(result: MethodChannel.Result, message: String? = null) {
+        if (BuildConfig.PLAY_BILLING_PUBLIC_KEY.isBlank()) {
+            result.error("configuration", "스토어 상품 등록 후 구독을 시작할 수 있어요.", null)
+            return
+        }
         client.queryPurchasesAsync(QueryPurchasesParams.newBuilder().setProductType(BillingClient.ProductType.SUBS).build()) { response, purchases ->
             activity.runOnUiThread {
                 if (response.responseCode != BillingClient.BillingResponseCode.OK) {
@@ -95,6 +99,11 @@ class SubscriptionBridge(private val activity: Activity, messenger: BinaryMessen
                 val owned = purchases.firstOrNull { id in it.products && !it.isSuspended && it.purchaseState == Purchase.PurchaseState.PURCHASED && verified(it) }
                 val pending = purchases.any { id in it.products && it.purchaseState == Purchase.PurchaseState.PENDING }
                 fun deliver(ackError: Boolean = false) {
+                    // A failed acknowledgement is not a verified revocation.
+                    if (ackError) {
+                        result.error("acknowledgement", "결제 확인을 마치지 못했어요. 구매 복원으로 다시 확인해주세요.", null)
+                        return
+                    }
                     product { p, error ->
                         val offer = p?.let { annualOffer(it) }
                         result.success(mapOf(

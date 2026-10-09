@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/services.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -84,7 +86,7 @@ void main() {
     },
   );
   test(
-    'verified lease is capped at expiry and revoked by confirmed refund',
+    'known store expiry is enforced and confirmed refund revokes access',
     () async {
       await access.load(startTrial: true);
       now = start.add(const Duration(days: 8));
@@ -95,30 +97,146 @@ void main() {
       expect(access.enabled, false);
     },
   );
+  test('verified purchase without expiry survives long inactivity and store errors', () async {
+    await access.load(startTrial: true);
+    now = start.add(const Duration(days: 8));
+    const channel = MethodChannel('com.dabok407.hangeoreum/billing');
+    final binding =
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    binding.setMockMethodCallHandler(channel, (_) async => {'active': true});
+    final service = SubscriptionService(access: access);
+    await service.restore();
+    expect(service.hasAccess, true);
+    binding.setMockMethodCallHandler(
+      channel,
+      (_) async => throw PlatformException(code: 'offline'),
+    );
+    await service.refresh();
+    expect(service.hasAccess, true);
+    for (final days in [1, 3, 14, 90, 370]) {
+      now = start.add(Duration(days: days + 8));
+      await access.load();
+      await service.refresh();
+      expect(service.hasAccess, true, reason: 'Inactive for $days days');
+      expect(service.paidAccess, true);
+      expect(access.until, isNull);
+    }
+    binding.setMockMethodCallHandler(channel, (_) async => {'active': false});
+    await service.refresh();
+    expect(service.hasAccess, false);
+    service.dispose();
+    binding.setMockMethodCallHandler(channel, null);
+  });
   test(
-    'offline verified purchase survives transient error but not its 24h lease',
+    'known annual expiry survives restart and stops exactly at expiry',
     () async {
       await access.load(startTrial: true);
-      now = start.add(const Duration(days: 8));
-      const channel = MethodChannel('com.dabok407.hangeoreum/billing');
-      final binding =
-          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
-      binding.setMockMethodCallHandler(channel, (_) async => {'active': true});
-      final service = SubscriptionService(access: access);
-      await service.restore();
-      expect(service.hasAccess, true);
-      binding.setMockMethodCallHandler(
-        channel,
-        (_) async => throw PlatformException(code: 'offline'),
+      final expiry = start.add(const Duration(days: 365));
+      await access.verifiedStore(active: true, expires: expiry);
+      for (final days in [3, 14, 90, 364]) {
+        now = start.add(Duration(days: days));
+        final reopened = FeatureAccess(repo, clock: () => now);
+        await reopened.load();
+        expect(reopened.enabled, true);
+        expect(reopened.until, expiry);
+        reopened.dispose();
+      }
+      now = expiry.subtract(const Duration(milliseconds: 1));
+      expect(access.enabled, true);
+      now = expiry;
+      expect(access.enabled, false);
+      await access.verifiedStore(
+        active: true,
+        expires: expiry.add(const Duration(days: 365)),
       );
-      await service.refresh();
-      expect(service.hasAccess, true);
-      now = now.add(const Duration(hours: 24));
-      expect(service.hasAccess, false);
-      service.dispose();
-      binding.setMockMethodCallHandler(channel, null);
+      expect(access.enabled, true);
+      await access.verifiedStore(active: false);
+      expect(access.enabled, false);
     },
   );
+  test(
+    'old bounded lease is not silently upgraded to permanent access',
+    () async {
+      await repo.setSetting(
+        'feature_access_v1',
+        jsonEncode({
+          'paidUntil': start.add(const Duration(hours: 24)).toIso8601String(),
+          'lastSeen': start.toIso8601String(),
+        }),
+      );
+      await access.load();
+      expect(access.enabled, true);
+      now = start.add(const Duration(days: 3));
+      await access.load();
+      expect(access.enabled, false);
+      await access.verifiedStore(active: true);
+      expect(access.enabled, true);
+      expect(access.until, isNull);
+    },
+  );
+  test('corrupt expiry cannot become unbounded verified access', () async {
+    await repo.setSetting(
+      'feature_access_v1',
+      jsonEncode({'version': 2, 'verifiedPaid': true, 'paidUntil': 'broken'}),
+    );
+    await access.load();
+    expect(access.enabled, false);
+  });
+  test('incomplete store response does not revoke cached purchase', () async {
+    await access.verifiedStore(active: true);
+    const channel = MethodChannel('com.dabok407.hangeoreum/billing');
+    final binding =
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    binding.setMockMethodCallHandler(
+      channel,
+      (_) async => {'available': false},
+    );
+    final service = SubscriptionService(access: access);
+    await service.refresh();
+    expect(service.paidAccess, true);
+    service.dispose();
+    binding.setMockMethodCallHandler(channel, null);
+  });
+  for (final knownExpiry in [false, true]) {
+    test(
+      'paid alarms include future deadline and daily follow-ups after inactivity (expiry=$knownExpiry)',
+      () async {
+        await access.verifiedStore(
+          active: true,
+          expires: knownExpiry ? start.add(const Duration(days: 365)) : null,
+        );
+        now = start.add(const Duration(days: 3));
+        await access.load();
+        final due = start.add(const Duration(days: 7));
+        final task = Task(
+          id: 'filter',
+          title: '에어컨 필터 청소',
+          due: due,
+          created: start,
+        );
+        final plan = NotificationPlan.build(
+          [
+            Occurrence(
+              id: 'filter@first',
+              task: task,
+              originalDue: due,
+              reminder: due,
+            ),
+          ],
+          now: now,
+          capacity: 60,
+          until: access.enabled ? access.until : DateTime(1970),
+        );
+        expect(plan.jobs.any((j) => j.at == due), true);
+        for (var day = 1; day <= 14; day++) {
+          expect(
+            plan.jobs.any((j) => j.at == due.add(Duration(days: day))),
+            true,
+          );
+        }
+      },
+    );
+  }
   for (final repeat in RepeatUnit.values) {
     test(
       'alarm cutoff includes due and overdue jobs without immortal repeats: $repeat',

@@ -7,7 +7,7 @@ if ($RunId -le 0) { throw 'A positive GitHub Actions run id is required.' }
 $workspace = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 $destination = Join-Path $workspace ".tools/verification/$RunId"
 $api = "https://api.github.com/repos/dabok407/to-do-list/actions/runs/$RunId"
-$headers = @{ Accept = 'application/vnd.github+json' }
+$headers = @{ Accept = 'application/vnd.github+json'; 'Cache-Control' = 'no-cache' }
 if ($Mode -ne 'Status') {
     $credentialLines = "protocol=https`nhost=github.com`n`n" | git credential fill
     $secretLine = $credentialLines | Where-Object { $_.StartsWith('password=') }
@@ -28,7 +28,7 @@ if ($Mode -eq 'Status') {
 New-Item -ItemType Directory -Path $destination -Force | Out-Null
 if ($Mode -eq 'Logs') {
     $jobs = Invoke-RestMethod "$api/jobs" -Headers $headers -TimeoutSec 30
-    foreach ($job in $jobs.jobs | Where-Object status -eq 'completed') {
+    foreach ($job in $jobs.jobs | Where-Object { $_.status -eq 'completed' -and $_.conclusion -ne 'skipped' }) {
         $log = Join-Path $destination "$($job.id).log"
         Invoke-WebRequest "https://api.github.com/repos/dabok407/to-do-list/actions/jobs/$($job.id)/logs" -Headers $headers -OutFile $log -TimeoutSec 60
         Write-Output "$($job.name): $log"

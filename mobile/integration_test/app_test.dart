@@ -126,6 +126,43 @@ void main() {
     );
     expect(savedAccess, isNotNull);
     try {
+      // Simulate a store-verified purchase last seen 30 days ago. This checks
+      // SQLite -> access -> production OS scheduler, without claiming real IAP.
+      for (final knownExpiry in [false, true]) {
+        await controller.repository.setSetting(
+          'feature_access_v1',
+          jsonEncode({
+            'version': 2,
+            'verifiedPaid': true,
+            'trialEnds': DateTime.now()
+                .subtract(const Duration(days: 30))
+                .toIso8601String(),
+            'paidUntil': knownExpiry
+                ? DateTime.now()
+                      .add(const Duration(days: 335))
+                      .toIso8601String()
+                : null,
+            'lastSeen': DateTime.now()
+                .subtract(const Duration(days: 30))
+                .toIso8601String(),
+          }),
+        );
+        await controller.reconcile();
+        expect(controller.access!.paidActive, true);
+        expect(
+          controller.reminders.lastPlan!.jobs.any(
+            (job) =>
+                job.repeat != null ||
+                job.at.isAfter(DateTime.now().add(const Duration(days: 7))),
+          ),
+          true,
+        );
+        expect(
+          await controller.reminders.plugin.pendingNotificationRequests(),
+          isNotEmpty,
+        );
+      }
+      debugPrint('NATIVE_OFFLINE_PAID_REMINDERS_OK');
       await controller.repository.setSetting(
         'feature_access_v1',
         jsonEncode({
