@@ -117,7 +117,7 @@ void main() {
     RepeatUnit.monthlyWeekday,
     RepeatUnit.weeklyGoal,
   ]) {
-    testWidgets('320px · 글꼴 ${_layoutScale}배 ${repeat.name} 폼에서 저장 가능', (tester) async {
+    testWidgets('320px · 글꼴 $_layoutScale배 ${repeat.name} 폼에서 저장 가능', (tester) async {
       _smallScreen(tester);
       final controller = _LayoutController();
       addTearDown(controller.dispose);
@@ -178,7 +178,7 @@ void main() {
     });
   }
 
-  testWidgets('320px · 글꼴 ${_layoutScale}배 캘린더에서 월·주 전환과 날짜 선택 가능', (tester) async {
+  testWidgets('320px · 글꼴 $_layoutScale배 캘린더에서 월·주 전환과 날짜 선택 가능', (tester) async {
     _smallScreen(tester);
     final controller = _LayoutController();
     addTearDown(controller.dispose);

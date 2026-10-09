@@ -5,13 +5,20 @@ on:
   pull_request:
     paths: ['mobile/**', '.github/workflows/mobile.yml']
   workflow_dispatch:
+    inputs:
+      platform:
+        description: Platform to verify (push and pull requests always verify both)
+        type: choice
+        default: both
+        options: [both, android, ios]
 permissions:
   contents: read
 concurrency:
-  group: mobile-${{ github.ref }}
+  group: mobile-${{ github.ref }}-${{ inputs.platform || 'both' }}
   cancel-in-progress: true
 jobs:
   android:
+    if: github.event_name != 'workflow_dispatch' || inputs.platform != 'ios'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     defaults:
@@ -72,6 +79,7 @@ jobs:
             mobile/build/native-debug.apk
             mobile/build/app/outputs/bundle/release/*.aab
   ios:
+    if: github.event_name != 'workflow_dispatch' || inputs.platform != 'android'
     runs-on: macos-15
     env:
       DEVELOPER_DIR: /Applications/Xcode_26.3.app/Contents/Developer
