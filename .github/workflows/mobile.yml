@@ -41,7 +41,7 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
       - name: Android device integration and native lifecycle
-        timeout-minutes: 20
+        timeout-minutes: 30
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 35
@@ -51,7 +51,7 @@ jobs:
             adb install -r mobile/build/native-debug.apk
             adb shell pm grant com.dabok407.hangeoreum android.permission.POST_NOTIFICATIONS
             adb shell appops set com.dabok407.hangeoreum SCHEDULE_EXACT_ALARM allow
-            cd mobile && timeout 600 flutter drive --keep-app-running --driver=test_driver/integration_test.dart --target=integration_test/app_test.dart
+            cd mobile && bash tool/drive_android_app_test.sh
             cd mobile && bash tool/verify_android_native.sh
             adb shell pm clear com.dabok407.hangeoreum
             adb shell pm revoke com.dabok407.hangeoreum android.permission.POST_NOTIFICATIONS

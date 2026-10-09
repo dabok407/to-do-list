@@ -23,6 +23,7 @@ android {
     }
 
     defaultConfig {
+        buildConfigField("String", "PLAY_BILLING_PUBLIC_KEY", "\"${(System.getenv("PLAY_BILLING_PUBLIC_KEY") ?: "").replace("\\", "\\\\").replace("\"", "\\\"")}\"")
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.dabok407.hangeoreum"
         // You can update the following values to match your application needs.
@@ -37,6 +38,7 @@ android {
         versionName = flutter.versionName
     }
 
+    buildFeatures { buildConfig = true }
     signingConfigs {
         if (keyPropertiesFile.exists()) {
             create("release") {
@@ -64,4 +66,7 @@ flutter {
     source = "../.."
 }
 
-dependencies { coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4") }
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+    implementation("com.android.billingclient:billing:8.3.0")
+}

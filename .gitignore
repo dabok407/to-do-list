@@ -4,6 +4,7 @@ Thumbs.db
 preview-*.jpg
 *.log
 .tools/
+preview/
 mobile/.dart_tool/
 mobile/build/
 mobile/.flutter-plugins-dependencies

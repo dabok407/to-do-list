@@ -7,6 +7,7 @@ import workmanager_apple
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
   private var widgetChannel: FlutterMethodChannel?
+  private var subscriptions: SubscriptionBridge?
   private var pendingWidgetUri: String?
   private var flutterWidgetReady = false
   override func application(
@@ -39,6 +40,7 @@ import workmanager_apple
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+    subscriptions = SubscriptionBridge(messenger: engineBridge.applicationRegistrar.messenger())
     let channel = FlutterMethodChannel(name: "com.dabok407.hangeoreum/widget", binaryMessenger: engineBridge.applicationRegistrar.messenger())
     widgetChannel = channel
     channel.setMethodCallHandler { [weak self] call, result in

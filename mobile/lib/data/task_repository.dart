@@ -11,8 +11,13 @@ class TaskRepository {
     final db = await openDatabase(
       databasePath ?? path.join(await getDatabasesPath(), 'hangeoreum.db'),
       singleInstance: false,
-      version: 3,
+      version: 4,
       onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 4) {
+          await db.execute(
+            "ALTER TABLE tasks ADD COLUMN category TEXT NOT NULL DEFAULT '생활'",
+          );
+        }
         if (oldVersion < 2) {
           await db.execute(
             "ALTER TABLE tasks ADD COLUMN series_id TEXT NOT NULL DEFAULT ''",
@@ -45,7 +50,7 @@ class TaskRepository {
       onCreate: (db, version) async {
         await db.execute(
           '''CREATE TABLE tasks(id TEXT PRIMARY KEY, title TEXT NOT NULL,
-          note TEXT NOT NULL, small_step TEXT NOT NULL, priority INTEGER NOT NULL,
+          note TEXT NOT NULL, category TEXT NOT NULL DEFAULT '생활', small_step TEXT NOT NULL, priority INTEGER NOT NULL,
           due TEXT NOT NULL, created TEXT NOT NULL, repeat_unit TEXT NOT NULL,
           repeat_interval INTEGER NOT NULL, weekdays TEXT NOT NULL, end_date TEXT, month_week INTEGER NOT NULL,
           series_id TEXT NOT NULL, derived INTEGER NOT NULL DEFAULT 0,

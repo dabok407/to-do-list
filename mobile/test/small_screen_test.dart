@@ -88,8 +88,10 @@ void main() {
         find.byType(TextFormField).first,
         '좁은 화면에서도 저장하는 할 일',
       );
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
       final dropdown = find.byType(DropdownButtonFormField<RepeatUnit>);
-      await tester.ensureVisible(dropdown);
+      await Scrollable.ensureVisible(tester.element(dropdown), alignment: .3);
       await tester.pumpAndSettle();
       if (repeat != RepeatUnit.none) {
         await tester.tap(dropdown);
@@ -154,7 +156,18 @@ void main() {
     final day = find
         .descendant(of: find.byType(GridView), matching: find.text('15'))
         .first;
-    await tester.ensureVisible(day);
+    await tester.scrollUntilVisible(
+      day,
+      140,
+      scrollable: find
+          .descendant(
+            of: find.byType(ListView),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+    await Scrollable.ensureVisible(tester.element(day), alignment: .3);
+    await tester.pumpAndSettle();
     await tester.tap(day);
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);

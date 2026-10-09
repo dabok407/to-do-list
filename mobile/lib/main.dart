@@ -10,6 +10,7 @@ import 'features/home_screen.dart';
 import 'services/reminder_scheduler.dart';
 import 'services/widget_service.dart';
 import 'services/background_refresh.dart';
+import 'services/subscription_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -102,7 +103,8 @@ Future<void> nativeBackgroundProbe() async {
 
 class HangeoreumApp extends StatelessWidget {
   final TaskController controller;
-  const HangeoreumApp({super.key, required this.controller});
+  final SubscriptionService? subscription;
+  const HangeoreumApp({super.key, required this.controller, this.subscription});
   @override
   Widget build(BuildContext context) => MaterialApp(
     title: '한걸음',
@@ -114,7 +116,9 @@ class HangeoreumApp extends StatelessWidget {
       fontFamily: 'Pretendard',
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: const Color(0xff3569ed),
+        seedColor: const Color(0xff394c40),
+        primary: const Color(0xff273c32),
+        secondary: const Color(0xff7a6654),
         surface: Colors.white,
       ),
       scaffoldBackgroundColor: Colors.white,
@@ -128,9 +132,10 @@ class HangeoreumApp extends StatelessWidget {
       ),
       navigationBarTheme: const NavigationBarThemeData(
         backgroundColor: Colors.white,
+        indicatorColor: Color(0xffeaf0e9),
         height: 74,
       ),
     ),
-    home: HomeScreen(controller: controller),
+    home: HomeScreen(controller: controller, subscription: subscription),
   );
 }

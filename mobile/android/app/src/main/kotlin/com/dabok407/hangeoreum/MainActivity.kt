@@ -6,11 +6,13 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
+    private var subscriptions: SubscriptionBridge? = null
     private var widgetChannel: MethodChannel? = null
     private var widgetBridgeReady = false
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        subscriptions = SubscriptionBridge(this, flutterEngine.dartExecutor.binaryMessenger)
         widgetChannel = MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
             "com.dabok407.hangeoreum/widget",
@@ -38,6 +40,12 @@ class MainActivity : FlutterActivity() {
                 }
             }
         }
+    }
+
+    override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {
+        subscriptions?.close()
+        subscriptions = null
+        super.cleanUpFlutterEngine(flutterEngine)
     }
 
     override fun onNewIntent(intent: Intent) {

@@ -149,12 +149,13 @@ void main() {
     await legacy.close();
 
     repository = await TaskRepository.open(databasePath: databasePath);
-    expect(await repository.db.getVersion(), 3);
+    expect(await repository.db.getVersion(), 4);
     expect(await repository.db.query('tasks'), [
-      {...task, 'count_per_week': 1},
+      {...task, 'count_per_week': 1, 'category': '생활'},
     ]);
     final migrated = (await repository.tasks()).single;
     expect(migrated.countPerWeek, 1);
+    expect(migrated.category, '생활');
     expect(migrated.seriesId, 'legacy-series');
     expect(migrated.derived, isTrue);
     expect(await repository.db.query('occurrences', orderBy: 'original_due'), [
@@ -203,7 +204,7 @@ void main() {
     await repository.db.close();
 
     repository = await TaskRepository.open(databasePath: databasePath);
-    expect(await repository.db.getVersion(), 3);
+    expect(await repository.db.getVersion(), 4);
     final weeklyGoal = (await repository.tasks()).singleWhere(
       (t) => t.id == 'weekly-goal',
     );

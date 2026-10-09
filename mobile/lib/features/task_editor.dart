@@ -17,6 +17,7 @@ class _TaskEditorState extends State<TaskEditor> {
   DateTime? end;
   int priority = 1, monthWeek = 1, countPerWeek = 1;
   RepeatUnit repeat = RepeatUnit.none;
+  String category = '생활';
   Set<int> weekdays = {};
   @override
   void initState() {
@@ -36,6 +37,7 @@ class _TaskEditorState extends State<TaskEditor> {
         );
     end = t?.end;
     priority = t?.priority ?? 1;
+    category = t?.category ?? '생활';
     repeat = t?.repeat ?? RepeatUnit.none;
     weekdays = (t?.weekdays ?? [due.weekday]).toSet();
     monthWeek = t?.monthWeek ?? 1;
@@ -92,6 +94,18 @@ class _TaskEditorState extends State<TaskEditor> {
               maxLength: 100,
               validator: (v) =>
                   v == null || v.trim().isEmpty ? '제목을 입력해주세요' : null,
+            ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String>(
+              initialValue: category,
+              decoration: const InputDecoration(labelText: '분류'),
+              items: [
+                '생활',
+                '업무',
+                '건강',
+                '배움',
+              ].map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+              onChanged: (v) => setState(() => category = v!),
             ),
             const SizedBox(height: 16),
             TextFormField(
@@ -297,6 +311,7 @@ class _TaskEditorState extends State<TaskEditor> {
                     due: due,
                     created: widget.task?.created ?? now,
                     priority: priority,
+                    category: category,
                     repeat: repeat,
                     interval: int.tryParse(interval.text) ?? 1,
                     weekdays: weekdays.toList()..sort(),

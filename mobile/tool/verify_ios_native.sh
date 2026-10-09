@@ -21,7 +21,8 @@ print('hangeoreum://task?'+urllib.parse.urlencode({'id':row[0],'action':'start'}
 PY
 )
 set +e
-maestro --device "$device" test -e TASK_URI="$uri" tool/ios_widget_link.yaml > "$results/ios-deep-link-ui.log" 2>&1
+export MAESTRO_CLI_NO_ANALYTICS=1
+maestro --device "$device" test --debug-output="$results/maestro" --test-output-dir="$results/maestro" -e TASK_URI="$uri" tool/ios_widget_link.yaml > "$results/ios-deep-link-ui.log" 2>&1
 ui_status=$?
 set -e
 xcrun simctl io "$device" screenshot "$results/ios-native-launch.png"
@@ -44,5 +45,17 @@ xcrun simctl io "$device" screenshot "$results/ios-native-start.png"
 xcrun simctl spawn "$device" log show --last 3m --style compact --predicate 'process == "Runner"' > "$results/ios-native-launch.log" || true
 test "$status" = 0
 test "$ui_status" = 0
+# Require both the expected task title and its updated state in the rendered
+# screenshot. UI automation selectors alone are flaky for cold Flutter scenes.
+screen_ok=0
+for ((attempt=0; attempt<10; attempt++)); do
+  xcrun simctl io "$device" screenshot "$results/ios-native-start.png"
+  if swift tool/verify_ios_screen.swift "$results/ios-native-start.png" "안방 대청소 통합 테스트" "진행 중" >> "$results/ios-screen-ocr.log" 2>&1; then
+    screen_ok=1
+    break
+  fi
+  sleep 1
+done
+test "$screen_ok" = 1
 cp "$database" "$results/ios-local-database.db"
 

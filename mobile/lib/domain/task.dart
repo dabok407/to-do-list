@@ -56,7 +56,7 @@ Occurrence? resolveReminderPayload(
 }
 
 class Task {
-  final String id, title, note, smallStep;
+  final String id, title, note, smallStep, category;
   final String? groupId;
   final bool derived;
   String get seriesId => groupId ?? id;
@@ -71,6 +71,7 @@ class Task {
     required this.due,
     required this.created,
     this.note = '',
+    this.category = '생활',
     this.smallStep = '',
     this.priority = 1,
     this.repeat = RepeatUnit.none,
@@ -86,6 +87,7 @@ class Task {
     'id': id,
     'title': title,
     'note': note,
+    'category': category,
     'small_step': smallStep,
     'priority': priority,
     'due': due.toIso8601String(),
@@ -103,6 +105,7 @@ class Task {
     id: m['id'] as String,
     title: m['title'] as String,
     note: m['note'] as String,
+    category: m['category'] as String? ?? '생활',
     smallStep: m['small_step'] as String,
     priority: m['priority'] as int,
     due: DateTime.parse(m['due'] as String),

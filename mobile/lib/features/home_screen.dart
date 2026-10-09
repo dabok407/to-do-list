@@ -3,15 +3,24 @@ import 'package:flutter/material.dart';
 import '../app/task_controller.dart';
 import '../domain/task.dart';
 import 'task_editor.dart';
+import 'pro_screen.dart';
+import '../services/subscription_service.dart';
 
 const priorityRed = Color(0xff8f303a);
+const categoryColors = {
+  '생활': Color(0xff85745e),
+  '업무': Color(0xff627890),
+  '건강': Color(0xff5e7c64),
+  '배움': Color(0xff8c7290),
+};
 const stateNames = ['예정', '진행 중', '보류', '완료', '건너뜀'];
 String timeLabel(DateTime d) =>
     '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
 
 class HomeScreen extends StatefulWidget {
   final TaskController controller;
-  const HomeScreen({super.key, required this.controller});
+  final SubscriptionService? subscription;
+  const HomeScreen({super.key, required this.controller, this.subscription});
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -22,13 +31,20 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   int page = 0, summary = 0;
   bool week = false, busy = false;
   bool detailVisible = false;
+  late final subscription = widget.subscription ?? SubscriptionService();
+  final quickTitle = TextEditingController();
+  String quickCategory = '생활';
   TaskController get c => widget.controller;
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     c.addListener(changed);
-    WidgetsBinding.instance.addPostFrameCallback((_) => openRequestedTask());
+    subscription.addListener(changed);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      openRequestedTask();
+      subscription.refresh();
+    });
   }
 
   void changed() {
@@ -55,13 +71,19 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   @override
   void dispose() {
     c.removeListener(changed);
+    subscription.removeListener(changed);
+    if (widget.subscription == null) subscription.dispose();
+    quickTitle.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) run(c.reconcile);
+    if (state == AppLifecycleState.resumed) {
+      run(c.reconcile);
+      subscription.refresh();
+    }
   }
 
   Future<void> run(Future<void> Function() action) async {
@@ -421,7 +443,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             : Icons.radio_button_unchecked,
         color: o.status == TaskStatus.completed
             ? Colors.grey
-            : const Color(0xffb6bec9),
+            : o.task.priority == 2
+            ? priorityRed
+            : categoryColors[o.task.category],
       ),
     ),
     title: Text(
@@ -519,7 +543,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 7,
-              mainAxisExtent: week ? 82 : 62,
+              mainAxisExtent:
+                  100 *
+                  (MediaQuery.textScalerOf(context).scale(11) / 11).clamp(
+                    1.0,
+                    1.6,
+                  ),
             ),
             itemCount: count,
             itemBuilder: (ctx, i) {
@@ -534,21 +563,21 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   onTap: () => setState(() => selected = d),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: d == selected ? const Color(0xfff1f5ff) : null,
+                      color: d == selected ? const Color(0xfff4f3ef) : null,
                       border: Border.all(
                         color: const Color(0xffedf0f4),
                         width: .5,
                       ),
                     ),
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Container(
                           width: daySize,
                           height: daySize,
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            color: d == now ? const Color(0xff3569ed) : null,
+                            color: d == now ? const Color(0xff283b31) : null,
                             shape: BoxShape.circle,
                           ),
                           child: Text(
@@ -564,29 +593,45 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           ),
                         ),
                         const SizedBox(height: 6),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: all
-                              .take(4)
-                              .map(
-                                (o) => Container(
-                                  width: 4,
-                                  height: 4,
-                                  margin: const EdgeInsets.symmetric(
-                                    horizontal: 2,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: o.status == TaskStatus.completed
-                                        ? Colors.grey.shade400
-                                        : o.task.priority == 2
-                                        ? priorityRed
-                                        : const Color(0xff859abd),
-                                  ),
-                                ),
-                              )
-                              .toList(),
-                        ),
+                        ...all.take(2).map((o) {
+                          final color = o.task.priority == 2
+                              ? priorityRed
+                              : categoryColors[o.task.category] ?? Colors.grey;
+                          return Container(
+                            width: double.infinity,
+                            margin: const EdgeInsets.fromLTRB(2, 0, 2, 3),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 3,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: color.withValues(alpha: .11),
+                              borderRadius: BorderRadius.circular(3),
+                            ),
+                            child: Text(
+                              o.task.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: o.status == TaskStatus.completed
+                                    ? Colors.grey
+                                    : color,
+                                decoration: o.status == TaskStatus.completed
+                                    ? TextDecoration.lineThrough
+                                    : null,
+                              ),
+                            ),
+                          );
+                        }),
+                        if (all.length > 2)
+                          Text(
+                            '+${all.length - 2}',
+                            style: const TextStyle(
+                              fontSize: 9,
+                              color: Colors.grey,
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -689,7 +734,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             margin: const EdgeInsets.only(top: 20),
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: const Color(0xffedf3ff),
+              color: const Color(0xfff1f3ec),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
@@ -697,7 +742,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               children: [
                 const Text(
                   '다음 한 가지',
-                  style: TextStyle(color: Color(0xff6580ad)),
+                  style: TextStyle(color: Color(0xff52674f)),
                 ),
                 const SizedBox(height: 10),
                 Text(
@@ -735,7 +780,217 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             padding: EdgeInsets.symmetric(vertical: 32),
             child: Text('예정된 할 일이 없어요. 새로운 할 일을 추가해보세요.'),
           ),
-        ...todays.map(row),
+        ...categoryColors.entries.expand((entry) {
+          final items = todays
+              .where((o) => o.task.category == entry.key)
+              .toList();
+          if (items.isEmpty) return <Widget>[];
+          return <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(top: 20, bottom: 4),
+              child: Row(
+                children: [
+                  Container(
+                    width: 6,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      color: entry.value,
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    entry.key,
+                    style: TextStyle(
+                      color: entry.value,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    '${items.where((o) => o.status == TaskStatus.completed).length}/${items.length}',
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                ],
+              ),
+            ),
+            ...items.map(row),
+          ];
+        }),
+        const SizedBox(height: 20),
+        quickAdd(),
+      ],
+    );
+  }
+
+  void openPro() => Navigator.push(
+    context,
+    MaterialPageRoute(builder: (_) => ProScreen(subscription: subscription)),
+  );
+
+  Future<void> addQuickTask() async {
+    final title = quickTitle.text.trim();
+    if (title.isEmpty || busy) return;
+    final now = DateTime.now();
+    final due = dayOf(now) == selected
+        ? now.add(const Duration(hours: 1))
+        : DateTime(selected.year, selected.month, selected.day, 9);
+    await run(() async {
+      await c.save(
+        Task(
+          id: 'task-${now.microsecondsSinceEpoch}',
+          title: title,
+          due: due,
+          created: now,
+          category: quickCategory,
+        ),
+      );
+      quickTitle.clear();
+    });
+  }
+
+  Widget quickAdd() => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      Wrap(
+        spacing: 6,
+        children: categoryColors.keys
+            .map(
+              (name) => ChoiceChip(
+                label: Text(name),
+                selected: quickCategory == name,
+                onSelected: (_) => setState(() => quickCategory = name),
+              ),
+            )
+            .toList(),
+      ),
+      const SizedBox(height: 10),
+      TextField(
+        controller: quickTitle,
+        maxLength: 100,
+        textInputAction: TextInputAction.done,
+        onSubmitted: (_) => addQuickTask(),
+        decoration: InputDecoration(
+          hintText: '생각났을 때, 할 일 하나',
+          counterText: '',
+          suffixIcon: IconButton(
+            tooltip: '빠른 추가',
+            onPressed: busy ? null : addQuickTask,
+            icon: const Icon(Icons.arrow_upward),
+          ),
+        ),
+      ),
+      const SizedBox(height: 8),
+      Text(
+        dayOf(DateTime.now()) == selected
+            ? '지금부터 1시간 뒤로 등록돼요. 상세 화면에서 시간을 바꿀 수 있어요.'
+            : '${selected.month}월 ${selected.day}일 오전 9시로 등록돼요.',
+        style: const TextStyle(fontSize: 11, color: Colors.grey),
+      ),
+    ],
+  );
+
+  Widget insightPanel() {
+    if (!subscription.active) {
+      return Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: const Color(0xfff4f2ee),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              '꾸준함을 눈으로 확인해요',
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
+            ),
+            const SizedBox(height: 8),
+            const Text('Pro에서 90일 실행 기록과 분류별 완료 분석을 볼 수 있어요.'),
+            const SizedBox(height: 12),
+            OutlinedButton(onPressed: openPro, child: const Text('Pro 알아보기')),
+          ],
+        ),
+      );
+    }
+    final today = dayOf(DateTime.now());
+    final start = today.subtract(const Duration(days: 89));
+    final completed = c.items
+        .where(
+          (o) =>
+              o.completed != null &&
+              !dayOf(o.completed!).isBefore(start) &&
+              !dayOf(o.completed!).isAfter(today) &&
+              o.status == TaskStatus.completed,
+        )
+        .toList();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '지난 90일, ${completed.length}번의 한걸음',
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 8),
+        const Text(
+          '진한 칸일수록 더 많이 완료한 날이에요.',
+          style: TextStyle(color: Colors.grey, fontSize: 12),
+        ),
+        const SizedBox(height: 16),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 15,
+            crossAxisSpacing: 4,
+            mainAxisSpacing: 4,
+          ),
+          itemCount: 90,
+          itemBuilder: (_, i) {
+            final date = DateTime(start.year, start.month, start.day + i);
+            final count = completed
+                .where((o) => dayOf(o.completed!) == date)
+                .length;
+            return Tooltip(
+              message: '${dayKey(date)} · $count개 완료',
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(3),
+                  color: count == 0
+                      ? const Color(0xffedf0ea)
+                      : count < 3
+                      ? const Color(0xffb2c4a5)
+                      : const Color(0xff4d6b45),
+                ),
+              ),
+            );
+          },
+        ),
+        const SizedBox(height: 22),
+        ...categoryColors.entries.map((entry) {
+          final count = completed
+              .where((o) => o.task.category == entry.key)
+              .length;
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Row(
+              children: [
+                SizedBox(width: 48, child: Text(entry.key)),
+                Expanded(
+                  child: LinearProgressIndicator(
+                    value: completed.isEmpty ? 0 : count / completed.length,
+                    color: entry.value,
+                    backgroundColor: const Color(0xfff0efed),
+                    minHeight: 6,
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text('$count개'),
+              ],
+            ),
+          );
+        }),
       ],
     );
   }
@@ -746,6 +1001,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        insightPanel(),
+        const SizedBox(height: 28),
         const Text('최근 30일', style: TextStyle(color: Colors.grey)),
         const SizedBox(height: 20),
         ...{
@@ -776,6 +1033,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Widget settingsPage() => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
+      ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: const Icon(Icons.auto_graph),
+        title: Text(subscription.active ? '한걸음 Pro 이용 중' : '한걸음 Pro'),
+        subtitle: const Text('연간 구독 · 구매 복원 · 구독 관리'),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: openPro,
+      ),
+      const Divider(height: 32),
       const Text(
         '데이터는 이 기기에만 저장됩니다. 회원가입·서버·클라우드 동기화가 없습니다. 앱 삭제 또는 기기 변경 시 기록이 사라질 수 있습니다.',
       ),
