@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -8,6 +9,8 @@ import 'package:hangeoreum/domain/task.dart';
 import 'package:hangeoreum/data/task_repository.dart';
 import 'package:hangeoreum/app/task_controller.dart';
 import 'package:hangeoreum/services/reminder_scheduler.dart';
+import 'package:hangeoreum/services/feature_access.dart';
+import 'package:hangeoreum/services/subscription_service.dart';
 
 import 'bootstrap.dart';
 
@@ -116,6 +119,68 @@ void main() {
         false,
       );
     }
+    // Expiry uses the real SQLite store, OS notification plugin, controller,
+    // and UI on each platform. The fixture changes time state, not store billing.
+    final savedAccess = await controller.repository.setting(
+      'feature_access_v1',
+    );
+    expect(savedAccess, isNotNull);
+    try {
+      await controller.repository.setSetting(
+        'feature_access_v1',
+        jsonEncode({
+          'trialEnds': DateTime.now()
+              .subtract(const Duration(seconds: 1))
+              .toIso8601String(),
+          'paidUntil': null,
+          'lastSeen': DateTime.now().toIso8601String(),
+        }),
+      );
+      await controller.reconcile();
+      await tester.pumpAndSettle();
+      expect(
+        await controller.reminders.plugin.pendingNotificationRequests(),
+        isEmpty,
+      );
+      final before = controller.items.single;
+      await controller.act(before, 'snooze', minutes: 60);
+      await controller.handleWidgetLaunch(
+        'hangeoreum://task?id=${Uri.encodeComponent(before.id)}&action=start',
+      );
+      expect(controller.items.single.status, TaskStatus.paused);
+      expect(controller.items.single.snoozes, before.snoozes);
+      // Opening a blocked widget action may open detail; dismiss before tabs.
+      controller.pendingOpenId = null;
+      await tester.pumpAndSettle();
+      final close = find.byTooltip('닫기');
+      if (close.evaluate().isNotEmpty) {
+        await tester.tap(close.last);
+        await tester.pumpAndSettle();
+      }
+      await tester.tap(
+        find.descendant(
+          of: find.byType(NavigationBar),
+          matching: find.text('통계'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.textContaining('7일 체험이 끝났어요.'), findsOneWidget);
+      await controller.act(before, 'complete');
+      await controller.act(controller.items.single, 'uncomplete');
+      expect(controller.items.single.status, TaskStatus.paused);
+      expect(
+        await controller.reminders.plugin.pendingNotificationRequests(),
+        isEmpty,
+      );
+    } finally {
+      await controller.repository.setSetting('feature_access_v1', savedAccess!);
+      await controller.reconcile();
+    }
+    expect(
+      await controller.reminders.plugin.pendingNotificationRequests(),
+      isNotEmpty,
+    );
+    debugPrint('NATIVE_TRIAL_EXPIRY_AND_RESTORE_OK');
     await tester.pumpWidget(const MaterialApp(home: SizedBox()));
     await tester.pumpAndSettle();
     await controller.repository.db.close();
@@ -123,9 +188,20 @@ void main() {
     expect((await reopened.occurrences()).single.status, TaskStatus.paused);
     final reminders = ReminderScheduler();
     await reminders.initialize();
-    final restored = TaskController(reopened, reminders);
+    final restoredAccess = FeatureAccess(reopened);
+    await restoredAccess.load();
+    final restored = TaskController(
+      reopened,
+      reminders,
+      access: restoredAccess,
+    );
     await restored.reconcile();
-    await tester.pumpWidget(app.HangeoreumApp(controller: restored));
+    await tester.pumpWidget(
+      app.HangeoreumApp(
+        controller: restored,
+        subscription: SubscriptionService(access: restoredAccess),
+      ),
+    );
     await tester.pumpAndSettle();
     expect(find.text('캘린더'), findsWidgets);
     if (Platform.isAndroid) await binding.convertFlutterSurfaceToImage();
