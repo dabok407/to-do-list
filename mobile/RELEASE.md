@@ -4,9 +4,9 @@
 
 ## 구현 및 검증 상태
 
-최신 기능 구현 커밋은 `38eaf33`이다. 할 일·캘린더·반복 회차·주 N회 목표·범위별 삭제·통계, Android AppWidget·iOS WidgetKit, OS 반복 알림·백그라운드 예약 보충을 구현했다. DB는 schema v3이며 iOS 앱과 위젯은 App Group의 읽기용 스냅샷을 공유한다.
+할 일·캘린더·반복 회차·주 N회 목표·범위별 삭제·통계, Android AppWidget·iOS WidgetKit, OS 반복 알림·백그라운드 예약 보충을 구현했다. DB는 schema v3이며 iOS 앱과 위젯은 App Group의 읽기용 스냅샷을 공유한다.
 
-로컬 `flutter analyze`와 `flutter test` 34개는 통과했다. 최신 CI run `37481741623`, 네이티브 실행 검증, 서명된 AAB, 실기기 테스트 결과는 [검증 보고서](../VERIFICATION.md)에서 확인한다. 진행 중인 검증을 성공으로 기록하거나 과거 커밋의 성공으로 최신 변경을 검증했다고 간주하지 않는다.
+로컬 `flutter analyze`와 `flutter test` 42개는 통과했다. 최신 CI 소스·실행 번호, 네이티브 실행 검증, 서명된 AAB, 실기기 테스트 결과는 [검증 보고서](../VERIFICATION.md)에서 확인한다. 진행 중인 검증을 성공으로 기록하거나 과거 커밋의 성공으로 최신 변경을 검증했다고 간주하지 않는다.
 
 현재 CI는 Android debug APK·서명 전 release AAB·에뮬레이터 통합/권한 거부/네이티브 생명주기, iOS simulator 빌드·통합/권한 거부·WidgetKit XCTest/렌더링/링크·release no-codesign을 검증하도록 구성했다. CI 성공과 물리 기기·스토어 배포 서명 검증은 구분한다.
 
@@ -16,6 +16,54 @@
 - 기존 Google Play Console 계정 복구 및 접근 확인. 기존 앱 업데이트라면 앱 ID·업로드 키를 먼저 대조한다. 신규 계정의 신원·기기·테스트 요건은 계정 연결 후 콘솔에서 확인한다.
 - 지원 이메일, 지원 URL, 공개 개인정보 안내 URL, 배포 국가·가격·연령 등급을 확정한다. [스토어 문안](STORE_METADATA.md)은 초안이다.
 - Mac 소유는 필수가 아니다. GitHub macOS runner에서 컴파일할 수 있지만 iPhone 설치·업로드에는 Apple 배포 인증서·프로비저닝 프로파일 또는 클라우드 서명이 필요하다.
+
+## 처음 가입하는 사용자용 진행 순서
+
+### Apple: 아이폰에서 개발자 등록
+
+1. 아이폰 설정 맨 위의 Apple 계정을 확인하고 이중 인증을 활성화한다. 앱 구매용 계정과 개발자 등록 계정을 혼동하지 않도록 기록한다.
+2. App Store에서 Apple의 **Apple Developer** 앱을 설치한다. 앱의 **Account(계정)** 탭에서 Apple 계정으로 로그인한다.
+3. **Enroll Now(지금 등록)**를 선택하고 본인 확인·법적 이름·주소·연락처를 입력한다. 혼자 배포한다면 Individual(개인)을 검토한다. 개인 등록 시 판매자 이름에 법적 이름이 표시된다.
+4. 계약과 연회비를 확인하고 가입한다. Apple Developer Program은 연 US$99 또는 현지 통화로 청구하며 실제 결제 화면의 금액을 확인한다.
+5. 승인 후 [App Store Connect](https://appstoreconnect.apple.com)에 같은 계정으로 로그인한다. 개발자 프로그램 가입과 앱 등록은 별도 단계다.
+
+근거: [Apple 앱에서 등록하기](https://developer.apple.com/help/account/membership/enrolling-in-the-app), [프로그램 등록](https://developer.apple.com/help/account/membership/program-enrollment/).
+
+### Google: 기존 Gmail로 먼저 확인
+
+1. PC 브라우저에서 [Google Play Console](https://play.google.com/console)에 과거 배포 때 사용한 Google 계정으로 로그인한다. Gmail 계정을 사용할 수 있지만 Gmail 가입만으로 개발자 등록이 완료되는 것은 아니다.
+2. 기존 개발자 계정이나 앱 목록이 보이면 그 계정을 사용한다. 등록 화면이 나온다면 과거의 다른 Google 계정으로도 확인한 뒤 신규 등록을 판단한다.
+3. 신규 등록은 개인/조직 유형 선택 → 연락처·개발자 정보 → 계약 → US$25 일회성 등록비 → 신원 확인 순서로 진행한다. 콘솔에 추가 확인이 표시되면 완료한다.
+4. 신규 개인 계정은 Android 기기의 Play Console 앱을 통한 기기 확인이 요구될 수 있다. 아이폰만 있다면 이 단계에서 실제 Android 기기 접근이 필요하다.
+5. 2023년 11월 13일 이후 생성한 신규 개인 계정은 프로덕션 접근 신청 전에 최소 12명의 테스터가 연속 14일 참여하는 비공개 테스트가 필요하다. 기존 계정에 같은 조건이 적용되는지는 콘솔에서 확인한다.
+
+근거: [Play Console 시작하기](https://support.google.com/googleplay/android-developer/answer/6112435?hl=ko), [신규 개인 계정 테스트 요건](https://support.google.com/googleplay/android-developer/answer/14151465?hl=ko).
+
+### 계정 승인 후 업로드와 심사
+
+| 단계 | iOS | Android |
+| --- | --- | --- |
+| 앱 등록 | App Store Connect → Apps → + → New App. iOS·한걸음·한국어·Bundle ID·고유 SKU 입력 | Play Console 홈 → 앱 만들기. 한걸음·한국어·앱·무료 설치 선택 |
+| 파일 준비 | macOS 빌드 환경에서 앱과 위젯을 같은 Team/App Group으로 서명한 IPA | 로컬 업로드 키로 서명한 AAB |
+| 테스트 업로드 | 서명 빌드 업로드 후 해당 앱의 TestFlight에서 내부 테스트 설정, 아이폰 TestFlight 앱으로 설치 | 해당 앱 → 테스트 및 출시 → 테스트 → 내부 테스트에서 새 버전 생성·AAB 업로드·테스터 등록 |
+| 추가 테스트 | 실제 아이폰에서 알림·위젯·재시작 확인 | 계정에 요구되는 비공개 테스트와 프로덕션 접근 신청 |
+| 제출 자료 | 앱 정보·개인정보·가격/배포·버전 설명·스크린샷·지원 URL·심사 연락처·빌드 선택 | 대시보드의 필수 설정, 스토어 등록정보·앱 콘텐츠·데이터 보안·연령 등급·개인정보 URL |
+| 심사 제출 | 버전 화면 Add for Review → 제출 화면 Submit for Review | 프로덕션 버전 생성 → 오류/필수 항목 해결 → 변경사항 심사 전송 |
+| 동시 공개 | 수동 출시 선택 후 양쪽 승인까지 대기 | 관리형 게시를 사용해 양쪽 승인 후 공개 시점 조정 |
+
+메뉴는 콘솔 언어·계정 상태에 따라 이름이 달라질 수 있다. 앱 생성이나 테스트 업로드만으로 스토어에 공개되지 않는다. 각 심사 결과와 재심사 여부에 따라 공개일이 달라진다.
+
+근거: [Apple 앱 생성](https://developer.apple.com/help/app-store-connect/create-an-app-record/add-a-new-app), [Apple 빌드 업로드](https://developer.apple.com/help/app-store-connect/manage-builds/upload-builds/), [Apple 심사 제출](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-an-app), [Google 앱 만들기](https://support.google.com/googleplay/android-developer/answer/9859152?hl=ko).
+
+Mac PC를 직접 소유할 필요는 없지만 iOS 빌드·서명에는 macOS 환경이 필요하다. 이 저장소의 GitHub macOS 검증과 배포용 서명 설정은 구분한다. 개발자 계정 연결 후 클라우드 macOS 빌드에서 서명하고 TestFlight로 사용자의 아이폰에 설치할 수 있다.
+
+### 유료 기능을 도입할 경우
+
+현재 광고·인앱결제는 구현하지 않았다. 기본 무료 + 일회성 Pro 해제를 선택하면 Apple의 비소모성 인앱결제와 Google의 소비하지 않는 일회성 상품으로 설계한다. 무료 앱 설치 가격과 Pro 상품 가격은 별도로 등록한다.
+
+유료 계약·세금·수익 지급 계좌·상품 ID/가격 등록을 완료한 후 구매 성공·취소·실패·복원·오프라인 이용을 테스트한다. 서버 없이 기기에서 스토어 SDK로 구매 상태를 조회할 수 있으며, 다른 플랫폼에서 산 권한까지 공통 계정으로 공유하는 기능은 포함하지 않는다. 앱 데이터 복원과 같은 스토어 계정의 구매 복원은 별개다. 상품이 등록되기 전에는 실제 결제 테스트가 끝났다고 간주하지 않는다.
+
+2026-10-09 추가 검토안은 **Pro 연 900원**이다. 아직 수익모델을 확정하거나 결제를 구현한 상태는 아니다. 자동 갱신 구독과 만료 후 직접 다시 사는 1년 이용권을 구분해 결정한다. 자동 갱신을 선택하면 기간·갱신 금액·해지 방법을 구매 화면에 표시하고 만료·갱신·취소·복원·유예 상태를 양쪽 스토어 테스트에서 확인한다. Apple 구독에는 지속적인 사용자 가치가 필요하다. [Apple 구독 안내](https://developer.apple.com/app-store/subscriptions/).
 
 ## Android 서명 및 빌드
 
