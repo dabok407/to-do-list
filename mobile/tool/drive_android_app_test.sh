@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run the real app test with a fresh fixture and stable VM-service forwarding.
+# Run the real app test with a fresh fixture and direct VM-service forwarding.
 set -euo pipefail
 package=com.dabok407.hangeoreum
 results=build/integration_test
@@ -17,7 +17,7 @@ for attempt in 1 2; do
   logger_pid=$!
   set +e
   timeout 600 flutter drive --keep-app-running --verbose \
-    --host-vmservice-port=8181 --device-vmservice-port=8182 \
+    --no-dds --host-vmservice-port=8181 \
     --driver=test_driver/integration_test.dart --target=integration_test/app_test.dart \
     2>&1 | tee "$results/android-driver-$attempt.log"
   status=${PIPESTATUS[0]}
@@ -26,6 +26,8 @@ for attempt in 1 2; do
   logger_pid=''
   adb exec-out screencap -p > "$results/android-driver-$attempt.png" || true
   if [[ "$status" = 0 ]]; then exit 0; fi
+  # Let Android choose the device VM port. Flutter 3.47 uses the device-port
+  # option as a discovery filter but does not set that port in the launch Intent.
   # Retry only a startup bridge timeout, never a failed app assertion. Preserve
   # both attempts so infrastructure failures remain visible in CI artifacts.
   if [[ "$status" != 124 ]] || ! grep -q 'Exception attempting to connect to the VM Service' "$results/android-driver-$attempt.log"; then

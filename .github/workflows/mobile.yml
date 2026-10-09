@@ -56,7 +56,7 @@ jobs:
             adb shell pm clear com.dabok407.hangeoreum
             adb shell pm revoke com.dabok407.hangeoreum android.permission.POST_NOTIFICATIONS
             adb shell pm set-permission-flags com.dabok407.hangeoreum android.permission.POST_NOTIFICATIONS user-set user-fixed
-            cd mobile && timeout 600 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/permission_test.dart
+            cd mobile && timeout 600 flutter drive --no-dds --host-vmservice-port=8181 --driver=test_driver/integration_test.dart --target=integration_test/permission_test.dart
       - uses: actions/upload-artifact@v4
         if: always()
         with:
