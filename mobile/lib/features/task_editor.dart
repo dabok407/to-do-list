@@ -4,8 +4,14 @@ import '../domain/task.dart';
 
 class TaskEditor extends StatefulWidget {
   final Task? task;
+  final bool premium;
   final DateTime initialDate;
-  const TaskEditor({super.key, this.task, required this.initialDate});
+  const TaskEditor({
+    super.key,
+    this.task,
+    required this.initialDate,
+    this.premium = true,
+  });
   @override
   State<TaskEditor> createState() => _TaskEditorState();
 }
@@ -150,6 +156,7 @@ class _TaskEditorState extends State<TaskEditor> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
+              isExpanded: true,
               initialValue: category,
               decoration: const InputDecoration(labelText: '분류'),
               items: [
@@ -170,6 +177,7 @@ class _TaskEditorState extends State<TaskEditor> {
             const SizedBox(height: 16),
             TextFormField(
               controller: small,
+              enabled: widget.premium,
               decoration: const InputDecoration(
                 labelText: '작은 첫걸음',
                 hintText: '운동복 입고 5분만 움직이기',
@@ -205,6 +213,7 @@ class _TaskEditorState extends State<TaskEditor> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<int>(
+              isExpanded: true,
               initialValue: priority,
               decoration: const InputDecoration(labelText: '우선순위'),
               items: const [
@@ -217,8 +226,7 @@ class _TaskEditorState extends State<TaskEditor> {
             const SizedBox(height: 16),
             ExpansionTile(
               key: const Key('overdue-settings'),
-              tilePadding: EdgeInsets.zero,
-              childrenPadding: const EdgeInsets.only(bottom: 16),
+
               title: const Text('미완료 재알림'),
               subtitle: Text(
                 overdueDays == 0
@@ -226,63 +234,69 @@ class _TaskEditorState extends State<TaskEditor> {
                     : '${overdueDays == 1 ? '매일' : '$overdueDays일마다'} · ${overdueMinute == null ? '예정 시간과 같게' : TimeOfDay(hour: overdueMinute! ~/ 60, minute: overdueMinute! % 60).format(context)}',
               ),
               children: [
-                DropdownButtonFormField<int>(
-                  key: const Key('overdue-interval'),
-                  initialValue: overdueDays,
-                  decoration: const InputDecoration(labelText: '재알림 간격'),
-                  items: const [
-                    DropdownMenuItem(value: 0, child: Text('알리지 않음')),
-                    DropdownMenuItem(value: 1, child: Text('매일 한 번 (기본)')),
-                    DropdownMenuItem(value: 2, child: Text('2일마다 한 번')),
-                    DropdownMenuItem(value: 3, child: Text('3일마다 한 번')),
-                    DropdownMenuItem(value: 7, child: Text('일주일마다 한 번')),
-                  ],
-                  onChanged: (v) => setState(() => overdueDays = v!),
-                ),
-                if (overdueDays > 0) ...[
-                  const SizedBox(height: 12),
-                  SwitchListTile.adaptive(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text('예정 시간과 같게'),
-                    value: overdueMinute == null,
-                    onChanged: (same) => setState(
-                      () => overdueMinute = same
-                          ? null
-                          : due.hour * 60 + due.minute,
-                    ),
+                if (!widget.premium)
+                  const Text('미완료 재알림은 Pro 기능이에요. 기존 설정은 보관되며 구독 후 다시 적용됩니다.'),
+                if (widget.premium) ...[
+                  DropdownButtonFormField<int>(
+                    isExpanded: true,
+                    key: const Key('overdue-interval'),
+                    initialValue: overdueDays,
+                    decoration: const InputDecoration(labelText: '재알림 간격'),
+                    items: const [
+                      DropdownMenuItem(value: 0, child: Text('알리지 않음')),
+                      DropdownMenuItem(value: 1, child: Text('매일 한 번 (기본)')),
+                      DropdownMenuItem(value: 2, child: Text('2일마다 한 번')),
+                      DropdownMenuItem(value: 3, child: Text('3일마다 한 번')),
+                      DropdownMenuItem(value: 7, child: Text('일주일마다 한 번')),
+                    ],
+                    onChanged: (v) => setState(() => overdueDays = v!),
                   ),
-                  if (overdueMinute != null)
-                    OutlinedButton.icon(
-                      icon: const Icon(Icons.schedule),
-                      label: Text(
-                        '재알림 ${TimeOfDay(hour: overdueMinute! ~/ 60, minute: overdueMinute! % 60).format(context)}',
+                  if (overdueDays > 0) ...[
+                    const SizedBox(height: 12),
+                    SwitchListTile.adaptive(
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('예정 시간과 같게'),
+                      value: overdueMinute == null,
+                      onChanged: (same) => setState(
+                        () => overdueMinute = same
+                            ? null
+                            : due.hour * 60 + due.minute,
                       ),
-                      onPressed: () async {
-                        final picked = await showTimePicker(
-                          context: context,
-                          initialTime: TimeOfDay(
-                            hour: overdueMinute! ~/ 60,
-                            minute: overdueMinute! % 60,
-                          ),
-                        );
-                        if (picked != null && mounted) {
-                          setState(
-                            () => overdueMinute =
-                                picked.hour * 60 + picked.minute,
-                          );
-                        }
-                      },
                     ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '기한이 지난 뒤 $overdueDays일 후부터 알려드려요. 완료·건너뛰기·삭제하면 멈춥니다. 미루기를 선택하면 그 시간까지 기다려요.',
-                    style: const TextStyle(fontSize: 13),
-                  ),
+                    if (overdueMinute != null)
+                      OutlinedButton.icon(
+                        icon: const Icon(Icons.schedule),
+                        label: Text(
+                          '재알림 ${TimeOfDay(hour: overdueMinute! ~/ 60, minute: overdueMinute! % 60).format(context)}',
+                        ),
+                        onPressed: () async {
+                          final picked = await showTimePicker(
+                            context: context,
+                            initialTime: TimeOfDay(
+                              hour: overdueMinute! ~/ 60,
+                              minute: overdueMinute! % 60,
+                            ),
+                          );
+                          if (picked != null && mounted) {
+                            setState(
+                              () => overdueMinute =
+                                  picked.hour * 60 + picked.minute,
+                            );
+                          }
+                        },
+                      ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '기한이 지난 뒤 $overdueDays일 후부터 알려드려요. 완료·건너뛰기·삭제하면 멈춥니다. 미루기를 선택하면 그 시간까지 기다려요.',
+                      style: const TextStyle(fontSize: 13),
+                    ),
+                  ],
                 ],
               ],
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<RepeatUnit>(
+              isExpanded: true,
               initialValue: repeat,
               decoration: const InputDecoration(labelText: '반복'),
               items: RepeatUnit.values
@@ -334,8 +348,8 @@ class _TaskEditorState extends State<TaskEditor> {
               if (repeat == RepeatUnit.weeklyGoal) ...[
                 const SizedBox(height: 16),
                 DropdownButtonFormField<int>(
-                  initialValue: countPerWeek,
                   isExpanded: true,
+                  initialValue: countPerWeek,
                   decoration: const InputDecoration(labelText: '일주일 목표'),
                   items: List.generate(
                     7,
@@ -378,6 +392,7 @@ class _TaskEditorState extends State<TaskEditor> {
               if (repeat == RepeatUnit.monthlyWeekday) ...[
                 const SizedBox(height: 16),
                 DropdownButtonFormField<int>(
+                  isExpanded: true,
                   initialValue: monthWeek,
                   decoration: const InputDecoration(labelText: '몇 번째 주'),
                   items: [1, 2, 3, 4, -1]

@@ -11,14 +11,23 @@ import 'services/reminder_scheduler.dart';
 import 'services/widget_service.dart';
 import 'services/background_refresh.dart';
 import 'services/subscription_service.dart';
+import 'services/feature_access.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
     final repository = await TaskRepository.open();
+    final access = FeatureAccess(repository);
+    await access.load(startTrial: true);
+    final subscription = SubscriptionService(access: access);
     final reminders = ReminderScheduler();
     final widgets = WidgetService();
-    final controller = TaskController(repository, reminders, widgets: widgets);
+    final controller = TaskController(
+      repository,
+      reminders,
+      widgets: widgets,
+      access: access,
+    );
     try {
       await reminders.initialize();
     } catch (_) {
@@ -34,7 +43,7 @@ Future<void> main() async {
     } catch (_) {
       /* Keep local tasks usable. */
     }
-    runApp(HangeoreumApp(controller: controller));
+    runApp(HangeoreumApp(controller: controller, subscription: subscription));
     try {
       await BackgroundRefresh.register();
     } catch (_) {
@@ -199,6 +208,19 @@ class HangeoreumApp extends StatelessWidget {
         surfaceTintColor: Colors.transparent,
         showDragHandle: true,
       ),
+      expansionTileTheme: ExpansionTileThemeData(
+        tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        childrenPadding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: Color(0xffe4e6ea)),
+        ),
+        collapsedShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: Color(0xffe4e6ea)),
+        ),
+      ),
       chipTheme: ChipThemeData(
         showCheckmark: false,
         selectedColor: const Color(0xfff1f2f4),
@@ -219,7 +241,7 @@ class HangeoreumApp extends StatelessWidget {
             size: 23,
             color: states.contains(WidgetState.selected)
                 ? const Color(0xff292c29)
-                : const Color(0xff93928c),
+                : const Color(0xff676b73),
           ),
         ),
         labelTextStyle: WidgetStateProperty.resolveWith(
@@ -231,7 +253,7 @@ class HangeoreumApp extends StatelessWidget {
                 : FontWeight.w400,
             color: states.contains(WidgetState.selected)
                 ? const Color(0xff292c29)
-                : const Color(0xff85847e),
+                : const Color(0xff676b73),
           ),
         ),
         height: 68,

@@ -116,7 +116,7 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p build/integration_test
-          flutter drive --keep-app-running --verbose -d "$SIMULATOR_ID" --driver=test_driver/integration_test.dart --target=integration_test/app_test.dart 2>&1 | tee build/integration_test/ios-driver.log
+          bash tool/drive_ios_app_test.sh "$SIMULATOR_ID" integration_test/app_test.dart
       - name: Restore production Flutter entry point before native XCTest
         run: flutter build ios --simulator --debug
       - name: Native WidgetKit tests and view rendering
@@ -131,7 +131,7 @@ jobs:
         timeout-minutes: 10
         run: |
           applesimutils --byId "$SIMULATOR_ID" --bundle com.dabok407.hangeoreum --setPermissions notifications=NO
-          flutter drive -d "$SIMULATOR_ID" --driver=test_driver/integration_test.dart --target=integration_test/permission_test.dart
+          bash tool/drive_ios_app_test.sh "$SIMULATOR_ID" integration_test/permission_test.dart
       - run: flutter build ios --release --no-codesign
       - uses: actions/upload-artifact@v4
         if: always()

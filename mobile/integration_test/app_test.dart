@@ -55,14 +55,25 @@ void main() {
     await controller.act(occurrence, 'snooze', minutes: 30);
     await tester.pumpAndSettle();
     expect(controller.items.single.status, TaskStatus.paused);
-    // Follow-ups stop at the local day boundary.
+    // A snooze moves the first alert. Subsequent reminders are daily at the
+    // original due time, and never reach or cross the access deadline.
+    final current = controller.items.single;
+    final due = current.originalDue;
+    final until = controller.access!.until!;
     final expected =
         1 +
-        [30, 60].where((minutes) {
-          final reminder = controller.items.single.reminder;
-          return dayOf(reminder.add(Duration(minutes: minutes))) ==
-              dayOf(reminder);
-        }).length;
+        List.generate(
+              32,
+              (i) => DateTime(
+                due.year,
+                due.month,
+                due.day + i + 1,
+                due.hour,
+                due.minute,
+              ),
+            )
+            .where((at) => at.isAfter(current.reminder) && at.isBefore(until))
+            .length;
     expect(
       (await controller.reminders.plugin.pendingNotificationRequests())
           .where((n) => n.payload == occurrence.id)

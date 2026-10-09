@@ -85,19 +85,30 @@ void main() {
       final s = SubscriptionService();
       await tester.pumpWidget(MaterialApp(home: ProScreen(subscription: s)));
       await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.byType(FilledButton), 200);
+      await tester.pumpAndSettle();
       expect(
         tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
         isNull,
       );
       binding.setMockMethodCallHandler(
         channel,
-        (_) async => {'active': false, 'available': true, 'price': '₩1,100', 'autoRenewing': false},
+        (_) async => {
+          'active': false,
+          'available': true,
+          'price': '₩1,100',
+          'autoRenewing': false,
+        },
       );
       await s.refresh();
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.text('₩1,100 / 1년'), -100);
       await tester.pumpAndSettle();
       expect(find.text('₩1,100 / 1년'), findsOneWidget);
       expect(find.text('1년에 한 번 결제 · 해지 전까지 자동 갱신'), findsOneWidget);
       expect(find.textContaining('자동 갱신이 해제되어'), findsNothing);
+      await tester.scrollUntilVisible(find.byType(FilledButton), 100);
+      await tester.pumpAndSettle();
       expect(
         tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
         isNotNull,

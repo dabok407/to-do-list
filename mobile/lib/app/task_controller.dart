@@ -6,19 +6,25 @@ import '../data/task_repository.dart';
 import '../domain/task.dart';
 import '../services/reminder_scheduler.dart';
 import '../services/widget_service.dart';
+import '../services/feature_access.dart';
 
 class TaskController extends ChangeNotifier {
   final TaskRepository repository;
   final ReminderScheduler reminders;
   final WidgetService widgets;
+  final FeatureAccess? access;
   List<Occurrence> items = [];
   Map<String, Object> statistics = {};
   String? warning;
   String? pendingOpenId;
   Future<void> _tail = Future.value();
   Timer? _retryTimer;
-  TaskController(this.repository, this.reminders, {WidgetService? widgets})
-    : widgets = widgets ?? WidgetService();
+  TaskController(
+    this.repository,
+    this.reminders, {
+    WidgetService? widgets,
+    this.access,
+  }) : widgets = widgets ?? WidgetService();
   Future<void> _serial(Future<void> Function() action) {
     final current = _tail.then((_) => action());
     _tail = current.catchError((Object _) {});
@@ -45,6 +51,12 @@ class TaskController extends ChangeNotifier {
       if (leased) {
         _retryTimer?.cancel();
         await refresh();
+        await access?.load();
+        reminders.accessUntil = access == null
+            ? null
+            : access!.enabled
+            ? access!.until
+            : DateTime(1970);
         await reminders.sync(
           items,
           exceptions: await repository.notificationExceptions(),
@@ -57,7 +69,9 @@ class TaskController extends ChangeNotifier {
         });
       }
       await widgets.sync(items);
-      final enabled = await reminders.enabled();
+      final enabled = access?.enabled == false
+          ? true
+          : await reminders.enabled();
       warning = enabled == false
           ? '알림이 꺼져 있어요. 설정에서 알림을 켜면 예정된 시간에 알려드릴 수 있어요.'
           : null;
@@ -75,7 +89,7 @@ class TaskController extends ChangeNotifier {
   Future<void> save(Task task) => _serial(() async {
     await repository.saveTask(task);
     try {
-      await reminders.requestPermissions();
+      if (access?.enabled != false) await reminders.requestPermissions();
     } catch (_) {
       /* Saving is independent of permission. */
     }
@@ -106,6 +120,8 @@ class TaskController extends ChangeNotifier {
 
   Future<void> act(Occurrence occurrence, String action, {int minutes = 10}) =>
       _serial(() async {
+        await access?.load();
+        if (access?.allows(action) == false) return;
         await repository.act(occurrence.id, action, minutes: minutes);
         await _reconcile();
       });
@@ -114,7 +130,8 @@ class TaskController extends ChangeNotifier {
       _serial(() async {
         final occurrence = await repository.resolveNotification(payload);
         if (occurrence == null || !occurrence.active) return;
-        if (action == 'open') {
+        await access?.load();
+        if (action == 'open' || access?.allows(action) == false) {
           pendingOpenId = occurrence.id;
         } else {
           await repository.act(occurrence.id, action);
@@ -129,7 +146,10 @@ class TaskController extends ChangeNotifier {
         .where((o) => o.id == launch.id)
         .firstOrNull;
     if (occurrence == null) return;
-    if (launch.action != 'open' && occurrence.active) {
+    await access?.load();
+    if (launch.action != 'open' &&
+        occurrence.active &&
+        access?.allows(launch.action) != false) {
       await repository.act(occurrence.id, launch.action);
     }
     pendingOpenId = occurrence.id;

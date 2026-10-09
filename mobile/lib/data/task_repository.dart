@@ -410,6 +410,23 @@ class TaskRepository {
     }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
+  /// Atomic across foreground and headless engines: a background refresh must
+  /// not overwrite a purchase or trial creation with an older settings snapshot.
+  Future<void> updateSetting(String key, String? Function(String?) update) =>
+      db.transaction((tx) async {
+        final rows = await tx.query(
+          'settings',
+          where: 'key=?',
+          whereArgs: [key],
+        );
+        final value = update(rows.firstOrNull?['value'] as String?);
+        if (value == null) return;
+        await tx.insert('settings', {
+          'key': key,
+          'value': value,
+        }, conflictAlgorithm: ConflictAlgorithm.replace);
+      });
+
   Future<Map<String, List<DateTime>>> notificationExceptions() async {
     final result = <String, List<DateTime>>{};
     for (final row in await db.query('recurrence_exceptions')) {

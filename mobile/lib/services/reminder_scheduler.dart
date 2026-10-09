@@ -17,6 +17,7 @@ class ReminderScheduler {
   final plugin = FlutterLocalNotificationsPlugin();
   Future<void> Function(String id, String action)? onAction;
   NotificationPlan? lastPlan;
+  DateTime? accessUntil;
   Future<void> initialize() async {
     tzdata.initializeTimeZones();
     final zone = await FlutterTimezone.getLocalTimezone();
@@ -166,6 +167,11 @@ class ReminderScheduler {
     List<Occurrence> items, {
     Map<String, List<DateTime>> exceptions = const {},
   }) async {
+    if (accessUntil != null && !accessUntil!.isAfter(DateTime.now())) {
+      await plugin.cancelAll();
+      lastPlan = NotificationPlan([], 0, null);
+      return;
+    }
     final zone = await FlutterTimezone.getLocalTimezone();
     tz.setLocalLocation(resolveTimeZone(zone.identifier));
     final now = DateTime.now(), scheduleMode = await mode();
@@ -174,6 +180,7 @@ class ReminderScheduler {
       now: now,
       capacity: defaultTargetPlatform == TargetPlatform.android ? 400 : 60,
       exceptions: exceptions,
+      until: accessUntil,
     );
     // Deleted and completed reminders disappear, while active alerts survive refill.
     for (final notification in await plugin.getActiveNotifications()) {
@@ -229,6 +236,12 @@ class ReminderScheduler {
   }
 
   Future<void> testNotification() async {
+    if (accessUntil != null &&
+        !DateTime.now()
+            .add(const Duration(seconds: 10))
+            .isBefore(accessUntil!)) {
+      return;
+    }
     await requestPermissions();
     await plugin.zonedSchedule(
       id: 100000,

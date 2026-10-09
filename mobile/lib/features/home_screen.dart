@@ -6,8 +6,10 @@ import '../app/task_controller.dart';
 import '../domain/task.dart';
 import 'task_editor.dart';
 import 'pro_screen.dart';
+import 'privacy_card.dart';
 import '../services/subscription_service.dart';
 
+const mutedText = Color(0xff626873);
 const priorityRed = Color(0xff8f303a);
 const categoryColors = {
   '생활': Color(0xffad5618),
@@ -44,14 +46,37 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     c.addListener(changed);
-    subscription.addListener(changed);
+    subscription.addListener(subscriptionChanged);
     clockRefresh = Timer.periodic(const Duration(minutes: 1), (_) {
-      if (mounted) setState(() {});
+      if (mounted) {
+        setState(() {});
+        if (c.access != null) run(c.reconcile);
+      }
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       openRequestedTask();
       subscription.refresh();
     });
+  }
+
+  void subscriptionChanged() {
+    changed();
+    if (!subscription.busy && c.access != null) {
+      c.reconcile().catchError((Object _) {});
+    }
+  }
+
+  Future<void> taskAction(
+    Occurrence o,
+    String action, {
+    int minutes = 10,
+  }) async {
+    if ({'start', 'small', 'snooze'}.contains(action) &&
+        !subscription.hasAccess) {
+      openPro();
+      return;
+    }
+    await run(() => c.act(o, action, minutes: minutes));
   }
 
   void changed() {
@@ -78,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   @override
   void dispose() {
     c.removeListener(changed);
-    subscription.removeListener(changed);
+    subscription.removeListener(subscriptionChanged);
     if (widget.subscription == null) subscription.dispose();
     quickTitle.dispose();
     bodyScroll.dispose();
@@ -168,7 +193,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     final result = await Navigator.push<Task>(
       context,
       MaterialPageRoute(
-        builder: (_) => TaskEditor(task: task, initialDate: selected),
+        builder: (_) => TaskEditor(
+          task: task,
+          initialDate: selected,
+          premium: subscription.hasAccess,
+        ),
       ),
     );
     if (result != null) {
@@ -188,7 +217,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       isScrollControlled: true,
       useSafeArea: true,
       builder: (ctx) => ListenableBuilder(
-        listenable: c,
+        listenable: Listenable.merge([c, subscription]),
         builder: (ctx, _) {
           final o = c.items.where((x) => x.id == original.id).firstOrNull;
           if (o == null) return const SizedBox.shrink();
@@ -239,7 +268,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           child: FilledButton(
                             onPressed: busy
                                 ? null
-                                : () => run(() => c.act(o, 'start')),
+                                : () => taskAction(o, 'start'),
                             child: const Text('지금 시작'),
                           ),
                         ),
@@ -257,6 +286,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     const SizedBox(height: 30),
                     const Divider(),
                     const SizedBox(height: 16),
+                    if (!subscription.hasAccess) ...[
+                      const Text(
+                        '알림·미루기·실행 보조는 Pro 기능이에요. 완료와 일정 수정은 계속 사용할 수 있어요.',
+                      ),
+                      const SizedBox(height: 16),
+                    ],
                     Text('지금 어렵다면', style: Theme.of(ctx).textTheme.titleMedium),
                     const SizedBox(height: 14),
                     Wrap(
@@ -267,9 +302,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                             (m) => OutlinedButton(
                               onPressed: busy
                                   ? null
-                                  : () => run(
-                                      () => c.act(o, 'snooze', minutes: m),
-                                    ),
+                                  : () => taskAction(o, 'snooze', minutes: m),
                               child: Text(m == 60 ? '1시간 뒤' : '$m분 뒤'),
                             ),
                           )
@@ -296,12 +329,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                 );
                                 return;
                               }
-                              run(
-                                () => c.act(
-                                  o,
-                                  'snooze',
-                                  minutes: remaining < 120 ? remaining : 120,
-                                ),
+                              taskAction(
+                                o,
+                                'snooze',
+                                minutes: remaining < 120 ? remaining : 120,
                               );
                             },
                       child: const Text('오늘 나중에'),
@@ -314,7 +345,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           margin: const EdgeInsets.only(top: 20),
                           padding: const EdgeInsets.all(18),
                           decoration: BoxDecoration(
-                            color: const Color(0xfff6f2ed),
+                            color: const Color(0xfff1f2f4),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Column(
@@ -329,7 +360,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                               ),
                               const SizedBox(height: 12),
                               FilledButton(
-                                onPressed: () => run(() => c.act(o, 'small')),
+                                onPressed: () => taskAction(o, 'small'),
                                 child: const Text('5분 시작'),
                               ),
                             ],
@@ -337,6 +368,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         );
                       },
                     ),
+                    const SizedBox(height: 16),
                     TextButton(
                       onPressed: busy
                           ? null
@@ -453,7 +485,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             ? Icons.check_circle
             : Icons.radio_button_unchecked,
         color: o.status == TaskStatus.completed
-            ? Colors.grey
+            ? mutedText
             : o.task.priority == 2
             ? priorityRed
             : categoryColors[o.task.category],
@@ -463,7 +495,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       o.task.title,
       style: TextStyle(
         fontWeight: FontWeight.w500,
-        color: o.status == TaskStatus.completed ? Colors.grey : null,
+        color: o.status == TaskStatus.completed ? mutedText : null,
         decoration: o.status == TaskStatus.completed
             ? TextDecoration.lineThrough
             : null,
@@ -489,13 +521,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       children: [
         Text(
           timeLabel(o.originalDue),
-          style: const TextStyle(fontSize: 12, color: Color(0xff777970)),
+          style: const TextStyle(fontSize: 12, color: Color(0xff626873)),
         ),
         if (o.active && o.status != TaskStatus.progressing)
           IconButton(
             key: ValueKey('start-${o.id}'),
             tooltip: '${o.task.title} 지금 시작',
-            onPressed: busy ? null : () => run(() => c.act(o, 'start')),
+            onPressed: busy ? null : () => taskAction(o, 'start'),
             icon: const Icon(Icons.play_arrow_rounded, size: 23),
           ),
       ],
@@ -545,7 +577,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       child: Text(
                         ['월', '화', '수', '목', '금', '토', '일'][i],
                         style: TextStyle(
-                          color: i == 6 ? priorityRed : Colors.grey,
+                          color: i == 6 ? priorityRed : mutedText,
                           fontSize: 12,
                         ),
                       ),
@@ -643,7 +675,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                               final color = o.task.priority == 2
                                   ? priorityRed
                                   : categoryColors[o.task.category] ??
-                                        Colors.grey;
+                                        mutedText;
                               return Container(
                                 width: double.infinity,
                                 margin: const EdgeInsets.fromLTRB(2, 0, 2, 3),
@@ -678,7 +710,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                               style: const TextStyle(
                                 fontSize: 9,
                                 height: 1.1,
-                                color: Colors.grey,
+                                color: mutedText,
                               ),
                             ),
                         ],
@@ -742,7 +774,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       '${dayKey(o.originalDue)} 예정',
                       style: const TextStyle(
                         fontSize: 12,
-                        color: Color(0xff777970),
+                        color: Color(0xff626873),
                       ),
                     ),
                     row(o),
@@ -888,7 +920,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               ),
               Text(
                 '${summarized.where((o) => o.active).length}개 남음  ·  ${summarized.where((o) => o.status == TaskStatus.completed).length}개 완료',
-                style: const TextStyle(fontSize: 13, color: Color(0xff777970)),
+                style: const TextStyle(fontSize: 13, color: Color(0xff626873)),
               ),
             ],
           ),
@@ -898,7 +930,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             padding: EdgeInsets.only(bottom: 16),
             child: Text(
               '날짜를 누르면 그날의 할 일이 바로 펼쳐져요.',
-              style: TextStyle(fontSize: 12, color: Color(0xff88877f)),
+              style: TextStyle(fontSize: 12, color: Color(0xff626873)),
             ),
           ),
         const SizedBox(height: 8),
@@ -941,7 +973,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   const SizedBox(width: 8),
                   Text(
                     '${items.where((o) => o.status == TaskStatus.completed).length}/${items.length}',
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    style: const TextStyle(fontSize: 12, color: mutedText),
                   ),
                 ],
               ),
@@ -951,7 +983,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         }),
         const SizedBox(height: 20),
         ExpansionTile(
-          tilePadding: EdgeInsets.zero,
+          key: const Key('quick-add'),
           title: const Text('간단히 추가', style: TextStyle(fontSize: 14)),
           children: [quickAdd()],
         ),
@@ -990,6 +1022,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     children: [
       Wrap(
         spacing: 6,
+        runSpacing: 8,
         children: categoryColors.keys
             .map(
               (name) => ChoiceChip(
@@ -1021,17 +1054,17 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         dayOf(DateTime.now()) == selected
             ? '지금부터 1시간 뒤로 등록돼요. 상세 화면에서 시간을 바꿀 수 있어요.'
             : '${selected.month}월 ${selected.day}일 오전 9시로 등록돼요.',
-        style: const TextStyle(fontSize: 11, color: Colors.grey),
+        style: const TextStyle(fontSize: 13, color: Color(0xff626873)),
       ),
     ],
   );
 
   Widget insightPanel() {
-    if (!subscription.active) {
+    if (!subscription.hasAccess) {
       return Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: const Color(0xfff4f2ee),
+          color: const Color(0xfff1f2f4),
           borderRadius: BorderRadius.circular(14),
         ),
         child: Column(
@@ -1042,7 +1075,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
             ),
             const SizedBox(height: 8),
-            const Text('Pro에서 90일 실행 기록과 분류별 완료 분석을 볼 수 있어요.'),
+            const Text(
+              '7일 체험이 끝났어요. Pro를 구독하면 알림·미루기와 30일·90일 통계를 계속 사용할 수 있어요. 기존 기록은 그대로 남아 있어요.',
+            ),
             const SizedBox(height: 12),
             OutlinedButton(onPressed: openPro, child: const Text('Pro 알아보기')),
           ],
@@ -1070,7 +1105,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         const SizedBox(height: 8),
         const Text(
           '진한 칸일수록 더 많이 완료한 날이에요.',
-          style: TextStyle(color: Colors.grey, fontSize: 12),
+          style: TextStyle(color: mutedText, fontSize: 12),
         ),
         const SizedBox(height: 16),
         GridView.builder(
@@ -1132,6 +1167,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   Widget statsPage() {
+    if (!subscription.hasAccess) return insightPanel();
     final s = c.statistics;
     final total = s['total'] as int? ?? 0, done = s['completed'] as int? ?? 0;
     return Column(
@@ -1139,7 +1175,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       children: [
         insightPanel(),
         const SizedBox(height: 28),
-        const Text('최근 30일', style: TextStyle(color: Colors.grey)),
+        const Text('최근 30일', style: TextStyle(color: mutedText)),
         const SizedBox(height: 20),
         ...{
           '등록한 할 일': '${s['registered'] ?? 0}개',
@@ -1170,20 +1206,28 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       ListTile(
-        contentPadding: EdgeInsets.zero,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: const Icon(Icons.auto_graph),
-        title: Text(subscription.active ? '한걸음 Pro 이용 중' : '한걸음 Pro'),
+        title: Text(
+          subscription.active
+              ? '한걸음 Pro 이용 중'
+              : subscription.trialActive
+              ? '전체 기능 7일 체험 중'
+              : '무료 캘린더 이용 중',
+        ),
         subtitle: const Text('연간 구독 · 구매 복원 · 구독 관리'),
         trailing: const Icon(Icons.chevron_right),
         onTap: openPro,
       ),
       const Divider(height: 32),
-      const Text(
-        '데이터는 이 기기에만 저장됩니다. 회원가입·서버·클라우드 동기화가 없습니다. 앱 삭제 또는 기기 변경 시 기록이 사라질 수 있습니다.',
-      ),
+      const PrivacyCard(),
       const SizedBox(height: 24),
       FilledButton.icon(
         onPressed: () async {
+          if (!subscription.hasAccess) {
+            openPro();
+            return;
+          }
           await run(() async {
             await c.reminders.requestPermissions();
             await c.reconcile();
@@ -1204,7 +1248,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       ),
       const SizedBox(height: 12),
       OutlinedButton(
-        onPressed: () => run(c.reminders.testNotification),
+        onPressed: () => subscription.hasAccess
+            ? run(c.reminders.testNotification)
+            : openPro(),
         child: const Text('10초 뒤 테스트 알림'),
       ),
       const SizedBox(height: 20),
@@ -1213,6 +1259,31 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       ),
     ],
   );
+  Widget accessNotice() => Padding(
+    padding: const EdgeInsets.only(bottom: 16),
+    child: ListTile(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: Color(0xffdfe2e6)),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      title: Text(
+        subscription.active
+            ? 'Pro 이용 중'
+            : subscription.trialActive
+            ? '전체 기능 7일 체험 중'
+            : '무료 캘린더 이용 중',
+      ),
+      subtitle: Text(
+        subscription.trialActive && subscription.trialEnds != null
+            ? '${dayKey(subscription.trialEnds!)} ${timeLabel(subscription.trialEnds!)}까지 · 체험만으로 결제되지 않아요'
+            : '캘린더·메모·완료는 무료 · 알림·미루기·통계는 Pro',
+      ),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: openPro,
+    ),
+  );
+
   Widget pageHeader() => AppBar(
     primary: false,
     title: Text(
@@ -1268,7 +1339,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         style: const TextStyle(color: priorityRed),
                       ),
                     ),
-                  if (page == 0) calendarPage(),
+                  if (page == 0) ...[
+                    calendarPage(),
+                    const SizedBox(height: 16),
+                    accessNotice(),
+                  ],
                   if (page == 1) ...c.queue.map(row),
                   if (page == 2)
                     ...c.items

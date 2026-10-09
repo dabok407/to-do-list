@@ -6,6 +6,7 @@ import 'package:workmanager/workmanager.dart';
 import '../data/task_repository.dart';
 import 'reminder_scheduler.dart';
 import 'widget_service.dart';
+import 'feature_access.dart';
 
 const refreshTask = 'com.dabok407.hangeoreum.refresh';
 
@@ -44,6 +45,9 @@ class BackgroundRefresh {
       final items = await repository.occurrences();
       final reminders = ReminderScheduler();
       await reminders.initialize();
+      final access = FeatureAccess(repository);
+      await access.load();
+      reminders.accessUntil = access.enabled ? access.until : DateTime(1970);
       await reminders.sync(
         items,
         exceptions: await repository.notificationExceptions(),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
+import 'package:hangeoreum/services/subscription_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hangeoreum/app/task_controller.dart';
 import 'package:hangeoreum/data/task_repository.dart';
@@ -9,18 +11,32 @@ import 'package:hangeoreum/main.dart';
 import 'package:hangeoreum/services/reminder_scheduler.dart';
 import 'package:sqflite/sqflite.dart';
 
+class _LayoutSubscription extends SubscriptionService {
+  final bool premium;
+  _LayoutSubscription({this.premium = true});
+  @override
+  bool get hasAccess => premium;
+  @override
+  Future<void> refresh() async {}
+}
+
 class _UnusedDatabase implements Database {
   @override
   dynamic noSuchMethod(Invocation invocation) =>
       throw StateError('Layout fixtures must not access the database');
 }
 
+class _LayoutRepository extends TaskRepository {
+  _LayoutRepository() : super(_UnusedDatabase());
+  @override
+  Future<int> todaySnoozes(String id) async => 0;
+}
+
 class _LayoutController extends TaskController {
   Task? savedTask;
   final actions = <String>[];
 
-  _LayoutController()
-    : super(TaskRepository(_UnusedDatabase()), ReminderScheduler()) {
+  _LayoutController() : super(_LayoutRepository(), ReminderScheduler()) {
     final now = DateTime.now();
     final due = DateTime(now.year, now.month, now.day, 19);
     final task = Task(
@@ -103,7 +119,12 @@ void main() {
       _smallScreen(tester);
       final controller = _LayoutController();
       addTearDown(controller.dispose);
-      await tester.pumpWidget(HangeoreumApp(controller: controller));
+      await tester.pumpWidget(
+        HangeoreumApp(
+          controller: controller,
+          subscription: _LayoutSubscription(),
+        ),
+      );
       await tester.tap(find.byType(FloatingActionButton));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
@@ -159,7 +180,12 @@ void main() {
     _smallScreen(tester);
     final controller = _LayoutController();
     addTearDown(controller.dispose);
-    await tester.pumpWidget(HangeoreumApp(controller: controller));
+    await tester.pumpWidget(
+      HangeoreumApp(
+        controller: controller,
+        subscription: _LayoutSubscription(),
+      ),
+    );
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
 
@@ -169,7 +195,7 @@ void main() {
     expect(find.text('월 보기'), findsOneWidget);
     expect(tester.takeException(), isNull);
 
-    await tester.tap(find.byIcon(Icons.chevron_right));
+    await tester.tap(find.byTooltip('다음'));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
     await tester.tap(find.text('월 보기'));
@@ -206,7 +232,12 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     final controller = _LayoutController();
     addTearDown(controller.dispose);
-    await tester.pumpWidget(HangeoreumApp(controller: controller));
+    await tester.pumpWidget(
+      HangeoreumApp(
+        controller: controller,
+        subscription: _LayoutSubscription(),
+      ),
+    );
     await tester.pumpAndSettle();
     final day = find
         .descendant(
@@ -252,7 +283,12 @@ void main() {
     controller.items = [
       Occurrence(id: 'old', task: task, originalDue: due, reminder: due),
     ];
-    await tester.pumpWidget(HangeoreumApp(controller: controller));
+    await tester.pumpWidget(
+      HangeoreumApp(
+        controller: controller,
+        subscription: _LayoutSubscription(),
+      ),
+    );
     await tester.pumpAndSettle();
     expect(
       find.byKey(const Key('overdue-banner')).hitTestable(),
@@ -289,7 +325,12 @@ void main() {
         reminder: due,
       );
     });
-    await tester.pumpWidget(HangeoreumApp(controller: controller));
+    await tester.pumpWidget(
+      HangeoreumApp(
+        controller: controller,
+        subscription: _LayoutSubscription(),
+      ),
+    );
     await tester.pumpAndSettle();
     expect(
       find.byKey(const Key('overdue-banner')).hitTestable(),
@@ -303,7 +344,12 @@ void main() {
     _smallScreen(tester);
     final controller = _LayoutController();
     addTearDown(controller.dispose);
-    await tester.pumpWidget(HangeoreumApp(controller: controller));
+    await tester.pumpWidget(
+      HangeoreumApp(
+        controller: controller,
+        subscription: _LayoutSubscription(),
+      ),
+    );
     await tester.tap(find.byType(FloatingActionButton));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).first, '필터 청소');
@@ -340,7 +386,12 @@ void main() {
     _smallScreen(tester);
     final controller = _LayoutController();
     addTearDown(controller.dispose);
-    await tester.pumpWidget(HangeoreumApp(controller: controller));
+    await tester.pumpWidget(
+      HangeoreumApp(
+        controller: controller,
+        subscription: _LayoutSubscription(),
+      ),
+    );
     await tester.tap(find.byType(FloatingActionButton));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).first, '분리수거');
@@ -355,4 +406,119 @@ void main() {
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
   });
+
+  testWidgets(
+    'quick add hover has inset label and arrow, then accepts a task',
+    (tester) async {
+      _smallScreen(tester);
+      final controller = _LayoutController();
+      final subscription = _LayoutSubscription();
+      await tester.pumpWidget(
+        HangeoreumApp(controller: controller, subscription: subscription),
+      );
+      await tester.pumpAndSettle();
+      final quick = find.byKey(const Key('quick-add'));
+      await tester.ensureVisible(quick);
+      await tester.pumpAndSettle();
+      final header = find.descendant(
+        of: quick,
+        matching: find.byType(ListTile),
+      );
+      final rect = tester.getRect(header);
+      final label = tester.getRect(find.text('간단히 추가'));
+      expect(label.left - rect.left, greaterThanOrEqualTo(16));
+      final pointer = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await pointer.addPointer(location: Offset.zero);
+      await pointer.moveTo(rect.center);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      await tester.tap(find.text('간단히 추가'));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byType(TextField));
+      await tester.enterText(find.byType(TextField), '빠르게 기록한 할 일');
+      await tester.tap(find.byTooltip('빠른 추가'));
+      await tester.pumpAndSettle();
+      expect(controller.savedTask?.title, '빠르게 기록한 할 일');
+      expect(tester.takeException(), isNull);
+      await pointer.removePointer();
+      await tester.pumpWidget(const SizedBox.shrink());
+      controller.dispose();
+      subscription.dispose();
+    },
+  );
+  testWidgets(
+    'detail action surfaces are separated at large type and stay operable',
+    (tester) async {
+      _smallScreen(tester);
+      final controller = _LayoutController();
+      final subscription = _LayoutSubscription();
+      await tester.pumpWidget(
+        HangeoreumApp(controller: controller, subscription: subscription),
+      );
+      await tester.pumpAndSettle();
+      final item = find
+          .widgetWithText(ListTile, controller.items.single.task.title)
+          .first;
+      await tester.scrollUntilVisible(
+        item,
+        200,
+        scrollable: find
+            .descendant(
+              of: find.byType(ListView),
+              matching: find.byType(Scrollable),
+            )
+            .first,
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(item);
+      await tester.pumpAndSettle();
+      final skip = find.widgetWithText(TextButton, '오늘 못함 · 이번 회차 건너뛰기');
+      await tester.ensureVisible(skip);
+      await tester.pumpAndSettle();
+      final later = find.widgetWithText(OutlinedButton, '오늘 나중에');
+      expect(
+        tester.getRect(skip).top - tester.getRect(later).bottom,
+        greaterThanOrEqualTo(16),
+      );
+      final pointer = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await pointer.addPointer(location: tester.getCenter(skip));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      await pointer.removePointer();
+      await tester.pumpWidget(const SizedBox.shrink());
+      controller.dispose();
+      subscription.dispose();
+    },
+  );
+  for (final premium in [false, true]) {
+    testWidgets(
+      'all navigation pages and Pro fit 320px at 150 percent type: premium=$premium',
+      (tester) async {
+        _smallScreen(tester);
+        final controller = _LayoutController();
+        final subscription = _LayoutSubscription(premium: premium);
+        await tester.pumpWidget(
+          HangeoreumApp(controller: controller, subscription: subscription),
+        );
+        await tester.pumpAndSettle();
+        for (final label in ['예정', '완료', '통계', '설정']) {
+          final nav = find.descendant(
+            of: find.byType(NavigationBar),
+            matching: find.text(label),
+          );
+          await tester.tap(nav);
+          await tester.pumpAndSettle();
+          expect(tester.takeException(), isNull, reason: label);
+        }
+        expect(find.text('나의 일정은, 나의 기기에만'), findsOneWidget);
+        await tester.tap(find.byIcon(Icons.auto_graph));
+        await tester.pumpAndSettle();
+        expect(find.text('무료로 계속'), findsOneWidget);
+        expect(tester.takeException(), isNull);
+        await tester.pumpWidget(const SizedBox.shrink());
+        controller.dispose();
+        subscription.dispose();
+      },
+    );
+  }
 }

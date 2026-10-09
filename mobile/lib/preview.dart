@@ -21,9 +21,17 @@ void main() {
 }
 
 class PreviewSubscription extends SubscriptionService {
+  bool previewTrial = Uri.base.queryParameters['mode'] != 'free';
   PreviewSubscription() {
     active = Uri.base.queryParameters['pro'] == '1';
   }
+  @override
+  bool get trialActive => previewTrial && !active;
+  @override
+  DateTime? get trialEnds =>
+      trialActive ? DateTime.now().add(const Duration(days: 7)) : null;
+  @override
+  bool get hasAccess => active || trialActive;
   @override
   Future<void> refresh() async {
     price = 'US\$0.70';
@@ -48,6 +56,7 @@ class PreviewSubscription extends SubscriptionService {
   @override
   Future<void> manage() async {
     active = false;
+    previewTrial = false;
     message = '미리보기: 무료 상태로 돌아왔어요. 실제 구독은 변경되지 않았어요.';
     notifyListeners();
   }

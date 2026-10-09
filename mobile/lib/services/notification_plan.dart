@@ -26,6 +26,7 @@ class NotificationPlan {
     List<Occurrence> items, {
     required DateTime now,
     required int capacity,
+    DateTime? until,
     Map<String, List<DateTime>> exceptions = const {},
   }) {
     final jobs = <ReminderJob>[];
@@ -36,6 +37,7 @@ class NotificationPlan {
     for (final occurrences in groups.values) {
       final task = occurrences.first.task;
       final simple =
+          until == null &&
           task.end == null &&
           task.interval == 1 &&
           !(exceptions[task.id] ?? []).any((d) => d.isAfter(now)) &&
@@ -232,7 +234,8 @@ class NotificationPlan {
           continue;
         }
         NotificationRepeat? repeat;
-        if (task.repeat == RepeatUnit.none &&
+        if (until == null &&
+            task.repeat == RepeatUnit.none &&
             (interval == 1 || interval == 7)) {
           var nearest = DateTime(
             now.year,
@@ -279,6 +282,7 @@ class NotificationPlan {
         if (repeat != null) break;
       }
     }
+    if (until != null) jobs.removeWhere((job) => !job.at.isBefore(until));
     jobs.sort((a, b) => a.at.compareTo(b.at));
     final selected = jobs.take(capacity).toList();
     final oneShots = selected.where((j) => j.repeat == null).toList();
