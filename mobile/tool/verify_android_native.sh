@@ -70,7 +70,7 @@ adb shell wm size 420x840
 adb shell wm density 160
 for height in 130 220 330; do
   adb logcat -c
-  adb shell am start -W --activity-new-task --activity-clear-task -n "$package/.WidgetTestActivity" --ei widgetHeight "$height" --ei widgetWidth 330 --es expectedTitle "'안방 대청소 통합 테스트'"
+  adb shell am start -W -f 0x10008000 -n "$package/.WidgetTestActivity" --ei widgetHeight "$height" --ei widgetWidth 330 --es expectedTitle "'안방 대청소 통합 테스트'"
   for ((attempt=0; attempt<20; attempt++)); do
     adb logcat -d > "$results/widget-$height.log"
     if grep -q "WIDGET_RENDER_OK:330x$height" "$results/widget-$height.log"; then break; fi
