@@ -26,6 +26,16 @@ maestro --device "$device" test --debug-output="$results/maestro" --test-output-
 ui_status=$?
 set -e
 xcrun simctl io "$device" screenshot "$results/ios-native-launch.png"
+if [ "$ui_status" != 0 ]; then
+  # A simulator AX snapshot can omit the visible system confirmation. Only
+  # accept the coordinate fallback after independently checking its pixels.
+  swift tool/verify_ios_screen.swift "$results/ios-native-launch.png" "Open in" "한걸음" "Cancel" "Open" \
+    > "$results/ios-link-confirmation-ocr.log"
+  maestro --device "$device" test --debug-output="$results/maestro-confirmation" \
+    --test-output-dir="$results/maestro-confirmation" tool/ios_widget_link_confirm.yaml \
+    > "$results/ios-link-confirmation-ui.log" 2>&1
+  ui_status=0
+fi
 set +e
 python3 - "$database" <<'PY'
 import sqlite3,sys,time
@@ -73,7 +83,7 @@ notification_status=$?
 set -e
 xcrun simctl io "$device" screenshot "$results/ios-after-notification-flow.png"
 test "$notification_status" = 0
-# Maestro closes Notification Center while stopping its driver. OCR must inspect
+# The transient banner may disappear before the driver exits. OCR must inspect
 # pixels captured inside the flow immediately after the visible-text assertions.
 python3 - "$notification_results" "$results/ios-background-notification.png" <<'PY'
 import pathlib, shutil, sys
