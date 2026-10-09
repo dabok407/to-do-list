@@ -11,6 +11,8 @@ import 'package:hangeoreum/main.dart';
 import 'package:hangeoreum/services/reminder_scheduler.dart';
 import 'package:sqflite/sqflite.dart';
 
+const _layoutScale = String.fromEnvironment('QA_TEXT_SCALE', defaultValue: '1.5');
+
 class _LayoutSubscription extends SubscriptionService {
   final bool premium;
   _LayoutSubscription({this.premium = true});
@@ -95,7 +97,7 @@ class _LayoutController extends TaskController {
 void _smallScreen(WidgetTester tester) {
   tester.view.devicePixelRatio = 1;
   tester.view.physicalSize = const Size(320, 640);
-  tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+  tester.platformDispatcher.textScaleFactorTestValue = double.parse(_layoutScale);
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
   addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
@@ -115,7 +117,7 @@ void main() {
     RepeatUnit.monthlyWeekday,
     RepeatUnit.weeklyGoal,
   ]) {
-    testWidgets('320px · 글꼴 1.5배 ${repeat.name} 폼에서 저장 가능', (tester) async {
+    testWidgets('320px · 글꼴 ${_layoutScale}배 ${repeat.name} 폼에서 저장 가능', (tester) async {
       _smallScreen(tester);
       final controller = _LayoutController();
       addTearDown(controller.dispose);
@@ -176,7 +178,7 @@ void main() {
     });
   }
 
-  testWidgets('320px · 글꼴 1.5배 캘린더에서 월·주 전환과 날짜 선택 가능', (tester) async {
+  testWidgets('320px · 글꼴 ${_layoutScale}배 캘린더에서 월·주 전환과 날짜 선택 가능', (tester) async {
     _smallScreen(tester);
     final controller = _LayoutController();
     addTearDown(controller.dispose);
@@ -436,6 +438,9 @@ void main() {
       await tester.pumpAndSettle();
       await tester.ensureVisible(find.byType(TextField));
       await tester.enterText(find.byType(TextField), '빠르게 기록한 할 일');
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byTooltip('빠른 추가'));
+      await tester.pumpAndSettle();
       await tester.tap(find.byTooltip('빠른 추가'));
       await tester.pumpAndSettle();
       expect(controller.savedTask?.title, '빠르게 기록한 할 일');
@@ -492,7 +497,7 @@ void main() {
   );
   for (final premium in [false, true]) {
     testWidgets(
-      'all navigation pages and Pro fit 320px at 150 percent type: premium=$premium',
+      'all navigation pages and Pro fit 320px at ${_layoutScale}x type: premium=$premium',
       (tester) async {
         _smallScreen(tester);
         final controller = _LayoutController();

@@ -30,6 +30,8 @@ jobs:
       - run: flutter pub get
       - run: flutter analyze
       - run: flutter test
+      - name: Large text accessibility scenarios
+        run: flutter test test/small_screen_test.dart --dart-define=QA_TEXT_SCALE=2.0
       - run: flutter build apk --debug
       - name: Preserve normal app for native lifecycle checks
         run: cp build/app/outputs/flutter-apk/app-debug.apk build/native-debug.apk
