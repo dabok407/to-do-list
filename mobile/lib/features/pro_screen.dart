@@ -77,7 +77,7 @@ class _ProScreenState extends State<ProScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    s.autoRenewing == false
+                    s.active && s.autoRenewing == false
                         ? '자동 갱신이 해제되어 있어요. 이용 기간까지 Pro를 사용할 수 있어요.'
                         : '1년에 한 번 결제 · 해지 전까지 자동 갱신',
                   ),

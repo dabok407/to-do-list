@@ -14,13 +14,15 @@
 - 최근 30일 통계와 완료 해제에 따른 통계 복원
 - 앱과 백그라운드 작업의 SQLite 잠금·예약 동기화, 6시간 주기 예약 충전 요청
 
-AI·Pro·결제·광고·클라우드는 초기 제품 범위에서 제외된 기능이다.
+2026-10-09 추가 요청으로 분류·빠른 입력·일정 제목 표시와 Pro 연간 자동 갱신 구독·90일 완료 기록·분류별 분석을 구현했다. AI·광고·클라우드는 포함하지 않는다. 구독의 실제 상품 등록·Sandbox/라이선스 테스트는 아직 수행하지 못했으며 [BILLING.md](mobile/BILLING.md)에 계정 연결 절차와 검증 경계를 기록했다.
 
 ## 자동 검증
 
-2026-10-09 로컬 실행: `flutter analyze` 오류 없음, `flutter test` 42개 통과. iOS GMT 시간대 회귀 검증, 320px·글꼴 1.5배 화면 조작과 실제 파일 DB 2→3 마이그레이션도 포함한다.
+2026-10-09 로컬 실행: `flutter analyze` 오류 없음, `flutter test` 46개 통과. iOS GMT 시간대 회귀 검증, 320px·글꼴 1.5배 화면 조작과 실제 파일 DB 2→4 마이그레이션도 포함한다. 구독 테스트 4개는 플랫폼 채널의 모의 응답을 사용하며 실제 스토어 청구·갱신 테스트를 대체하지 않는다.
 
-최신 소스는 `0e8e8a5`이며 [GitHub Actions 실행](https://github.com/dabok407/to-do-list/actions/runs/37880646439)은 진행 중이다. [앞선 `f5aa59d` 실행](https://github.com/dabok407/to-do-list/actions/runs/37877943803)은 iOS·Android 작업 모두 성공했다. 마지막 화면 확인에서 작은 Android 위젯의 시간 문구 잘림을 발견해 compact 헤더 날짜를 생략하고 제목·시간 문구의 실제 표시 영역 검증을 추가했다. 이 마지막 표시 수정은 최신 CI 결과 확정 전까지 통과했다고 간주하지 않는다.
+구독·디자인 추가 소스 `97dbf51`의 [GitHub Actions 실행](https://github.com/dabok407/to-do-list/actions/runs/37884534266)은 검증 중이다. iOS 시뮬레이터 앱 빌드와 Android debug APK·release bundle 빌드 단계를 통과했으며 네이티브 실행 단계는 결과 확인 전이다. [앞선 `f5aa59d` 실행](https://github.com/dabok407/to-do-list/actions/runs/37877943803)은 양쪽 모두 성공했다. 이후 `0e8e8a5` 실행은 iOS 접근성 트리 검사와 Android 테스트 VM 연결에서 실패했으며, 현재 실행에는 실제 iOS 화면 OCR 검증과 Android 고정 VM 포트 연결을 반영했다. 작은 Android 위젯의 시간 문구 잘림 수정도 현재 실행에서 재검증한다.
+
+브라우저에서는 실제 Flutter 화면에 샘플 데이터를 연결한 `design-review.html`을 실행했다. 월→주 보기, 안방 대청소의 완료→완료 해제, 구독 안내→샘플 Pro 전환→90일 기록·분류별 분석 표시를 직접 확인했다. 이 환경에는 실제 결제·OS 알림이 없으며 네이티브 검증과 구분한다.
 
 | 검증 | 현재 증거 |
 | --- | --- |
@@ -34,7 +36,7 @@ AI·Pro·결제·광고·클라우드는 초기 제품 범위에서 제외된 �
 | WidgetKit 데이터·소형/중형 화면 렌더링 | CI XCTest 통과, 소형·중형 렌더링 이미지 확인 |
 | iOS release 빌드, 서명 제외 | CI 통과 (배포 서명·실기기 설치 증거와는 구분) |
 
-Android 서명 결과(제품 소스 `0e8e8a5`): `mobile/build/app/outputs/bundle/release/app-release.aab`, 약 55.5 MB. SHA-256: `B6C1A8818CD4A18AF7FC386AEA8BDA52AC6989CE6BEC227F10BC94F87BE4EFA5`. JDK jarsigner 검증 결과 `jar verified`. 해당 소스로 재빌드와 서명 확인을 완료했다. Android 업로드 키는 일반적인 자체 서명 인증서를 사용하며 스토어 계정에는 아직 연결하지 않았다.
+Android 서명 결과(구독·디자인 및 구독 전 안내 문구 수정 포함, 2026-10-09): `mobile/build/app/outputs/bundle/release/app-release.aab`, 약 56.1 MB. SHA-256: `241978CE453DBAEA05D695A355135A1538BFE5400645054D5BB79FDD96D412E0`. JDK jarsigner 결과 `jar verified`. 자체 서명 인증서·타임스탬프 부재와 ZIP 스트림에서의 manifest 순서 경고가 출력됐으며 Play 설치·승인을 증명하는 결과는 아니다. Android 업로드 키는 아직 스토어 계정에 연결하지 않았다. Play 상품 공개 검증 키가 없는 빌드이므로 실제 구매는 비활성화되며 계정 연결 후 재빌드해야 한다.
 
 ## 재현
 

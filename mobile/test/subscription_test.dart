@@ -91,12 +91,13 @@ void main() {
       );
       binding.setMockMethodCallHandler(
         channel,
-        (_) async => {'active': false, 'available': true, 'price': '₩1,100'},
+        (_) async => {'active': false, 'available': true, 'price': '₩1,100', 'autoRenewing': false},
       );
       await s.refresh();
       await tester.pumpAndSettle();
       expect(find.text('₩1,100 / 1년'), findsOneWidget);
       expect(find.text('1년에 한 번 결제 · 해지 전까지 자동 갱신'), findsOneWidget);
+      expect(find.textContaining('자동 갱신이 해제되어'), findsNothing);
       expect(
         tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
         isNotNull,
