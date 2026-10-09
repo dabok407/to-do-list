@@ -5,6 +5,9 @@ device="$1"
 package=com.dabok407.hangeoreum
 results=build/integration_test
 mkdir -p "$results"
+# XCTest can shut down the original device after using its own test clone.
+xcrun simctl boot "$device" || true
+xcrun simctl bootstatus "$device" -b
 xcrun simctl terminate "$device" "$package" || true
 xcrun simctl install "$device" build/native/Runner.app
 container=$(xcrun simctl get_app_container "$device" "$package" data)

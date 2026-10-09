@@ -64,16 +64,25 @@ class WidgetTestActivity : Activity() {
         setContentView(root)
         HangeoreumWidgetProvider.updateAll(this)
         // Validate the RemoteViews have actually inflated in a real OS widget host.
-        widget.postDelayed({
+        fun verifyRendered(attempt: Int) {
             val heading = widget.findViewById<View>(R.id.widget_header)
             checkNotNull(heading) { "Widget RemoteViews failed to inflate." }
             intent.getStringExtra("expectedTitle")?.let { expected ->
                 val titles = mutableListOf<String>()
                 collectTitles(widget, titles)
-                check(expected in titles) { "Expected '$expected', rendered $titles." }
+                if (expected !in titles && attempt < 20) {
+                    widget.postDelayed({ verifyRendered(attempt + 1) }, 500)
+                    return
+                }
+                val shared = getSharedPreferences("FlutterSharedPreferences", MODE_PRIVATE)
+                    .getString("flutter.widget_snapshot", null)
+                val native = getSharedPreferences("hangeoreum_widget", MODE_PRIVATE)
+                    .getString("tasks", null)
+                check(expected in titles) { "Expected '$expected', rendered $titles; shared=$shared; native=$native." }
             }
             Log.i(TAG, "WIDGET_RENDER_OK:${width}x$height")
-        }, 2000)
+        }
+        widget.postDelayed({ verifyRendered(0) }, 500)
     }
 
     override fun onStart() {
