@@ -10,10 +10,10 @@ import '../services/subscription_service.dart';
 
 const priorityRed = Color(0xff8f303a);
 const categoryColors = {
-  '생활': Color(0xff85745e),
-  '업무': Color(0xff627890),
-  '건강': Color(0xff5e7c64),
-  '배움': Color(0xff8c7290),
+  '생활': Color(0xffad5618),
+  '업무': Color(0xff315dca),
+  '건강': Color(0xff267447),
+  '배움': Color(0xff7546ba),
 };
 const stateNames = ['예정', '진행 중', '보류', '완료', '건너뜀'];
 String timeLabel(DateTime d) =>
@@ -567,6 +567,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     all = c.items
                         .where((o) => dayOf(o.originalDue) == d)
                         .toList();
+                all.sort((a, b) {
+                  final active = (a.active ? 0 : 1).compareTo(b.active ? 0 : 1);
+                  if (active != 0) return active;
+                  final priority = b.task.priority.compareTo(a.task.priority);
+                  return priority != 0
+                      ? priority
+                      : a.originalDue.compareTo(b.originalDue);
+                });
                 return Semantics(
                   label: '${dayKey(d)}, 할 일 ${all.length}개',
                   selected: d == selected,
@@ -590,7 +598,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     child: Container(
                       decoration: BoxDecoration(
                         color: !week && d == selected
-                            ? const Color(0xfff0eee8)
+                            ? const Color(0xfff2f3f5)
                             : null,
                         border: week
                             ? null
@@ -644,7 +652,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                   vertical: 2,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: color.withValues(alpha: .075),
+                                  color: o.active
+                                      ? color
+                                      : const Color(0xff747a83),
                                   borderRadius: BorderRadius.circular(3),
                                 ),
                                 child: Text(
@@ -654,9 +664,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                   style: TextStyle(
                                     fontSize: 10,
                                     height: 1.1,
-                                    color: o.status == TaskStatus.completed
-                                        ? Colors.grey
-                                        : color,
+                                    color: Colors.white,
                                     decoration: o.status == TaskStatus.completed
                                         ? TextDecoration.lineThrough
                                         : null,
@@ -753,10 +761,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     final remaining = c.overdue;
     if (remaining.isEmpty) return const SizedBox.shrink();
     return Padding(
-      padding: const EdgeInsets.only(top: 8, bottom: 4),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
       child: Material(
-        color: const Color(0xfff2ede6),
-        borderRadius: BorderRadius.circular(12),
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: Color(0xffb6bbc3)),
+        ),
         child: InkWell(
           key: const Key('overdue-banner'),
           borderRadius: BorderRadius.circular(12),
@@ -765,7 +776,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
             child: Row(
               children: [
-                const Icon(Icons.schedule, size: 21, color: Color(0xff796a56)),
+                const Icon(
+                  Icons.pending_actions_outlined,
+                  size: 22,
+                  color: Color(0xff292c29),
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -773,6 +788,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     children: [
                       Text(
                         '아직 남은 일 ${remaining.length}개',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: 3),
@@ -782,7 +799,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontSize: 13,
-                          color: Color(0xff716d64),
+                          color: Color(0xff626873),
                         ),
                       ),
                     ],
@@ -822,7 +839,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        overdueBanner(),
         Row(
           children: [
             TextButton(
@@ -1197,62 +1213,75 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       ),
     ],
   );
+  Widget pageHeader() => AppBar(
+    primary: false,
+    title: Text(
+      page == 0
+          ? '${month.year}년 ${month.month}월'
+          : ['캘린더', '예정된 할 일', '완료한 일', '나의 흐름', '설정'][page],
+    ),
+    actions: [
+      if (page == 0) ...[
+        IconButton(
+          tooltip: '이전',
+          onPressed: () => move(-1),
+          icon: const Icon(Icons.chevron_left),
+        ),
+        IconButton(
+          tooltip: '다음',
+          onPressed: () => move(1),
+          icon: const Icon(Icons.chevron_right),
+        ),
+      ],
+      if (busy)
+        const Padding(
+          padding: EdgeInsets.all(18),
+          child: SizedBox(
+            width: 18,
+            height: 18,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
+    ],
+  );
+
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      title: Text(
-        page == 0
-            ? '${month.year}년 ${month.month}월'
-            : ['캘린더', '예정된 할 일', '완료한 일', '나의 흐름', '설정'][page],
-      ),
-      actions: [
-        if (page == 0) ...[
-          IconButton(
-            tooltip: '이전',
-            onPressed: () => move(-1),
-            icon: const Icon(Icons.chevron_left),
-          ),
-          IconButton(
-            tooltip: '다음',
-            onPressed: () => move(1),
-            icon: const Icon(Icons.chevron_right),
-          ),
-        ],
-        if (busy)
-          const Padding(
-            padding: EdgeInsets.all(18),
-            child: SizedBox(
-              width: 18,
-              height: 18,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
-          ),
-      ],
-    ),
-    body: RefreshIndicator(
-      onRefresh: c.reconcile,
-      child: ListView(
-        controller: bodyScroll,
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
+    body: SafeArea(
+      bottom: false,
+      child: Column(
         children: [
-          if (c.warning != null)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: Text(
-                c.warning!,
-                style: const TextStyle(color: priorityRed),
+          if (page == 0) overdueBanner(),
+          SizedBox(height: kToolbarHeight, child: pageHeader()),
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: c.reconcile,
+              child: ListView(
+                controller: bodyScroll,
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
+                children: [
+                  if (c.warning != null)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Text(
+                        c.warning!,
+                        style: const TextStyle(color: priorityRed),
+                      ),
+                    ),
+                  if (page == 0) calendarPage(),
+                  if (page == 1) ...c.queue.map(row),
+                  if (page == 2)
+                    ...c.items
+                        .where((o) => o.status == TaskStatus.completed)
+                        .toList()
+                        .reversed
+                        .map(row),
+                  if (page == 3) statsPage(),
+                  if (page == 4) settingsPage(),
+                ],
               ),
             ),
-          if (page == 0) calendarPage(),
-          if (page == 1) ...c.queue.map(row),
-          if (page == 2)
-            ...c.items
-                .where((o) => o.status == TaskStatus.completed)
-                .toList()
-                .reversed
-                .map(row),
-          if (page == 3) statsPage(),
-          if (page == 4) settingsPage(),
+          ),
         ],
       ),
     ),

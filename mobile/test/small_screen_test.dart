@@ -258,6 +258,11 @@ void main() {
       find.byKey(const Key('overdue-banner')).hitTestable(),
       findsOneWidget,
     );
+    expect(
+      tester.getBottomLeft(find.byKey(const Key('overdue-banner'))).dy,
+      lessThan(tester.getTopLeft(find.byType(AppBar)).dy),
+      reason: '남은 일 배너가 년월 제목보다 위에 있어야 한다',
+    );
     await tester.tap(find.byKey(const Key('overdue-banner')));
     await tester.pumpAndSettle();
     expect(find.byTooltip('완료 처리').hitTestable(), findsOneWidget);

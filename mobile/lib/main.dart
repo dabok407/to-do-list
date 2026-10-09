@@ -119,17 +119,17 @@ class HangeoreumApp extends StatelessWidget {
         seedColor: const Color(0xff343833),
         primary: const Color(0xff292c29),
         onPrimary: Colors.white,
-        primaryContainer: const Color(0xffeeede8),
+        primaryContainer: const Color(0xfff1f2f4),
         onPrimaryContainer: const Color(0xff292c29),
         secondary: const Color(0xff78736a),
-        secondaryContainer: const Color(0xffeeede8),
+        secondaryContainer: const Color(0xfff1f2f4),
         onSecondaryContainer: const Color(0xff292c29),
-        surface: const Color(0xfffdfcf9),
+        surface: const Color(0xffffffff),
         onSurface: const Color(0xff292c29),
-        outline: const Color(0xffcac8c1),
-        outlineVariant: const Color(0xffe7e5df),
+        outline: const Color(0xffc9cdd3),
+        outlineVariant: const Color(0xffe4e6ea),
       ),
-      scaffoldBackgroundColor: const Color(0xfffdfcf9),
+      scaffoldBackgroundColor: const Color(0xffffffff),
       textTheme: const TextTheme(
         headlineSmall: TextStyle(
           fontSize: 24,
@@ -152,7 +152,7 @@ class HangeoreumApp extends StatelessWidget {
         labelLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
       ),
       appBarTheme: const AppBarTheme(
-        backgroundColor: Color(0xfffdfcf9),
+        backgroundColor: Color(0xffffffff),
         surfaceTintColor: Colors.transparent,
         centerTitle: false,
         titleTextStyle: TextStyle(
@@ -177,7 +177,7 @@ class HangeoreumApp extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
-          side: const BorderSide(color: Color(0xffd4d1c9)),
+          side: const BorderSide(color: Color(0xffd4d6da)),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
@@ -195,15 +195,15 @@ class HangeoreumApp extends StatelessWidget {
         ),
       ),
       bottomSheetTheme: const BottomSheetThemeData(
-        backgroundColor: Color(0xfffdfcf9),
+        backgroundColor: Color(0xffffffff),
         surfaceTintColor: Colors.transparent,
         showDragHandle: true,
       ),
       chipTheme: ChipThemeData(
         showCheckmark: false,
-        selectedColor: const Color(0xffeeede8),
-        backgroundColor: const Color(0xfffdfcf9),
-        side: const BorderSide(color: Color(0xffe0ddd6)),
+        selectedColor: const Color(0xfff1f2f4),
+        backgroundColor: const Color(0xffffffff),
+        side: const BorderSide(color: Color(0xffdfe2e6)),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -211,7 +211,7 @@ class HangeoreumApp extends StatelessWidget {
         contentPadding: const EdgeInsets.all(16),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: const Color(0xfffdfcf9),
+        backgroundColor: const Color(0xffffffff),
         surfaceTintColor: Colors.transparent,
         indicatorColor: Colors.transparent,
         iconTheme: WidgetStateProperty.resolveWith(
