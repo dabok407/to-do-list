@@ -1,16 +1,16 @@
-# 첫칸 스토어 등록 자료
+# 투두닉 스토어 등록 자료
 
-작성 기준: 2026-10-10. App Store Connect의 앱 등록과 한국어·영어 소개 저장, 안내 사이트 공개 및 앱 내 링크 연결을 완료했다. 등록한 앱 이름은 **첫칸 - 할 일과 캘린더**다. 서명된 IPA, TestFlight 배포, 구독 상품의 실제 결제 검증과 심사 제출은 아직 완료하지 않았다. 가격·배포 국가·언어별 최종 스크린샷은 제출 전에 확정한다.
+작성 기준: 2026-10-10. 확정 브랜드는 한국어 **투두닉**, 영어 **Todoniq**다. 슬로건은 **나만의 할 일, 투두닉 / Your tasks. Your way.**이며 아래 문안을 새 브랜드로 준비했다. 새 브랜드의 실제 앱 원본 48장·소개 PNG 56장·등록 자산 4개와 ZIP 4개의 로컬 검증을 완료했다. App Store Connect에 실제 등록된 이름은 아직 **첫칸 - 할 일과 캘린더**다. 기존 한국어·영어 소개 저장과 28장 이미지 업로드, 안내 사이트 공개 및 앱 내 링크 연결은 이전 브랜드 기준 이력이다. Apple 로그인 세션이 만료되어 새 브랜드는 콘솔에 반영하지 못했다. 새 사이트 게시와 새 브랜드 배포 빌드 검증은 별도이며, 서명된 IPA, TestFlight 배포, 실제 구독 결제 검증과 심사 제출은 아직 완료하지 않았다.
 
 ## 준비 현황
 
 | 항목 | 준비한 내용 | 남은 작업 |
 | --- | --- | --- |
-| 앱 제목·소개 | Apple 한국어 제목 등록, 아래 한국어·영어 문안 | 한국어·영어(미국) 소개/키워드/제목/부제 저장 완료, Play 입력·최종 검토 필요 |
+| 앱 제목·소개 | 투두닉 / Todoniq 한국어·영어 제목·슬로건·소개 문안 | Apple에는 이전 첫칸 문안이 저장되어 있음. 재로그인 후 새 문안 반영·Play 입력·최종 검토 필요 |
 | 고객 문의 | dabok407@gmail.com | 실제 문의 수신 확인 |
 | 아이콘 | `store/assets/`에 Apple 1024px·Play 512px 준비 | 최종 등록 시 파일 선택 |
-| 소개 스크린샷 | 첫칸 한국어·영어 소개 PNG 56장·등록 자산 4개·ZIP 4개 검증, Apple 중형 iPhone·13인치 iPad 양 언어 각 7장 총 28장 업로드 확인 | Play 업로드·서명한 최종 앱과 대조 |
-| 지원·개인정보·이용 안내 | 한국어·영어 HTTPS 페이지 공개, 앱 설정·Pro 링크 및 5개 테스트 통과 | 운영 주체·정책 확인·Play 입력 |
+| 소개 스크린샷 | 새 투두닉 / Todoniq 원본 48장, 소개 PNG 56장·등록 자산 4개·ZIP 4개 로컬 검증 완료 | Apple에 남아 있는 이전 첫칸 28장 교체, Play 업로드·최종 배포 앱 대조 |
+| 지원·개인정보·이용 안내 | 이전 첫칸 사이트 공개·링크 및 테스트 5개 통과. 새 브랜드 사이트 소스 준비 | 투두닉 / Todoniq 사이트 배포·최종 확인, 운영 주체·정책 확인·Play 입력 |
 | Pro 상품 | 상품 ID·기간·설명 | 실제 가격·상품 등록·구매 테스트 |
 | 심사 자료 | 아래 한국어·영어 심사 안내·설문 근거 | 서명 IPA·TestFlight·최종 빌드·심사 연락처 연결 |
 
@@ -20,9 +20,11 @@
 
 | 항목 | 등록 / 코드 기준 값 |
 | --- | --- |
-| Apple 한국어 등록 제목 | 첫칸 - 할 일과 캘린더 |
-| 휴대폰에 표시되는 앱 이름 | 첫칸 |
-| 기본 언어 / 추가 현지화 | 한국어 / 영어(미국) 소개 저장 완료. 앱 설정에서 한국어·영어·기기 언어 선택 |
+| 새 한국어 / 영어 등록 제목 | 투두닉 - 할 일과 캘린더 / Todoniq - Tasks & Calendar |
+| 현재 Apple 한국어 등록 제목 | 첫칸 - 할 일과 캘린더 — 새 브랜드 콘솔 반영 대기 |
+| 현재 Apple 영어 등록 제목 | 첫칸 - Tasks & Calendar — 새 브랜드 콘솔 반영 대기 |
+| 새 휴대폰 표시 이름 — 한국어 / 영어 | 투두닉 / Todoniq — 서명 배포 빌드에서 확인 필요 |
+| 기본 언어 / 추가 현지화 | 한국어 / 영어(미국). 이전 브랜드 소개 저장 완료, 새 문안 반영 대기. 앱 설정에서 한국어·영어·기기 언어 선택 |
 | 종류 / 카테고리 | 앱 / 생산성(Productivity) |
 | 설치 가격 | 무료 설치 + 선택형 앱 내 연간 구독 |
 | 앱 식별자 | `com.dabok407.hangeoreum` |
@@ -35,7 +37,9 @@
 | 문의 이메일 | `dabok407@gmail.com` |
 | 저작권 표시 | `2026 [저작권자 이름]` — 실제 권리자 명칭 확인 필요 |
 
-Apple에는 위 식별자로 만든 기존 앱을 사용한다. 앱을 다시 생성하거나 Bundle ID·SKU를 바꾸지 않는다. 영어 제목도 승인된 브랜드 **첫칸**을 유지하며, 아래 영어 제목으로 영어(미국) 현지화를 저장했다. 내부 Bundle ID와 구독 상품 ID의 `hangeoreum`은 표시 이름 변경과 별개로 유지한다.
+Apple에는 위 식별자로 만든 기존 앱을 사용한다. 앱을 다시 생성하거나 Bundle ID·SKU를 바꾸지 않는다. 새 브랜드의 한국어 제목은 **투두닉 - 할 일과 캘린더**, 영어 제목은 **Todoniq - Tasks & Calendar**다. 두 제목과 슬로건·소개는 로컬 문안이며 콘솔 반영 완료로 표시하지 않는다. 내부 Bundle ID와 구독 상품 ID의 `hangeoreum`, 등록 SKU의 `cheotkan`은 표시 이름 변경과 별개로 유지한다.
+
+새 제목 길이는 한국어 **14자**, 영어 **26자**로 둘 다 30자 이내다. 새 브랜드 이름이 표시되는 앱·위젯·알림은 배포 빌드에서 확인한다. 투두닉 / Todoniq 소개 이미지의 로컬 검증은 완료했다. 앱 소스 `b5f8935`의 [모바일 검증 실행 38039981394](https://github.com/dabok407/to-do-list/actions/runs/38039981394)는 진행 중이며 성공으로 표시하지 않는다. 이전 소스 `36f3464`의 [모바일 검증 실행 38036673085](https://github.com/dabok407/to-do-list/actions/runs/38036673085) 전체 성공은 첫칸 브랜드 기준 이력이며 새 브랜드의 검증 결과가 아니다.
 
 ## 공개 안내 URL
 
@@ -46,21 +50,21 @@ Apple에는 위 식별자로 만든 기존 앱을 사용한다. 앱을 다시 �
 | 개인정보 | https://dabok407.github.io/to-do-list/privacy.html | https://dabok407.github.io/to-do-list/privacy-en.html |
 | 이용·구독 안내 | https://dabok407.github.io/to-do-list/terms.html | https://dabok407.github.io/to-do-list/terms-en.html |
 
-8개 HTML 페이지와 CSS의 공개 HTTPS 응답을 확인했다. App Store Connect의 한국어·영어 지원 URL, 전용 개인정보 URL과 소개 내 개인정보·지원 링크를 저장했다. 앱 설정·Pro는 선택한 언어의 공개 안내를 열고, iOS 이용약관은 Apple 표준 EULA를 연다. 배포 기록과 남은 운영 검토는 [SITE_REVIEW.md](store/SITE_REVIEW.md)에 기록한다.
+이전 첫칸 사이트의 8개 HTML과 CSS 공개 HTTPS 응답 및 App Store Connect의 한국어·영어 지원 URL·개인정보 URL·소개 내 링크 저장을 확인했다. URL은 브랜드 변경 후에도 유지한다. 새 투두닉 / Todoniq 사이트 소스는 배포 후 다시 확인해야 한다. 앱 설정·Pro는 선택한 언어의 공개 안내를 열고, iOS 이용약관은 Apple 표준 EULA를 연다. 배포 기록과 남은 운영 검토는 [SITE_REVIEW.md](store/SITE_REVIEW.md)에 기록한다.
 
 ## Apple App Store 입력 항목
 
-App Store Connect → 앱 → 첫칸 → **앱 정보**, **iOS 버전**, **앱 개인정보**, **가격 및 사용 가능 여부**, **수익화 → 구독**에서 나누어 입력한다. 계정 상태·콘솔 언어에 따라 메뉴 이름은 달라질 수 있다.
+App Store Connect → 앱 → **첫칸**(현재 등록 이름, Apple ID `6821236391`) → **앱 정보**, **iOS 버전**, **앱 개인정보**, **가격 및 사용 가능 여부**, **수익화 → 구독**에서 나누어 입력한다. 새 브랜드 반영 후 목록 이름이 바뀌어도 같은 앱을 사용한다. 계정 상태·콘솔 언어에 따라 메뉴 이름은 달라질 수 있다.
 
 | 항목 | 입력할 내용 | 규격·상태 |
 | --- | --- | --- |
-| 이름 | 첫칸 - 할 일과 캘린더 | 한국어 등록 완료, 최대 30자 |
+| 이름 — 한국어 / 영어 | 투두닉 - 할 일과 캘린더 / Todoniq - Tasks & Calendar | 새 문안, 각 최대 30자. 콘솔 반영 대기 |
 | 부제 | 할 일과 일정, 미루지 않는 작은 시작 | 최대 30자 |
 | 프로모션 텍스트 | 아래 문구 | 선택, 최대 170자 |
 | 설명 | 아래 상세 소개 + 개인정보·이용약관 링크 | 최대 4,000자, 일반 텍스트 |
 | 키워드 | 아래 검색어 | 최대 100바이트, 콘솔 최종 확인 |
-| 지원 URL | 위 언어별 지원 페이지 | 한국어·영어(미국) 저장 완료 |
-| 개인정보처리방침 URL | 위 언어별 개인정보 페이지 | 한국어·영어(미국) 저장 완료 |
+| 지원 URL | 위 언어별 지원 페이지 | 기존 URL 저장 완료, 새 브랜드 페이지 배포 확인 필요 |
+| 개인정보처리방침 URL | 위 언어별 개인정보 페이지 | 기존 URL 저장 완료, 새 브랜드 페이지 배포 확인 필요 |
 | 마케팅 URL | 앱 소개 페이지 | 선택 |
 | 스크린샷 | iPhone·현재 지원 중인 iPad 화면 | 필수, 아래 규격 참고 |
 | 앱 미리보기 영상 | 실제 동작 영상 | 선택, 첫 제출에는 생략 가능 |
@@ -83,7 +87,7 @@ App Store Connect → 앱 → 첫칸 → **앱 정보**, **iOS 버전**, **앱 �
 ### Apple 한국어 프로모션 텍스트
 
 ```text
-미루던 일, 한 가지부터 시작해요. 캘린더로 일정을 정리하고, Pro의 알림과 5분 시작으로 작은 행동을 이어가세요. 할 일과 메모는 개발자 서버로 전송하지 않고 기기에 저장합니다.
+나만의 할 일, 투두닉. 할 일과 메모는 내 기기에 저장하고 개발자 서버로 보내지 않습니다. 회원가입과 광고 추적 없이 일정을 정리하고, Pro의 알림과 5분 시작으로 미루던 일을 시작하세요.
 ```
 
 ### Apple 한국어 키워드
@@ -100,7 +104,7 @@ Play Console → 앱 → **사용자 늘리기 → 앱 정보 → 기본 스토�
 
 | 항목 | 입력할 내용 | 규격·상태 |
 | --- | --- | --- |
-| 앱 이름 | 첫칸 - 할 일과 캘린더 | 한국어 입력 문안, 최대 30자 |
+| 앱 이름 | 투두닉 - 할 일과 캘린더 | 한국어 입력 문안, 최대 30자 |
 | 간단한 설명 | 아래 문구 | 최대 80자 |
 | 자세한 설명 | 아래 상세 소개 + 공개 안내 링크 | 최대 4,000자 |
 | 아이콘 | 기존 아이콘으로 내보내기 | 512×512, 32비트 PNG, 최대 1,024KB |
@@ -124,23 +128,25 @@ Play Console → 앱 → **사용자 늘리기 → 앱 정보 → 기본 스토�
 ### Google 한국어 간단한 설명
 
 ```text
-할 일과 메모는 기기에 저장하고, Pro의 알림과 미루기 도구로 작은 시작을 돕는 캘린더
+나만의 할 일, 투두닉. 회원가입·광고 추적 없이 할 일과 메모를 기기에 저장하는 캘린더
 ```
 
 ### Google 한국어 최초 출시 노트
 
 ```text
-첫칸의 첫 출시입니다. 캘린더와 반복 일정으로 할 일을 정리하고, 처음 7일은 알림·미루기·통계 등 전체 기능을 체험할 수 있습니다. 체험만으로 자동 결제되지 않습니다.
+투두닉의 첫 출시입니다. 캘린더와 반복 일정으로 할 일을 정리하고, 처음 7일은 알림·미루기·통계 등 전체 기능을 체험할 수 있습니다. 체험만으로 자동 결제되지 않습니다.
 ```
 
 ## 한국어 상세 소개
 
-본문과 아래 해당 스토어의 공개 안내 링크 문단을 사용한다. Apple에는 한국어 소개와 링크를 저장했으며, Play 입력은 아직 수행하지 않았다.
+본문과 아래 해당 스토어의 공개 안내 링크 문단을 사용한다. Apple에는 이전 첫칸 소개와 링크가 저장되어 있으며 새 투두닉 문안은 반영 대기다. Play 입력은 아직 수행하지 않았다.
 
 ```text
-미루던 일, 한 가지부터 시작해요.
+나만의 할 일, 투두닉.
 
-운동처럼 매일 하는 일부터 주말의 안방 대청소까지. 첫칸은 해야 할 일을 캘린더에 정리하고, 작은 행동을 시작하도록 돕는 할 일·리마인더 앱입니다.
+할 일과 메모는 내 기기에 저장하고 개발자 서버로 보내지 않습니다. 회원가입과 광고 추적 없이 내 일정을 정리하세요. 기본 캘린더와 메모는 인터넷 없이 사용할 수 있습니다.
+
+운동처럼 매일 하는 일부터 주말의 안방 대청소까지. 투두닉은 해야 할 일을 캘린더에 정리하고, 작은 행동을 시작하도록 돕는 할 일·리마인더 앱입니다.
 
 오늘과 앞으로의 일정을 한눈에
 월·주 캘린더와 날짜별 목록에서 할 일을 확인하세요. 아직 끝내지 못한 일은 눈에 잘 보이는 곳에 모아두고, 시간과 우선순위로 다음 할 일을 정리할 수 있습니다.
@@ -166,7 +172,7 @@ Play Console → 앱 → **사용자 늘리기 → 앱 정보 → 기본 스토�
 한국어와 영어로 사용하기
 기기 언어를 따르거나 설정에서 한국어·영어를 직접 선택하세요. 직접 입력한 할 일 제목, 메모와 분류 이름은 언어를 바꿔도 그대로 보관합니다.
 
-무료 기능과 첫칸 Pro
+무료 기능과 투두닉 Pro
 처음 실행한 뒤 7일 동안 전체 기능을 체험할 수 있습니다. 이 체험은 자동 결제로 전환되지 않습니다.
 체험이 끝나도 캘린더, 할 일·메모 작성·수정·삭제, 반복 일정, 완료와 완료 해제, 위젯 일정 보기는 무료입니다.
 알림, 미완료 재알림, 미루기, 실행 보조와 통계는 선택형 Pro 연간 구독으로 이용합니다. 사용자가 구매한 구독은 해지하지 않으면 1년 단위로 자동 갱신됩니다. 가격과 결제 조건은 구매한 스토어의 구매 확인 화면을 따릅니다. 구독 관리·해지·환불은 해당 스토어에서 진행합니다.
@@ -195,12 +201,12 @@ Google 설명 끝에 추가:
 
 ## English 현지화 문안
 
-Apple의 English (U.S.) 현지화와 Play의 영어 등록정보에 사용할 문안이다. 한국어 기본 등록정보와 별도로 입력하며, 영어 브랜드 이름을 새로 만들지 않고 **첫칸**을 유지한다. 설명과 구매 조건은 같은 기능을 설명한다. App Store Connect 영어(미국)의 제목·부제·프로모션·소개·키워드를 저장했고 중형 iPhone·13인치 iPad 소개 이미지도 각 7장씩 등록했다.
+Apple의 English (U.S.) 현지화와 Play의 영어 등록정보에 사용할 **Todoniq** 문안이다. 확정 영어 슬로건은 **Your tasks. Your way.**다. 한국어와 같은 기능·구매 조건을 설명한다. App Store Connect에는 이전 첫칸 영어 제목·부제·프로모션·소개·키워드와 중형 iPhone·13인치 iPad 이미지 각 7장이 저장되어 있으며 새 영어 문안 반영은 재로그인 후 진행한다.
 
 ### English title
 
 ```text
-첫칸 - Tasks & Calendar
+Todoniq - Tasks & Calendar
 ```
 
 ### Apple English subtitle
@@ -212,7 +218,7 @@ Plan your day. Start small.
 ### Apple English promotional text
 
 ```text
-Keep your plans on your device. Organize tasks in a calendar, then use Pro reminders, snoozing and a five-minute start to take the next small step.
+Your tasks. Your way. Todoniq stores tasks and notes on your device, without sign-up or ad tracking. Plan your day, then try Pro reminders and small starts.
 ```
 
 ### Apple English keywords
@@ -226,21 +232,23 @@ UTF-8로 확인한 키워드 길이는 한국어 **67바이트**, 영어 **75바
 ### Google English short description
 
 ```text
-A private task calendar with Pro reminders, snoozing and small steps.
+Your tasks. Your way. A calendar with local notes, no sign-up or ad tracking.
 ```
 
 ### Google English initial release notes
 
 ```text
-Meet 첫칸. Organize tasks and repeating schedules in a calendar. Try all features for your first 7 days. The in-app evaluation does not start a subscription or charge you automatically.
+Meet Todoniq. Organize tasks and repeating schedules in a calendar. Try all features for your first 7 days. The in-app evaluation does not start a subscription or charge you automatically.
 ```
 
 ### English description
 
 ```text
-Start with one small step.
+Your tasks. Your way.
 
-From a daily walk to a weekend bedroom clean-up, 첫칸 helps you plan what needs doing and take action.
+Todoniq stores your tasks and notes on your device and does not send them to a developer server. No sign-up or advertising tracking. The basic calendar and notes work offline.
+
+From a daily walk to a weekend bedroom clean-up, Todoniq helps you plan what needs doing and take action.
 
 See today and what comes next
 Use the month or week calendar and daily task lists to organize your plans. Unfinished tasks stay visible so you can choose what to do next by time and priority.
@@ -266,7 +274,7 @@ No app account is required. Tasks, notes and activity history are stored locally
 Use Korean or English
 Follow your device language or choose Korean or English in Settings. Your own task titles, notes and category names stay as you entered them when you change the interface language.
 
-Free features and 첫칸 Pro
+Free features and Todoniq Pro
 All features are available for 7 days from first launch. This in-app evaluation does not automatically start a subscription or charge you.
 Afterward, the calendar, creating, editing and deleting tasks and notes, repeating schedules, completing and undoing completion, and viewing the widget remain free.
 Reminders, overdue follow-ups, snoozing, start assistance and statistics require the optional annual Pro subscription. A subscription you purchase renews yearly unless canceled. The store purchase confirmation shows your local price and billing terms. Manage subscriptions, cancellations and refunds through the store where you purchased.
@@ -277,7 +285,7 @@ Purchases, restoration and subscription checks may require internet access. Noti
 Support: dabok407@gmail.com
 ```
 
-Apple 영어 설명 끝에 아래 링크를 저장했다. Play 영어 설명에는 마지막 줄을 공개 이용 안내 URL `https://dabok407.github.io/to-do-list/terms-en.html`로 바꾸어 입력한다.
+이전 Apple 영어 설명에는 아래 링크를 저장했다. 새 Todoniq 설명에도 같은 링크를 유지한다. Play 영어 설명에는 마지막 줄을 공개 이용 안내 URL `https://dabok407.github.io/to-do-list/terms-en.html`로 바꾸어 입력한다.
 
 ```text
 Privacy Policy: https://dabok407.github.io/to-do-list/privacy-en.html
@@ -287,12 +295,14 @@ Terms of Use (Apple Standard EULA): https://www.apple.com/legal/internet-service
 
 ## 한국어·영어 지원 안내
 
-두 언어 모두 공개 문의 이메일은 **dabok407@gmail.com**이다. 아래 지원 문안은 로그인 없이 읽을 수 있는 언어별 공개 지원 페이지에 반영했다. 소스는 `store/site/`에서 관리한다.
+두 언어 모두 공개 문의 이메일은 **dabok407@gmail.com**이다. 아래 지원 문안은 로그인 없이 읽을 수 있는 언어별 지원 페이지 소스에 반영했다. 공개 사이트의 새 브랜드 배포는 별도로 확인한다. 소스는 `store/site/`에서 관리한다.
 
 ### 한국어 지원 문안
 
 ```text
-첫칸 지원
+투두닉 지원
+
+나만의 할 일, 투두닉. 할 일과 메모는 기기에 저장하고 개발자 서버로 보내지 않습니다. 회원가입과 광고 추적 없이 사용하세요. 구매·구독 확인, 직접 보내는 이메일 문의와 안내 사이트의 접속 정보는 별도로 처리합니다.
 
 앱 사용, 오류와 개선 제안은 dabok407@gmail.com으로 보내주세요. 오류가 발생한 화면과 기기·OS·앱 버전을 알려주시면 확인에 도움이 됩니다. 비밀번호, 결제 인증 정보나 개인 일정 내용은 보내지 않으셔도 됩니다.
 
@@ -310,7 +320,9 @@ Pro는 알림·미완료 재알림·미루기·실행 보조·통계를 제공�
 ### English support copy
 
 ```text
-첫칸 Support
+Todoniq Support
+
+Your tasks. Your way. Tasks and notes are stored on your device and are not sent to a developer server. No sign-up or advertising tracking. Store checks, emails you choose to send, and help website connection information are handled separately.
 
 For help, bug reports or feedback, contact dabok407@gmail.com. Include the affected screen and your device, OS and app version when reporting an issue. Please do not send passwords, payment authentication details or private task content.
 
@@ -331,7 +343,7 @@ Tasks and history are stored on your device. Deleting the app or changing device
 
 | 순서 | 주 문구 | 실제 캡처 장면 | 기능 표시 |
 | --- | --- | --- | --- |
-| 1 | 오늘 할 일, 한눈에 | 일정 제목·분류 색상이 보이는 월 캘린더와 날짜별 할 일 | 기본 기능 |
+| 1 | 나만의 할 일, 투두닉 / Your tasks. Your way. | 일정 제목·분류 색상이 보이는 월 캘린더, 로컬 저장·회원가입 없음 소개 | 기본 기능 |
 | 2 | 끝내지 못한 일도 잊지 않게 | 상단 미완료 목록과 ‘에어컨 필터 청소’의 재알림 설정 | Pro 알림 |
 | 3 | 어렵다면, 5분만 시작해요 | ‘안방 대청소’의 작은 첫걸음·5분 시작·미루기 선택 | Pro 실행 보조 |
 | 4 | 반복 일정은 내 생활에 맞게 | 특정 요일·주 횟수·종료일이 설정된 편집 화면 | 기본 기능 |
@@ -339,23 +351,25 @@ Tasks and history are stored on your device. Deleting the app or changing device
 | 6 | 내가 해낸 일을 돌아보기 | 예시 데이터로 계산한 30일 통계·90일 완료 기록 | Pro 통계 |
 | 7 | 내 일정은 내 기기에 | 앱의 개인정보 안내 또는 캘린더, 회원가입 없는 사용 | 로컬 저장 |
 
-화면을 크게 보여주고 이미지마다 해당 언어의 주 문구 하나만 사용한다. 흰색·짙은 회색과 실제 앱의 분류 색·중요한 일의 다크 레드를 사용한다. 가상의 생활 일정은 가능하지만 실제 사용자 개인정보나 개발자 계정 정보를 넣지 않는다. Pro 화면에 읽기 쉬운 구독 필요·처음 7일 체험 표시를 넣고 체험을 ‘7일 뒤 자동 결제’로 표현하지 않는다. 기존 네이티브 위젯 이미지는 최신 첫칸 빌드·언어로 재캡처하고 검증하기 전까지 소개에서 제외한다.
+화면을 크게 보여주고 이미지마다 해당 언어의 주 문구 하나만 사용한다. 흰색·짙은 회색과 실제 앱의 분류 색·중요한 일의 다크 레드를 사용한다. 가상의 생활 일정은 가능하지만 실제 사용자 개인정보나 개발자 계정 정보를 넣지 않는다. Pro 화면에 읽기 쉬운 구독 필요·처음 7일 체험 표시를 넣고 체험을 ‘7일 뒤 자동 결제’로 표현하지 않는다. 기존 네이티브 위젯 이미지는 최신 투두닉 / Todoniq 빌드·언어로 재캡처하고 검증하기 전까지 소개에서 제외한다.
+
+아래 규격과 수량으로 투두닉 / Todoniq 소개 이미지를 새로 제작하고 검증했다. Apple에 올라간 이전 첫칸 브랜드 28장은 새 자료로 교체해야 한다. 로컬 파일 검증과 콘솔 반영은 구분한다.
 
 | 자료 | 제작 목표 | 상태 |
 | --- | --- | --- |
 | Apple 아이콘 | 1024×1024, 알파 없는 RGB PNG `store/assets/app-store-icon-1024.png` | 내보내기 완료, 배포 빌드 아이콘 포함 여부 별도 확인 |
-| 중형 iPhone 스크린샷 | 1179×2556 세로 한국어·영어 각 7장. `store/screenshots/iphone/`, `store/screenshots/en/iphone/` | 기존 PNG 보존·규격 검증 완료 |
-| 대형 iPhone 스크린샷 | 1320×2868 세로 한국어·영어 각 7장. `store/screenshots/iphone-large/`, `store/screenshots/en/iphone-large/` | 추가 PNG 제작·규격 검증 완료 |
-| iPad 스크린샷 | 2064×2752 세로 한국어·영어 각 7장. `store/screenshots/ipad/`, `store/screenshots/en/ipad/` | PNG 제작·규격 검증 완료 |
+| 중형 iPhone 스크린샷 | 1179×2556 세로 한국어·영어 각 7장. `store/screenshots/iphone/`, `store/screenshots/en/iphone/` | 새 브랜드 PNG 제작·규격 검증 완료 |
+| 대형 iPhone 스크린샷 | 1320×2868 세로 한국어·영어 각 7장. `store/screenshots/iphone-large/`, `store/screenshots/en/iphone-large/` | 새 브랜드 PNG 제작·규격 검증 완료 |
+| iPad 스크린샷 | 2064×2752 세로 한국어·영어 각 7장. `store/screenshots/ipad/`, `store/screenshots/en/ipad/` | 새 브랜드 PNG 제작·규격 검증 완료 |
 | Play 아이콘 | 512×512, 32비트 PNG `store/assets/play-icon-512.png` | 내보내기 완료 |
-| Play 그래픽 이미지 | 1024×500 한국어 `store/assets/play-feature-1024x500.png`, 영어 `store/assets/play-feature-1024x500-en.png` | PNG 제작·규격 검증 완료 |
-| Android 스크린샷 | 1080×1920 세로 한국어·영어 각 7장. `store/screenshots/android/`, `store/screenshots/en/android/` | PNG 제작·규격 검증 완료 |
-| 전체 이미지·ZIP | 소개 PNG 56장·등록 자산 4개·언어/스토어별 ZIP 4개. 언어별 Apple 22개·Play 9개 파일 | 로컬 규격 검증·ZIP 수량 및 원본 SHA-256 대조 완료 |
+| Play 그래픽 이미지 | 1024×500 한국어 `store/assets/play-feature-1024x500.png`, 영어 `store/assets/play-feature-1024x500-en.png` | 새 브랜드 PNG 제작·규격 검증 완료 |
+| Android 스크린샷 | 1080×1920 세로 한국어·영어 각 7장. `store/screenshots/android/`, `store/screenshots/en/android/` | 새 브랜드 PNG 제작·규격 검증 완료 |
+| 전체 이미지·ZIP | 소개 PNG 56장·등록 자산 4개·언어/스토어별 ZIP 4개. 언어별 Apple 22개·Play 9개 파일 | 새 브랜드 로컬 규격·언어·브랜드 검증, ZIP 수량·원본 SHA-256 대조 완료 |
 | 미리보기 영상 | 선택, 첫 제출에는 생략 | 미제작 |
 
 현재 iOS 프로젝트는 `TARGETED_DEVICE_FAMILY = "1,2"`로 **iPhone과 iPad 모두 지원**한다. 따라서 iPad 자료도 필요하다. iPad 지원을 빼려면 지원 기기를 변경하고 별도 검증해야 한다.
 
-이미지는 `http://127.0.0.1:5174/store-images.html`에서 **이미지 언어 → 한국어 / English**를 선택하고 **iPhone 중형·iPhone 대형·iPad·Android** 탭의 큰 보기·개별 다운로드·해당 언어 ZIP으로 검토한다. 같은 프로덕션 Flutter 컴포넌트의 언어별 원본 화면 8종을 세 기기 크기로 캡처했으며, 최종 소개 PNG는 언어별 28장이다. 원본은 `store/captures/{device}/`, `store/captures/en/{device}/`에 저장한다. 추가 대형 iPhone 소개는 승인된 중형 원본을 비율 유지로 배치한 1320×2868 캔버스로, 별도 네이티브 기기 캡처가 아니다. 기존 중형 iPhone·iPad·Android 42장의 파일 SHA-256이 변하지 않은 것도 확인했다. 모든 기기의 다섯 번째 이미지는 30일 통계 상세 화면이다. 이전 브랜드의 네이티브 위젯 캡처는 갤러리와 ZIP에서 제외하며, 앱의 위젯 기능은 계속 제공한다. 네이티브 OS 홈 화면 캡처로 설명하지 않는다. [이미지 구성·출처·한국어/영어 재현 방법](store/README.md)을 따른다. PNG 56장·등록 자산 4개와 ZIP 4개의 로컬 검증 결과는 `store/assets/image-verification.json`, `store/assets/package-verification.json`에 기록했다. 사용자 검토와 콘솔 업로드는 별도이며, 이미지 검증 완료는 앱 서명·결제 검증·스토어 제출 완료를 의미하지 않는다.
+이미지는 `http://127.0.0.1:5174/store-images.html`에서 **이미지 언어 → 한국어 / English**를 선택하고 **iPhone 중형·iPhone 대형·iPad·Android** 탭의 큰 보기·개별 다운로드·해당 언어 ZIP으로 검토한다. 투두닉 / Todoniq의 같은 프로덕션 Flutter 컴포넌트로 언어별 원본 화면 8종을 세 기기 크기로 다시 캡처했다. 원본은 총 48장, 최종 소개 PNG는 언어별 28장씩 총 56장이다. 원본은 `store/captures/{device}/`, `store/captures/en/{device}/`에 저장한다. 대형 iPhone 소개는 중형 원본을 비율 유지로 배치한 1320×2868 캔버스로, 별도 네이티브 기기 캡처가 아니다. 모든 기기의 다섯 번째 이미지는 30일 통계 상세 화면이다. 이전 네이티브 위젯 캡처는 갤러리와 ZIP에서 제외하며 앱의 위젯 기능은 계속 제공한다. 네이티브 OS 홈 화면 캡처로 설명하지 않는다. [이미지 구성·출처·한국어/영어 재현 방법](store/README.md)을 따른다. 새 브랜드 PNG 56장·등록 자산 4개 규격·브랜드·언어 검사와 ZIP 4개 수량·내부 SHA-256 대조 결과는 `store/assets/image-verification.json`, `store/assets/package-verification.json`에 기록했다. Apple에 남아 있는 기존 첫칸 28장 업로드는 이전 브랜드 이력이며 새 자료로 교체해야 한다. 이미지 검증 완료는 앱 서명·결제 검증·스토어 제출 완료를 의미하지 않는다.
 
 Apple은 기기 규격별 1~10장, 투명도 없는 PNG/JPEG를 지원한다. 공식 표의 Dynamic Island 중형 1179×2556·대형 1320×2868과 iPad 지원 시 필요한 13인치 2064×2752 규격을 준비했다. 실제 App Store Connect의 기기 슬롯·업로드 결과는 제출 전에 별도로 확인한다. Play는 최소 2장, JPEG 또는 알파 없는 24비트 PNG, 각 변 320~3840px, 긴 변이 짧은 변의 2배 이내를 요구한다. Android 제작 목표는 추천용 권장 조건인 9:16·1080×1920 이상·최소 4장에도 맞는다.
 
@@ -364,8 +378,8 @@ Apple은 기기 규격별 1~10장, 투명도 없는 PNG/JPEG를 지원한다. �
 | 항목 | 준비 값 |
 | --- | --- |
 | 상품 ID — 양쪽 동일 | `hangeoreum_pro_yearly` |
-| Apple 구독 그룹 | 첫칸 Pro |
-| 상품 표시 이름 — 한국어 / 영어 | 첫칸 Pro 연간 / 첫칸 Pro Annual |
+| Apple 구독 그룹 | 투두닉 Pro |
+| 상품 표시 이름 — 한국어 / 영어 | 투두닉 Pro 연간 / Todoniq Pro Annual |
 | 상품 설명 — 한국어 | 알림, 미루기, 실행 보조와 통계를 1년간 이용합니다. |
 | 상품 설명 — 영어 | Reminders, snoozing, start assistance and insights. |
 | 기간 | 1년, 자동 갱신 |
@@ -400,7 +414,7 @@ Apple 심사 메모와 Google 앱 액세스 설명에 사용할 수 있다. 두 
 ### 한국어 심사 메모
 
 ```text
-첫칸은 일정과 기록을 기기에 저장하는 할 일·리마인더 앱입니다. 앱 계정이나 로그인이 필요하지 않습니다. 한국어·영어를 지원하며 설정 → 언어에서 기기 설정 사용, 한국어 또는 English를 선택할 수 있습니다.
+투두닉은 일정과 기록을 기기에 저장하는 할 일·리마인더 앱입니다. 앱 계정이나 로그인이 필요하지 않습니다. 한국어·영어를 지원하며 설정 → 언어에서 기기 설정 사용, 한국어 또는 English를 선택할 수 있습니다.
 
 첫 실행 7일 동안 전체 기능을 이용할 수 있습니다. 앱 내부 체험으로, 스토어 구독 무료 체험이 아니며 결제나 구독이 자동으로 시작되지 않습니다. 체험 이후에도 캘린더, 할 일·메모 작성·수정·삭제, 반복 일정, 완료·완료 해제와 위젯 보기는 무료입니다. 알림·미완료 재알림·미루기·실행 보조·통계는 선택형 연간 자동 갱신 Pro 구독(hangeoreum_pro_yearly)이 필요합니다. 실제 가격과 결제 조건은 스토어 구매 확인 화면에 표시됩니다.
 
@@ -411,7 +425,7 @@ Apple 심사 메모와 Google 앱 액세스 설명에 사용할 수 있다. 두 
 4. 알림을 허용하고 설정의 테스트 알림을 예약한 뒤 앱을 나가 로컬 알림을 확인합니다.
 5. 할 일에서 지금 시작, 10분 미루기와 미완료 재알림 설정을 확인합니다.
 6. 통계를 확인하고 홈 화면에 위젯을 추가해 예정된 일을 확인합니다.
-7. 첫칸 Pro에서 연간 구독, 구매 복원과 구독 관리를 확인합니다.
+7. 투두닉 Pro에서 연간 구독, 구매 복원과 구독 관리를 확인합니다.
 8. 설정에서 언어를 변경합니다. 입력한 일정·메모·분류 이름은 바뀌지 않습니다.
 
 일정·메모·실행 기록은 개발자 서버로 전송하지 않습니다. 결제·구독 확인은 플랫폼 스토어를 사용합니다. 광고·분석 SDK, 클라우드 동기화, 의료·진단 기능은 없습니다. 알림 전달과 위젯 갱신은 OS 권한과 예약 동작의 영향을 받습니다.
@@ -422,7 +436,7 @@ Apple 심사 메모와 Google 앱 액세스 설명에 사용할 수 있다. 두 
 ### English review notes
 
 ```text
-첫칸 is a task and reminder app that stores task data on the device. No app account or sign-in is required. The interface supports Korean and English. In Settings, use Language to select Device language, 한국어 (Korean) or English.
+Todoniq is a task and reminder app that stores task data on the device. No app account or sign-in is required. The interface supports Korean and English. In Settings, use Language to select Device language, 한국어 (Korean) or English.
 
 All features are available for 7 days from first launch. This is an in-app evaluation, not a store subscription trial, and does not automatically charge the user or start a subscription. Afterward, the calendar, creating, editing and deleting tasks and notes, recurrence, completion/undo and widget viewing remain free. Notifications, overdue reminders, snoozing, start/five-minute assistance and statistics require the optional yearly auto-renewing Pro subscription (hangeoreum_pro_yearly). The store purchase confirmation shows the actual local price and billing terms.
 
@@ -433,7 +447,7 @@ Suggested review steps:
 4. Allow notifications. In Settings, use the test notification control, then leave the app to observe the scheduled local notification.
 5. Open a task and try Start now, a 10-minute snooze and overdue-reminder settings.
 6. Open Insights to view statistics. Add the home-screen widget to see upcoming tasks.
-7. Open 첫칸 Pro to review the annual subscription, Restore purchases and subscription management.
+7. Open Todoniq Pro to review the annual subscription, Restore purchases and subscription management.
 8. Change the interface language in Settings. Your own task titles, notes and category names are kept unchanged.
 
 Task content and activity history are not uploaded to a developer server. Billing and subscription checks use the platform store. There are no ads, analytics SDKs, cloud sync or medical/diagnostic functions. Notification delivery and widget refresh are subject to OS permissions and scheduling behavior.
@@ -446,21 +460,24 @@ Public support email: dabok407@gmail.com
 ## 제출 전 체크
 
 - [x] 한국어·영어 제목·짧은 소개·상세 소개·검색어·지원·심사 문안
-- [x] Apple 앱 등록: 첫칸 - 할 일과 캘린더 / `6821236391` / `cheotkan-ios-001`
+- [x] 이전 브랜드 Apple 앱 등록: 첫칸 - 할 일과 캘린더 / `6821236391` / `cheotkan-ios-001`
+- [ ] 재로그인 후 같은 Apple 앱에 투두닉 / Todoniq 이름·문안 반영
 - [x] 공개 문의 이메일 확정
 - [x] 무료/Pro 구분·스크린샷 구성·심사 안내
-- [x] App Store Connect 한국어·영어(미국) 제목·부제·소개·검색어 저장
+- [x] 이전 첫칸 App Store Connect 한국어·영어(미국) 제목·부제·소개·검색어 저장
 - [ ] Play 제목 입력, 저작권자·배포 국가 확정
-- [x] 한국어·영어 안내 사이트 공개, 8개 HTML·CSS HTTPS 응답 확인
+- [x] 이전 첫칸 한국어·영어 안내 사이트 공개, 8개 HTML·CSS HTTPS 응답 확인
+- [ ] 새 투두닉 / Todoniq 사이트 배포·양 언어 브랜드·슬로건 확인
 - [x] 앱 설정·Pro 공개 안내 링크 연결 및 5개 단위·위젯 테스트 통과
 - [x] App Store Connect 한국어·영어 지원 URL·소개 내 공개 링크 저장
 - [x] App Store Connect 전용 개인정보 URL 한국어·영어(미국) 저장
 - [ ] Play 안내 URL 입력
 - [ ] 운영 주체·개인정보 문의 처리 기준 확정
-- [x] 첫칸 한국어·영어 실제 원본 캡처와 소개 PNG 56장·언어별 Play 대표 이미지 제작
-- [x] 기존 소개 PNG 42장 보존, 추가 대형 iPhone 14장 제작·검증
-- [x] 소개 PNG 56장·등록 자산 4개 규격 검증·언어/스토어별 ZIP 4개 생성 및 원본 SHA-256 대조
-- [x] Apple 한국어·영어(미국) 중형 iPhone·13인치 iPad 슬롯 확인 및 각 7장, 총 28장 업로드
+- [x] 이전 첫칸 한국어·영어 실제 원본 캡처와 소개 PNG 56장·언어별 Play 대표 이미지 제작
+- [x] 이전 첫칸 소개 PNG 56장·등록 자산 4개 규격 검증·ZIP 4개 및 원본 SHA-256 대조
+- [x] 이전 첫칸 Apple 한국어·영어(미국) 중형 iPhone·13인치 iPad 각 7장, 총 28장 업로드
+- [x] 새 투두닉 / Todoniq 원본 48장·소개 PNG 56장·자산 4개·ZIP 4개 제작 및 로컬 검증
+- [ ] Apple 기존 소개 이미지 28장을 새 브랜드로 교체
 - [ ] Play 이미지 업로드 및 서명된 최종 앱과 소개 화면 대조
 - [ ] 상품·가격·유료 계약·세금·계좌 등록
 - [ ] 실제 구매 테스트·서명된 iPhone 설치·배포 빌드 확인

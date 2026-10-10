@@ -1,5 +1,7 @@
 {
   "language": "ko",
+  "brand": "투두닉",
+  "slogan": "나만의 할 일, 투두닉",
   "nativeWidgets": false,
   "devices": [
     "iphone",
@@ -11,23 +13,23 @@
     "iphone": {
       "width": 1179,
       "height": 2556,
-      "label": "iPhone · medium"
+      "label": "아이폰 · 중형"
     },
     "iphone-large": {
       "width": 1320,
       "height": 2868,
-      "label": "iPhone · large",
+      "label": "아이폰 · 대형",
       "sourceDevice": "iphone"
     },
     "ipad": {
       "width": 2064,
       "height": 2752,
-      "label": "iPad"
+      "label": "아이패드"
     },
     "android": {
       "width": 1080,
       "height": 1920,
-      "label": "Android"
+      "label": "안드로이드"
     }
   },
   "images": [

@@ -11,6 +11,14 @@ const specs = { iphone: [1179,2556], 'iphone-large': [1320,2868], ipad: [2064,27
 (async () => {
   const results = [];
   for (const language of ['ko', 'en']) {
+   const relativeRoot = language === 'en' ? ['en'] : [];
+   const expectedBrand = language === 'en' ? 'Todoniq' : '투두닉';
+   const manifest = JSON.parse(await fs.readFile(path.join(store, 'screenshots', ...relativeRoot, 'manifest.json'), 'utf8'));
+   if (manifest.language !== language || manifest.brand !== expectedBrand || manifest.nativeWidgets !== false) throw new Error(`Wrong artwork manifest: ${language}`);
+   for (const device of ['iphone', 'ipad', 'android']) {
+    const source = JSON.parse(await fs.readFile(path.join(store, 'captures', ...relativeRoot, device, 'source.json'), 'utf8'));
+    if (source.language !== language || source.display_name !== expectedBrand || source.native_device_capture !== false) throw new Error(`Stale source capture: ${language}/${device}`);
+   }
    for (const [device, [width,height]] of Object.entries(specs)) {
     const folder = path.join('screenshots', ...(language === 'en' ? ['en'] : []), device);
     for (const name of names) {
@@ -30,6 +38,6 @@ const specs = { iphone: [1179,2556], 'iphone-large': [1320,2868], ipad: [2064,27
     if (name === 'play-icon-512' && data.length > 1024*1024) throw new Error('Play icon exceeds 1MB');
     results.push({ file: `assets/${name}.png`, width, height, channels: m.channels, bytes: data.length, sha256: crypto.createHash('sha256').update(data).digest('hex') });
   }
-  await fs.writeFile(path.join(store, 'assets/image-verification.json'), JSON.stringify({ verified_at: new Date().toISOString(), screenshots: 56, assets: 4, specifications: specs, apple_specification_reference: 'https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/', results }, null, 2) + '\n');
+  await fs.writeFile(path.join(store, 'assets/image-verification.json'), JSON.stringify({ verified_at: new Date().toISOString(), brands: { ko: '투두닉', en: 'Todoniq' }, screenshots: 56, assets: 4, specifications: specs, apple_specification_reference: 'https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/', results }, null, 2) + '\n');
   console.log('PASS: 56 localized screenshots + 4 store assets; dimensions, PNG channels, alpha and icon size verified.');
 })().catch(e => { console.error(e); process.exitCode = 1; });

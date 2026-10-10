@@ -4,12 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#ffffff">
-  <title>첫칸 · 업로드 이미지 검토</title>
+  <title>투두닉 · 업로드 이미지 검토</title>
   <link rel="stylesheet" href="store-images.css">
 </head>
 <body>
   <header class="page-header">
-    <a class="brand" href="design-review.html" aria-label="첫칸 앱 미리보기">첫칸<span>STORE</span></a>
+    <a class="brand" href="design-review.html" aria-label="투두닉 앱 미리보기">투두닉<span>STORE</span></a>
     <a class="text-link" href="design-review.html">앱 미리보기 <span aria-hidden="true">↗</span></a>
   </header>
   <main>
@@ -52,7 +52,7 @@
   <script>
     'use strict';
     const shots = [
-      { file: '01-calendar.png', title: '오늘 할 일, 한눈에', caption: '캘린더에서 날짜별 할 일과 우선순위를 확인합니다.', scope: '무료' },
+      { file: '01-calendar.png', title: '나만의 할 일, 투두닉', caption: '회원가입 없이 시작하세요. 할 일과 메모는 내 기기에 저장하고, 캘린더로 한눈에 확인합니다.', scope: '무료' },
       { file: '02-overdue.png', title: '끝내지 못한 일도 잊지 않게', caption: '남은 일을 먼저 확인하고, 원하는 간격으로 다시 알림을 받습니다.', scope: 'Pro' },
       { file: '03-start.png', title: '어렵다면, 5분만 시작해요', caption: '바로 시작하거나 잠시 미루고, 부담을 줄인 첫걸음을 정합니다.', scope: 'Pro' },
       { file: '04-repeat.png', title: '반복 일정은 내 생활에 맞게', caption: '반복할 요일과 간격, 종료일을 직접 정합니다.', scope: '무료' },
@@ -67,7 +67,7 @@
       android: { name: 'Android', size: '1080 × 1920', ratio: '1080 / 1920' }
     };
     const englishShots = [
-      { file: '01-calendar.png', title: 'Your day, at a glance', caption: 'See tasks and priorities for each date.', scope: 'Free' },
+      { file: '01-calendar.png', title: 'Your tasks. Your way.', caption: 'No account. Tasks and notes stay on your device. See your plans at a glance.', scope: 'Free' },
       { file: '02-overdue.png', title: 'Keep unfinished tasks in sight', caption: 'Find unfinished tasks and choose when reminders repeat.', scope: 'Pro' },
       { file: '03-start.png', title: 'Start small. Try five minutes.', caption: 'Start now, snooze, or make the first step easier.', scope: 'Pro' },
       { file: '04-repeat.png', title: 'Routines that fit your life', caption: 'Choose days, intervals, and an end date.', scope: 'Free' },
@@ -244,6 +244,11 @@
       if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') { event.preventDefault(); stepViewer(event.key === 'ArrowLeft' ? -1 : 1); }
     });
     function renderBrand() {
+      const brand = currentLanguage === 'en' ? 'Todoniq' : '투두닉';
+      const brandLink = document.querySelector('.page-header .brand');
+      brandLink.replaceChildren(document.createTextNode(brand), Object.assign(document.createElement('span'), { textContent: 'STORE' }));
+      brandLink.setAttribute('aria-label', brand + ' 앱 미리보기');
+      document.title = brand + ' · 업로드 이미지 검토';
       const brandItems = assets.map(asset => {
         const file = currentLanguage === 'en' && asset.className === 'feature-asset' ? asset.file.replace('.png', '-en.png') : asset.file;
         return { ...asset, file, path: file };

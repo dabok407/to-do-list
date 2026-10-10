@@ -26,5 +26,5 @@ http.createServer((req, res) => {
     res.end(data);
   });
 }).listen(Number(process.env.HANGEOREUM_PREVIEW_PORT || 5173), '127.0.0.1', function () {
-  console.log(`첫칸: http://127.0.0.1:${this.address().port}`);
+  console.log(`투두닉: http://127.0.0.1:${this.address().port}`);
 });

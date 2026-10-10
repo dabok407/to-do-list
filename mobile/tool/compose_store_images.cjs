@@ -18,6 +18,7 @@ const partial = process.argv.includes('--partial');
 const language = process.argv.find(arg => arg.startsWith('--language='))?.split('=')[1] || 'ko';
 if (!['ko', 'en'].includes(language)) throw new Error(`Unsupported language: ${language}`);
 const english = language === 'en';
+const brand = english ? 'Todoniq' : '투두닉';
 const captureRoot = path.join(store, 'captures', ...(english ? ['en'] : []));
 const outputRoot = path.join(store, 'screenshots', ...(english ? ['en'] : []));
 // Native widget captures are included only after regeneration from the current
@@ -25,10 +26,10 @@ const outputRoot = path.join(store, 'screenshots', ...(english ? ['en'] : []));
 const nativeWidgets = process.argv.includes('--native-widgets');
 const ink = '#292c29', muted = '#616875', red = '#8f303a';
 const devices = {
-  iphone: { width: 1179, height: 2556, label: 'iPhone · medium' },
-  'iphone-large': { width: 1320, height: 2868, label: 'iPhone · large', sourceDevice: 'iphone' },
-  ipad: { width: 2064, height: 2752, label: 'iPad' },
-  android: { width: 1080, height: 1920, label: 'Android' },
+  iphone: { width: 1179, height: 2556, label: english ? 'iPhone · medium' : '아이폰 · 중형' },
+  'iphone-large': { width: 1320, height: 2868, label: english ? 'iPhone · large' : '아이폰 · 대형', sourceDevice: 'iphone' },
+  ipad: { width: 2064, height: 2752, label: english ? 'iPad' : '아이패드' },
+  android: { width: 1080, height: 1920, label: english ? 'Android' : '안드로이드' },
 };
 // Re-export one device without changing artwork already approved for others.
 const deviceArg = process.argv.find(arg => arg.startsWith('--device='));
@@ -37,7 +38,7 @@ if (selectedDevice && !Object.hasOwn(devices, selectedDevice)) {
   throw new Error(`Unknown device: ${selectedDevice}`);
 }
 const stories = [
-  { out: '01-calendar', source: '01-calendar', title: '오늘 할 일, 한눈에', sub: '날짜를 누르면 그날의 일정이 펼쳐져요', access: '캘린더 · 기본 기능' },
+  { out: '01-calendar', source: '01-calendar', title: '나만의 할 일, 투두닉', sub: '회원가입 없이, 일정은 내 기기에만', access: '캘린더 · 무료 기본 기능' },
   { out: '02-overdue', source: '02-overdue', title: '끝내지 못한 일도\n잊지 않게', sub: '남은 일을 모아 보고, 원하는 주기로 다시 알림', access: 'Pro · 구독 필요 · 처음 7일 체험', pro: true },
   { out: '03-start', source: '03-small-start', title: '어렵다면,\n5분만 시작해요', sub: '미루던 일도 작은 첫걸음부터', access: 'Pro · 구독 필요 · 처음 7일 체험', pro: true },
   { out: '04-repeat', source: '04-repeat', title: '반복 일정은\n내 생활에 맞게', sub: '요일과 주기, 시작일과 종료일까지', access: '반복 일정 · 기본 기능' },
@@ -49,7 +50,7 @@ const stories = [
 // actual 30-day statistics screen for its fifth slide, never an iOS widget.
 const androidDetails = { out: '05-stats-detail', source: '06-statistics-detail', title: '나의 실행 패턴을\n알아봐요', sub: '최근 30일의 완료율과 미룬 시간을 확인해요', access: 'Pro · 구독 필요 · 처음 7일 체험', pro: true };
 const englishStories = [
-  { out: '01-calendar', source: '01-calendar', title: 'Your day, at a glance', sub: 'Tap a date to see what is planned', access: 'Calendar · Included for free' },
+  { out: '01-calendar', source: '01-calendar', title: 'Your tasks. Your way.', sub: 'No account. Your plans stay on your device.', access: 'Calendar · Included for free' },
   { out: '02-overdue', source: '02-overdue', title: 'Keep unfinished tasks\nin sight', sub: 'See what is left, with reminders on your schedule', access: 'Pro · Annual subscription · First 7 days free', pro: true },
   { out: '03-start', source: '03-small-start', title: 'Start small.\nTry five minutes.', sub: 'Make the first step easier', access: 'Pro · Annual subscription · First 7 days free', pro: true },
   { out: '04-repeat', source: '04-repeat', title: 'Routines that fit\nyour life', sub: 'Choose days, intervals, and an end date', access: 'Repeating tasks · Included for free' },
@@ -84,6 +85,10 @@ async function exportScreen(device, d, s) {
   // Keep the approved production pixels; export an additional Apple display
   // canvas without pretending it is a separate native-device screenshot.
   const sourceDevice = d.sourceDevice || device;
+  const sourceRecord = JSON.parse(await fs.readFile(path.join(captureRoot, sourceDevice, 'source.json'), 'utf8'));
+  if (sourceRecord.language !== language || sourceRecord.display_name !== brand) {
+    throw new Error(`Capture language or brand is stale: ${sourceDevice}/${language}`);
+  }
   const input = path.join(captureRoot, sourceDevice, `${s.source}.png`);
   if (!await exists(input)) {
     if (partial) return;
@@ -96,7 +101,7 @@ async function exportScreen(device, d, s) {
   const left = Math.round(w * .066), maxWidth = w - left * 2;
   const header = Math.round(h * .185);
   const layers = [];
-  await addText(layers, '첫칸', left, Math.round(header * .095), Math.round(26 * unit), muted, 600, maxWidth);
+  await addText(layers, brand, left, Math.round(header * .095), Math.round(26 * unit), muted, 600, maxWidth);
   const titleSize = Math.round((isTablet ? 46 : 52) * unit);
   const title = await addText(layers, s.title, left, Math.round(header * .24), titleSize, ink, 700, maxWidth);
   const subY = Math.round(header * .24) + title.height + Math.round(21 * unit);
@@ -146,9 +151,9 @@ async function featureGraphic() {
   const layers = [];
   const icon = await sharp(path.join(store, 'assets/app-store-icon-1024.png')).resize(58, 58).png().toBuffer();
   layers.push({ input: icon, left: 52, top: 49 });
-  await addText(layers, '첫칸', 129, 57, 33, ink, 650, 420);
-  await addText(layers, english ? 'Start with\none small step' : '미루던 일,\n한 가지부터', 52, 154, 54, ink, 700, 520);
-  await addText(layers, english ? 'Tasks and notes stay on your device' : '할 일과 메모는 내 기기에', 54, 345, 23, muted, 400, 540);
+  await addText(layers, brand, 129, 57, 33, ink, 650, 420);
+  await addText(layers, english ? 'Your tasks.\nYour way.' : '나만의 할 일,\n투두닉', 52, 154, 54, ink, 700, 520);
+  await addText(layers, english ? 'No account. Tasks stay on your device.' : '회원가입 없이, 할 일과 메모는 내 기기에', 54, 345, 23, muted, 400, 540);
   await addText(layers, english ? 'Reminders, snooze, and statistics require Pro' : '알림·미루기·통계는 Pro 구독 기능', 54, 413, 18, muted, 500, 540);
   const src = path.join(captureRoot, 'android/01-calendar.png');
   const app = await sharp(src).resize({ height: 469 }).png().toBuffer();
@@ -160,7 +165,7 @@ async function featureGraphic() {
 async function contactSheet() {
   const width = 1800, top = 135, cell = 240, gap = 12, left = 24;
   const layers = [];
-  await addText(layers, english ? '첫칸 · Store images in English' : '첫칸 · 스토어 소개 이미지', left, 31, 40, ink, 650, 1700);
+  await addText(layers, english ? 'Todoniq · Store images in English' : '투두닉 · 스토어 소개 이미지', left, 31, 40, ink, 650, 1700);
   await addText(layers, english ? 'iPhone medium + large / iPad / Android · 7 images each · Actual app components' : 'iPhone 중형 + 대형 / iPad / Android · 규격별 7장씩 · 실제 앱 화면 기반', left, 89, 21, muted, 400, 1700);
   let rowTop = top;
   for (const [device, d] of Object.entries(devices)) {
@@ -187,5 +192,5 @@ async function contactSheet() {
   }
   if ((!selectedDevice || selectedDevice === 'android') && await exists(path.join(captureRoot, 'android/01-calendar.png'))) await featureGraphic();
   await contactSheet();
-  await fs.writeFile(path.join(outputRoot, 'manifest.json'), JSON.stringify({ language, nativeWidgets, devices: Object.keys(devices), specifications: devices, images: stories.map((_, i) => storyFor('iphone', i).out + '.png') }, null, 2));
+  await fs.writeFile(path.join(outputRoot, 'manifest.json'), JSON.stringify({ language, brand, slogan: english ? 'Your tasks. Your way.' : '나만의 할 일, 투두닉', nativeWidgets, devices: Object.keys(devices), specifications: devices, images: stories.map((_, i) => storyFor('iphone', i).out + '.png') }, null, 2));
 })().catch(e => { console.error(e); process.exitCode = 1; });

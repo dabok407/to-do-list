@@ -1,4 +1,4 @@
-# 첫칸: Windows에서 iPhone TestFlight 빌드 준비하기
+# 투두닉(Todoniq): Windows에서 iPhone TestFlight 빌드 준비하기
 
 현재 준비된 것은 수동 실행용 서명·업로드 workflow입니다. 실제 Apple 배포 인증서로 서명한 IPA 생성, App Store Connect 업로드, iPhone 설치 확인은 아직 수행하지 않았습니다. 기존 단위·UI·시뮬레이터 검증과 이 단계는 구분합니다.
 
@@ -15,7 +15,7 @@
 | 위젯 Bundle ID | `com.dabok407.hangeoreum.TasksWidget` |
 | 두 타깃의 App Group | `group.com.dabok407.hangeoreum` |
 | App Store Connect 앱 ID | `6821236391` |
-| 공개 앱 이름 | 첫칸 - 할 일과 캘린더 |
+| 새 공개 앱 이름 | 투두닉 - 할 일과 캘린더 / Todoniq - Tasks & Calendar |
 
 앱과 위젯의 Identifiers에서 **App Groups**가 켜져 있고 같은 그룹이 연결되어 있어야 합니다. 기존 내부 식별자는 앱 표시 이름과 별개이므로 바꾸지 않습니다.
 
@@ -94,7 +94,7 @@ openssl pkcs12 -export -inkey firstkan-distribution.key -in distribution.pem -ou
 ## 7. 내 iPhone에 설치
 
 1. App Store에서 Apple의 **TestFlight** 앱을 설치합니다.
-2. App Store Connect → **My Apps → 첫칸 → TestFlight**를 엽니다.
+2. App Store Connect → **My Apps → 기존 앱(현재 첫칸, 이름 변경 예정) → TestFlight**를 엽니다.
 3. **Internal Testing → +**로 내부 테스트 그룹을 만듭니다.
 4. **Invite Testers**에서 테스트할 App Store Connect 사용자를 추가하고 **Add Builds**에서 처리된 빌드를 연결합니다.
 5. iPhone에서 초대를 받아 TestFlight의 **Install**을 누릅니다. 실제 Apple 계정에 온 초대를 사용합니다.

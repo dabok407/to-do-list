@@ -1,4 +1,4 @@
-# 첫칸 모바일
+# 투두닉 모바일
 
 Flutter + SQLite + OS 로컬 알림을 사용하는 iOS·Android 앱입니다.
 

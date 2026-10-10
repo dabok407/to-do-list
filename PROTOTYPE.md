@@ -1,4 +1,4 @@
-# 첫칸 · Calendar prototype v0.4
+# 투두닉 · Calendar prototype v0.4
 
 ## 실행 흐름 개선
 

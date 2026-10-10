@@ -4,6 +4,7 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 $storeRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../store'))
 $report = Get-Content -LiteralPath (Join-Path $storeRoot 'assets/image-verification.json') -Raw | ConvertFrom-Json
 if ($report.screenshots -ne 56 -or $report.assets -ne 4) { throw 'Verify the current KO/EN images including both iPhone sizes before packaging.' }
+if ($report.brands.ko -ne '투두닉' -or $report.brands.en -ne 'Todoniq') { throw 'Verify the current Todoniq brand before packaging.' }
 $names = @('01-calendar','02-overdue','03-start','04-repeat','05-stats-detail','06-stats','07-privacy')
 $packages = @()
 foreach ($language in @('ko', 'en')) {
@@ -60,4 +61,4 @@ foreach ($language in @('ko', 'en')) {
         Write-Output "PASS $platform $language archive: $($files.Count) entries match the verified PNGs."
     }
 }
-@{ verified_at = [DateTime]::UtcNow.ToString('o'); packages = $packages } | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $storeRoot 'assets/package-verification.json') -Encoding utf8
+@{ verified_at = [DateTime]::UtcNow.ToString('o'); brands = $report.brands; packages = $packages } | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $storeRoot 'assets/package-verification.json') -Encoding utf8

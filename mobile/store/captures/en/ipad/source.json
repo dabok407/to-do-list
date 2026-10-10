@@ -2,7 +2,7 @@
   "source": "Production HangeoreumApp widgets rendered by Flutter widget test",
   "fixture": "PreviewController with fictional household tasks; no private records",
   "language": "en",
-  "display_name": "첫칸",
+  "display_name": "Todoniq",
   "sample_titles_are_localized_fixtures": true,
   "user_records_are_translated": false,
   "native_device_capture": false,
@@ -18,7 +18,7 @@
   "sample_day": "2026-10-10",
   "statistics_30_days": {
     "registered": 10,
-    "total": 75,
+    "total": 76,
     "completed": 60,
     "snoozes": 10,
     "average": 15.5,
@@ -32,7 +32,7 @@
     "06-statistics": "My progress",
     "06-statistics-detail": "30-day insights",
     "07-privacy": "Privacy and language settings",
-    "08-pro": "첫칸 Pro"
+    "08-pro": "Todoniq Pro"
   },
   "screens": [
     "01-calendar.png",

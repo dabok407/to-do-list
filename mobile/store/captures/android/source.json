@@ -2,7 +2,7 @@
   "source": "Production HangeoreumApp widgets rendered by Flutter widget test",
   "fixture": "PreviewController with fictional household tasks; no private records",
   "language": "ko",
-  "display_name": "첫칸",
+  "display_name": "투두닉",
   "sample_titles_are_localized_fixtures": true,
   "user_records_are_translated": false,
   "native_device_capture": false,
@@ -18,7 +18,7 @@
   "sample_day": "2026-10-10",
   "statistics_30_days": {
     "registered": 10,
-    "total": 75,
+    "total": 76,
     "completed": 60,
     "snoozes": 10,
     "average": 15.5,
@@ -32,7 +32,7 @@
     "06-statistics": "나의 흐름",
     "06-statistics-detail": "30일 통계",
     "07-privacy": "개인정보와 언어 설정",
-    "08-pro": "첫칸 Pro"
+    "08-pro": "투두닉 Pro"
   },
   "screens": [
     "01-calendar.png",

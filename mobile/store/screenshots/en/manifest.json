@@ -1,5 +1,7 @@
 {
   "language": "en",
+  "brand": "Todoniq",
+  "slogan": "Your tasks. Your way.",
   "nativeWidgets": false,
   "devices": [
     "iphone",
