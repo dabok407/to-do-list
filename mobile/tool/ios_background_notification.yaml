@@ -2,12 +2,14 @@ appId: com.dabok407.hangeoreum
 ---
 # Labels are supplied from the explicit language persisted by the Flutter test.
 # Check the selected language exactly; accepting both would hide stale strings.
+# Flutter adds a localized tab-position hint on a new accessibility line.
+# Match the exact label and allow that system hint without accepting other labels.
 - launchApp:
     stopApp: false
 - extendedWaitUntil:
-    visible: "${SETTINGS_LABEL}"
+    visible: "${SETTINGS_LABEL}(\\n.*)?"
     timeout: 30000
-- tapOn: "${SETTINGS_LABEL}"
+- tapOn: "${SETTINGS_LABEL}(\\n.*)?"
 - scrollUntilVisible:
     element:
       text: "${TEST_BUTTON}"
