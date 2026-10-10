@@ -65,6 +65,32 @@ wait_for_notification 100002 90
 echo 'REBOOT_NOTIFICATION_OK'
 adb exec-out screencap -p > "$results/android-after-reboot.png"
 
+read_database() {
+  adb exec-out run-as "$package" cat databases/hangeoreum.db > "$results/hangeoreum.db"
+  for extension in -wal -shm; do
+    if adb shell run-as "$package" test -f "databases/hangeoreum.db$extension"; then
+      adb exec-out run-as "$package" cat "databases/hangeoreum.db$extension" > "$results/hangeoreum.db$extension"
+    fi
+  done
+}
+
+# Native checks continue the Flutter fixture, whose app language must be explicit.
+# Never infer the expected widget text from whichever OS locale the CI image has.
+read_database
+language=$(python3 - "$results/hangeoreum.db" <<'PY'
+import sqlite3,sys
+row=sqlite3.connect(sys.argv[1]).execute("select value from settings where key='display_language'").fetchone()
+assert row and row[0] in ('ko','en'), f'Native fixture must persist an explicit app language: {row}'
+print(row[0])
+PY
+)
+if [[ "$language" == en ]]; then
+  snooze_label='Snooze 10 min'
+else
+  snooze_label='10분 미루기'
+fi
+echo "ANDROID_NATIVE_UI_LANGUAGE:$language"
+
 adb shell appwidget grantbind --package "$package" --user 0
 adb shell wm size 420x840
 adb shell wm density 160
@@ -84,20 +110,11 @@ for height in 130 220 330; do
   grep -q 'WIDGET_LANGUAGE_OK' "$results/widget-$height.log"
 done
 
-read_database() {
-  adb exec-out run-as "$package" cat databases/hangeoreum.db > "$results/hangeoreum.db"
-  for extension in -wal -shm; do
-    if adb shell run-as "$package" test -f "databases/hangeoreum.db$extension"; then
-      adb exec-out run-as "$package" cat "databases/hangeoreum.db$extension" > "$results/hangeoreum.db$extension"
-    fi
-  done
-}
-
 adb shell uiautomator dump /sdcard/hangeoreum-widget.xml
 adb pull /sdcard/hangeoreum-widget.xml "$results/android-widget-ui.xml"
-read -r tap_x tap_y < <(python3 - "$results/android-widget-ui.xml" <<'PY'
+read -r tap_x tap_y < <(python3 - "$results/android-widget-ui.xml" "$snooze_label" <<'PY'
 import re,sys,xml.etree.ElementTree as ET
-button=next(n for n in ET.parse(sys.argv[1]).iter('node') if n.attrib.get('text')=='10분 미루기')
+button=next(n for n in ET.parse(sys.argv[1]).iter('node') if n.attrib.get('text')==sys.argv[2])
 left,top,right,bottom=map(int,re.findall(r'\d+',button.attrib['bounds']))
 assert right>left and bottom>top
 print((left+right)//2,(top+bottom)//2)

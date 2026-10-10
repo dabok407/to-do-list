@@ -12,6 +12,29 @@ xcrun simctl terminate "$device" "$package" || true
 xcrun simctl install "$device" build/native/Runner.app
 container=$(xcrun simctl get_app_container "$device" "$package" data)
 database="$container/Documents/hangeoreum.db"
+# The Flutter fixture must save an explicit language. Read it from the real DB
+# rather than accepting either label, so incorrect localization still fails.
+language=$(python3 - "$database" <<'PY'
+import sqlite3,sys
+row=sqlite3.connect(sys.argv[1]).execute("select value from settings where key='display_language'").fetchone()
+assert row and row[0] in ('ko','en'), f'Native fixture must persist an explicit app language: {row}'
+print(row[0])
+PY
+)
+if [[ "$language" == en ]]; then
+  progressing_label='In progress'
+  settings_label='Settings'
+  test_button='Test reminder in 10 seconds'
+  test_title='첫칸 reminder test'
+  test_body='Check that this reminder arrives while the app is closed.'
+else
+  progressing_label='진행 중'
+  settings_label='설정'
+  test_button='10초 뒤 테스트 알림'
+  test_title='첫칸 테스트'
+  test_body='앱 밖에서도 알림이 도착하는지 확인해주세요.'
+fi
+echo "IOS_NATIVE_UI_LANGUAGE:$language"
 uri=$(python3 - "$database" <<'PY'
 import sqlite3,sys,urllib.parse
 db=sqlite3.connect(sys.argv[1])
@@ -60,7 +83,7 @@ test "$ui_status" = 0
 screen_ok=0
 for ((attempt=0; attempt<10; attempt++)); do
   xcrun simctl io "$device" screenshot "$results/ios-native-start.png"
-  if swift tool/verify_ios_screen.swift "$results/ios-native-start.png" "안방 대청소 통합 테스트" "진행 중" >> "$results/ios-screen-ocr.log" 2>&1; then
+  if swift tool/verify_ios_screen.swift "$results/ios-native-start.png" "안방 대청소 통합 테스트" "$progressing_label" >> "$results/ios-screen-ocr.log" 2>&1; then
     screen_ok=1
     break
   fi
@@ -77,7 +100,10 @@ xcrun simctl launch "$device" "$package" --clear-delivered-notifications
 notification_results="$results/maestro-notification-$(date +%s)"
 set +e
 maestro --device "$device" test --debug-output="$notification_results" \
-  --test-output-dir="$notification_results" tool/ios_background_notification.yaml \
+  --test-output-dir="$notification_results" \
+  -e SETTINGS_LABEL="$settings_label" -e TEST_BUTTON="$test_button" \
+  -e TEST_TITLE="$test_title" -e TEST_BODY="$test_body" \
+  tool/ios_background_notification.yaml \
   > "$results/ios-background-notification-ui.log" 2>&1
 notification_status=$?
 set -e
@@ -92,6 +118,6 @@ assert len(images) == 1, f'Expected one screenshot from this flow, found {images
 shutil.copyfile(images[0], sys.argv[2])
 PY
 swift tool/verify_ios_screen.swift "$results/ios-background-notification.png" \
-  "첫칸 테스트" "앱 밖에서도" > "$results/ios-background-notification-ocr.log"
+  "$test_title" "$test_body" > "$results/ios-background-notification-ocr.log"
 echo 'IOS_TERMINATED_NOTIFICATION_OK'
 

@@ -11,6 +11,7 @@ import 'package:hangeoreum/app/task_controller.dart';
 import 'package:hangeoreum/services/reminder_scheduler.dart';
 import 'package:hangeoreum/services/feature_access.dart';
 import 'package:hangeoreum/services/subscription_service.dart';
+import 'package:hangeoreum/l10n/app_strings.dart';
 
 import 'bootstrap.dart';
 
@@ -18,12 +19,15 @@ void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   testWidgets('실제 기기 CRUD·알림 예약·완료 해제·DB 재연결', (tester) async {
     final controller = await launchApplication(tester);
-    await tester.tap(find.byTooltip('할 일 추가'));
+    // Keep the native device's real language. The production app resolves it
+    // during startup, so UI finders must use that same resolved language.
+    final strings = AppStrings(controller.localeController.locale.languageCode);
+    await tester.tap(find.byTooltip(strings.t('할 일 추가')));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).first, '안방 대청소 통합 테스트');
     await tester.enterText(find.byType(TextFormField).at(2), '바닥 물건 5개 치우기');
     await tester.scrollUntilVisible(
-      find.text('저장'),
+      find.text(strings.t('저장')),
       300,
       scrollable: find
           .descendant(
@@ -32,7 +36,7 @@ void main() {
           )
           .first,
     );
-    await tester.tap(find.text('저장'));
+    await tester.tap(find.text(strings.t('저장')));
     await tester.pumpAndSettle();
     // Anchor the alarm in the future; the editor's default time can cross midnight
     // while CI is building and installing the app.
@@ -92,11 +96,11 @@ void main() {
     await tester.tap(
       find.descendant(
         of: find.byType(NavigationBar),
-        matching: find.text('완료'),
+        matching: find.text(strings.t('완료')),
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.byTooltip('완료 해제'));
+    await tester.tap(find.byTooltip(strings.t('완료 해제')));
     await tester.pumpAndSettle();
     expect(controller.items.single.status, TaskStatus.paused);
     await controller.reminders.testNotification();
@@ -189,7 +193,7 @@ void main() {
       // Opening a blocked widget action may open detail; dismiss before tabs.
       controller.pendingOpenId = null;
       await tester.pumpAndSettle();
-      final close = find.byTooltip('닫기');
+      final close = find.byTooltip(strings.t('닫기'));
       if (close.evaluate().isNotEmpty) {
         await tester.tap(close.last);
         await tester.pumpAndSettle();
@@ -197,11 +201,18 @@ void main() {
       await tester.tap(
         find.descendant(
           of: find.byType(NavigationBar),
-          matching: find.text('통계'),
+          matching: find.text(strings.t('통계')),
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.textContaining('7일 체험이 끝났어요.'), findsOneWidget);
+      expect(
+        find.text(
+          strings.t(
+            '7일 체험이 끝났어요. Pro를 구독하면 알림·미루기와 30일·90일 통계를 계속 사용할 수 있어요. 기존 기록은 그대로 남아 있어요.',
+          ),
+        ),
+        findsOneWidget,
+      );
       await controller.act(before, 'complete');
       await controller.act(controller.items.single, 'uncomplete');
       expect(controller.items.single.status, TaskStatus.paused);
@@ -232,6 +243,22 @@ void main() {
       reminders,
       access: restoredAccess,
     );
+    // main() reloads the stored preference before scheduling or mounting the UI.
+    // Do the same when recreating the production controller against the real DB.
+    await restored.localeController.load();
+    expect(
+      restored.localeController.locale,
+      controller.localeController.locale,
+    );
+    // The scenario above exercises the real device's automatic language.
+    // Persist that same resolved language for the separate native process,
+    // whose widget/OCR checks read their exact expectations from the fixture DB.
+    final nativeLanguage = restored.localeController.locale.languageCode;
+    await restored.setLanguage(nativeLanguage);
+    expect(restored.localeController.preference, nativeLanguage);
+    expect(await reopened.setting('display_language'), nativeLanguage);
+    expect(restored.localeController.locale.languageCode, nativeLanguage);
+    debugPrint('NATIVE_UI_LANGUAGE:$nativeLanguage');
     await restored.reconcile();
     await tester.pumpWidget(
       app.HangeoreumApp(
@@ -240,7 +267,12 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.text('캘린더'), findsWidgets);
+    expect(
+      find.text(
+        AppStrings(restored.localeController.locale.languageCode).t('캘린더'),
+      ),
+      findsWidgets,
+    );
     if (Platform.isAndroid) await binding.convertFlutterSurfaceToImage();
     await tester.pumpAndSettle();
     await binding.takeScreenshot('calendar');
