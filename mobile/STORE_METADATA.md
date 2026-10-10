@@ -1,6 +1,6 @@
 # 첫칸 스토어 등록 자료
 
-작성 기준: 2026-10-10. App Store Connect의 앱 등록은 완료했다. 아래 한국어·영어 문안은 실제 Flutter 앱과 무료/Pro 범위를 기준으로 준비했으며, 등록한 앱 이름은 **첫칸 - 할 일과 캘린더**다. 서명된 IPA, TestFlight 배포, 구독 상품의 실제 결제 검증과 심사 제출은 아직 완료하지 않았다. 가격·배포 국가·공개 URL·언어별 최종 스크린샷은 제출 전에 확정한다.
+작성 기준: 2026-10-10. App Store Connect의 앱 등록과 한국어·영어 소개 저장, 안내 사이트 공개 및 앱 내 링크 연결을 완료했다. 등록한 앱 이름은 **첫칸 - 할 일과 캘린더**다. 서명된 IPA, TestFlight 배포, 구독 상품의 실제 결제 검증과 심사 제출은 아직 완료하지 않았다. 가격·배포 국가·언어별 최종 스크린샷은 제출 전에 확정한다.
 
 ## 준비 현황
 
@@ -10,7 +10,7 @@
 | 고객 문의 | dabok407@gmail.com | 실제 문의 수신 확인 |
 | 아이콘 | `store/assets/`에 Apple 1024px·Play 512px 준비 | 최종 등록 시 파일 선택 |
 | 소개 스크린샷 | 첫칸 한국어·영어 소개 PNG 56장·등록 자산 4개·ZIP 4개 로컬 검증 완료 | 사용자 문구·화면 검토, 콘솔 슬롯 확인·업로드 |
-| 지원·개인정보·이용 안내 | `store/site/` 정적 페이지 초안 | 운영 주체 확인·공개 HTTPS URL·앱 내 연결 |
+| 지원·개인정보·이용 안내 | 한국어·영어 HTTPS 페이지 공개, 앱 설정·Pro 링크 및 5개 테스트 통과 | 운영 주체·정책 확인·Play 입력 |
 | Pro 상품 | 상품 ID·기간·설명 | 실제 가격·상품 등록·구매 테스트 |
 | 심사 자료 | 아래 한국어·영어 심사 안내·설문 근거 | 서명 IPA·TestFlight·최종 빌드·심사 연락처 연결 |
 
@@ -22,7 +22,7 @@
 | --- | --- |
 | Apple 한국어 등록 제목 | 첫칸 - 할 일과 캘린더 |
 | 휴대폰에 표시되는 앱 이름 | 첫칸 |
-| 기본 언어 / 추가 현지화 | 한국어 / 영어 문안 준비. 앱 설정에서 한국어·영어·기기 언어 선택 |
+| 기본 언어 / 추가 현지화 | 한국어 / 영어(미국) 소개 저장 완료. 앱 설정에서 한국어·영어·기기 언어 선택 |
 | 종류 / 카테고리 | 앱 / 생산성(Productivity) |
 | 설치 가격 | 무료 설치 + 선택형 앱 내 연간 구독 |
 | 앱 식별자 | `com.dabok407.hangeoreum` |
@@ -31,11 +31,22 @@
 | Apple SKU | `cheotkan-ios-001` — 등록 완료, 내부 관리용 |
 | Apple Team ID | `B2MTNFVL58` |
 | 출시 국가 | 미확정. 한국어·영어 자료 준비 |
-| 출시 방식 | 양쪽 승인 후 수동 공개를 위한 설정 검토 |
+| 출시 방식 | Apple 수동 공개 설정 저장 완료. Play 공개 설정은 계정 준비 후 확인 |
 | 문의 이메일 | `dabok407@gmail.com` |
 | 저작권 표시 | `2026 [저작권자 이름]` — 실제 권리자 명칭 확인 필요 |
 
-Apple에는 위 식별자로 만든 기존 앱을 사용한다. 앱을 다시 생성하거나 Bundle ID·SKU를 바꾸지 않는다. 영어 제목도 승인된 브랜드 **첫칸**을 유지하며, 아래 영어 제목은 영어 현지화 입력용 초안이다. 내부 Bundle ID와 구독 상품 ID의 `hangeoreum`은 표시 이름 변경과 별개로 유지한다.
+Apple에는 위 식별자로 만든 기존 앱을 사용한다. 앱을 다시 생성하거나 Bundle ID·SKU를 바꾸지 않는다. 영어 제목도 승인된 브랜드 **첫칸**을 유지하며, 아래 영어 제목으로 영어(미국) 현지화를 저장했다. 내부 Bundle ID와 구독 상품 ID의 `hangeoreum`은 표시 이름 변경과 별개로 유지한다.
+
+## 공개 안내 URL
+
+| 안내 | 한국어 | English |
+| --- | --- | --- |
+| 소개 | https://dabok407.github.io/to-do-list/ | https://dabok407.github.io/to-do-list/index-en.html |
+| 지원 | https://dabok407.github.io/to-do-list/support.html | https://dabok407.github.io/to-do-list/support-en.html |
+| 개인정보 | https://dabok407.github.io/to-do-list/privacy.html | https://dabok407.github.io/to-do-list/privacy-en.html |
+| 이용·구독 안내 | https://dabok407.github.io/to-do-list/terms.html | https://dabok407.github.io/to-do-list/terms-en.html |
+
+8개 HTML 페이지와 CSS의 공개 HTTPS 응답을 확인했다. App Store Connect의 한국어·영어 지원 URL, 전용 개인정보 URL과 소개 내 개인정보·지원 링크를 저장했다. 앱 설정·Pro는 선택한 언어의 공개 안내를 열고, iOS 이용약관은 Apple 표준 EULA를 연다. 배포 기록과 남은 운영 검토는 [SITE_REVIEW.md](store/SITE_REVIEW.md)에 기록한다.
 
 ## Apple App Store 입력 항목
 
@@ -48,8 +59,8 @@ App Store Connect → 앱 → 첫칸 → **앱 정보**, **iOS 버전**, **앱 �
 | 프로모션 텍스트 | 아래 문구 | 선택, 최대 170자 |
 | 설명 | 아래 상세 소개 + 개인정보·이용약관 링크 | 최대 4,000자, 일반 텍스트 |
 | 키워드 | 아래 검색어 | 최대 100바이트, 콘솔 최종 확인 |
-| 지원 URL | 공개 지원 페이지 | 필수, 미공개 |
-| 개인정보처리방침 URL | 공개 개인정보 페이지 | 필수, 미공개 |
+| 지원 URL | 위 언어별 지원 페이지 | 한국어·영어(미국) 저장 완료 |
+| 개인정보처리방침 URL | 위 언어별 개인정보 페이지 | 한국어·영어(미국) 저장 완료 |
 | 마케팅 URL | 앱 소개 페이지 | 선택 |
 | 스크린샷 | iPhone·현재 지원 중인 iPad 화면 | 필수, 아래 규격 참고 |
 | 앱 미리보기 영상 | 실제 동작 영상 | 선택, 첫 제출에는 생략 가능 |
@@ -99,7 +110,7 @@ Play Console → 앱 → **사용자 늘리기 → 앱 정보 → 기본 스토�
 | 카테고리·태그 | 생산성·콘솔에 있는 관련 태그 | 실제 목록에서 선택 |
 | 이메일 | dabok407@gmail.com | 필수 공개 연락처 |
 | 웹사이트·전화 | 지원 페이지 / 별도 확정 시 입력 | 스토어 문의 웹사이트·전화는 선택 |
-| 개인정보처리방침 URL | 공개 개인정보 페이지 | 미공개 |
+| 개인정보처리방침 URL | 위 언어별 공개 개인정보 페이지 | 페이지 공개 완료, Play 입력 필요 |
 | 광고 포함 여부 | 광고 없음 | 현재 릴리스 기준 |
 | 앱 액세스 | 로그인 없음, 무료·체험·구독 범위 설명 | 유료 기능의 심사 방법도 안내 |
 | 콘텐츠 등급·타겟층 | 실제 콘텐츠·의도한 사용자 연령 | 설문 결과로 결정, 최종 선택 필요 |
@@ -124,7 +135,7 @@ Play Console → 앱 → **사용자 늘리기 → 앱 정보 → 기본 스토�
 
 ## 한국어 상세 소개
 
-본문을 복사하고 각 스토어의 안내 링크 문단을 추가한다. URL 자리표시는 실제 공개 URL로 바꾸기 전 제출하지 않는다.
+본문과 아래 해당 스토어의 공개 안내 링크 문단을 사용한다. Apple에는 한국어 소개와 링크를 저장했으며, Play 입력은 아직 수행하지 않았다.
 
 ```text
 미루던 일, 한 가지부터 시작해요.
@@ -169,17 +180,17 @@ Play Console → 앱 → **사용자 늘리기 → 앱 정보 → 기본 스토�
 Apple 설명 끝에 추가:
 
 ```text
-개인정보처리방침: [공개 개인정보 URL]
-지원: [공개 지원 URL]
+개인정보처리방침: https://dabok407.github.io/to-do-list/privacy.html
+지원: https://dabok407.github.io/to-do-list/support.html
 이용약관(Apple 표준 EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 ```
 
 Google 설명 끝에 추가:
 
 ```text
-개인정보처리방침: [공개 개인정보 URL]
-지원 및 이용 안내: [공개 지원 URL]
-구독 및 이용약관: [공개 이용 안내 URL]
+개인정보처리방침: https://dabok407.github.io/to-do-list/privacy.html
+지원 및 이용 안내: https://dabok407.github.io/to-do-list/support.html
+구독 및 이용약관: https://dabok407.github.io/to-do-list/terms.html
 ```
 
 ## English 현지화 문안
@@ -266,11 +277,17 @@ Purchases, restoration and subscription checks may require internet access. Noti
 Support: dabok407@gmail.com
 ```
 
-Apple 영어 설명 끝에는 실제 공개 개인정보·지원 URL과 [Apple 표준 EULA](https://www.apple.com/legal/internet-services/itunes/dev/stdeula/)를 추가한다. Play 영어 설명에는 실제 공개 개인정보·지원·이용 안내 URL을 추가한다. 공개하지 않은 주소를 만들거나 자리표시를 그대로 제출하지 않는다.
+Apple 영어 설명 끝에 아래 링크를 저장했다. Play 영어 설명에는 마지막 줄을 공개 이용 안내 URL `https://dabok407.github.io/to-do-list/terms-en.html`로 바꾸어 입력한다.
+
+```text
+Privacy Policy: https://dabok407.github.io/to-do-list/privacy-en.html
+Support: https://dabok407.github.io/to-do-list/support-en.html
+Terms of Use (Apple Standard EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+```
 
 ## 한국어·영어 지원 안내
 
-두 언어 모두 공개 문의 이메일은 **dabok407@gmail.com**이다. Apple의 지원 URL에는 로그인 없이 연락 방법과 아래 안내를 읽을 수 있는 실제 HTTPS 페이지가 필요하다. `store/site/`는 로컬 초안이며 공개 URL이 아니다. 아래 지원 문안은 게시 전 검토용으로 준비했다.
+두 언어 모두 공개 문의 이메일은 **dabok407@gmail.com**이다. 아래 지원 문안은 로그인 없이 읽을 수 있는 언어별 공개 지원 페이지에 반영했다. 소스는 `store/site/`에서 관리한다.
 
 ### 한국어 지원 문안
 
@@ -374,7 +391,7 @@ Apple은 기기 규격별 1~10장, 투명도 없는 PNG/JPEG를 지원한다. �
 
 ‘로컬 앱’이라는 이유만으로 모든 질문에 자동으로 ‘아니요’를 선택하지 않는다. 최종 스토어 SDK와 문의 처리까지 확인하고 공개 정책·콘솔 응답·앱 내 안내를 일치시킨다.
 
-`store/site/` 안내 페이지는 정적 호스팅으로 제공할 수 있다. 정적 안내 페이지는 사용자의 할 일을 클라우드 DB에 저장하지 않으며 앱 운영 서버나 회원 시스템을 요구하지 않는다. 공개 URL을 얻은 뒤 앱 설정·Pro 화면에도 링크를 연결한다.
+안내 페이지는 GitHub Pages의 정적 호스팅으로 제공한다. 앱 설정·Pro 화면에 공개 링크를 연결했으며, 사이트는 사용자의 할 일을 저장하거나 앱의 알림을 처리하지 않는다. 운영 주체와 문의 보관 기준 등 남은 확인 항목은 [SITE_REVIEW.md](store/SITE_REVIEW.md)를 따른다.
 
 ## 심사자 메모 초안
 
@@ -434,7 +451,12 @@ Public support email: dabok407@gmail.com
 - [x] 무료/Pro 구분·스크린샷 구성·심사 안내
 - [x] App Store Connect 한국어·영어(미국) 제목·부제·소개·검색어 저장
 - [ ] Play 제목 입력, 저작권자·배포 국가 확정
-- [ ] 안내 페이지 검토·공개 URL·앱 내부 링크 연결
+- [x] 한국어·영어 안내 사이트 공개, 8개 HTML·CSS HTTPS 응답 확인
+- [x] 앱 설정·Pro 공개 안내 링크 연결 및 5개 단위·위젯 테스트 통과
+- [x] App Store Connect 한국어·영어 지원 URL·소개 내 공개 링크 저장
+- [x] App Store Connect 전용 개인정보 URL 한국어·영어(미국) 저장
+- [ ] Play 안내 URL 입력
+- [ ] 운영 주체·개인정보 문의 처리 기준 확정
 - [x] 첫칸 한국어·영어 실제 원본 캡처와 소개 PNG 56장·언어별 Play 대표 이미지 제작
 - [x] 기존 소개 PNG 42장 보존, 추가 대형 iPhone 14장 제작·검증
 - [x] 소개 PNG 56장·등록 자산 4개 규격 검증·언어/스토어별 ZIP 4개 생성 및 원본 SHA-256 대조
