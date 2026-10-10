@@ -1,6 +1,6 @@
 # 투두닉(Todoniq): Windows에서 iPhone TestFlight 빌드 준비하기
 
-2026-10-10 현재, 사용자가 승인한 Apple 배포 인증서·앱/위젯 프로파일과 업로드 API 키를 준비하고 지정한 GitHub `ios-testflight` 환경의 Secrets 7개에 등록했습니다. [실제 macOS 서명 실행 38044570593](https://github.com/dabok407/to-do-list/actions/runs/38044570593)이 테스트·프로파일 검증·IPA 내보내기에 성공했습니다. 버전은 **1.0.0 (101)**입니다. [원본 IPA 업로드 실행 38047340077](https://github.com/dabok407/to-do-list/actions/runs/38047340077)도 macOS 실제 서명 재검증과 Apple 업로드 단계를 통과했습니다. Apple API에서 해당 앱·빌드의 **processingState=VALID, expired=false**를 확인했습니다. 업로드 시각은 **2026-10-10 20:09:49 KST**입니다. TestFlight의 수출 규정 질문, 내부 테스터 연결과 사용자 iPhone 설치 확인은 별도로 남아 있습니다.
+2026-10-10 현재, 사용자가 승인한 Apple 배포 인증서·앱/위젯 프로파일과 업로드 API 키를 준비하고 지정한 GitHub `ios-testflight` 환경의 Secrets 7개에 등록했습니다. [실제 macOS 서명 실행 38044570593](https://github.com/dabok407/to-do-list/actions/runs/38044570593)이 테스트·프로파일 검증·IPA 내보내기에 성공했습니다. 버전은 **1.0.0 (101)**입니다. [원본 IPA 업로드 실행 38047340077](https://github.com/dabok407/to-do-list/actions/runs/38047340077)도 macOS 실제 서명 재검증과 Apple 업로드 단계를 통과했습니다. Apple API에서 해당 앱·빌드의 **processingState=VALID, expired=false**를 확인했습니다. 업로드 시각은 **2026-10-10 20:09:49 KST**입니다. 수출 규정 질문을 완료하고 소유자 내부 테스트에 빌드를 연결했습니다. 콘솔에서 소유자의 **초대됨** 상태를 확인했습니다. 추가 외부 테스터를 등록하고 TestFlight 베타 심사도 제출했으며 **심사 대기 중**입니다. 실제 iPhone 설치·실행 확인은 별도로 남아 있습니다.
 
 개인 Mac을 구매할 필요는 없습니다. Windows에서 준비하고 GitHub Actions의 **macOS 15 / Xcode 26.3 / Flutter 3.47.6** 실행기로 빌드합니다. iOS 서명·빌드는 실제 macOS 환경에서 실행됩니다. [Flutter iOS 배포 안내](https://docs.flutter.dev/deployment/ios)
 
@@ -95,9 +95,9 @@ openssl pkcs12 -export -inkey firstkan-distribution.key -in distribution.pem -ou
 
 ### 현재 수출 규정 확인 항목
 
-Apple가 빌드 101의 처리를 완료했지만 TestFlight 화면에는 **수출 규정 관련 문서 누락**이 표시됩니다. 실제 IPA의 Flutter.framework에는 BoringSSL의 표준 TLS 암호화 구현이 포함되어 있습니다. 앱에서 별도의 암호화 API를 호출하지 않아도 Apple의 확인 범위에는 포함된 외부 라이브러리가 들어갑니다. 따라서 콘솔에서 **Apple OS 암호화를 대체하거나 병행하는 표준 알고리즘**을 선택했고, 이어지는 **프랑스에서 앱을 배포할 예정인지** 질문을 확인했습니다. 아직 답변을 저장하지 않았습니다.
+실제 IPA의 Flutter.framework에는 BoringSSL의 표준 TLS 암호화 구현이 포함되어 있습니다. 앱에서 별도의 암호화 API를 호출하지 않아도 Apple의 확인 범위에는 포함된 외부 라이브러리가 들어갑니다. 2026-10-10 사용자 승인에 따라 첫 App Store 출시는 프랑스를 제외합니다. 콘솔에서 **Apple OS 암호화를 대체하거나 병행하는 표준 알고리즘**과 **프랑스 배포: 아니요**를 저장했고, 빌드 101의 **수출 규정 관련 문서 누락**이 해소되어 **제출 준비 완료**로 변경된 것을 확인했습니다.
 
-Apple 안내는 OS 외 표준 암호화를 사용하는 앱의 프랑스 App Store 배포에 프랑스 암호화 신고서를 요구합니다. 초기 배포에서 프랑스를 제외할지, 신고서를 준비해 포함할지 사용자가 정해야 합니다. 국가 결정을 대신하여 ‘아니요’를 제출하거나 `ITSAppUsesNonExemptEncryption=NO`를 자동으로 넣지 않습니다. [Apple 수출 규정 문서 기준](https://developer.apple.com/help/app-store-connect/reference/app-information/export-compliance-documentation-for-encryption)
+Apple 안내는 OS 외 표준 암호화를 사용하는 앱의 프랑스 App Store 배포에 프랑스 암호화 신고서를 요구합니다. 프랑스를 추가할 때는 해당 신고서 요건과 수출 답변을 다시 확인합니다. 수출 답변과 별도로 실제 App Availability에서도 프랑스를 제외해 **사용 불가**, 나머지 174개 국가 또는 지역이 선택된 것을 재확인했습니다. 향후 국가 자동 추가는 껐습니다. `ITSAppUsesNonExemptEncryption=NO`는 자동으로 추가하지 않았습니다. [Apple 수출 규정 문서 기준](https://developer.apple.com/help/app-store-connect/reference/app-information/export-compliance-documentation-for-encryption)
 
 ## 7. 내 iPhone에 설치
 
@@ -107,7 +107,7 @@ Apple 안내는 OS 외 표준 암호화를 사용하는 앱의 프랑스 App Sto
 4. **Invite Testers**에서 테스트할 App Store Connect 사용자를 추가하고 **Add Builds**에서 처리된 빌드를 연결합니다.
 5. iPhone에서 초대를 받아 TestFlight의 **Install**을 누릅니다. 실제 Apple 계정에 온 초대를 사용합니다.
 
-현재 **Todoniq Owner** 내부 그룹은 생성했습니다. 자동 배포는 끄고 빌드를 수동으로 추가하도록 설정했습니다. 테스터 초대와 빌드 연결은 아직 완료하지 않았습니다.
+현재 **Todoniq Owner** 내부 그룹은 자동 배포를 끄고 빌드를 수동으로 추가하도록 설정했습니다. 빌드 1.0.0 (101)을 연결하고 기존 소유자 한 명의 **초대됨** 상태를 확인했습니다. 사용자가 요청한 추가 테스터 한 명은 **Todoniq Preview** 외부 그룹에 등록했습니다. 외부 그룹에도 빌드 101을 연결하고 베타 설명·테스트 항목·승인된 심사 연락처를 입력해 **TestFlight 베타 심사 대기 중** 상태를 확인했습니다. 외부 테스터의 설치 초대는 승인된 빌드가 제공된 후 가능합니다. 공개 초대 링크는 만들지 않았습니다. 테스터의 개인 이메일은 공개 문서에 기록하지 않습니다.
 
 내부 테스트 설치와 공개 App Store 출시는 다른 단계입니다. 외부 테스터 배포에는 Beta App Review가 필요할 수 있습니다. 실제 구독 결제 테스트에는 구독 상품·계약·Sandbox 설정도 별도로 완료해야 합니다. [Apple 내부 테스터 안내](https://developer.apple.com/help/app-store-connect/test-a-beta-version/add-internal-testers)
 
@@ -119,4 +119,8 @@ Apple 안내는 OS 외 표준 암호화를 사용하는 앱의 프랑스 App Sto
 - 빌드 번호 중복: 새 번호로 실행.
 - 업로드 성공 후 빌드 미표시: Apple 처리 상태와 업로드 단계 결과를 확인.
 
-현재 남은 실제 검증은 **수출 규정 질문 완료 → 내부 테스터 연결 → iPhone 알림·위젯·구독 확인**입니다. 자격 증명 등록과 실제 macOS 서명 빌드·업로드·Apple 처리 확인은 완료했습니다. 구독 상품·계약·세금/계좌와 실제 스토어 구매 검증은 별도이며, 테스트와 업로드 성공을 공개 출시 완료로 표시하지 않습니다.
+현재 남은 실제 검증은 **iPhone 알림·위젯·구독 확인**이며 외부 테스트는 Apple의 베타 심사 승인을 기다립니다. 자격 증명 등록, 실제 macOS 서명 빌드·업로드·Apple 처리, 수출 질문과 소유자 내부 초대는 완료했습니다. Apple 구독 그룹 `22461798`과 연간 상품 `6821330921`(`hangeoreum_pro_yearly`)을 생성하고 1년 기간·한국어·영어 이름과 설명을 저장했습니다. 그룹 표시 이름도 한국어 투두닉 Pro / 영어 Todoniq Pro로 저장했으며 앱 이름 사용 기본 옵션을 유지했습니다. 연간 완납 상품의 판매 국가를 프랑스 제외 174개 국가 또는 지역·향후 국가 자동 추가 끔으로 저장했습니다. 가격·상품 심사 자료·계약·세금/계좌와 실제 스토어 구매 검증은 남아 있습니다. TestFlight 베타 심사 제출을 공개 App Store 심사 제출이나 출시 완료로 표시하지 않습니다.
+
+공개 App Store 버전 1.0.0에는 빌드 101을 연결·저장했습니다. 무료 설치 가격 $0.00, 프랑스 제외 174개 국가 또는 지역·향후 국가 자동 추가 끔, 첫 모바일 출시의 Mac·Vision Pro 배포 끔을 저장했습니다. 콘텐츠 권리는 타사 콘텐츠 없음, 연령 설문은 의료 정보 없음·웰빙 주제 포함으로 저장했으며 대한민국 전체·일반 글로벌 9+가 적용됩니다. 개인정보 답변은 데이터 미수집으로 초안을 저장했고 게시 동의는 대기 중입니다.
+
+Apple의 실제 추가 가격 목록에는 목표 US$0.70/년이 없고 US$0.69/년을 선택할 수 있습니다. 대한민국 자동 환산 제안은 ₩1,100이며 대한민국 가격 ₩1,100 또는 ₩900 선택은 사용자 답변 대기 상태로 아직 저장하지 않았습니다. 2026-10-10 실제 비즈니스 화면의 무료 앱 계약은 **활성화됨**, 유료 앱 계약은 **신규**입니다. 소유자의 개인 정보 확인·계약·세금·은행 등록, EU DSA·대한민국 계정 정보와 실제 구독 구매 검증이 남습니다. 정식 공개 심사는 아직 제출하지 않았습니다.
