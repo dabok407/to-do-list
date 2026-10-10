@@ -7,10 +7,13 @@
 사용자가 새 이름과 “나만의 할 일, 투두닉” 슬로건을 확정했다. 한국어 표시 이름은 투두닉, 영어는 Todoniq다. 앱·위젯·알림 테스트·로컬 미리보기·스토어 문안·실제 Flutter 캡처를 함께 갱신했다. Bundle ID·구독 상품 ID·DB·딥링크 및 기존 Apple 앱 레코드는 유지한다.
 
 - 새 브랜드 앱 소스 `b5f8935`를 GitHub에 반영했다. `flutter analyze` 오류 없음, Flutter 전체 131개 테스트 통과(캡처 전용 1개는 별도 실행), Android `:app:compileDebugKotlin` 빌드 성공. 한국어·영어 브랜드·Pro·테스트 알림·슬로건을 직접 검증하는 테스트를 추가했다.
+- 새 Android release AAB 빌드와 `jarsigner`의 `jar verified`(exit 0), bundletool `validate`(exit 0)를 확인했다. 크기 **59,640,292 bytes**, SHA-256 **D4C4D92C520873082FF05ADF1C5947ABF91A947DCA5C7642CC73E3C793C5820E**. 실제 번들 표시 이름은 한국어 투두닉, 영어·기본 Todoniq다. 빌드 시 HEAD `2567bb4`의 앱 production source는 CI 대상 `b5f8935`와 같다. 로컬 업로드 키 서명이며 Play 계정 연결·설치·실제 결제 검증을 의미하지 않는다.
 - 실제 Flutter 원본 48장(한국어·영어 각 3개 기기 시나리오), 스토어 소개 PNG 56장·등록 자산 4개 및 ZIP 4개 검증 완료. 첫 이미지에서 기기 내 저장·회원가입 없는 사용을 강조한다. 예전 브랜드의 미사용 네이티브 위젯 PNG 6개는 제거했으며 새 이미지의 해시를 별도로 기록했다.
 - 웹 미리보기를 새로 빌드해 `/preview/`에 반영했다. CUA에서 Android 갤러리 7/7 이미지와 한국어 첫 소개, 영어 앱 Settings·Todoniq Pro의 실제 표시를 확인했다. 이 결과는 OS 알림·구독 결제 검증을 대체하지 않는다.
 - Xcode 앱·위젯 타깃에 한국어·영어 표시 이름 리소스를 연결했다. CI 네이티브 앱 검사와 최종 IPA 검사에서 두 타깃의 기본·언어별 이름을 확인하도록 추가했다. 합성 IPA 11개 정상/누락/이전 이름 사례와 Bash/Python 문법 검사는 통과했으며 실제 배포 서명은 아직 수행하지 않았다.
-- 새 브랜드 [CI 38039981394](https://github.com/dabok407/to-do-list/actions/runs/38039981394)의 iOS·Android 빌드 및 네이티브 시나리오 검증은 진행 중이다. 완료 결과를 확인하기 전 성공으로 표시하지 않는다.
+- 새 브랜드 소스 `b5f8935`의 [CI 38039981394](https://github.com/dabok407/to-do-list/actions/runs/38039981394)는 **Android·iOS 모두 전체 성공**했다. Android 작업 `114178107710`의 기기 통합·종료/재부팅 알림·위젯·권한 거부와 iOS 작업 `114178107824`의 앱 통합·WidgetKit·콜드 링크·종료 후 알림·권한 거부 및 release no-codesign을 통과했다. iOS 결과는 배포 서명 IPA·TestFlight·실제 기기 설치를 의미하지 않는다.
+- 최신 iOS 로그에서 WidgetKit XCTest 14개, `IOS_LOCALIZED_BRAND_OK`, `IOS_COLD_WIDGET_DEEP_LINK_OK`, `IOS_TERMINATED_NOTIFICATION_OK`와 미서명 release `Runner.app` 27.2 MB 성공을 확인했다. 실제 앱을 종료한 뒤 촬영한 알림 화면 및 OCR의 제목 `Todoniq reminder test`와 본문 `Check that this reminder arrives while the app is closed.`가 일치한다. Android 로그의 `ANDROID_HEADLESS_REFRESH_OK`도 확인했다. 다운로드한 시뮬레이터 캡처·샘플 DB·로그는 Git에서 제외되는 `.tools/verification/38039981394/`에만 보관한다.
+- 투두닉/Todoniq의 한영 지원·개인정보·이용 안내를 [Pages 38040488335](https://github.com/dabok407/to-do-list/actions/runs/38040488335), 소스 `2567bb4`로 게시했다. HTML 8개가 HTTP 200이고 각 언어의 새 브랜드를 포함한다. 실제 CUA 브라우저에서 한영 지원 첫 화면의 브랜드·슬로건·로컬 프라이버시 안내를 확인했다.
 
 아래 `36f3464` / CI `38036673085`는 이름 변경 직전 소스의 성공 결과다. 새 브랜드의 전체 테스트와 네이티브 빌드는 별도로 확인한 결과만 기록한다. App Store Connect에 저장된 첫칸 문안과 28개 이미지의 투두닉 교체, 배포 서명·TestFlight·실제 스토어 결제는 아직 완료되지 않았다.
 

@@ -1,14 +1,14 @@
 # 투두닉 / Todoniq 안내 사이트 배포 및 운영 검토
 
-이 문서는 **로컬 작업·운영 검토용이며 GitHub Pages 배포물에 포함하지 않는다.** 이전 첫칸 안내 사이트는 공개했다. 확정된 새 브랜드는 **투두닉 / Todoniq**이며 슬로건은 **나만의 할 일, 투두닉 / Your tasks. Your way.**다. 새 사이트 소스의 반영과 실제 게시·검증을 구분한다. 운영 정책 확인, 실제 구독 상품·서명 IPA·TestFlight·스토어 심사 제출은 아직 완료하지 않았다.
+이 문서는 **로컬 작업·운영 검토용이며 GitHub Pages 배포물에 포함하지 않는다.** 확정된 새 브랜드는 **투두닉 / Todoniq**이며 슬로건은 **나만의 할 일, 투두닉 / Your tasks. Your way.**다. 새 사이트 게시와 한국어·영어 실제 브라우저 확인을 완료했다. 운영 정책 확인, 실제 구독 상품·서명 IPA·TestFlight·스토어 심사 제출은 아직 완료하지 않았다.
 
 ## 배포·연결 확인
 
 - 2026-10-10 [GitHub Pages 배포 실행 38030189739](https://github.com/dabok407/to-do-list/actions/runs/38030189739) 성공. 배포 소스 커밋 `b2ff571`, 이전 첫칸 브랜드 기준 이력이다.
-- 공개 주소: https://dabok407.github.io/to-do-list/. 이전 첫칸 한국어·영어 index/support/privacy/terms 8개 HTML과 `style.css`의 HTTP 200 응답을 확인했다. 새 브랜드 게시 결과는 별도 확인한다.
+- 새 브랜드 [GitHub Pages 배포 38040488335](https://github.com/dabok407/to-do-list/actions/runs/38040488335), 소스 `2567bb4` 성공. 공개 주소 https://dabok407.github.io/to-do-list/ 의 한국어·영어 index/support/privacy/terms 8개 HTML이 HTTP 200이고 각 언어의 새 브랜드를 포함한다. CUA에서 실제 한영 지원 페이지의 브랜드·슬로건·로컬 저장과 별도 통신 안내를 확인했다.
 - 기존 앱 설정·Pro의 `StorePolicyLinks`를 공개 URL에 연결했으며 관련 테스트 5개가 통과했다. URL은 브랜드 변경 후에도 유지한다. iOS 이용약관 링크는 Apple 표준 EULA다.
 - App Store Connect에는 이전 첫칸 이름·한국어/영어 문안·지원/개인정보 URL과 이미지 28장이 저장되어 있다. 로그인 세션 만료로 새 투두닉 / Todoniq 이름·문안·이미지는 콘솔에 반영하지 못했다. 같은 Apple ID `6821236391`을 사용한다. Play Console 입력은 계정 준비 후 진행한다.
-- [모바일 검증 실행 38036673085](https://github.com/dabok407/to-do-list/actions/runs/38036673085)는 소스 `36f3464`의 이전 첫칸 브랜드로 모두 성공했다. 새 투두닉 / Todoniq 소스 `b5f8935`의 [모바일 검증 실행 38039981394](https://github.com/dabok407/to-do-list/actions/runs/38039981394)는 진행 중이다. 네이티브 빌드 결과와 새 사이트의 실제 게시 결과는 확인 전까지 완료로 표시하지 않는다.
+- 새 투두닉 / Todoniq 소스 `b5f8935`의 [모바일 검증 실행 38039981394](https://github.com/dabok407/to-do-list/actions/runs/38039981394)는 Android·iOS 모두 전체 성공했다. iOS release는 no-codesign이며 배포 서명·실기기 설치·스토어 구매 검증과 구분한다. 이전 실행 `38036673085` / 소스 `36f3464`는 첫칸 브랜드 이력이다. 새 사이트의 게시·공개 응답·한영 지원 첫 화면 확인은 위 배포 기록과 같이 완료했다.
 
 ## 준비된 구성
 
@@ -37,7 +37,7 @@
 - [ ] 실제 배포 앱에서 SDK·기능·무료/Pro 범위가 문안과 일치하는지 확인한다. 알림은 로컬 예약이며 운영체제·권한·예약 범위에 영향을 받는다는 안내를 유지한다.
 - [ ] 실제 스토어의 연간 가격·통화·국가·갱신 조건을 확인한다. USD 0.70은 미확정 목표이며 공개 페이지에 넣지 않았다.
 - [x] 이전 첫칸 GitHub Pages 활성화·배포 및 8개 HTML·CSS의 공개 HTTPS 응답 확인.
-- [ ] 새 투두닉 / Todoniq 사이트 배포 후 8개 HTML·CSS와 양 언어 브랜드·슬로건 확인.
+- [x] 새 투두닉 / Todoniq 사이트 배포, 8개 HTML HTTP 200 및 한영 지원 첫 화면 브랜드·슬로건 확인.
 - [x] 배포 workflow는 `site/`의 HTML·CSS만 게시한다. README·이 검토 문서·앱 소스·빌드 파일·인증서·키는 배포 폴더 밖에 둔다.
 - [x] 기존 앱 설정·Pro 및 App Store Connect 한국어·영어 지원 URL·전용 개인정보 URL·소개 내 링크 연결.
 - [ ] Apple 재로그인 후 기존 앱의 새 브랜드 이름·문안·이미지 반영. Bundle ID·SKU·상품 ID·공개 URL은 유지.
