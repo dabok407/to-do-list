@@ -67,6 +67,40 @@ class RunnerTests: XCTestCase {
     let snapshot = try JSONDecoder().decode(WidgetSnapshot.self, from: data)
     XCTAssertEqual(snapshot.tasks.first?.dueDate.timeIntervalSince1970, 100)
     XCTAssertNil(snapshot.tasks.first?.smallStep)
+    XCTAssertNil(snapshot.languageCode, "Existing snapshots remain readable before language preferences are saved")
+  }
+
+  func testWidgetLanguageIsSnapshotMetadataAndDoesNotChangeUserTitle() throws {
+    let snapshot = WidgetSnapshot(tasks: [WidgetTask(id: "one", title: "필터 청소", due: 100000, priority: 1, status: "pending", smallStep: nil)], updatedAt: 0, languageCode: "en")
+    let decoded = try JSONDecoder().decode(WidgetSnapshot.self, from: JSONEncoder().encode(snapshot))
+    XCTAssertEqual(decoded.resolvedLanguageCode, "en")
+    XCTAssertEqual(decoded.tasks.first?.title, "필터 청소")
+  }
+
+  func testSystemWidgetLanguageFollowsDeviceWithoutRewritingSnapshot() throws {
+    let saved = WidgetSnapshot(tasks: [task("one", 100000)], updatedAt: 0, languageCode: "ko", languagePreference: "system")
+    let snapshot = try JSONDecoder().decode(WidgetSnapshot.self, from: JSONEncoder().encode(saved))
+    XCTAssertEqual(snapshot.languagePreference, "system")
+    XCTAssertEqual(snapshot.resolveLanguage(systemLocale: Locale(identifier: "ko_KR")), "ko")
+    XCTAssertEqual(snapshot.resolveLanguage(systemLocale: Locale(identifier: "en_US")), "en")
+    XCTAssertEqual(snapshot.resolveLanguage(systemLocale: Locale(identifier: "fr_FR")), "en")
+  }
+
+  func testExplicitAndLegacyWidgetLanguagesRemainStable() throws {
+    for language in ["ko", "en"] {
+      let snapshot = WidgetSnapshot(tasks: [], updatedAt: 0, languageCode: language == "ko" ? "en" : "ko", languagePreference: language)
+      XCTAssertEqual(snapshot.resolveLanguage(systemLocale: Locale(identifier: "ko_KR")), language)
+      XCTAssertEqual(snapshot.resolveLanguage(systemLocale: Locale(identifier: "en_US")), language)
+      let legacyData = Data("{\"tasks\":[],\"updatedAt\":0,\"languageCode\":\"\(language)\"}".utf8)
+      let legacy = try JSONDecoder().decode(WidgetSnapshot.self, from: legacyData)
+      XCTAssertNil(legacy.languagePreference)
+      XCTAssertEqual(legacy.resolveLanguage(systemLocale: Locale(identifier: "fr_FR")), language)
+    }
+    let oldest = WidgetSnapshot(tasks: [], updatedAt: 0)
+    XCTAssertEqual(oldest.resolveLanguage(systemLocale: Locale(identifier: "ko_KR")), "ko")
+    XCTAssertEqual(oldest.resolveLanguage(systemLocale: Locale(identifier: "en_US")), "en")
+    let invalid = WidgetSnapshot(tasks: [], updatedAt: 0, languageCode: "xx", languagePreference: "xx")
+    XCTAssertEqual(invalid.resolveLanguage(systemLocale: Locale(identifier: "ko_KR")), "ko")
   }
 
   func testSmallWidgetRendersActualSwiftUIView() {
@@ -77,7 +111,15 @@ class RunnerTests: XCTestCase {
     verifyWidgetRendering(family: .systemMedium, size: CGSize(width: 338, height: 158), name: "ios-widget-medium")
   }
 
-  private func verifyWidgetRendering(family: WidgetFamily, size: CGSize, name: String) {
+  func testSmallEnglishWidgetRendersActualSwiftUIView() {
+    verifyWidgetRendering(family: .systemSmall, size: CGSize(width: 158, height: 158), name: "ios-widget-small-en", languageCode: "en")
+  }
+
+  func testMediumEnglishWidgetRendersActualSwiftUIView() {
+    verifyWidgetRendering(family: .systemMedium, size: CGSize(width: 338, height: 158), name: "ios-widget-medium-en", languageCode: "en")
+  }
+
+  private func verifyWidgetRendering(family: WidgetFamily, size: CGSize, name: String, languageCode: String = "ko") {
     let rendered = expectation(description: "Render \(name)")
     DispatchQueue.main.async {
       let date = Date(timeIntervalSince1970: 1791273600)
@@ -85,7 +127,7 @@ class RunnerTests: XCTestCase {
         WidgetTask(id: "clean", title: "안방 대청소", due: date.timeIntervalSince1970 * 1000, priority: 2, status: "pending", smallStep: "바닥부터 5분", taskId: "clean"),
         WidgetTask(id: "walk", title: "동네 한 바퀴 걷기", due: date.addingTimeInterval(1800).timeIntervalSince1970 * 1000, priority: 1, status: "progressing", smallStep: nil, taskId: "walk"),
         WidgetTask(id: "read", title: "책 읽기", due: date.addingTimeInterval(3600).timeIntervalSince1970 * 1000, priority: 0, status: "paused", smallStep: nil, taskId: "read"),
-      ])
+      ], languageCode: languageCode)
       let view = HangeoreumWidgetView(entry: entry, familyOverride: family, isWidgetContext: false)
         .frame(width: size.width, height: size.height)
         .ignoresSafeArea()

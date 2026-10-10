@@ -7,12 +7,15 @@ import '../domain/task.dart';
 import '../services/reminder_scheduler.dart';
 import '../services/widget_service.dart';
 import '../services/feature_access.dart';
+import '../l10n/locale_controller.dart';
+import '../l10n/app_strings.dart';
 
 class TaskController extends ChangeNotifier {
   final TaskRepository repository;
   final ReminderScheduler reminders;
   final WidgetService widgets;
   final FeatureAccess? access;
+  final LocaleController localeController;
   List<Occurrence> items = [];
   Map<String, Object> statistics = {};
   String? warning;
@@ -24,7 +27,20 @@ class TaskController extends ChangeNotifier {
     this.reminders, {
     WidgetService? widgets,
     this.access,
-  }) : widgets = widgets ?? WidgetService();
+  }) : widgets = widgets ?? WidgetService(),
+       localeController = LocaleController(repository);
+
+  Future<void> setLanguage(String preference) => _serial(() async {
+    await localeController.setPreference(preference);
+    try {
+      // iOS action titles are registered with notification categories, so they
+      // must be registered again together with newly localized reminder bodies.
+      await reminders.initialize();
+    } catch (_) {
+      // A language change is still saved if notifications are unavailable.
+    }
+    await _reconcile();
+  });
   Future<void> _serial(Future<void> Function() action) {
     final current = _tail.then((_) => action());
     _tail = current.catchError((Object _) {});
@@ -73,13 +89,15 @@ class TaskController extends ChangeNotifier {
           ? true
           : await reminders.enabled();
       warning = enabled == false
-          ? '알림이 꺼져 있어요. 설정에서 알림을 켜면 예정된 시간에 알려드릴 수 있어요.'
+          ? AppStrings.current.t('알림이 꺼져 있어요. 설정에서 알림을 켜면 예정된 시간에 알려드릴 수 있어요.')
           : null;
     } catch (error, stack) {
       if (kDebugMode) {
         debugPrint('Reminder reconciliation failed: $error\n$stack');
       }
-      warning = '일정은 저장했지만 알림을 예약하지 못했습니다. 설정에서 알림 권한을 확인해주세요.';
+      warning = AppStrings.current.t(
+        '일정은 저장했지만 알림을 예약하지 못했습니다. 설정에서 알림 권한을 확인해주세요.',
+      );
     } finally {
       if (leased) await repository.releaseReminderLease(owner);
     }
@@ -196,6 +214,7 @@ class TaskController extends ChangeNotifier {
   @override
   void dispose() {
     _retryTimer?.cancel();
+    localeController.dispose();
     super.dispose();
   }
 }

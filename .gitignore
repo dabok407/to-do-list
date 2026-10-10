@@ -13,3 +13,7 @@ mobile/android/key.properties
 mobile/android/.kotlin/
 *.jks
 *.keystore
+*.p12
+*.p8
+*.mobileprovision
+*.certSigningRequest

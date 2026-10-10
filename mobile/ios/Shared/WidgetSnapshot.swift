@@ -46,6 +46,31 @@ struct WidgetTask: Codable, Equatable, Identifiable {
 struct WidgetSnapshot: Codable {
   let tasks: [WidgetTask]
   let updatedAt: Double
+  let languageCode: String?
+  let languagePreference: String?
+
+  init(tasks: [WidgetTask], updatedAt: Double, languageCode: String? = nil, languagePreference: String? = nil) {
+    self.tasks = tasks
+    self.updatedAt = updatedAt
+    self.languageCode = languageCode
+    self.languagePreference = languagePreference
+  }
+
+  var resolvedLanguageCode: String {
+    resolveLanguage(systemLocale: .current)
+  }
+
+  func resolveLanguage(systemLocale: Locale) -> String {
+    Self.resolveLanguage(preference: languagePreference, legacyLanguageCode: languageCode, systemLocale: systemLocale)
+  }
+
+  static func resolveLanguage(preference: String?, legacyLanguageCode: String?, systemLocale: Locale) -> String {
+    if preference == "system" { return systemLocale.languageCode == "ko" ? "ko" : "en" }
+    if preference == "ko" || preference == "en" { return preference! }
+    // Snapshots from earlier versions only contain the resolved language code.
+    if legacyLanguageCode == "ko" || legacyLanguageCode == "en" { return legacyLanguageCode! }
+    return systemLocale.languageCode == "ko" ? "ko" : "en"
+  }
 
   static let empty = WidgetSnapshot(tasks: [], updatedAt: 0)
 
@@ -81,8 +106,9 @@ enum WidgetSnapshotStore {
     return snapshot
   }
 
-  static func write(tasks: [[String: Any]]) throws {
-    let json: [String: Any] = ["tasks": tasks, "updatedAt": Date().timeIntervalSince1970 * 1000]
+  static func write(tasks: [[String: Any]], languageCode: String = "ko", languagePreference: String? = nil) throws {
+    var json: [String: Any] = ["tasks": tasks, "updatedAt": Date().timeIntervalSince1970 * 1000, "languageCode": languageCode]
+    if let languagePreference { json["languagePreference"] = languagePreference }
     let data = try JSONSerialization.data(withJSONObject: json)
     // Reject incompatible snapshots instead of making the widget silently empty.
     _ = try JSONDecoder().decode(WidgetSnapshot.self, from: data)

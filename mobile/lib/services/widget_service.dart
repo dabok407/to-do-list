@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../domain/task.dart';
+import '../l10n/app_strings.dart';
+import '../l10n/locale_controller.dart';
 
 /// Native WidgetKit/RemoteViews share a local snapshot, never the database file.
 class WidgetService {
@@ -76,12 +78,18 @@ class WidgetService {
         'widget_snapshot',
         jsonEncode({
           'updatedAt': DateTime.now().millisecondsSinceEpoch,
+          'languageCode': AppStrings.current.languageCode,
+          'languagePreference': LocaleController.currentPreference,
           'tasks': snapshot,
         }),
       );
     }
     try {
-      await channel.invokeMethod<void>('update', {'tasks': snapshot});
+      await channel.invokeMethod<void>('update', {
+        'tasks': snapshot,
+        'languageCode': AppStrings.current.languageCode,
+        'languagePreference': LocaleController.currentPreference,
+      });
     } on MissingPluginException {
       // The same worker can safely run in a headless engine.
     }

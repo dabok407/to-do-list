@@ -25,7 +25,7 @@ class MainActivity : FlutterActivity() {
                         if (tasks == null) {
                             result.error("INVALID_PAYLOAD", "A tasks list is required.", null)
                         } else {
-                            HangeoreumWidgetProvider.saveSnapshot(this, tasks)
+                            HangeoreumWidgetProvider.saveSnapshot(this, tasks, payload?.get("languageCode") as? String, payload?.get("languagePreference") as? String)
                             result.success(null)
                         }
                     }

@@ -102,7 +102,7 @@ private func refreshWidgetSnapshot(_ arguments: Any?, result: @escaping FlutterR
     return
   }
   do {
-    try WidgetSnapshotStore.write(tasks: tasks)
+    try WidgetSnapshotStore.write(tasks: tasks, languageCode: args["languageCode"] as? String ?? "ko", languagePreference: args["languagePreference"] as? String)
     WidgetCenter.shared.reloadTimelines(ofKind: "HangeoreumTasksWidget")
     result(nil)
   } catch {

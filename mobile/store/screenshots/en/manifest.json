@@ -1,0 +1,42 @@
+{
+  "language": "en",
+  "nativeWidgets": false,
+  "devices": [
+    "iphone",
+    "iphone-large",
+    "ipad",
+    "android"
+  ],
+  "specifications": {
+    "iphone": {
+      "width": 1179,
+      "height": 2556,
+      "label": "iPhone · medium"
+    },
+    "iphone-large": {
+      "width": 1320,
+      "height": 2868,
+      "label": "iPhone · large",
+      "sourceDevice": "iphone"
+    },
+    "ipad": {
+      "width": 2064,
+      "height": 2752,
+      "label": "iPad"
+    },
+    "android": {
+      "width": 1080,
+      "height": 1920,
+      "label": "Android"
+    }
+  },
+  "images": [
+    "01-calendar.png",
+    "02-overdue.png",
+    "03-start.png",
+    "04-repeat.png",
+    "05-stats-detail.png",
+    "06-stats.png",
+    "07-privacy.png"
+  ]
+}

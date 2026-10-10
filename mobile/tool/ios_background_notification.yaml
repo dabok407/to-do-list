@@ -19,7 +19,7 @@ appId: com.dabok407.hangeoreum
     end: "20%, 85%"
     duration: 1000
 - extendedWaitUntil:
-    visible: ".*한걸음 테스트.*"
+    visible: ".*첫칸 테스트.*"
     timeout: 30000
 - assertVisible: ".*앱 밖에서도 알림이 도착하는지 확인해주세요.*"
 - takeScreenshot: ios-background-notification

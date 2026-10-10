@@ -8,8 +8,8 @@
         android:orientation="horizontal" android:gravity="center_vertical">
         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
             android:layout_weight="1" android:orientation="vertical">
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="한걸음" android:textColor="#272B30" android:textSize="16sp"
+            <TextView android:id="@+id/widget_brand" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="첫칸" android:textColor="#272B30" android:textSize="16sp"
                 android:textStyle="bold" android:fontFamily="sans-serif" />
             <TextView android:id="@+id/widget_date"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -26,7 +26,7 @@
     <TextView android:id="@+id/widget_empty"
         android:layout_width="match_parent" android:layout_height="0dp"
         android:layout_weight="1" android:gravity="center_vertical"
-        android:text="지금은 한가해요.\n다음 한 걸음을 준비해 볼까요?"
+        android:text="@string/widget_empty"
         android:textColor="#50565E" android:textSize="14sp" android:lineSpacingExtra="5dp" />
     <TextView android:id="@+id/widget_footer"
         android:layout_width="match_parent" android:layout_height="wrap_content"

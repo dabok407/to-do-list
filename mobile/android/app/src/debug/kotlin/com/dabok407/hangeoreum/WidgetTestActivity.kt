@@ -14,6 +14,7 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
+import java.util.Locale
 
 /** Debug-only launcher-like host for emulator widget rendering and tap tests. */
 class WidgetTestActivity : Activity() {
@@ -22,6 +23,7 @@ class WidgetTestActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        verifyWidgetLanguageResolution()
         // Alarm delivery has already been verified; keep its heads-up banner out
         // of the widget render screenshots.
         getSystemService(NotificationManager::class.java)?.apply {
@@ -122,6 +124,21 @@ class WidgetTestActivity : Activity() {
     }
 
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
+
+    private fun verifyWidgetLanguageResolution() {
+        val korean = Locale.KOREAN
+        val english = Locale.US
+        check(HangeoreumWidgetProvider.resolveLanguage("system", "ko", english) == "en")
+        check(HangeoreumWidgetProvider.resolveLanguage("system", "en", korean) == "ko")
+        check(HangeoreumWidgetProvider.resolveLanguage("system", "ko", Locale.FRENCH) == "en")
+        check(HangeoreumWidgetProvider.resolveLanguage("ko", "en", english) == "ko")
+        check(HangeoreumWidgetProvider.resolveLanguage("en", "ko", korean) == "en")
+        check(HangeoreumWidgetProvider.resolveLanguage(null, "ko", english) == "ko")
+        check(HangeoreumWidgetProvider.resolveLanguage(null, "en", korean) == "en")
+        check(HangeoreumWidgetProvider.resolveLanguage(null, null, korean) == "ko")
+        check(HangeoreumWidgetProvider.resolveLanguage("invalid", "invalid", english) == "en")
+        Log.i(TAG, "WIDGET_LANGUAGE_OK")
+    }
 
     private fun verifyTaskTextBounds(view: View) {
         if (view is TextView && view.isShown &&

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:hangeoreum/services/subscription_service.dart';
@@ -118,6 +119,38 @@ void main() {
       'Pretendard',
     )..addFont(rootBundle.load('assets/fonts/PretendardVariable.ttf'))).load();
   });
+
+  for (final platform in [TargetPlatform.iOS, TargetPlatform.android]) {
+    testWidgets('설정에서 ${platform.name}에 맞는 알림 권한을 안내함', (tester) async {
+      debugDefaultTargetPlatformOverride = platform;
+      addTearDown(() => debugDefaultTargetPlatformOverride = null);
+      _smallScreen(tester);
+      final controller = _LayoutController();
+      final subscription = _LayoutSubscription();
+      addTearDown(controller.dispose);
+      addTearDown(subscription.dispose);
+      await tester.pumpWidget(
+        HangeoreumApp(controller: controller, subscription: subscription),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.descendant(
+          of: find.byType(NavigationBar),
+          matching: find.text('설정'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('알림 권한 설정'), findsOneWidget);
+      expect(find.text('기기 알림 설정 열기'), findsOneWidget);
+      expect(
+        find.text('Android 정확한 알림 설정'),
+        platform == TargetPlatform.android ? findsOneWidget : findsNothing,
+      );
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+      debugDefaultTargetPlatformOverride = null;
+    });
+  }
 
   for (final repeat in [
     RepeatUnit.none,
@@ -529,7 +562,7 @@ void main() {
         }
         expect(find.text('나의 일정은, 나의 기기에만'), findsOneWidget);
         expect(
-          find.text(premium ? '한걸음 Pro 이용 중' : '무료 캘린더 이용 중'),
+          find.text(premium ? '첫칸 Pro 이용 중' : '무료 캘린더 이용 중'),
           findsOneWidget,
         );
         await tester.tap(find.byIcon(Icons.auto_graph));

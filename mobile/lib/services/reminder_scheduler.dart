@@ -6,6 +6,7 @@ import 'package:timezone/timezone.dart' as tz;
 
 import '../domain/task.dart';
 import 'notification_plan.dart';
+import '../l10n/app_strings.dart';
 
 class ReminderScheduler {
   // Foundation can return GMT rather than an IANA region on iOS simulators
@@ -35,17 +36,17 @@ class ReminderScheduler {
               actions: [
                 DarwinNotificationAction.plain(
                   'start',
-                  '지금 시작',
+                  AppStrings.current.t('지금 시작'),
                   options: {DarwinNotificationActionOption.foreground},
                 ),
                 DarwinNotificationAction.plain(
                   'snooze',
-                  '10분 미루기',
+                  AppStrings.current.t('10분 미루기'),
                   options: {DarwinNotificationActionOption.foreground},
                 ),
                 DarwinNotificationAction.plain(
                   'complete',
-                  '완료했어요',
+                  AppStrings.current.t('완료했어요'),
                   options: {DarwinNotificationActionOption.foreground},
                 ),
               ],
@@ -112,28 +113,32 @@ class ReminderScheduler {
         : AndroidScheduleMode.inexactAllowWhileIdle;
   }
 
-  NotificationDetails details() => const NotificationDetails(
+  NotificationDetails details() => NotificationDetails(
     android: AndroidNotificationDetails(
       'tasks_v1',
-      '할 일 알림',
-      channelDescription: '예정된 할 일과 미완료 재알림',
+      AppStrings.current.t('할 일 알림'),
+      channelDescription: AppStrings.current.t('예정된 할 일과 미완료 재알림'),
       importance: Importance.high,
       priority: Priority.high,
       actions: [
-        AndroidNotificationAction('start', '지금 시작', showsUserInterface: true),
+        AndroidNotificationAction(
+          'start',
+          AppStrings.current.t('지금 시작'),
+          showsUserInterface: true,
+        ),
         AndroidNotificationAction(
           'snooze',
-          '10분 미루기',
+          AppStrings.current.t('10분 미루기'),
           showsUserInterface: true,
         ),
         AndroidNotificationAction(
           'complete',
-          '완료했어요',
+          AppStrings.current.t('완료했어요'),
           showsUserInterface: true,
         ),
       ],
     ),
-    iOS: DarwinNotificationDetails(
+    iOS: const DarwinNotificationDetails(
       categoryIdentifier: 'task',
       presentAlert: true,
       presentSound: true,
@@ -245,8 +250,8 @@ class ReminderScheduler {
     await requestPermissions();
     await plugin.zonedSchedule(
       id: 100000,
-      title: '한걸음 테스트',
-      body: '앱 밖에서도 알림이 도착하는지 확인해주세요.',
+      title: AppStrings.current.t('첫칸 테스트'),
+      body: AppStrings.current.t('앱 밖에서도 알림이 도착하는지 확인해주세요.'),
       scheduledDate: tz.TZDateTime.now(tz.local)
           .add(const Duration(seconds: 10)),
       notificationDetails: details(),

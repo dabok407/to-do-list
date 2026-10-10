@@ -1,0 +1,47 @@
+{
+  "source": "Production HangeoreumApp widgets rendered by Flutter widget test",
+  "fixture": "PreviewController with fictional household tasks; no private records",
+  "language": "ko",
+  "display_name": "첫칸",
+  "sample_titles_are_localized_fixtures": true,
+  "user_records_are_translated": false,
+  "native_device_capture": false,
+  "fonts": [
+    "PretendardVariable.ttf",
+    "MaterialIcons-Regular.otf"
+  ],
+  "logical_width": 360,
+  "logical_height": 640,
+  "pixel_ratio": 3.0,
+  "png_width": 1080,
+  "png_height": 1920,
+  "sample_day": "2026-10-10",
+  "statistics_30_days": {
+    "registered": 10,
+    "total": 75,
+    "completed": 60,
+    "snoozes": 10,
+    "average": 15.5,
+    "hour": "21시"
+  },
+  "scene_labels": {
+    "01-calendar": "할 일 캘린더",
+    "02-overdue": "아직 남은 일",
+    "03-small-start": "5분부터 시작",
+    "04-repeat": "반복 일정",
+    "06-statistics": "나의 흐름",
+    "06-statistics-detail": "30일 통계",
+    "07-privacy": "개인정보와 언어 설정",
+    "08-pro": "첫칸 Pro"
+  },
+  "screens": [
+    "01-calendar.png",
+    "02-overdue.png",
+    "03-small-start.png",
+    "04-repeat.png",
+    "06-statistics.png",
+    "06-statistics-detail.png",
+    "07-privacy.png",
+    "08-pro.png"
+  ]
+}

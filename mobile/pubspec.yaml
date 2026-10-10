@@ -1,5 +1,5 @@
 name: hangeoreum
-description: "한걸음: 기기에만 저장하는 실행형 To Do와 리마인더"
+description: "첫칸: 기기에만 저장하는 실행형 To Do와 리마인더"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -43,6 +43,7 @@ dependencies:
   flutter_timezone: ^5.1.1
   workmanager: ^0.10.10
   shared_preferences: ^2.5.4
+  url_launcher: ^6.3.3
 
 dev_dependencies:
   integration_test:

@@ -12,9 +12,15 @@ import 'services/widget_service.dart';
 import 'services/background_refresh.dart';
 import 'services/subscription_service.dart';
 import 'services/feature_access.dart';
+import 'l10n/app_strings.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  AppStrings.current = AppStrings(
+    WidgetsBinding.instance.platformDispatcher.locale.languageCode == 'ko'
+        ? 'ko'
+        : 'en',
+  );
   try {
     final repository = await TaskRepository.open();
     final access = FeatureAccess(repository);
@@ -28,10 +34,13 @@ Future<void> main() async {
       widgets: widgets,
       access: access,
     );
+    await controller.localeController.load();
     try {
       await reminders.initialize();
     } catch (_) {
-      controller.warning = '알림을 준비하지 못했습니다. 할 일은 로컬에 저장됩니다.';
+      controller.warning = AppStrings.current.t(
+        '알림을 준비하지 못했습니다. 할 일은 로컬에 저장됩니다.',
+      );
     }
     reminders.onAction = controller.handleNotification;
     widgets.onLaunch = controller.handleWidgetLaunch;
@@ -55,10 +64,12 @@ Future<void> main() async {
       return true;
     }());
     runApp(
-      const MaterialApp(
+      MaterialApp(
         home: Scaffold(
           body: SafeArea(
-            child: Center(child: Text('앱을 준비하지 못했습니다. 다시 실행해주세요.')),
+            child: Center(
+              child: Text(AppStrings.current.t('앱을 준비하지 못했습니다. 다시 실행해주세요.')),
+            ),
           ),
         ),
       ),
@@ -82,7 +93,7 @@ Future<void> nativeLifecycleProbe() async {
   for (final probe in [(100001, 90), (100002, 240)]) {
     await scheduler.plugin.zonedSchedule(
       id: probe.$1,
-      title: '한걸음 종료 상태 테스트 ${probe.$1}',
+      title: '첫칸 종료 상태 테스트 ${probe.$1}',
       body: '네이티브 AlarmManager 검증',
       scheduledDate: tz.TZDateTime.now(tz.local)
           .add(Duration(seconds: probe.$2)),
@@ -110,155 +121,188 @@ Future<void> nativeBackgroundProbe() async {
   debugPrint('NATIVE_BACKGROUND_PROBE_REGISTERED');
 }
 
-class HangeoreumApp extends StatelessWidget {
+class HangeoreumApp extends StatefulWidget {
   final TaskController controller;
   final SubscriptionService? subscription;
   const HangeoreumApp({super.key, required this.controller, this.subscription});
   @override
-  Widget build(BuildContext context) => MaterialApp(
-    title: '한걸음',
-    debugShowCheckedModeBanner: false,
-    locale: const Locale('ko'),
-    supportedLocales: const [Locale('ko'), Locale('en')],
-    localizationsDelegates: GlobalMaterialLocalizations.delegates,
-    theme: ThemeData(
-      fontFamily: 'Pretendard',
-      useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: const Color(0xff343833),
-        primary: const Color(0xff292c29),
-        onPrimary: Colors.white,
-        primaryContainer: const Color(0xfff1f2f4),
-        onPrimaryContainer: const Color(0xff292c29),
-        secondary: const Color(0xff78736a),
-        secondaryContainer: const Color(0xfff1f2f4),
-        onSecondaryContainer: const Color(0xff292c29),
-        surface: const Color(0xffffffff),
-        onSurface: const Color(0xff292c29),
-        outline: const Color(0xffc9cdd3),
-        outlineVariant: const Color(0xffe4e6ea),
-      ),
-      scaffoldBackgroundColor: const Color(0xffffffff),
-      textTheme: const TextTheme(
-        headlineSmall: TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.w600,
-          letterSpacing: -.6,
-          height: 1.35,
+  State<HangeoreumApp> createState() => _HangeoreumAppState();
+}
+
+class _HangeoreumAppState extends State<HangeoreumApp>
+    with WidgetsBindingObserver {
+  TaskController get controller => widget.controller;
+  SubscriptionService? get subscription => widget.subscription;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeLocales(List<Locale>? locales) {
+    if (controller.localeController.preference == 'system') {
+      controller.setLanguage('system');
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: controller.localeController,
+    builder: (context, _) => MaterialApp(
+      title: AppStrings.appName,
+      debugShowCheckedModeBanner: false,
+      locale: controller.localeController.locale,
+      supportedLocales: const [Locale('ko'), Locale('en')],
+      localizationsDelegates: [
+        AppStrings.delegate,
+        ...GlobalMaterialLocalizations.delegates,
+      ],
+      theme: ThemeData(
+        fontFamily: 'Pretendard',
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xff343833),
+          primary: const Color(0xff292c29),
+          onPrimary: Colors.white,
+          primaryContainer: const Color(0xfff1f2f4),
+          onPrimaryContainer: const Color(0xff292c29),
+          secondary: const Color(0xff78736a),
+          secondaryContainer: const Color(0xfff1f2f4),
+          onSecondaryContainer: const Color(0xff292c29),
+          surface: const Color(0xffffffff),
+          onSurface: const Color(0xff292c29),
+          outline: const Color(0xffc9cdd3),
+          outlineVariant: const Color(0xffe4e6ea),
         ),
-        titleLarge: TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.w600,
-          letterSpacing: -.5,
-        ),
-        titleMedium: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-          letterSpacing: -.2,
-        ),
-        bodyLarge: TextStyle(fontSize: 16, height: 1.45, letterSpacing: -.2),
-        bodyMedium: TextStyle(fontSize: 14, height: 1.45, letterSpacing: -.1),
-        labelLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-      ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: Color(0xffffffff),
-        surfaceTintColor: Colors.transparent,
-        centerTitle: false,
-        titleTextStyle: TextStyle(
-          fontFamily: 'Pretendard',
-          fontSize: 22,
-          fontWeight: FontWeight.w600,
-          letterSpacing: -.5,
-          color: Color(0xff292c29),
-        ),
-      ),
-      filledButtonTheme: FilledButtonThemeData(
-        style: FilledButton.styleFrom(
-          minimumSize: const Size(48, 48),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+        scaffoldBackgroundColor: const Color(0xffffffff),
+        textTheme: const TextTheme(
+          headlineSmall: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w600,
+            letterSpacing: -.6,
+            height: 1.35,
           ),
-        ),
-      ),
-      outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          minimumSize: const Size(48, 48),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+          titleLarge: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w600,
+            letterSpacing: -.5,
           ),
-          side: const BorderSide(color: Color(0xffd4d6da)),
-        ),
-      ),
-      textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
-      ),
-      iconButtonTheme: IconButtonThemeData(
-        style: IconButton.styleFrom(minimumSize: const Size(48, 48)),
-      ),
-      floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: Color(0xff292c29),
-        foregroundColor: Colors.white,
-        elevation: 1,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(16)),
-        ),
-      ),
-      bottomSheetTheme: const BottomSheetThemeData(
-        backgroundColor: Color(0xffffffff),
-        surfaceTintColor: Colors.transparent,
-        showDragHandle: true,
-      ),
-      expansionTileTheme: ExpansionTileThemeData(
-        tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        childrenPadding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
-        clipBehavior: Clip.antiAlias,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: Color(0xffe4e6ea)),
-        ),
-        collapsedShape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: Color(0xffe4e6ea)),
-        ),
-      ),
-      chipTheme: ChipThemeData(
-        showCheckmark: false,
-        selectedColor: const Color(0xfff1f2f4),
-        backgroundColor: const Color(0xffffffff),
-        side: const BorderSide(color: Color(0xffdfe2e6)),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        contentPadding: const EdgeInsets.all(16),
-      ),
-      navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: const Color(0xffffffff),
-        surfaceTintColor: Colors.transparent,
-        indicatorColor: Colors.transparent,
-        iconTheme: WidgetStateProperty.resolveWith(
-          (states) => IconThemeData(
-            size: 23,
-            color: states.contains(WidgetState.selected)
-                ? const Color(0xff292c29)
-                : const Color(0xff676b73),
+          titleMedium: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            letterSpacing: -.2,
           ),
+          bodyLarge: TextStyle(fontSize: 16, height: 1.45, letterSpacing: -.2),
+          bodyMedium: TextStyle(fontSize: 14, height: 1.45, letterSpacing: -.1),
+          labelLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
         ),
-        labelTextStyle: WidgetStateProperty.resolveWith(
-          (states) => TextStyle(
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xffffffff),
+          surfaceTintColor: Colors.transparent,
+          centerTitle: false,
+          titleTextStyle: TextStyle(
             fontFamily: 'Pretendard',
-            fontSize: 12,
-            fontWeight: states.contains(WidgetState.selected)
-                ? FontWeight.w600
-                : FontWeight.w400,
-            color: states.contains(WidgetState.selected)
-                ? const Color(0xff292c29)
-                : const Color(0xff676b73),
+            fontSize: 22,
+            fontWeight: FontWeight.w600,
+            letterSpacing: -.5,
+            color: Color(0xff292c29),
           ),
         ),
-        height: 68,
+        filledButtonTheme: FilledButtonThemeData(
+          style: FilledButton.styleFrom(
+            minimumSize: const Size(48, 48),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            minimumSize: const Size(48, 48),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            side: const BorderSide(color: Color(0xffd4d6da)),
+          ),
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+        ),
+        iconButtonTheme: IconButtonThemeData(
+          style: IconButton.styleFrom(minimumSize: const Size(48, 48)),
+        ),
+        floatingActionButtonTheme: const FloatingActionButtonThemeData(
+          backgroundColor: Color(0xff292c29),
+          foregroundColor: Colors.white,
+          elevation: 1,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(16)),
+          ),
+        ),
+        bottomSheetTheme: const BottomSheetThemeData(
+          backgroundColor: Color(0xffffffff),
+          surfaceTintColor: Colors.transparent,
+          showDragHandle: true,
+        ),
+        expansionTileTheme: ExpansionTileThemeData(
+          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          childrenPadding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+          clipBehavior: Clip.antiAlias,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: const BorderSide(color: Color(0xffe4e6ea)),
+          ),
+          collapsedShape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: const BorderSide(color: Color(0xffe4e6ea)),
+          ),
+        ),
+        chipTheme: ChipThemeData(
+          showCheckmark: false,
+          selectedColor: const Color(0xfff1f2f4),
+          backgroundColor: const Color(0xffffffff),
+          side: const BorderSide(color: Color(0xffdfe2e6)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+          contentPadding: const EdgeInsets.all(16),
+        ),
+        navigationBarTheme: NavigationBarThemeData(
+          backgroundColor: const Color(0xffffffff),
+          surfaceTintColor: Colors.transparent,
+          indicatorColor: Colors.transparent,
+          iconTheme: WidgetStateProperty.resolveWith(
+            (states) => IconThemeData(
+              size: 23,
+              color: states.contains(WidgetState.selected)
+                  ? const Color(0xff292c29)
+                  : const Color(0xff676b73),
+            ),
+          ),
+          labelTextStyle: WidgetStateProperty.resolveWith(
+            (states) => TextStyle(
+              fontFamily: 'Pretendard',
+              fontSize: 12,
+              fontWeight: states.contains(WidgetState.selected)
+                  ? FontWeight.w600
+                  : FontWeight.w400,
+              color: states.contains(WidgetState.selected)
+                  ? const Color(0xff292c29)
+                  : const Color(0xff676b73),
+            ),
+          ),
+          height: 68,
+        ),
       ),
+      home: HomeScreen(controller: controller, subscription: subscription),
     ),
-    home: HomeScreen(controller: controller, subscription: subscription),
   );
 }

@@ -1,0 +1,29 @@
+{
+  "packages": [
+    {
+      "sha256": "3789ab5a5e2a4005e45cfd9a383c9b6c7c04f9e76cd6c8bf0d431adddb238c38",
+      "language": "ko",
+      "entries": 22,
+      "file": "app-store-images.zip"
+    },
+    {
+      "sha256": "bd2960acc8904b1c59f3838c2d9f174c1f6775b6c45b8fc191045e5603978992",
+      "language": "ko",
+      "entries": 9,
+      "file": "play-store-images.zip"
+    },
+    {
+      "sha256": "8a862b37ef8fc6478f2bc4994a65c2ef1eda0b625ba6c8c5e3eb8927ffb72116",
+      "language": "en",
+      "entries": 22,
+      "file": "app-store-images-en.zip"
+    },
+    {
+      "sha256": "af43bf7036094ff5756cd508121c37f0f905f84ec702159c5023a1f7bc928f0d",
+      "language": "en",
+      "entries": 9,
+      "file": "play-store-images-en.zip"
+    }
+  ],
+  "verified_at": "2026-10-10T05:14:53.6473713Z"
+}

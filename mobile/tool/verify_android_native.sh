@@ -79,6 +79,9 @@ for height in 130 220 330; do
   done
   adb exec-out screencap -p > "$results/android-widget-$height.png"
   grep -q "WIDGET_RENDER_OK:330x$height" "$results/widget-$height.log"
+  # onCreate runs resolver cases with injected locales, without changing the OS
+  # language or saved user preferences. Require its result on every fresh host.
+  grep -q 'WIDGET_LANGUAGE_OK' "$results/widget-$height.log"
 done
 
 read_database() {

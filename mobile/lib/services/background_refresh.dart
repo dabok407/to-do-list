@@ -7,6 +7,7 @@ import '../data/task_repository.dart';
 import 'reminder_scheduler.dart';
 import 'widget_service.dart';
 import 'feature_access.dart';
+import '../l10n/locale_controller.dart';
 
 const refreshTask = 'com.dabok407.hangeoreum.refresh';
 
@@ -39,6 +40,9 @@ class BackgroundRefresh {
     var leased = false;
     try {
       repository = await TaskRepository.open();
+      final locale = LocaleController(repository);
+      await locale.load();
+      locale.dispose();
       leased = await repository.acquireReminderLease(owner);
       if (!leased) return true;
       await repository.materialize();

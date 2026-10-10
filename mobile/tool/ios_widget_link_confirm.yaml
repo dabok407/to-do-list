@@ -1,6 +1,6 @@
 appId: com.dabok407.hangeoreum
 ---
 # Fixed iPhone 16 Pro portrait system alert. The shell must first verify the
-# actual screenshot contains Open in “한걸음”?; AX sometimes omits this alert.
+# actual screenshot contains Open in “첫칸”?; AX sometimes omits this alert.
 - tapOn:
     point: "67%, 55%"

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="widget_empty">지금은 한가해요.\n다음 할 일을 준비해 볼까요?</string>
+    <string name="app_name">첫칸</string>
     <string name="widget_description">가까운 할 일을 확인하고 바로 시작하거나 10분 미룹니다.</string>
-    <string name="widget_name">한걸음 · 다음 할 일</string>
+    <string name="widget_name">첫칸 · 다음 할 일</string>
 </resources>

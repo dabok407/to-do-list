@@ -29,7 +29,7 @@ xcrun simctl io "$device" screenshot "$results/ios-native-launch.png"
 if [ "$ui_status" != 0 ]; then
   # A simulator AX snapshot can omit the visible system confirmation. Only
   # accept the coordinate fallback after independently checking its pixels.
-  swift tool/verify_ios_screen.swift "$results/ios-native-launch.png" "Open in" "한걸음" "Cancel" "Open" \
+  swift tool/verify_ios_screen.swift "$results/ios-native-launch.png" "Open in" "첫칸" "Cancel" "Open" \
     > "$results/ios-link-confirmation-ocr.log"
   maestro --device "$device" test --debug-output="$results/maestro-confirmation" \
     --test-output-dir="$results/maestro-confirmation" tool/ios_widget_link_confirm.yaml \
@@ -92,6 +92,6 @@ assert len(images) == 1, f'Expected one screenshot from this flow, found {images
 shutil.copyfile(images[0], sys.argv[2])
 PY
 swift tool/verify_ios_screen.swift "$results/ios-background-notification.png" \
-  "한걸음 테스트" "앱 밖에서도" > "$results/ios-background-notification-ocr.log"
+  "첫칸 테스트" "앱 밖에서도" > "$results/ios-background-notification-ocr.log"
 echo 'IOS_TERMINATED_NOTIFICATION_OK'
 

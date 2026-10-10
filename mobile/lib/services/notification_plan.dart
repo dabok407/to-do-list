@@ -1,4 +1,5 @@
 import '../domain/task.dart';
+import '../l10n/app_strings.dart';
 
 enum NotificationRepeat { daily, weekly, monthly }
 
@@ -117,7 +118,7 @@ class NotificationPlan {
             ReminderJob(
               key: 'repeat:${task.id}:$bucket',
               title: task.title,
-              body: '지금 시작해볼까요?',
+              body: AppStrings.current.t('지금 시작해볼까요?'),
               payload: 'repeat:${Uri.encodeComponent(task.id)}:$bucket',
               at: o.reminder,
               repeat: task.repeat == RepeatUnit.daily
@@ -143,11 +144,13 @@ class NotificationPlan {
             o.reminder.isAfter(boundary)) {
           continue;
         }
-        final body = o.status == TaskStatus.progressing
-            ? '진행은 어떤가요? 완료했거나 잠시 쉬어도 괜찮아요.'
-            : o.status == TaskStatus.paused
-            ? '아까 하기로 했어요. 지금 시작해볼까요?'
-            : '지금 시작해볼까요?';
+        final body = AppStrings.current.t(
+          o.status == TaskStatus.progressing
+              ? '진행은 어떤가요? 완료했거나 잠시 쉬어도 괜찮아요.'
+              : o.status == TaskStatus.paused
+              ? '아까 하기로 했어요. 지금 시작해볼까요?'
+              : '지금 시작해볼까요?',
+        );
         if (o.reminder.isAfter(now)) {
           jobs.add(
             ReminderJob(
@@ -273,7 +276,9 @@ class NotificationPlan {
           ReminderJob(
             key: 'overdue:${o.id}:${repeat == null ? dayKey(at) : 'repeat'}',
             title: task.title,
-            body: '아직 완료하지 않은 일이 있어요. 지금 시작하거나 시간을 바꿔볼까요?',
+            body: AppStrings.current.t(
+              '아직 완료하지 않은 일이 있어요. 지금 시작하거나 시간을 바꿔볼까요?',
+            ),
             payload: o.id,
             at: at,
             repeat: repeat,

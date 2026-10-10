@@ -41,6 +41,7 @@ class HangeoreumWidgetProvider : AppWidgetProvider() {
             Intent.ACTION_TIME_CHANGED,
             Intent.ACTION_TIMEZONE_CHANGED,
             Intent.ACTION_DATE_CHANGED,
+            Intent.ACTION_LOCALE_CHANGED,
             ACTION_REFRESH -> updateAll(context)
         }
     }
@@ -54,7 +55,7 @@ class HangeoreumWidgetProvider : AppWidgetProvider() {
         private val INK = Color.rgb(39, 43, 48)
         private val RED = Color.rgb(143, 48, 58)
 
-        fun saveSnapshot(context: Context, tasks: List<*>) {
+        fun saveSnapshot(context: Context, tasks: List<*>, languageCode: String? = null, languagePreference: String? = null) {
             // Save synchronously before notifying launcher processes of the update.
             val snapshot = JSONArray()
             tasks.forEach { value ->
@@ -80,6 +81,8 @@ class HangeoreumWidgetProvider : AppWidgetProvider() {
             val sharedSnapshot = JSONObject().apply {
                 put("updatedAt", System.currentTimeMillis())
                 put("tasks", snapshot)
+                put("languageCode", languageCode ?: if (Locale.getDefault().language == "ko") "ko" else "en")
+                languagePreference?.let { put("languagePreference", it) }
             }
             context.getSharedPreferences(FLUTTER_PREFERENCES, Context.MODE_PRIVATE).edit()
                 .putString(SHARED_SNAPSHOT, sharedSnapshot.toString()).commit()
@@ -96,6 +99,8 @@ class HangeoreumWidgetProvider : AppWidgetProvider() {
 
         private fun update(context: Context, manager: AppWidgetManager, id: Int) {
             val now = System.currentTimeMillis()
+            val english = language(context) == "en"
+            fun text(korean: String, englishText: String) = if (english) englishText else korean
             val tasks = readTasks(context).filter {
                 it.optString("status") != "completed" && it.optString("status") != "skipped" &&
                     (it.optLong("expiresAt") == 0L || it.optLong("expiresAt") > now)
@@ -118,9 +123,10 @@ class HangeoreumWidgetProvider : AppWidgetProvider() {
                 else -> 1
             }
             val views = RemoteViews(context.packageName, R.layout.widget_hangeoreum)
+            views.setTextViewText(R.id.widget_brand, "첫칸")
             views.setTextViewText(
                 R.id.widget_date,
-                SimpleDateFormat("M월 d일 EEEE", Locale.KOREAN).format(Date(now)),
+                SimpleDateFormat(if (english) "EEE, MMM d" else "M월 d일 EEEE", if (english) Locale.US else Locale.KOREAN).format(Date(now)),
             )
             views.setOnClickPendingIntent(R.id.widget_header, appIntent(context))
             // A compact widget keeps the task's date/status instead of spending
@@ -129,11 +135,12 @@ class HangeoreumWidgetProvider : AppWidgetProvider() {
             views.setOnClickPendingIntent(R.id.widget_empty, appIntent(context))
             views.removeAllViews(R.id.widget_tasks)
             views.setViewVisibility(R.id.widget_empty, if (tasks.isEmpty()) View.VISIBLE else View.GONE)
+            views.setTextViewText(R.id.widget_empty, text("지금은 한가해요.\n다음 할 일을 준비해 볼까요?", "All clear for now.\nWhat would you like to do next?"))
             views.setViewVisibility(R.id.widget_tasks, if (tasks.isEmpty()) View.GONE else View.VISIBLE)
             views.setViewVisibility(R.id.widget_footer, if (minHeight >= 200) View.VISIBLE else View.GONE)
             views.setTextViewText(
                 R.id.widget_footer,
-                if (tasks.isEmpty()) "한걸음에서 할 일을 추가하세요" else "다음 할 일 ${tasks.size}개 · 눌러서 확인",
+                if (tasks.isEmpty()) text("첫칸에서 할 일을 추가하세요", "Add a task in 첫칸") else text("다음 할 일 ${tasks.size}개 · 눌러서 확인", "${tasks.size} upcoming tasks · Tap to view"),
             )
             views.setOnClickPendingIntent(R.id.widget_footer, appIntent(context))
 
@@ -145,14 +152,16 @@ class HangeoreumWidgetProvider : AppWidgetProvider() {
                 val highPriority = task.optInt("priority") == 2
                 row.setTextViewText(R.id.widget_task_title, title)
                 row.setTextColor(R.id.widget_task_title, if (highPriority) RED else INK)
-                row.setTextViewText(R.id.widget_task_due, dueLabel(task, now))
+                row.setTextViewText(R.id.widget_task_due, dueLabel(task, now, english))
+                row.setTextViewText(R.id.widget_priority, text("높음", "High"))
                 row.setViewVisibility(R.id.widget_priority, if (highPriority) View.VISIBLE else View.GONE)
                 row.setViewVisibility(R.id.widget_task_actions, if (index == 0 && minHeight >= 180) View.VISIBLE else View.GONE)
                 row.setTextViewText(
                     R.id.widget_start,
-                    if (task.optString("status") == "progressing") "계속하기" else "지금 시작",
+                    if (task.optString("status") == "progressing") text("계속하기", "Continue") else text("지금 시작", "Start now"),
                 )
-                row.setContentDescription(R.id.widget_task_content, "$title, ${dueLabel(task, now)}")
+                row.setTextViewText(R.id.widget_snooze, text("10분 미루기", "Snooze 10 min"))
+                row.setContentDescription(R.id.widget_task_content, "$title, ${dueLabel(task, now, english)}")
                 row.setOnClickPendingIntent(R.id.widget_task_content, taskIntent(context, taskId, "open"))
                 row.setOnClickPendingIntent(R.id.widget_start, taskIntent(context, taskId, "start"))
                 row.setOnClickPendingIntent(R.id.widget_snooze, taskIntent(context, taskId, "snooze"))
@@ -175,20 +184,36 @@ class HangeoreumWidgetProvider : AppWidgetProvider() {
             emptyList()
         }
 
-        private fun dueLabel(task: JSONObject, now: Long): String {
+        private fun language(context: Context): String = try {
+            val shared = context.getSharedPreferences(FLUTTER_PREFERENCES, Context.MODE_PRIVATE).getString(SHARED_SNAPSHOT, null)
+            val snapshot = shared?.let { JSONObject(it) }
+            resolveLanguage(snapshot?.optString("languagePreference"), snapshot?.optString("languageCode"), Locale.getDefault())
+        } catch (_: Exception) { if (Locale.getDefault().language == "ko") "ko" else "en" }
+
+        internal fun resolveLanguage(preference: String?, legacyLanguageCode: String?, systemLocale: Locale): String {
+            val systemLanguage = if (systemLocale.language == "ko") "ko" else "en"
+            return when (preference) {
+                "system" -> systemLanguage
+                "ko", "en" -> preference
+                else -> legacyLanguageCode?.takeIf { it == "ko" || it == "en" } ?: systemLanguage
+            }
+        }
+
+        private fun dueLabel(task: JSONObject, now: Long, english: Boolean): String {
+            fun text(korean: String, englishText: String) = if (english) englishText else korean
             val due = task.optLong("due")
-            val time = SimpleDateFormat("HH:mm", Locale.KOREAN).format(Date(due))
-            if (task.optString("status") == "progressing") return "진행 중 · $time"
-            if (due < now) return "미뤄진 할 일 · $time"
+            val time = SimpleDateFormat(if (english) "h:mm a" else "HH:mm", if (english) Locale.US else Locale.KOREAN).format(Date(due))
+            if (task.optString("status") == "progressing") return text("진행 중 · $time", "In progress · $time")
+            if (due < now) return text("미뤄진 할 일 · $time", "Overdue · $time")
             val day = Calendar.getInstance().apply { timeInMillis = due }
             val today = Calendar.getInstance().apply { timeInMillis = now }
             val tomorrow = Calendar.getInstance().apply { timeInMillis = now; add(Calendar.DAY_OF_YEAR, 1) }
             val label = when {
-                sameDay(day, today) -> "오늘"
-                sameDay(day, tomorrow) -> "내일"
-                else -> SimpleDateFormat("M/d(E)", Locale.KOREAN).format(Date(due))
+                sameDay(day, today) -> text("오늘", "Today")
+                sameDay(day, tomorrow) -> text("내일", "Tomorrow")
+                else -> SimpleDateFormat(if (english) "MMM d (EEE)" else "M/d(E)", if (english) Locale.US else Locale.KOREAN).format(Date(due))
             }
-            return "$label $time${if (task.optString("status") == "paused") " · 보류" else ""}"
+            return "$label $time${if (task.optString("status") == "paused") text(" · 보류", " · Snoozed") else ""}"
         }
 
         private fun sameDay(a: Calendar, b: Calendar): Boolean =

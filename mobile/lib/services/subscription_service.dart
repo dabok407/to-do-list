@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import 'feature_access.dart';
+import '../l10n/app_strings.dart';
 
 /// Store-owned entitlements only. No preference flag can unlock paid features.
 class SubscriptionService extends ChangeNotifier {
@@ -16,7 +17,10 @@ class SubscriptionService extends ChangeNotifier {
   bool get trialActive => access?.trialActive ?? false;
   bool busy = false, active = false, pending = false;
   bool available = false;
-  String? price, message;
+  String? price, _message;
+  String? get message =>
+      _message == null ? null : AppStrings.current.t(_message!);
+  set message(String? value) => _message = value;
   DateTime? expires;
   bool? autoRenewing;
   bool _disposed = false;

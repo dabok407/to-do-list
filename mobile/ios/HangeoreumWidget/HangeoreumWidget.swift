@@ -3,13 +3,15 @@ import WidgetKit
 
 struct HangeoreumProvider: TimelineProvider {
   func placeholder(in context: Context) -> HangeoreumEntry {
-    HangeoreumEntry(date: Date(), tasks: [WidgetTask(id: "preview", title: "가볍게 한 걸음", due: Date().timeIntervalSince1970 * 1000, priority: 1, status: "pending", smallStep: "5분만 시작하기")])
+    let snapshot = WidgetSnapshotStore.read()
+    let language = snapshot.resolvedLanguageCode
+    return HangeoreumEntry(date: Date(), tasks: [WidgetTask(id: "preview", title: language == "en" ? "Take a small step" : "가볍게 한 걸음", due: Date().timeIntervalSince1970 * 1000, priority: 1, status: "pending", smallStep: language == "en" ? "Start for 5 minutes" : "5분만 시작하기")], languageCode: language, languagePreference: snapshot.languagePreference)
   }
 
   func getSnapshot(in context: Context, completion: @escaping (HangeoreumEntry) -> Void) {
     let now = Date()
     let snapshot = WidgetSnapshotStore.read()
-    completion(context.isPreview ? placeholder(in: context) : HangeoreumEntry(date: now, tasks: snapshot.visibleTasks(at: now)))
+    completion(context.isPreview ? placeholder(in: context) : HangeoreumEntry(date: now, tasks: snapshot.visibleTasks(at: now), languageCode: snapshot.resolvedLanguageCode, languagePreference: snapshot.languagePreference))
   }
 
   func getTimeline(in context: Context, completion: @escaping (Timeline<HangeoreumEntry>) -> Void) {
@@ -30,7 +32,7 @@ struct HangeoreumProvider: TimelineProvider {
         dates.append(midnight)
       }
     }
-    let entries = Array(Set(dates)).sorted().map { HangeoreumEntry(date: $0, tasks: snapshot.visibleTasks(at: $0)) }
+    let entries = Array(Set(dates)).sorted().map { HangeoreumEntry(date: $0, tasks: snapshot.visibleTasks(at: $0), languageCode: snapshot.resolvedLanguageCode, languagePreference: snapshot.languagePreference) }
     completion(Timeline(entries: entries, policy: .after(now.addingTimeInterval(3600))))
   }
 }
@@ -42,8 +44,8 @@ struct HangeoreumWidget: Widget {
     StaticConfiguration(kind: kind, provider: HangeoreumProvider()) { entry in
       HangeoreumWidgetView(entry: entry)
     }
-    .configurationDisplayName("다음 한걸음")
-    .description("가까운 할 일과 진행 중인 일을 보고 바로 시작하세요.")
+    .configurationDisplayName(Text(WidgetSnapshotStore.read().resolvedLanguageCode == "en" ? "첫칸 · Up next" : "첫칸 · 다음 할 일"))
+    .description(Text(WidgetSnapshotStore.read().resolvedLanguageCode == "en" ? "See upcoming tasks and work in progress, and start right away." : "가까운 할 일과 진행 중인 일을 보고 바로 시작하세요."))
     .supportedFamilies([.systemSmall, .systemMedium])
   }
 }

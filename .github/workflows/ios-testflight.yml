@@ -1,0 +1,134 @@
+name: iOS signed build and TestFlight
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '앱 버전 (예: 1.0.0)'
+        required: true
+        default: '1.0.0'
+        type: string
+      build_number:
+        description: '새 빌드 번호. 비워두면 실행 번호와 재실행 횟수로 생성'
+        required: false
+        default: ''
+        type: string
+      upload_to_testflight:
+        description: '서명된 IPA를 App Store Connect에 업로드 (앱 심사 제출 없음)'
+        required: true
+        default: false
+        type: boolean
+permissions:
+  contents: read
+concurrency:
+  group: ios-testflight-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  signed-build:
+    runs-on: macos-15
+    environment: ios-testflight
+    timeout-minutes: 75
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.3.app/Contents/Developer
+    defaults:
+      run:
+        working-directory: mobile
+        shell: bash
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      # Verified upstream v2.19.0 commit; do not execute a mutable signing dependency.
+      - uses: subosito/flutter-action@e938fdf56512cc96ef2f93601a5a40bde3801046
+        with:
+          flutter-version: '3.47.6'
+          cache: true
+      - name: Confirm toolchain and required credentials
+        env:
+          IOS_DISTRIBUTION_P12_BASE64: ${{ secrets.IOS_DISTRIBUTION_P12_BASE64 }}
+          IOS_DISTRIBUTION_P12_PASSWORD: ${{ secrets.IOS_DISTRIBUTION_P12_PASSWORD }}
+          IOS_APP_PROFILE_BASE64: ${{ secrets.IOS_APP_PROFILE_BASE64 }}
+          IOS_WIDGET_PROFILE_BASE64: ${{ secrets.IOS_WIDGET_PROFILE_BASE64 }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_API_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
+          ASC_API_PRIVATE_KEY: ${{ secrets.ASC_API_PRIVATE_KEY }}
+          UPLOAD: ${{ inputs.upload_to_testflight }}
+          REQUESTED_VERSION: ${{ inputs.version }}
+          REQUESTED_BUILD: ${{ inputs.build_number }}
+        run: |
+          set +x
+          set -euo pipefail
+          test -d "$DEVELOPER_DIR"
+          xcodebuild -version
+          flutter --version
+          for name in IOS_DISTRIBUTION_P12_BASE64 IOS_DISTRIBUTION_P12_PASSWORD IOS_APP_PROFILE_BASE64 IOS_WIDGET_PROFILE_BASE64; do
+            if [[ -z "${!name:-}" ]]; then echo "필수 GitHub Secret 없음: $name" >&2; exit 1; fi
+          done
+          if [[ "$UPLOAD" == true ]]; then
+            for name in ASC_ISSUER_ID ASC_API_KEY_ID ASC_API_PRIVATE_KEY; do
+              if [[ -z "${!name:-}" ]]; then echo "TestFlight 업로드용 GitHub Secret 없음: $name" >&2; exit 1; fi
+            done
+          fi
+          [[ "$REQUESTED_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          build="${REQUESTED_BUILD:-$((GITHUB_RUN_NUMBER * 100 + GITHUB_RUN_ATTEMPT))}"
+          [[ "$build" =~ ^[1-9][0-9]*$ ]]
+          printf 'BUILD_NAME=%s\nBUILD_NUMBER=%s\n' "$REQUESTED_VERSION" "$build" >> "$GITHUB_ENV"
+      - run: flutter pub get
+      - run: flutter analyze
+      - name: All unit and widget scenarios
+        run: flutter test
+      - name: Large text scenarios
+        run: flutter test test/small_screen_test.dart test/home_locale_test.dart test/editor_locale_test.dart --dart-define=QA_TEXT_SCALE=2.0
+      - name: Native WidgetKit tests and Korean/English rendering
+        timeout-minutes: 15
+        run: |
+          set -euo pipefail
+          flutter build ios --simulator --debug
+          device="$(xcrun simctl list devices available --json | python3 -c 'import json,sys; data=json.load(sys.stdin); print(next(d["udid"] for runtime,devices in data["devices"].items() if "iOS" in runtime for d in devices if "iPhone" in d["name"]))')"
+          xcrun simctl boot "$device" || true
+          xcrun simctl bootstatus "$device" -b
+          mkdir -p build/testflight-checks
+          xcodebuild test -workspace ios/Runner.xcworkspace -scheme Runner -destination "platform=iOS Simulator,id=$device" -resultBundlePath build/testflight-checks/native-widget.xcresult CODE_SIGNING_ALLOWED=NO
+      - name: Build and verify signed IPA
+        id: build
+        env:
+          IOS_DISTRIBUTION_P12_BASE64: ${{ secrets.IOS_DISTRIBUTION_P12_BASE64 }}
+          IOS_DISTRIBUTION_P12_PASSWORD: ${{ secrets.IOS_DISTRIBUTION_P12_PASSWORD }}
+          IOS_APP_PROFILE_BASE64: ${{ secrets.IOS_APP_PROFILE_BASE64 }}
+          IOS_WIDGET_PROFILE_BASE64: ${{ secrets.IOS_WIDGET_PROFILE_BASE64 }}
+        run: bash tool/build_testflight.sh
+      - name: Preserve signed IPA and symbols
+        if: steps.build.outcome == 'success'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: firstkan-ios-${{ env.BUILD_NAME }}-${{ env.BUILD_NUMBER }}
+          path: |
+            mobile/build/testflight/firstkan.ipa
+            mobile/build/testflight/symbols.zip
+            mobile/build/testflight/build-manifest.json
+          retention-days: 14
+          if-no-files-found: error
+      - name: Upload explicitly requested build to TestFlight
+        id: upload
+        if: inputs.upload_to_testflight
+        timeout-minutes: 25
+        # Verified v5 tag commit; API private key remains an action input only.
+        uses: Apple-Actions/upload-testflight-build@155ea93be9ee6d5186c71f660a612f5eddb14510
+        with:
+          app-path: ${{ steps.build.outputs.ipa_path }}
+          app-type: ios
+          issuer-id: ${{ secrets.ASC_ISSUER_ID }}
+          api-key-id: ${{ secrets.ASC_API_KEY_ID }}
+          api-private-key: ${{ secrets.ASC_API_PRIVATE_KEY }}
+          backend: appstore-api
+          wait-for-processing: 'false'
+      - name: Summarize outcome
+        if: always()
+        env:
+          BUILD_RESULT: ${{ steps.build.outcome }}
+          UPLOAD_RESULT: ${{ steps.upload.outcome }}
+        run: |
+          {
+            printf '첫칸 iOS %s (%s)\n\n' "${BUILD_NAME:-미정}" "${BUILD_NUMBER:-미정}"
+            printf '서명 빌드: %s\n\n' "$BUILD_RESULT"
+            printf '업로드 단계: %s\n\n' "$UPLOAD_RESULT"
+            printf '[App Store Connect TestFlight](https://appstoreconnect.apple.com/apps/6821236391/testflight)\n\n'
+            printf '업로드 성공 후 Apple 처리, 수출 규정 확인, 내부 테스터 그룹 추가가 필요합니다. 이 workflow는 App Review에 제출하지 않습니다.\n'
+          } >> "$GITHUB_STEP_SUMMARY"
