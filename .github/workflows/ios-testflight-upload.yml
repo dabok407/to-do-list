@@ -1,0 +1,95 @@
+name: Upload existing signed iOS build to TestFlight
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: '성공한 iOS signed build and TestFlight 실행 ID'
+        required: true
+        default: '38044570593'
+        type: string
+      version:
+        description: '원본 IPA 버전'
+        required: true
+        default: '1.0.0'
+        type: string
+      build_number:
+        description: '원본 IPA 빌드 번호 (재빌드하거나 변경하지 않음)'
+        required: true
+        default: '101'
+        type: string
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: ios-testflight-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  upload-existing:
+    if: github.ref == 'refs/heads/main'
+    runs-on: macos-15
+    environment: ios-testflight
+    timeout-minutes: 40
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.3.app/Contents/Developer
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - name: Validate upload-only verifier
+        run: python3 -m unittest discover -s mobile/tool -p 'test_reuse_testflight.py'
+      - name: Download and verify the original signed IPA
+        id: verify
+        env:
+          GH_ARTIFACT_TOKEN: ${{ github.token }}
+          SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+          EXPECTED_VERSION: ${{ inputs.version }}
+          EXPECTED_BUILD: ${{ inputs.build_number }}
+        run: |
+          set +x
+          set -euo pipefail
+          umask 077
+          test -d "$DEVELOPER_DIR"
+          python3 mobile/tool/reuse_testflight.py
+      - name: Confirm upload credentials are present
+        env:
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_API_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
+          ASC_API_PRIVATE_KEY: ${{ secrets.ASC_API_PRIVATE_KEY }}
+        run: |
+          set +x
+          set -euo pipefail
+          for name in ASC_ISSUER_ID ASC_API_KEY_ID ASC_API_PRIVATE_KEY; do
+            if [[ -z "${!name:-}" ]]; then echo "TestFlight 업로드용 GitHub Secret 없음: $name" >&2; exit 1; fi
+          done
+      - name: Upload the verified original IPA to TestFlight
+        id: upload
+        timeout-minutes: 25
+        uses: Apple-Actions/upload-testflight-build@155ea93be9ee6d5186c71f660a612f5eddb14510
+        with:
+          app-path: ${{ steps.verify.outputs.ipa_path }}
+          app-type: ios
+          issuer-id: ${{ secrets.ASC_ISSUER_ID }}
+          api-key-id: ${{ secrets.ASC_API_KEY_ID }}
+          api-private-key: ${{ secrets.ASC_API_PRIVATE_KEY }}
+          backend: appstore-api
+          wait-for-processing: 'false'
+      - name: Summarize upload outcome
+        if: always()
+        env:
+          VERIFY_RESULT: ${{ steps.verify.outcome }}
+          UPLOAD_RESULT: ${{ steps.upload.outcome }}
+          SOURCE_URL: ${{ steps.verify.outputs.source_url }}
+          VERSION: ${{ steps.verify.outputs.version }}
+          BUILD: ${{ steps.verify.outputs.build_number }}
+          IPA_SHA256: ${{ steps.verify.outputs.sha256 }}
+        run: |
+          {
+            printf 'Todoniq iOS %s (%s) 원본 IPA 업로드\n\n' "${VERSION:-미확인}" "${BUILD:-미확인}"
+            printf '원본 실행·아티팩트·서명 검증: %s\n\n업로드 단계: %s\n\n' "$VERIFY_RESULT" "$UPLOAD_RESULT"
+            printf '원본 실행: %s\n\nIPA SHA256: %s\n\n' "$SOURCE_URL" "$IPA_SHA256"
+            printf '[App Store Connect TestFlight](https://appstoreconnect.apple.com/apps/6821236391/testflight)\n\n'
+            printf '원본 앱을 재빌드하거나 버전·빌드 번호를 변경하지 않습니다. 업로드 성공 후 Apple 처리와 내부 테스터 설정이 필요합니다. App Review에 제출하지 않습니다.\n'
+          } >> "$GITHUB_STEP_SUMMARY"
