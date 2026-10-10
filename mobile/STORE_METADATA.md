@@ -2,7 +2,7 @@
 
 작성 기준: 2026-10-10. 확정 브랜드는 한국어 **투두닉**, 영어 **Todoniq**다. 슬로건은 **나만의 할 일, 투두닉 / Your tasks. Your way.**이며 아래 문안을 새 브랜드로 준비했다. 새 브랜드의 실제 앱 원본 48장·소개 PNG 56장·등록 자산 4개와 ZIP 4개의 로컬 검증을 완료했다. 새 브랜드 안내 사이트 게시, 한국어·영어 HTML 8개의 HTTP 200 응답과 브랜드, 실제 브라우저의 한영 지원 첫 화면 문구도 확인했다.
 
-새 브랜드의 Android·iOS 자동 검증과 Android release AAB의 로컬 서명·파일 검증을 완료했다. App Store Connect에 **투두닉 - 할 일과 캘린더 / Todoniq - Tasks & Calendar**, 한영 소개·검색어와 새 이미지 28장을 저장했다. iOS 배포 서명 빌드 **1.0.0 (101)**도 성공했고 IPA와 앱·위젯 식별자 및 한영 표시 이름을 검증했다. TestFlight 업로드·사용자 iPhone 설치 확인·실제 구독 결제 검증과 심사 제출은 아직 완료하지 않았다.
+새 브랜드의 Android·iOS 자동 검증과 Android release AAB의 로컬 서명·파일 검증을 완료했다. App Store Connect에 **투두닉 - 할 일과 캘린더 / Todoniq - Tasks & Calendar**, 한영 소개·검색어와 새 이미지 28장을 저장했다. iOS 배포 서명 빌드 **1.0.0 (101)**도 성공했고 IPA와 앱·위젯 식별자 및 한영 표시 이름을 검증했다. [원본 IPA 업로드 실행 38047340077](https://github.com/dabok407/to-do-list/actions/runs/38047340077)은 실제 macOS 서명 재검증과 Apple 업로드 단계까지 성공했다. Apple API에서 해당 앱·빌드의 **VALID / expired=false** 상태도 확인했다. TestFlight 수출 규정 질문·내부 테스터 연결·사용자 iPhone 설치 확인·실제 구독 결제 검증과 심사 제출은 아직 완료하지 않았다.
 
 ## 준비 현황
 
@@ -41,7 +41,7 @@
 
 Apple에는 위 식별자로 만든 기존 앱을 사용한다. 앱을 다시 생성하거나 Bundle ID·SKU를 바꾸지 않는다. 새 브랜드의 한국어 제목은 **투두닉 - 할 일과 캘린더**, 영어 제목은 **Todoniq - Tasks & Calendar**이며 제목·소개를 콘솔에 저장했다. 내부 Bundle ID와 구독 상품 ID의 `hangeoreum`, 등록 SKU의 `cheotkan`은 표시 이름 변경과 별개로 유지한다.
 
-새 제목 길이는 한국어 **14자**, 영어 **26자**로 둘 다 30자 이내다. 투두닉 / Todoniq 소개 이미지의 로컬 검증은 완료했다. 앱 소스 `b5f8935`의 [모바일 검증 실행 38039981394](https://github.com/dabok407/to-do-list/actions/runs/38039981394)는 **Android·iOS 모두 전체 성공**했다. 새 Android release AAB의 로컬 서명·bundletool 검증과 한영 표시 이름 확인도 완료했다. 소스 `328511f`의 [iOS 배포 서명 실행 38044570593](https://github.com/dabok407/to-do-list/actions/runs/38044570593)은 Flutter 131개·큰 글씨 35개·Swift 14개 테스트와 프로파일 검증, IPA 내보내기를 통과했다. 버전은 **1.0.0 (101)**이며 IPA SHA-256은 `45931d0ca7b700cb8c453b795c44834ce2e6992aacd4bae2b4430664e975b16c`다. TestFlight 업로드·실기기·스토어 구매 검증은 남아 있다. 이전 소스 `36f3464`의 검증 실행 `38036673085`는 첫칸 브랜드 기준 이력이다.
+새 제목 길이는 한국어 **14자**, 영어 **26자**로 둘 다 30자 이내다. 투두닉 / Todoniq 소개 이미지의 로컬 검증은 완료했다. 앱 소스 `b5f8935`의 [모바일 검증 실행 38039981394](https://github.com/dabok407/to-do-list/actions/runs/38039981394)는 **Android·iOS 모두 전체 성공**했다. 새 Android release AAB의 로컬 서명·bundletool 검증과 한영 표시 이름 확인도 완료했다. 소스 `328511f`의 [iOS 배포 서명 실행 38044570593](https://github.com/dabok407/to-do-list/actions/runs/38044570593)은 Flutter 131개·큰 글씨 35개·Swift 14개 테스트와 프로파일 검증, IPA 내보내기를 통과했다. 버전은 **1.0.0 (101)**이며 IPA SHA-256은 `45931d0ca7b700cb8c453b795c44834ce2e6992aacd4bae2b4430664e975b16c`다. 내부 테스터 연결·실기기·스토어 구매 검증은 남아 있다. 이전 소스 `36f3464`의 검증 실행 `38036673085`는 첫칸 브랜드 기준 이력이다.
 
 ## 공개 안내 URL
 
@@ -484,7 +484,11 @@ Public support email: dabok407@gmail.com
 - [ ] 상품·가격·유료 계약·세금·계좌 등록
 - [ ] 실제 구매 테스트·서명된 iPhone 설치·배포 빌드 확인
 - [x] 배포 서명 IPA 1.0.0 (101) 생성·테스트·파일 및 프로파일 검증
-- [ ] App Store Connect 업로드·TestFlight 실제 iPhone 검증
+- [x] 원본 IPA 실제 macOS 서명 재검증·Apple 업로드 단계 성공: 실행 38047340077
+- [x] Apple API에서 빌드 101의 VALID / expired=false 처리 확인
+- [ ] TestFlight 수출 규정 질문 완료: 실제 IPA에 표준 TLS 라이브러리 포함, 프랑스 배포 여부 결정 필요
+- [x] Todoniq Owner 내부 테스트 그룹 생성, 수동 빌드 배포
+- [ ] 내부 테스터 연결·TestFlight 실제 iPhone 검증
 - [x] 승인받은 Apple 심사 연락처와 영어 심사 메모 저장
 - [ ] 개인정보·등급·콘텐츠·권한 설문
 - [ ] 각 스토어 제출·심사 결과 확인
