@@ -39,7 +39,7 @@ struct HangeoreumWidgetView: View {
   private var content: some View {
     VStack(alignment: .leading, spacing: family == .systemSmall ? 9 : 8) {
       HStack {
-        Text("첫칸").font(.system(size: 12, weight: .semibold))
+        Text(text("투두닉", "Todoniq")).font(.system(size: 12, weight: .semibold))
         Spacer()
         Image(systemName: "arrow.up.right").font(.system(size: 11, weight: .semibold))
       }.foregroundColor(ink.opacity(0.62))

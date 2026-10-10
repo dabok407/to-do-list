@@ -1,5 +1,5 @@
 name: hangeoreum
-description: "첫칸: 기기에만 저장하는 실행형 To Do와 리마인더"
+description: "투두닉(Todoniq): 나만의 할 일, 기기에만 저장하는 To Do와 리마인더"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev

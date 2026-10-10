@@ -46,9 +46,27 @@ def validate_ipa_metadata(filename, version, build_number):
                 raise ValueError(f"Korean and English declarations missing for {bundle}")
             if info_path.removesuffix("Info.plist") + "embedded.mobileprovision" not in names:
                 raise ValueError(f"Exported distribution profile missing for {bundle}")
+            if info.get("CFBundleDisplayName") != "Todoniq":
+                raise ValueError("Exported display name does not match the chosen brand")
+            bundle_root = info_path.removesuffix("Info.plist")
+            for language, brand in [("ko", "투두닉"), ("en", "Todoniq")]:
+                strings_path = bundle_root + language + ".lproj/InfoPlist.strings"
+                if strings_path not in names:
+                    raise ValueError(f"Localized display name missing for {bundle}/{language}")
+                raw_strings = archive.read(strings_path)
+                try:
+                    localized = plistlib.loads(raw_strings)
+                    name = localized.get("CFBundleDisplayName")
+                except (plistlib.InvalidFileException, UnicodeDecodeError, ValueError):
+                    # Xcode generally compiles .strings as a binary plist.
+                    # Accept source-style UTF-8/UTF-16 strings for inspection too.
+                    encoding = "utf-16" if raw_strings.startswith((b"\xff\xfe", b"\xfe\xff")) else "utf-8-sig"
+                    decoded = raw_strings.decode(encoding)
+                    match = re.search(r'"?CFBundleDisplayName"?\s*=\s*"([^"]+)"\s*;', decoded)
+                    name = match.group(1) if match else None
+                if name != brand:
+                    raise ValueError(f"Unexpected localized display name for {bundle}/{language}")
             if bundle == APP:
-                if info.get("CFBundleDisplayName") != "첫칸":
-                    raise ValueError("Exported display name does not match the chosen brand")
                 app_info = info
         return app_info
 

@@ -44,7 +44,7 @@ struct HangeoreumWidget: Widget {
     StaticConfiguration(kind: kind, provider: HangeoreumProvider()) { entry in
       HangeoreumWidgetView(entry: entry)
     }
-    .configurationDisplayName(Text(WidgetSnapshotStore.read().resolvedLanguageCode == "en" ? "첫칸 · Up next" : "첫칸 · 다음 할 일"))
+    .configurationDisplayName(Text(WidgetSnapshotStore.read().resolvedLanguageCode == "en" ? "Todoniq · Up next" : "투두닉 · 다음 할 일"))
     .description(Text(WidgetSnapshotStore.read().resolvedLanguageCode == "en" ? "See upcoming tasks and work in progress, and start right away." : "가까운 할 일과 진행 중인 일을 보고 바로 시작하세요."))
     .supportedFamilies([.systemSmall, .systemMedium])
   }

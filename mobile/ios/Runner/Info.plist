@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>첫칸</string>
+	<string>Todoniq</string>
 	<key>CFBundleLocalizations</key>
 	<array><string>ko</string><string>en</string></array>
 	<key>CFBundleExecutable</key>

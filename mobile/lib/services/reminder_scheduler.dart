@@ -250,7 +250,7 @@ class ReminderScheduler {
     await requestPermissions();
     await plugin.zonedSchedule(
       id: 100000,
-      title: AppStrings.current.t('첫칸 테스트'),
+      title: AppStrings.current.t('투두닉 테스트'),
       body: AppStrings.current.t('앱 밖에서도 알림이 도착하는지 확인해주세요.'),
       scheduledDate: tz.TZDateTime.now(tz.local)
           .add(const Duration(seconds: 10)),

@@ -93,7 +93,7 @@ Future<void> nativeLifecycleProbe() async {
   for (final probe in [(100001, 90), (100002, 240)]) {
     await scheduler.plugin.zonedSchedule(
       id: probe.$1,
-      title: '첫칸 종료 상태 테스트 ${probe.$1}',
+      title: '투두닉 종료 상태 테스트 ${probe.$1}',
       body: '네이티브 AlarmManager 검증',
       scheduledDate: tz.TZDateTime.now(tz.local)
           .add(Duration(seconds: probe.$2)),
@@ -156,7 +156,8 @@ class _HangeoreumAppState extends State<HangeoreumApp>
   Widget build(BuildContext context) => AnimatedBuilder(
     animation: controller.localeController,
     builder: (context, _) => MaterialApp(
-      title: AppStrings.appName,
+      title: AppStrings(controller.localeController.locale.languageCode)
+          .brandName,
       debugShowCheckedModeBanner: false,
       locale: controller.localeController.locale,
       supportedLocales: const [Locale('ko'), Locale('en')],

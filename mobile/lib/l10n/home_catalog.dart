@@ -67,7 +67,7 @@ const Map<String, String> homeEnglish = {
   "평균 미룬 시간": "Average snooze",
   "자주 완료한 시간대": "Most active hour",
   "완료율은 최근 30일 예정 시간이 지난 회차와 미리 완료한 회차를 기준으로 계산합니다. 반복 일정은 각 회차를 별도로 집계합니다.": "Completion rate includes tasks due in the last 30 days and those completed early. Each occurrence of a repeating task is counted separately.",
-  "첫칸 Pro 이용 중": "첫칸 Pro is active",
+  "투두닉 Pro 이용 중": "Todoniq Pro is active",
   "전체 기능 7일 체험 중": "7-day full-feature trial",
   "무료 캘린더 이용 중": "Free calendar",
   "연간 구독 · 구매 복원 · 구독 관리":

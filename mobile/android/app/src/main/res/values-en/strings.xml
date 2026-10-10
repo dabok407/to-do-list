@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="widget_empty">Nothing is due right now.\nReady for your next small step?</string>
-    <string name="app_name">첫칸</string>
+    <string name="app_name">Todoniq</string>
     <string name="widget_description">See your next task, start it now, or snooze for 10 minutes.</string>
-    <string name="widget_name">첫칸 · Next task</string>
+    <string name="widget_name">Todoniq · Next task</string>
 </resources>

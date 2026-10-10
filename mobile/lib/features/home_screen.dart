@@ -1336,7 +1336,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         leading: const Icon(Icons.auto_graph),
         title: Text(
           subscription.paidAccess
-              ? strings.t('첫칸 Pro 이용 중')
+              ? strings.t('투두닉 Pro 이용 중')
               : subscription.trialActive
               ? strings.t('전체 기능 7일 체험 중')
               : strings.t('무료 캘린더 이용 중'),

@@ -126,7 +126,7 @@ jobs:
           UPLOAD_RESULT: ${{ steps.upload.outcome }}
         run: |
           {
-            printf '첫칸 iOS %s (%s)\n\n' "${BUILD_NAME:-미정}" "${BUILD_NUMBER:-미정}"
+            printf 'Todoniq iOS %s (%s)\n\n' "${BUILD_NAME:-미정}" "${BUILD_NUMBER:-미정}"
             printf '서명 빌드: %s\n\n' "$BUILD_RESULT"
             printf '업로드 단계: %s\n\n' "$UPLOAD_RESULT"
             printf '[App Store Connect TestFlight](https://appstoreconnect.apple.com/apps/6821236391/testflight)\n\n'

@@ -12,8 +12,10 @@ class AppStrings {
   const AppStrings(this.languageCode);
 
   static AppStrings current = const AppStrings('ko');
-  static const appName = '첫칸';
+  static String get appName => current.brandName;
   bool get isEnglish => languageCode == 'en';
+  String get brandName => isEnglish ? 'Todoniq' : '투두닉';
+  String get slogan => isEnglish ? 'Your tasks. Your way.' : '나만의 할 일, 투두닉';
   static final english = <String, String>{
     ...coreEnglish,
     ...homeEnglish,

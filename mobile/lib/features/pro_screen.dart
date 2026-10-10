@@ -26,7 +26,7 @@ class _ProScreenState extends State<ProScreen> {
     builder: (context, _) {
       final s = widget.subscription;
       return Scaffold(
-        appBar: AppBar(title: Text('${AppStrings.appName} Pro')),
+        appBar: AppBar(title: Text('${strings.brandName} Pro')),
         body: ListView(
           padding: const EdgeInsets.all(24),
           children: [

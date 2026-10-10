@@ -123,7 +123,7 @@ class HangeoreumWidgetProvider : AppWidgetProvider() {
                 else -> 1
             }
             val views = RemoteViews(context.packageName, R.layout.widget_hangeoreum)
-            views.setTextViewText(R.id.widget_brand, "첫칸")
+            views.setTextViewText(R.id.widget_brand, text("투두닉", "Todoniq"))
             views.setTextViewText(
                 R.id.widget_date,
                 SimpleDateFormat(if (english) "EEE, MMM d" else "M월 d일 EEEE", if (english) Locale.US else Locale.KOREAN).format(Date(now)),
@@ -140,7 +140,7 @@ class HangeoreumWidgetProvider : AppWidgetProvider() {
             views.setViewVisibility(R.id.widget_footer, if (minHeight >= 200) View.VISIBLE else View.GONE)
             views.setTextViewText(
                 R.id.widget_footer,
-                if (tasks.isEmpty()) text("첫칸에서 할 일을 추가하세요", "Add a task in 첫칸") else text("다음 할 일 ${tasks.size}개 · 눌러서 확인", "${tasks.size} upcoming tasks · Tap to view"),
+                if (tasks.isEmpty()) text("투두닉에서 할 일을 추가하세요", "Add a task in Todoniq") else text("다음 할 일 ${tasks.size}개 · 눌러서 확인", "${tasks.size} upcoming tasks · Tap to view"),
             )
             views.setOnClickPendingIntent(R.id.widget_footer, appIntent(context))
 

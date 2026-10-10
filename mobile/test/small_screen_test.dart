@@ -562,7 +562,7 @@ void main() {
         }
         expect(find.text('나의 일정은, 나의 기기에만'), findsOneWidget);
         expect(
-          find.text(premium ? '첫칸 Pro 이용 중' : '무료 캘린더 이용 중'),
+          find.text(premium ? '투두닉 Pro 이용 중' : '무료 캘린더 이용 중'),
           findsOneWidget,
         );
         await tester.tap(find.byIcon(Icons.auto_graph));

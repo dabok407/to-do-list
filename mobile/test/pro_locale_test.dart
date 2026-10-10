@@ -68,7 +68,7 @@ void main() {
         _localized(ProScreen(subscription: subscription), 'en'),
       );
       await tester.pumpAndSettle();
-      expect(find.text('첫칸 Pro'), findsOneWidget);
+      expect(find.text('Todoniq Pro'), findsOneWidget);
       expect(find.text('Always free'), findsOneWidget);
       await _show(tester, find.text(r'US$0.70 / year'));
       expect(

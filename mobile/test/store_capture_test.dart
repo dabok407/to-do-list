@@ -415,7 +415,7 @@ void main() {
                 '개인정보와 언어 설정',
                 'Privacy and language settings',
               ),
-              '08-pro': _sample('첫칸 Pro', '첫칸 Pro'),
+              '08-pro': _sample('투두닉 Pro', 'Todoniq Pro'),
             },
             'screens': [
               '01-calendar.png',

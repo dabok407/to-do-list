@@ -17,3 +17,25 @@ mobile/android/.kotlin/
 *.p8
 *.mobileprovision
 *.certSigningRequest
+# Private signing material and local secrets must never enter the repository.
+*.key
+*.pem
+*.pfx
+*.pkcs12
+*.csr
+.env
+.env.*
+!.env.example
+# Local task databases and their SQLite sidecars are user data.
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
+*.sqlite
+*.sqlite3
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite-journal
+*.sqlite3-wal
+*.sqlite3-shm
+*.sqlite3-journal

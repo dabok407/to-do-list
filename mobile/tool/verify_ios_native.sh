@@ -10,6 +10,23 @@ xcrun simctl boot "$device" || true
 xcrun simctl bootstatus "$device" -b
 xcrun simctl terminate "$device" "$package" || true
 xcrun simctl install "$device" build/native/Runner.app
+python3 - build/native/Runner.app <<'PY'
+import pathlib, plistlib, re, sys
+app = pathlib.Path(sys.argv[1])
+for bundle in [app, app / 'PlugIns/HangeoreumWidget.appex']:
+    info = plistlib.loads((bundle / 'Info.plist').read_bytes())
+    assert info['CFBundleDisplayName'] == 'Todoniq', f'Stale base brand: {bundle}'
+    for language, expected in [('ko', '투두닉'), ('en', 'Todoniq')]:
+        source = (bundle / f'{language}.lproj/InfoPlist.strings').read_bytes()
+        try:
+            actual = plistlib.loads(source).get('CFBundleDisplayName')
+        except (plistlib.InvalidFileException, UnicodeDecodeError, ValueError):
+            encoding = 'utf-16' if source.startswith((b'\xff\xfe', b'\xfe\xff')) else 'utf-8-sig'
+            match = re.search(r'"?CFBundleDisplayName"?\s*=\s*"([^"]+)"\s*;', source.decode(encoding))
+            actual = match.group(1) if match else None
+        assert actual == expected, f'Stale localized brand: {bundle}/{language}: {actual}'
+print('IOS_LOCALIZED_BRAND_OK')
+PY
 container=$(xcrun simctl get_app_container "$device" "$package" data)
 database="$container/Documents/hangeoreum.db"
 # The Flutter fixture must save an explicit language. Read it from the real DB
@@ -25,13 +42,13 @@ if [[ "$language" == en ]]; then
   progressing_label='In progress'
   settings_label='Settings'
   test_button='Test reminder in 10 seconds'
-  test_title='첫칸 reminder test'
+  test_title='Todoniq reminder test'
   test_body='Check that this reminder arrives while the app is closed.'
 else
   progressing_label='진행 중'
   settings_label='설정'
   test_button='10초 뒤 테스트 알림'
-  test_title='첫칸 테스트'
+  test_title='투두닉 테스트'
   test_body='앱 밖에서도 알림이 도착하는지 확인해주세요.'
 fi
 echo "IOS_NATIVE_UI_LANGUAGE:$language"
@@ -52,7 +69,7 @@ xcrun simctl io "$device" screenshot "$results/ios-native-launch.png"
 if [ "$ui_status" != 0 ]; then
   # A simulator AX snapshot can omit the visible system confirmation. Only
   # accept the coordinate fallback after independently checking its pixels.
-  swift tool/verify_ios_screen.swift "$results/ios-native-launch.png" "Open in" "첫칸" "Cancel" "Open" \
+  swift tool/verify_ios_screen.swift "$results/ios-native-launch.png" "Open in" "Todoniq" "Cancel" "Open" \
     > "$results/ios-link-confirmation-ocr.log"
   maestro --device "$device" test --debug-output="$results/maestro-confirmation" \
     --test-output-dir="$results/maestro-confirmation" tool/ios_widget_link_confirm.yaml \

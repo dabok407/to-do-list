@@ -28,7 +28,7 @@ const coreEnglish = <String, String>{
   '앱을 준비하지 못했습니다. 다시 실행해주세요.': 'Could not open the app. Please try again.',
   '앱 밖에서도 알림이 도착하는지 확인해주세요.':
       'Check that this reminder arrives while the app is closed.',
-  '첫칸 테스트': '첫칸 reminder test',
+  '투두닉 테스트': 'Todoniq reminder test',
   '이 환경에서는 스토어 결제를 사용할 수 없어요.':
       'Store purchases are unavailable in this environment.',
   '스토어에서 구독을 확인하지 못했어요. 인터넷 연결을 확인한 뒤 다시 시도해주세요.': 'Could not check your subscription. Check your internet connection and try again.',

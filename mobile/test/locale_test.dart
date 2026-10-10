@@ -63,6 +63,27 @@ void main() {
     await repository.db.close();
   });
 
+  test('brand and notification test title follow the display language', () {
+    for (final language in ['ko', 'en']) {
+      final strings = AppStrings(language);
+      AppStrings.current = strings;
+      expect(strings.brandName, language == 'ko' ? '투두닉' : 'Todoniq');
+      expect(AppStrings.appName, strings.brandName);
+      expect(
+        strings.t('투두닉 테스트'),
+        language == 'ko' ? '투두닉 테스트' : 'Todoniq reminder test',
+      );
+      expect(
+        strings.t('투두닉 Pro 이용 중'),
+        language == 'ko' ? '투두닉 Pro 이용 중' : 'Todoniq Pro is active',
+      );
+      expect(
+        strings.slogan,
+        language == 'ko' ? '나만의 할 일, 투두닉' : 'Your tasks. Your way.',
+      );
+    }
+  });
+
   test('system choice follows supported language and unsupported locales use English', () async {
     final locale = LocaleController(repository);
     await locale.load(systemLocale: const Locale('ko', 'KR'));
