@@ -35,6 +35,20 @@ jobs:
         shell: bash
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: iOS notification OCR regression
+        run: |
+          set -euo pipefail
+          fixture=tool/fixtures/ios-closed-reminder.png
+          body='Check that this reminder arrives while the app is closed.'
+          swift tool/verify_ios_screen.swift "$fixture" 'Todoniq reminder test' "$body"
+          if negative_output="$(swift tool/verify_ios_screen.swift "$fixture" 'Todoniq wrong reminder title' "$body" 2>&1)"; then
+            printf '%s\n' "$negative_output"
+            echo 'OCR accepted a wrong notification title.' >&2
+            exit 1
+          fi
+          printf '%s\n' "$negative_output"
+          [[ "$negative_output" == *'Expected visible screen text: Todoniq wrong reminder title'* ]]
+          echo 'IOS_OCR_NOTIFICATION_FIXTURE_OK'
       # Verified upstream v2.19.0 commit; do not execute a mutable signing dependency.
       - uses: subosito/flutter-action@e938fdf56512cc96ef2f93601a5a40bde3801046
         with:
