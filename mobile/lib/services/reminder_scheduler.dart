@@ -9,6 +9,7 @@ import 'notification_plan.dart';
 import '../l10n/app_strings.dart';
 
 class ReminderScheduler {
+  static const testNotificationId = 100000;
   // Foundation can return GMT rather than an IANA region on iOS simulators
   // and devices configured to a zero-offset time zone.
   static tz.Location resolveTimeZone(String identifier) =>
@@ -113,10 +114,13 @@ class ReminderScheduler {
         : AndroidScheduleMode.inexactAllowWhileIdle;
   }
 
-  NotificationDetails details() => NotificationDetails(
+  NotificationDetails details({String? payload}) => NotificationDetails(
     android: AndroidNotificationDetails(
       'tasks_v1',
       AppStrings.current.t('할 일 알림'),
+      // The Android plugin exposes the tag, but not payload, when reading
+      // delivered notifications. Keep the occurrence identity on the banner.
+      tag: payload,
       channelDescription: AppStrings.current.t('예정된 할 일과 미완료 재알림'),
       importance: Importance.high,
       priority: Priority.high,
@@ -141,6 +145,8 @@ class ReminderScheduler {
     iOS: const DarwinNotificationDetails(
       categoryIdentifier: 'task',
       presentAlert: true,
+      presentBanner: true,
+      presentList: true,
       presentSound: true,
     ),
   );
@@ -188,32 +194,51 @@ class ReminderScheduler {
       until: accessUntil,
     );
     // Deleted and completed reminders disappear, while active alerts survive refill.
+    final activePayloads = <int, String>{};
     for (final notification in await plugin.getActiveNotifications()) {
-      final payload = notification.payload;
+      // The current Android plugin omits payload from delivered notifications.
+      // Do not infer an old untagged banner from a hash or pending request: that
+      // ID may have since been reused by another task. New banners carry a tag.
+      final payload = notification.payload ?? notification.tag;
       if (payload == null || notification.id == null) continue;
       final occurrence = resolveReminderPayload(items, payload, now);
       if (occurrence == null || !occurrence.active) {
-        await plugin.cancel(id: notification.id!);
+        await plugin.cancel(id: notification.id!, tag: notification.tag);
+      } else {
+        activePayloads[notification.id!] = payload;
       }
     }
-    // Preserve visible alerts on a background refill; only remove terminal tasks.
-    for (final o in items.where((o) => !o.active)) {
-      for (final key in [
-        o.id,
-        '${o.id}:30',
-        '${o.id}:60',
-        'overdue:${o.id}:repeat',
-      ]) {
-        await plugin.cancel(id: notificationId(key));
-      }
-    }
+    // Cancel delivered alerts by their real platform ID and payload above. A
+    // recomputed hash alone could belong to another task after collision handling.
     await plugin.cancelAllPendingNotifications();
-    final ids = <int>{};
+    final ids = <int>{testNotificationId};
+    final jobsPerPayload = <String, int>{};
+    for (final job in lastPlan!.jobs) {
+      jobsPerPayload.update(
+        job.payload,
+        (count) => count + 1,
+        ifAbsent: () => 1,
+      );
+    }
     for (final job in lastPlan!.jobs) {
       var id = notificationId(job.key);
-      while (!ids.add(id)) {
-        id = (id + 1) & 0x7fffffff;
+      if (jobsPerPayload[job.payload] == 1) {
+        // Keep a delivered collision-adjusted ID after another task is removed.
+        // Multiple dated follow-ups share a payload but need distinct job IDs.
+        final existing =
+            activePayloads.entries
+                .where((entry) => entry.value == job.payload)
+                .map((entry) => entry.key)
+                .toList()
+              ..sort();
+        if (existing.isNotEmpty && !existing.contains(id)) id = existing.first;
       }
+      while (ids.contains(id) ||
+          (activePayloads.containsKey(id) &&
+              activePayloads[id] != job.payload)) {
+        id = id == 0x7fffffff ? 1 : id + 1;
+      }
+      ids.add(id);
       await plugin.zonedSchedule(
         id: id,
         title: job.title,
@@ -227,7 +252,7 @@ class ReminderScheduler {
           job.at.minute,
           job.at.second,
         ),
-        notificationDetails: details(),
+        notificationDetails: details(payload: job.payload),
         androidScheduleMode: scheduleMode,
         payload: job.payload,
         matchDateTimeComponents: switch (job.repeat) {
@@ -249,7 +274,7 @@ class ReminderScheduler {
     }
     await requestPermissions();
     await plugin.zonedSchedule(
-      id: 100000,
+      id: testNotificationId,
       title: AppStrings.current.t('투두닉 테스트'),
       body: AppStrings.current.t('앱 밖에서도 알림이 도착하는지 확인해주세요.'),
       scheduledDate: tz.TZDateTime.now(tz.local)

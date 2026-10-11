@@ -9,6 +9,7 @@ import 'task_editor.dart';
 import 'pro_screen.dart';
 import 'privacy_card.dart';
 import 'store_policy_links.dart';
+import 'persistent_time_picker.dart';
 import '../services/subscription_service.dart';
 import '../l10n/app_strings.dart';
 
@@ -38,8 +39,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   int page = 0, summary = 0;
   bool week = false, busy = false;
   bool detailVisible = false;
+  bool quickExpanded = false;
+  bool quickTimeChosen = false;
+  String? quickTitleError;
+  late TimeOfDay quickTime;
   late final subscription = widget.subscription ?? SubscriptionService();
   final quickTitle = TextEditingController();
+  final quickTitleFocus = FocusNode();
   final bodyScroll = ScrollController();
   Timer? clockRefresh;
   String quickCategory = '생활';
@@ -48,6 +54,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    quickTime = defaultQuickTime(selected);
     WidgetsBinding.instance.addObserver(this);
     c.addListener(changed);
     subscription.addListener(subscriptionChanged);
@@ -98,8 +105,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     if (occurrence == null) return;
     setState(() {
       page = 0;
-      selected = dayOf(occurrence.originalDue);
-      month = DateTime(selected.year, selected.month);
+      selectCalendarDate(dayOf(occurrence.originalDue));
     });
     detail(occurrence);
   }
@@ -110,6 +116,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     subscription.removeListener(subscriptionChanged);
     if (widget.subscription == null) subscription.dispose();
     quickTitle.dispose();
+    quickTitleFocus.dispose();
     bodyScroll.dispose();
     clockRefresh?.cancel();
     WidgetsBinding.instance.removeObserver(this);
@@ -138,6 +145,20 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     } finally {
       if (mounted) setState(() => busy = false);
     }
+  }
+
+  TimeOfDay defaultQuickTime(DateTime date) {
+    final now = DateTime.now();
+    if (dayOf(now) != dayOf(date)) return const TimeOfDay(hour: 9, minute: 0);
+    // A late-night quick add must not silently move into the following day.
+    final minute = (now.hour * 60 + now.minute + 60).clamp(0, 1439);
+    return TimeOfDay(hour: minute ~/ 60, minute: minute % 60);
+  }
+
+  void selectCalendarDate(DateTime date) {
+    selected = date;
+    month = DateTime(date.year, date.month);
+    if (!quickTimeChosen) quickTime = defaultQuickTime(date);
   }
 
   Future<void> edit([Task? task, Occurrence? occurrence]) async {
@@ -665,20 +686,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   ),
                   selected: d == selected,
                   child: InkWell(
+                    key: Key('calendar-date-${dayKey(d)}'),
                     onTap: () {
                       setState(() {
-                        selected = d;
-                        month = DateTime(d.year, d.month);
-                        week = true;
-                      });
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (mounted && bodyScroll.hasClients) {
-                          bodyScroll.animateTo(
-                            0,
-                            duration: const Duration(milliseconds: 180),
-                            curve: Curves.easeOut,
-                          );
-                        }
+                        selectCalendarDate(d);
                       });
                     },
                     child: Container(
@@ -783,15 +794,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void move(int n) {
     setState(() {
       if (week) {
-        selected = DateTime(
-          selected.year,
-          selected.month,
-          selected.day + n * 7,
+        selectCalendarDate(
+          DateTime(selected.year, selected.month, selected.day + n * 7),
         );
-        month = DateTime(selected.year, selected.month);
       } else {
         month = DateTime(month.year, month.month + n);
-        selected = month;
+        selectCalendarDate(month);
       }
     });
     run(() => c.refresh(through: DateTime(month.year, month.month + 1, 0)));
@@ -945,8 +953,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             TextButton(
               onPressed: () {
                 setState(() {
-                  selected = today;
-                  month = DateTime(today.year, today.month);
+                  selectCalendarDate(today);
                 });
               },
               child: Text(strings.t('오늘로')),
@@ -1071,11 +1078,48 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ];
         }),
         const SizedBox(height: 20),
-        ExpansionTile(
-          key: const Key('quick-add'),
-          title: Text(strings.t('간단히 추가'), style: TextStyle(fontSize: 14)),
-          children: [quickAdd()],
+        Container(
+          key: const Key('quick-add-card'),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(color: const Color(0xffe4e6ea)),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Semantics(
+                button: true,
+                expanded: quickExpanded,
+                child: InkWell(
+                  key: const Key('quick-add'),
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () => setState(() => quickExpanded = !quickExpanded),
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    title: Text(
+                      strings.t('간단히 추가'),
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                    trailing: Icon(
+                      quickExpanded ? Icons.expand_less : Icons.expand_more,
+                    ),
+                  ),
+                ),
+              ),
+              if (quickExpanded)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  child: quickAdd(),
+                ),
+            ],
+          ),
         ),
+        const SizedBox(height: 16),
+        accessNotice(),
       ],
     );
   }
@@ -1087,12 +1131,47 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   Future<void> addQuickTask() async {
     final title = quickTitle.text.trim();
-    if (title.isEmpty || busy) return;
+    if (busy) return;
+    if (title.isEmpty) {
+      setState(() => quickTitleError = strings.t('할 일을 입력해주세요.'));
+      quickTitleFocus.requestFocus();
+      return;
+    }
     final now = DateTime.now();
-    final due = dayOf(now) == selected
-        ? now.add(const Duration(hours: 1))
-        : DateTime(selected.year, selected.month, selected.day, 9);
+    final due = DateTime(
+      selected.year,
+      selected.month,
+      selected.day,
+      quickTime.hour,
+      quickTime.minute,
+    );
+    FocusScope.of(context).unfocus();
+    setState(() => quickTitleError = null);
     await run(() async {
+      String normalized(String value) =>
+          value.trim().replaceAll(RegExp(r'\s+'), ' ').toLowerCase();
+      final existing = await c.repository.tasks();
+      if (!mounted) return;
+      if (existing.any((task) => normalized(task.title) == normalized(title))) {
+        final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text(strings.t('중복된 내용입니다.')),
+            content: Text(strings.t('같은 내용의 할 일이 있어요. 그래도 등록하시겠습니까?')),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(strings.t('취소')),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: Text(strings.t('그래도 등록')),
+              ),
+            ],
+          ),
+        );
+        if (confirmed != true || !mounted) return;
+      }
       await c.save(
         Task(
           id: 'task-${now.microsecondsSinceEpoch}',
@@ -1102,7 +1181,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           category: quickCategory,
         ),
       );
+      if (!mounted) return;
       quickTitle.clear();
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(strings.t('할 일을 등록했어요.'))));
     });
   }
 
@@ -1117,19 +1199,28 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               (name) => ChoiceChip(
                 label: Text(strings.category(name)),
                 selected: quickCategory == name,
-                onSelected: (_) => setState(() => quickCategory = name),
+                onSelected: busy
+                    ? null
+                    : (_) => setState(() => quickCategory = name),
               ),
             )
             .toList(),
       ),
       const SizedBox(height: 10),
       TextField(
+        key: const Key('quick-add-title'),
         controller: quickTitle,
+        focusNode: quickTitleFocus,
+        enabled: !busy,
         maxLength: 100,
         textInputAction: TextInputAction.done,
         onSubmitted: (_) => addQuickTask(),
+        onChanged: (_) {
+          if (quickTitleError != null) setState(() => quickTitleError = null);
+        },
         decoration: InputDecoration(
           hintText: strings.t('생각났을 때, 할 일 하나'),
+          errorText: quickTitleError,
           counterText: '',
           suffixIcon: IconButton(
             tooltip: strings.t('빠른 추가'),
@@ -1138,14 +1229,46 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ),
         ),
       ),
+      const SizedBox(height: 12),
+      OutlinedButton.icon(
+        key: const Key('quick-add-time'),
+        onPressed: busy
+            ? null
+            : () async {
+                FocusScope.of(context).unfocus();
+                final value = await showPersistentTimePicker(
+                  context: context,
+                  initialTime: quickTime,
+                );
+                if (value == null || !mounted) return;
+                setState(() {
+                  quickTime = value;
+                  quickTimeChosen = true;
+                });
+              },
+        icon: const Icon(Icons.schedule, size: 20),
+        label: Text(
+          strings.t(
+            '시간 · {time}',
+            args: {
+              'time': strings.time(
+                DateTime(2000, 1, 1, quickTime.hour, quickTime.minute),
+              ),
+            },
+          ),
+        ),
+      ),
       const SizedBox(height: 8),
       Text(
-        dayOf(DateTime.now()) == selected
-            ? strings.t('지금부터 1시간 뒤로 등록돼요. 상세 화면에서 시간을 바꿀 수 있어요.')
-            : strings.t(
-                '{date} 오전 9시로 등록돼요.',
-                args: {'date': strings.dateShort(selected)},
-              ),
+        strings.t(
+          '{date} {time}에 등록돼요.',
+          args: {
+            'date': strings.dateShort(selected),
+            'time': strings.time(
+              DateTime(2000, 1, 1, quickTime.hour, quickTime.minute),
+            ),
+          },
+        ),
         style: const TextStyle(fontSize: 13, color: Color(0xff626873)),
       ),
     ],
@@ -1418,6 +1541,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     ],
   );
   Widget accessNotice() => Padding(
+    key: const Key('access-notice'),
     padding: const EdgeInsets.only(bottom: 16),
     child: ListTile(
       shape: RoundedRectangleBorder(
@@ -1513,11 +1637,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         style: const TextStyle(color: priorityRed),
                       ),
                     ),
-                  if (page == 0) ...[
-                    calendarPage(),
-                    const SizedBox(height: 16),
-                    accessNotice(),
-                  ],
+                  if (page == 0) ...[calendarPage()],
                   if (page == 1) ...c.queue.map(row),
                   if (page == 2)
                     ...c.items

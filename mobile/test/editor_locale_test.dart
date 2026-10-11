@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hangeoreum/domain/task.dart';
 import 'package:hangeoreum/features/task_editor.dart';
 import 'package:hangeoreum/l10n/app_strings.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Widget _localized(Widget home, String language) => MaterialApp(
   locale: Locale(language),
@@ -45,6 +46,7 @@ void _narrowLargeType(WidgetTester tester) {
 }
 
 void main() {
+  setUp(() => SharedPreferences.setMockInitialValues({}));
   setUpAll(() async {
     await (FontLoader(
       'Pretendard',

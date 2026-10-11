@@ -38,6 +38,8 @@ class _UnusedDatabase implements Database {
 class _LayoutRepository extends TaskRepository {
   _LayoutRepository() : super(_UnusedDatabase());
   @override
+  Future<List<Task>> tasks() async => [];
+  @override
   Future<int> todaySnoozes(String id) async => 0;
 }
 
@@ -272,7 +274,7 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
-  testWidgets('날짜 선택 후 스크롤·상세 진입 없이 시작·완료·해제 가능', (tester) async {
+  testWidgets('월 보기 날짜 선택 후 목록에서 상세 진입 없이 시작·완료·해제 가능', (tester) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(390, 844);
     addTearDown(tester.view.resetPhysicalSize);
@@ -299,12 +301,14 @@ void main() {
     );
     await tester.tap(day);
     await tester.pumpAndSettle();
-    expect(find.text('월 보기'), findsOneWidget);
+    expect(find.text('주 보기'), findsOneWidget);
     final start = find.byTooltip('${controller.items.single.task.title} 지금 시작');
+    await tester.ensureVisible(start);
+    await tester.pumpAndSettle();
     expect(
       start.hitTestable(),
       findsOneWidget,
-      reason: '날짜 선택 한 번으로 시작 버튼이 보여야 한다',
+      reason: '월 보기를 유지하고 아래 목록에서 바로 시작할 수 있어야 한다',
     );
     expect(tester.getSize(start).width, greaterThanOrEqualTo(48));
     expect(tester.getSize(start).height, greaterThanOrEqualTo(48));

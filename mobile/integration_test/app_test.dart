@@ -59,6 +59,38 @@ void main() {
           'planned=${controller.reminders.lastPlan?.jobs.map((j) => '${j.payload}@${j.at}').toList()}; '
           'pending=${pending.map((n) => '${n.id}:${n.payload}').toList()}; occurrence=${occurrence.id}',
     );
+    // Exercise two real SQLite tasks through the production OS plugin, including
+    // a deliberately identical title and due time. Completing one must leave
+    // the other's real pending request intact on both mobile platforms.
+    final duplicate = Task.fromMap({
+      ...occurrence.task.toMap(),
+      'id': 'integration-same-time',
+    });
+    await controller.save(duplicate);
+    final second = controller.items.singleWhere(
+      (o) => o.task.id == duplicate.id,
+    );
+    final together = await controller.reminders.plugin
+        .pendingNotificationRequests();
+    final firstIds = together
+        .where((n) => n.payload == occurrence.id)
+        .map((n) => n.id)
+        .toSet();
+    final secondIds = together
+        .where((n) => n.payload == second.id)
+        .map((n) => n.id)
+        .toSet();
+    expect(firstIds, isNotEmpty);
+    expect(secondIds, isNotEmpty);
+    expect(firstIds.intersection(secondIds), isEmpty);
+    await controller.act(second, 'complete');
+    final remaining = await controller.reminders.plugin
+        .pendingNotificationRequests();
+    expect(remaining.any((n) => n.payload == occurrence.id), isTrue);
+    expect(remaining.any((n) => n.payload == second.id), isFalse);
+    await controller.delete(duplicate);
+    expect(controller.items, hasLength(1));
+    debugPrint('NATIVE_SAME_TIME_REMINDERS_ISOLATED_OK');
     await controller.act(occurrence, 'snooze', minutes: 30);
     await tester.pumpAndSettle();
     expect(controller.items.single.status, TaskStatus.paused);

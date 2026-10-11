@@ -2,6 +2,22 @@ import 'package:flutter/material.dart';
 
 import '../domain/task.dart';
 import '../l10n/app_strings.dart';
+import 'persistent_time_picker.dart';
+
+/// Match quick add while keeping the selected calendar date, even at midnight.
+DateTime defaultTaskDue(DateTime selectedDate, {DateTime? now}) {
+  final current = now ?? DateTime.now();
+  final minute = dayOf(selectedDate) == dayOf(current)
+      ? (current.hour * 60 + current.minute + 60).clamp(0, 1439)
+      : 9 * 60;
+  return DateTime(
+    selectedDate.year,
+    selectedDate.month,
+    selectedDate.day,
+    minute ~/ 60,
+    minute % 60,
+  );
+}
 
 class TaskEditor extends StatefulWidget {
   final Task? task;
@@ -19,6 +35,7 @@ class TaskEditor extends StatefulWidget {
 
 class _TaskEditorState extends State<TaskEditor> {
   final form = GlobalKey<FormState>();
+  final titleFocus = FocusNode();
   late TextEditingController title, note, small, interval;
   late DateTime due;
   DateTime? end;
@@ -37,14 +54,7 @@ class _TaskEditorState extends State<TaskEditor> {
     note = TextEditingController(text: t?.note ?? '');
     small = TextEditingController(text: t?.smallStep ?? '');
     interval = TextEditingController(text: '${t?.interval ?? 1}');
-    due =
-        t?.due ??
-        DateTime(
-          widget.initialDate.year,
-          widget.initialDate.month,
-          widget.initialDate.day,
-          DateTime.now().hour + 1,
-        );
+    due = t?.due ?? defaultTaskDue(widget.initialDate);
     end = t?.end;
     priority = t?.priority ?? 1;
     category = t?.category ?? '생활';
@@ -62,6 +72,7 @@ class _TaskEditorState extends State<TaskEditor> {
     note.dispose();
     small.dispose();
     interval.dispose();
+    titleFocus.dispose();
     super.dispose();
   }
 
@@ -92,7 +103,10 @@ class _TaskEditorState extends State<TaskEditor> {
 
   Widget saveButton() => FilledButton(
     onPressed: () {
-      if (!form.currentState!.validate()) return;
+      if (!form.currentState!.validate()) {
+        if (title.text.trim().isEmpty) titleFocus.requestFocus();
+        return;
+      }
       if ((repeat == RepeatUnit.weekly ||
               repeat == RepeatUnit.monthlyWeekday) &&
           weekdays.isEmpty) {
@@ -152,18 +166,8 @@ class _TaskEditorState extends State<TaskEditor> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TextFormField(
-              controller: title,
-              autofocus: widget.task == null,
-              textInputAction: TextInputAction.done,
-              decoration: InputDecoration(labelText: strings.t('할 일')),
-              maxLength: 100,
-              validator: (v) => v == null || v.trim().isEmpty
-                  ? strings.t('제목을 입력해주세요')
-                  : null,
-            ),
-            const SizedBox(height: 16),
             DropdownButtonFormField<String>(
+              key: const Key('editor-category'),
               isExpanded: true,
               itemHeight: null,
               initialValue: category,
@@ -187,31 +191,23 @@ class _TaskEditorState extends State<TaskEditor> {
               onChanged: (v) => setState(() => category = v!),
             ),
             const SizedBox(height: 16),
-            TextFormField(
-              controller: note,
-              decoration: InputDecoration(labelText: strings.t('메모')),
-              minLines: 2,
-              maxLines: 4,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: small,
-              enabled: widget.premium,
-              decoration: InputDecoration(
-                labelText: strings.t('작은 첫걸음'),
-                hintText: strings.t('운동복 입고 5분만 움직이기'),
-              ),
-            ),
-            const SizedBox(height: 24),
+            Text(strings.t('날짜')),
+            const SizedBox(height: 8),
             OutlinedButton.icon(
+              key: const Key('editor-date'),
+              style: OutlinedButton.styleFrom(minimumSize: const Size(0, 48)),
               onPressed: () => pickDate(false),
               icon: const Icon(Icons.calendar_today_outlined),
               label: Text(strings.date(due)),
             ),
+            const SizedBox(height: 16),
+            Text(strings.t('시간')),
             const SizedBox(height: 8),
             OutlinedButton.icon(
+              key: const Key('editor-time'),
+              style: OutlinedButton.styleFrom(minimumSize: const Size(0, 48)),
               onPressed: () async {
-                final value = await showTimePicker(
+                final value = await showPersistentTimePicker(
                   context: context,
                   initialTime: TimeOfDay.fromDateTime(due),
                 );
@@ -231,7 +227,28 @@ class _TaskEditorState extends State<TaskEditor> {
               label: Text(strings.time(due)),
             ),
             const SizedBox(height: 16),
+            TextFormField(
+              key: const Key('editor-title'),
+              controller: title,
+              focusNode: titleFocus,
+              textInputAction: TextInputAction.done,
+              decoration: InputDecoration(labelText: strings.t('할 일')),
+              maxLength: 100,
+              validator: (v) => v == null || v.trim().isEmpty
+                  ? strings.t('제목을 입력해주세요')
+                  : null,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              key: const Key('editor-note'),
+              controller: note,
+              decoration: InputDecoration(labelText: strings.t('메모')),
+              minLines: 2,
+              maxLines: 4,
+            ),
+            const SizedBox(height: 16),
             DropdownButtonFormField<int>(
+              key: const Key('editor-priority'),
               isExpanded: true,
               itemHeight: null,
               initialValue: priority,
@@ -321,7 +338,7 @@ class _TaskEditorState extends State<TaskEditor> {
                           ),
                         ),
                         onPressed: () async {
-                          final picked = await showTimePicker(
+                          final picked = await showPersistentTimePicker(
                             context: context,
                             initialTime: TimeOfDay(
                               hour: overdueMinute! ~/ 60,
@@ -352,6 +369,7 @@ class _TaskEditorState extends State<TaskEditor> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<RepeatUnit>(
+              key: const Key('editor-repeat'),
               isExpanded: true,
               itemHeight: null,
               initialValue: repeat,
@@ -504,6 +522,23 @@ class _TaskEditorState extends State<TaskEditor> {
                   strings.t('저장하면 이 반복 일정의 예정 회차를 변경합니다. 완료·보류·진행 기록은 유지됩니다.'),
                 ),
               ),
+            const SizedBox(height: 24),
+            const Divider(),
+            const SizedBox(height: 16),
+            Text(
+              strings.t('실행 보조'),
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              key: const Key('editor-small-step'),
+              controller: small,
+              enabled: widget.premium,
+              decoration: InputDecoration(
+                labelText: strings.t('작은 첫걸음'),
+                hintText: strings.t('운동복 입고 5분만 움직이기'),
+              ),
+            ),
             const SizedBox(height: 32),
           ],
         ),

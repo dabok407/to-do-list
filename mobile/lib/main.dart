@@ -129,6 +129,16 @@ class HangeoreumApp extends StatefulWidget {
   State<HangeoreumApp> createState() => _HangeoreumAppState();
 }
 
+// Flutter's default iOS adaptation discards SwitchThemeData. Keep our neutral
+// colors while Switch.adaptive still supplies the platform's shape and motion.
+class _NeutralSwitchAdaptation extends Adaptation<SwitchThemeData> {
+  const _NeutralSwitchAdaptation();
+
+  @override
+  SwitchThemeData adapt(ThemeData theme, SwitchThemeData defaultValue) =>
+      defaultValue;
+}
+
 class _HangeoreumAppState extends State<HangeoreumApp>
     with WidgetsBindingObserver {
   TaskController get controller => widget.controller;
@@ -168,6 +178,7 @@ class _HangeoreumAppState extends State<HangeoreumApp>
       theme: ThemeData(
         fontFamily: 'Pretendard',
         useMaterial3: true,
+        adaptations: const [_NeutralSwitchAdaptation()],
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xff343833),
           primary: const Color(0xff292c29),
@@ -183,6 +194,21 @@ class _HangeoreumAppState extends State<HangeoreumApp>
           outlineVariant: const Color(0xffe4e6ea),
         ),
         scaffoldBackgroundColor: const Color(0xffffffff),
+        switchTheme: SwitchThemeData(
+          thumbColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.disabled)
+                ? const Color(0xfff1f2f4)
+                : Colors.white,
+          ),
+          trackColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.disabled)
+                ? const Color(0xffe4e6ea)
+                : states.contains(WidgetState.selected)
+                ? const Color(0xff292c29)
+                : const Color(0xffc9cdd3),
+          ),
+          trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
+        ),
         textTheme: const TextTheme(
           headlineSmall: TextStyle(
             fontSize: 24,
