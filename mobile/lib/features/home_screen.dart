@@ -1078,12 +1078,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ];
         }),
         const SizedBox(height: 20),
-        Container(
+        Material(
           key: const Key('quick-add-card'),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border.all(color: const Color(0xffe4e6ea)),
+          color: Colors.white,
+          clipBehavior: Clip.antiAlias,
+          shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
+            side: const BorderSide(color: Color(0xffe4e6ea)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1543,32 +1544,39 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Widget accessNotice() => Padding(
     key: const Key('access-notice'),
     padding: const EdgeInsets.only(bottom: 16),
-    child: ListTile(
+    // Keep the outline and ink on the tile's own moving surface. Painting the
+    // ListTile shape onto Scaffold's Material can leave its old outline behind
+    // when the quick-add form above changes height without a scroll event.
+    child: Material(
+      color: Colors.white,
+      clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: const BorderSide(color: Color(0xffdfe2e6)),
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      title: Text(
-        subscription.paidAccess
-            ? strings.t('Pro 이용 중')
-            : subscription.trialActive
-            ? strings.t('전체 기능 7일 체험 중')
-            : strings.t('무료 캘린더 이용 중'),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        title: Text(
+          subscription.paidAccess
+              ? strings.t('Pro 이용 중')
+              : subscription.trialActive
+              ? strings.t('전체 기능 7일 체험 중')
+              : strings.t('무료 캘린더 이용 중'),
+        ),
+        subtitle: Text(
+          subscription.trialActive && subscription.trialEnds != null
+              ? strings.t(
+                  '{date} {time}까지 · 체험만으로 결제되지 않아요',
+                  args: {
+                    'date': strings.date(subscription.trialEnds!),
+                    'time': strings.time(subscription.trialEnds!),
+                  },
+                )
+              : strings.t('캘린더·메모·완료는 무료 · 알림·미루기·통계는 Pro'),
+        ),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: openPro,
       ),
-      subtitle: Text(
-        subscription.trialActive && subscription.trialEnds != null
-            ? strings.t(
-                '{date} {time}까지 · 체험만으로 결제되지 않아요',
-                args: {
-                  'date': strings.date(subscription.trialEnds!),
-                  'time': strings.time(subscription.trialEnds!),
-                },
-              )
-            : strings.t('캘린더·메모·완료는 무료 · 알림·미루기·통계는 Pro'),
-      ),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: openPro,
     ),
   );
 

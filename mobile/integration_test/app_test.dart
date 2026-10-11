@@ -65,6 +65,7 @@ void main() {
     final duplicate = Task.fromMap({
       ...occurrence.task.toMap(),
       'id': 'integration-same-time',
+      'series_id': 'integration-same-time',
     });
     await controller.save(duplicate);
     final second = controller.items.singleWhere(

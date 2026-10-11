@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hangeoreum/app/task_controller.dart';
@@ -78,6 +80,7 @@ Future<_QuickController> _home(
   Size size = const Size(430, 932),
   double scale = 1,
   List<Task> tasks = const [],
+  GlobalKey? pixelBoundary,
 }) async {
   tester.view.devicePixelRatio = 1;
   tester.view.physicalSize = size;
@@ -92,8 +95,11 @@ Future<_QuickController> _home(
   }
   addTearDown(controller.dispose);
   addTearDown(subscription.dispose);
+  final app = HangeoreumApp(controller: controller, subscription: subscription);
   await tester.pumpWidget(
-    HangeoreumApp(controller: controller, subscription: subscription),
+    pixelBoundary == null
+        ? app
+        : RepaintBoundary(key: pixelBoundary, child: app),
   );
   await tester.pumpAndSettle();
   return controller;
@@ -128,6 +134,72 @@ Future<void> _add(WidgetTester tester, String title) async {
 
 Task _task(String id, String title, DateTime due) =>
     Task(id: id, title: title, due: due, created: DateTime.now());
+
+Future<void> _expectCardBordersAtLayout(
+  WidgetTester tester,
+  GlobalKey boundary,
+  String frame,
+) async {
+  // Capture the whole Scaffold, since a ListTile's shape can paint into an
+  // ancestor Material outside the tile's own bounds. Rect-only checks miss it.
+  final pixels = await tester.runAsync(() async {
+    final image =
+        await (boundary.currentContext!.findRenderObject()
+                as RenderRepaintBoundary)
+            .toImage(pixelRatio: 1);
+    final bytes = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
+    final width = image.width;
+    final height = image.height;
+    image.dispose();
+    return (bytes!, width, height);
+  });
+  final (bytes, width, height) = pixels!;
+  final noticeTile = find.descendant(
+    of: find.byKey(const Key('access-notice')),
+    matching: find.byType(ListTile),
+  );
+  for (final card in [find.byKey(const Key('quick-add-card')), noticeTile]) {
+    final rect = tester.getRect(card);
+    expect(
+      rect.top,
+      greaterThanOrEqualTo(0),
+      reason: '$frame: card is visible',
+    );
+    expect(rect.bottom, lessThan(height), reason: '$frame: card is visible');
+    final left = (rect.left + 20).ceil();
+    final right = (rect.right - 20).floor();
+    var largestBorderRun = 0;
+    // A one-pixel outline may cover two rows because of fractional layout.
+    for (var y = rect.top.floor() - 1; y <= rect.top.ceil() + 1; y++) {
+      if (y < 0 || y >= height) continue;
+      var borderPixels = 0;
+      for (var x = left; x < right; x++) {
+        final offset = (y * width + x) * 4;
+        final r = bytes.getUint8(offset);
+        final g = bytes.getUint8(offset + 1);
+        final b = bytes.getUint8(offset + 2);
+        // Neutral light-gray outline, including anti-aliasing with white.
+        if (r >= 205 &&
+            r <= 250 &&
+            g >= r &&
+            b >= g &&
+            b - r <= 12 &&
+            bytes.getUint8(offset + 3) == 255) {
+          borderPixels++;
+        }
+      }
+      if (borderPixels > largestBorderRun) largestBorderRun = borderPixels;
+    }
+    expect(
+      largestBorderRun,
+      greaterThan((right - left) * .8),
+      reason:
+          '$frame: painted outline must follow layout at y=${rect.top}; '
+          'scrolling must not be needed to repair it',
+    );
+  }
+  expect(tester.takeException(), isNull);
+}
 
 void main() {
   setUpAll(() async {
@@ -344,6 +416,67 @@ void main() {
     expect(controller.saved.single.title, '오류 후 다시 등록');
     await tester.pumpWidget(const SizedBox.shrink());
   });
+
+  for (final platform in [TargetPlatform.iOS, TargetPlatform.android]) {
+    for (final (size, scale) in [
+      (const Size(430, 1600), 1.0),
+      (const Size(320, 2200), 2.0),
+    ]) {
+      testWidgets(
+        '${platform.name} ${scale}x pixels follow quick expansion and inline error without scrolling',
+        (tester) async {
+          final boundary = GlobalKey();
+          // Keep both cards visible throughout. No scroll events may repair the
+          // ancestor Ink position while this repaint regression is exercised.
+          await _home(
+            tester,
+            size: size,
+            scale: scale,
+            pixelBoundary: boundary,
+          );
+          await _expectCardBordersAtLayout(tester, boundary, 'collapsed');
+          for (var cycle = 0; cycle < 2; cycle++) {
+            await tester.tap(find.byKey(const Key('quick-add')));
+            await tester.pump();
+            await _expectCardBordersAtLayout(
+              tester,
+              boundary,
+              'expanded $cycle',
+            );
+            await tester.tap(find.byTooltip('빠른 추가'));
+            await tester.pump();
+            expect(find.text('할 일을 입력해주세요.'), findsOneWidget);
+            await _expectCardBordersAtLayout(tester, boundary, 'error $cycle');
+            await tester.enterText(
+              find.byKey(const Key('quick-add-title')),
+              '청소',
+            );
+            await tester.pump();
+            expect(find.text('할 일을 입력해주세요.'), findsNothing);
+            await _expectCardBordersAtLayout(
+              tester,
+              boundary,
+              'cleared $cycle',
+            );
+            await tester.enterText(
+              find.byKey(const Key('quick-add-title')),
+              '',
+            );
+            await tester.pump();
+            await tester.tap(find.byKey(const Key('quick-add')));
+            await tester.pump();
+            await _expectCardBordersAtLayout(
+              tester,
+              boundary,
+              'collapsed $cycle',
+            );
+          }
+          await tester.pumpWidget(const SizedBox.shrink());
+        },
+        variant: TargetPlatformVariant.only(platform),
+      );
+    }
+  }
 
   for (final platform in [TargetPlatform.iOS, TargetPlatform.android]) {
     for (final scale in [1.0, 1.5, 2.0]) {

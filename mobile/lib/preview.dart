@@ -79,8 +79,13 @@ class _NoDatabase implements Database {
 
 class _PreviewRepository extends TaskRepository {
   List<Occurrence> sample = [];
+  List<Task> storedTasks = [];
   final Map<String, String> _settings = {};
   _PreviewRepository() : super(_NoDatabase());
+
+  @override
+  Future<List<Task>> tasks() async => List.of(storedTasks);
+
   @override
   Future<String?> setting(String key) async {
     if (_settings.containsKey(key)) return _settings[key];
@@ -113,6 +118,8 @@ class PreviewController extends TaskController {
   final Set<String> _hidden = {};
   PreviewController({String sampleLanguage = 'ko'})
     : super(_PreviewRepository(), ReminderScheduler()) {
+    // Share the preview's live task source, without touching the SQLite stub.
+    (repository as _PreviewRepository).storedTasks = _tasks;
     final now = DateTime.now();
     final today = dayOf(now);
     final english = sampleLanguage == 'en';
