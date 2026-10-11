@@ -209,7 +209,7 @@ void main() {
   });
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  testWidgets('month date selection preserves month and updates the day list', (
+  testWidgets('month date selection opens its week and updates the day list', (
     tester,
   ) async {
     final now = DateTime.now();
@@ -224,17 +224,33 @@ void main() {
     await tester.ensureVisible(date);
     await tester.tap(date);
     await tester.pumpAndSettle();
-    expect(find.text('주 보기'), findsOneWidget);
-    expect(find.text('월 보기'), findsNothing);
+    expect(find.text('월 보기'), findsOneWidget);
+    expect(find.text('주 보기'), findsNothing);
+    expect(find.byKey(Key('calendar-date-${dayKey(chosen)}')), findsOneWidget);
     expect(
-      find.byKey(
-        Key('calendar-date-${dayKey(DateTime(now.year, now.month, 1))}'),
-      ),
-      findsOneWidget,
+      tester
+          .widget<GridView>(find.byType(GridView))
+          .childrenDelegate
+          .estimatedChildCount,
+      7,
     );
     final row = find.widgetWithText(
       ListTile,
       controller.items.single.task.title,
+    );
+    await tester.ensureVisible(row);
+    expect(row, findsOneWidget);
+    await tester.ensureVisible(find.text('월 보기'));
+    await tester.tap(find.text('월 보기'));
+    await tester.pumpAndSettle();
+    expect(find.text('주 보기'), findsOneWidget);
+    expect(find.text('월 보기'), findsNothing);
+    expect(
+      tester
+          .widget<GridView>(find.byType(GridView))
+          .childrenDelegate
+          .estimatedChildCount,
+      greaterThan(7),
     );
     await tester.ensureVisible(row);
     expect(row, findsOneWidget);

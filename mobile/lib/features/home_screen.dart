@@ -690,6 +690,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     onTap: () {
                       setState(() {
                         selectCalendarDate(d);
+                        week = true;
                       });
                     },
                     child: Container(

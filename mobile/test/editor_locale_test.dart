@@ -45,6 +45,10 @@ void _narrowLargeType(WidgetTester tester) {
   addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
 }
 
+Finder _panelHeader(String key) => find
+    .descendant(of: find.byKey(Key(key)), matching: find.byType(InkWell))
+    .first;
+
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
   setUpAll(() async {
@@ -181,8 +185,8 @@ void main() {
       _localized(TaskEditor(task: task, initialDate: due), 'en'),
     );
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('Overdue reminders'));
-    await tester.tap(find.text('Overdue reminders'));
+    await tester.ensureVisible(_panelHeader('overdue-settings'));
+    await tester.tap(_panelHeader('overdue-settings'));
     await tester.pumpAndSettle();
     expect(find.textContaining('Reminders start 1 day after'), findsOneWidget);
     final interval = find.byKey(const Key('overdue-interval'));
@@ -230,8 +234,8 @@ void main() {
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull, reason: 'End-date section');
       }
-      await tester.ensureVisible(find.text('Overdue reminders'));
-      await tester.tap(find.text('Overdue reminders'));
+      await tester.ensureVisible(_panelHeader('overdue-settings'));
+      await tester.tap(_panelHeader('overdue-settings'));
       await tester.pumpAndSettle();
       await tester.ensureVisible(find.byKey(const Key('overdue-interval')));
       await tester.pumpAndSettle();

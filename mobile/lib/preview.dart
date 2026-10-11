@@ -43,6 +43,8 @@ class PreviewSubscription extends SubscriptionService {
   bool get hasAccess => active || trialActive;
   @override
   Future<void> refresh() async {
+    // ProScreen asks for a refresh in initState; notify after its build finishes.
+    await Future<void>.value();
     price = 'US\$0.70';
     available = true;
     autoRenewing = active;

@@ -25,18 +25,28 @@ void main() {
     final strings = AppStrings(controller.localeController.locale.languageCode);
     await tester.tap(find.byTooltip(strings.t('할 일 추가')));
     await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextFormField).first, '안방 대청소 통합 테스트');
-    await tester.enterText(find.byType(TextFormField).at(2), '바닥 물건 5개 치우기');
-    await tester.scrollUntilVisible(
-      find.text(strings.t('저장')),
-      300,
-      scrollable: find
-          .descendant(
-            of: find.byType(SingleChildScrollView),
-            matching: find.byType(Scrollable),
-          )
-          .first,
+    final titleInput = find.byKey(const Key('editor-title'));
+    await tester.ensureVisible(titleInput);
+    await tester.enterText(titleInput, '안방 대청소 통합 테스트');
+    await tester.pumpAndSettle();
+    final titleFocus = tester
+        .widget<EditableText>(
+          find.descendant(of: titleInput, matching: find.byType(EditableText)),
+        )
+        .focusNode;
+    expect(titleFocus.hasFocus, isTrue);
+    await tester.tap(find.text(strings.t('할 일 추가')));
+    await tester.pumpAndSettle();
+    expect(
+      titleFocus.hasFocus,
+      isFalse,
+      reason: '입력 바깥을 터치하면 네이티브 화면에서도 키보드 포커스가 해제되어야 한다',
     );
+    debugPrint('NATIVE_KEYBOARD_DISMISSAL_OK');
+    final smallInput = find.byKey(const Key('editor-small-step'));
+    await tester.ensureVisible(smallInput);
+    await tester.enterText(smallInput, '바닥 물건 5개 치우기');
+    await tester.pumpAndSettle();
     await tester.tap(find.text(strings.t('저장')));
     await tester.pumpAndSettle();
     // Anchor the alarm in the future; the editor's default time can cross midnight
@@ -50,6 +60,7 @@ void main() {
     await tester.pumpAndSettle();
     final occurrence = controller.items.single;
     expect(occurrence.task.title, '안방 대청소 통합 테스트');
+    expect(occurrence.task.smallStep, '바닥 물건 5개 치우기');
     final pending = await controller.reminders.plugin
         .pendingNotificationRequests();
     expect(

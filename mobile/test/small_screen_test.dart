@@ -301,14 +301,14 @@ void main() {
     );
     await tester.tap(day);
     await tester.pumpAndSettle();
-    expect(find.text('주 보기'), findsOneWidget);
+    expect(find.text('월 보기'), findsOneWidget);
     final start = find.byTooltip('${controller.items.single.task.title} 지금 시작');
     await tester.ensureVisible(start);
     await tester.pumpAndSettle();
     expect(
       start.hitTestable(),
       findsOneWidget,
-      reason: '월 보기를 유지하고 아래 목록에서 바로 시작할 수 있어야 한다',
+      reason: '날짜 선택 후 주 보기로 접혀 아래 목록에서 바로 시작할 수 있어야 한다',
     );
     expect(tester.getSize(start).width, greaterThanOrEqualTo(48));
     expect(tester.getSize(start).height, greaterThanOrEqualTo(48));
@@ -406,8 +406,12 @@ void main() {
     await tester.enterText(find.byType(TextFormField).first, '필터 청소');
     await tester.testTextInput.receiveAction(TextInputAction.done);
     await tester.pumpAndSettle();
+    final reminderHeader = find.ancestor(
+      of: find.text('미완료 재알림'),
+      matching: find.byType(InkWell),
+    );
     await tester.scrollUntilVisible(
-      find.text('미완료 재알림'),
+      reminderHeader,
       180,
       scrollable: find
           .descendant(
@@ -417,7 +421,7 @@ void main() {
           .first,
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.text('미완료 재알림'));
+    await tester.tap(reminderHeader);
     await tester.pumpAndSettle();
     final interval = find.byKey(const Key('overdue-interval'));
     await tester.ensureVisible(interval);

@@ -36,6 +36,9 @@ class TaskEditor extends StatefulWidget {
 class _TaskEditorState extends State<TaskEditor> {
   final form = GlobalKey<FormState>();
   final titleFocus = FocusNode();
+  final intervalFocus = FocusNode();
+  bool overdueExpanded = false;
+  late bool intervalExpanded;
   late TextEditingController title, note, small, interval;
   late DateTime due;
   DateTime? end;
@@ -44,7 +47,9 @@ class _TaskEditorState extends State<TaskEditor> {
   int? overdueMinute;
   RepeatUnit repeat = RepeatUnit.none;
   String category = '생활';
-  Set<int> weekdays = {};
+  Set<int> weeklyWeekdays = {}, monthlyWeekdays = {};
+  Set<int> get weekdays =>
+      repeat == RepeatUnit.monthlyWeekday ? monthlyWeekdays : weeklyWeekdays;
   AppStrings get strings => AppStrings.of(context);
   @override
   void initState() {
@@ -54,12 +59,15 @@ class _TaskEditorState extends State<TaskEditor> {
     note = TextEditingController(text: t?.note ?? '');
     small = TextEditingController(text: t?.smallStep ?? '');
     interval = TextEditingController(text: '${t?.interval ?? 1}');
+    intervalExpanded = (t?.interval ?? 1) > 1;
     due = t?.due ?? defaultTaskDue(widget.initialDate);
     end = t?.end;
     priority = t?.priority ?? 1;
     category = t?.category ?? '생활';
     repeat = t?.repeat ?? RepeatUnit.none;
-    weekdays = (t?.weekdays ?? [due.weekday]).toSet();
+    weeklyWeekdays = (t?.weekdays ?? [due.weekday]).toSet();
+    final sortedDays = weeklyWeekdays.toList()..sort();
+    monthlyWeekdays = sortedDays.isEmpty ? {} : {sortedDays.first};
     monthWeek = t?.monthWeek ?? 1;
     countPerWeek = t?.countPerWeek ?? 1;
     overdueDays = t?.overdueDays ?? 1;
@@ -73,10 +81,12 @@ class _TaskEditorState extends State<TaskEditor> {
     small.dispose();
     interval.dispose();
     titleFocus.dispose();
+    intervalFocus.dispose();
     super.dispose();
   }
 
   Future<void> pickDate(bool ending) async {
+    FocusScope.of(context).unfocus();
     final value = await showDatePicker(
       context: context,
       initialDate: ending ? end ?? due : due,
@@ -104,7 +114,19 @@ class _TaskEditorState extends State<TaskEditor> {
   Widget saveButton() => FilledButton(
     onPressed: () {
       if (!form.currentState!.validate()) {
-        if (title.text.trim().isEmpty) titleFocus.requestFocus();
+        if (title.text.trim().isEmpty) {
+          titleFocus.requestFocus();
+        } else if (repeat != RepeatUnit.none && !validInterval(interval.text)) {
+          setState(() => intervalExpanded = true);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            intervalFocus.requestFocus();
+            final fieldContext = intervalFocus.context;
+            if (fieldContext != null) {
+              Scrollable.ensureVisible(fieldContext, alignment: 0.25);
+            }
+          });
+        }
         return;
       }
       if ((repeat == RepeatUnit.weekly ||
@@ -145,6 +167,169 @@ class _TaskEditorState extends State<TaskEditor> {
     ),
   );
 
+  bool validInterval(String value) {
+    final parsed = int.tryParse(value);
+    return parsed != null && parsed >= 1 && parsed <= 365;
+  }
+
+  InputDecoration fieldDecoration(String label, {String? hint}) =>
+      InputDecoration(
+        labelText: strings.t(label),
+        hintText: hint == null ? null : strings.t(hint),
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        border: const OutlineInputBorder(),
+      );
+
+  Widget explanation(String text) => Padding(
+    padding: const EdgeInsets.only(top: 8),
+    child: Text(text, style: Theme.of(context).textTheme.bodySmall),
+  );
+
+  Future<void> pickTime() async {
+    FocusScope.of(context).unfocus();
+    final value = await showPersistentTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(due),
+    );
+    if (value != null && mounted) {
+      setState(
+        () => due = DateTime(
+          due.year,
+          due.month,
+          due.day,
+          value.hour,
+          value.minute,
+        ),
+      );
+    }
+  }
+
+  Widget dateTimeField() => InputDecorator(
+    key: const Key('editor-date-time'),
+    decoration: fieldDecoration('날짜/시간').copyWith(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    ),
+    child: Row(
+      children: [
+        Expanded(
+          flex: 5,
+          child: Semantics(
+            key: const Key('editor-date'),
+            label: '${strings.t('날짜')}, ${strings.date(due)}',
+            button: true,
+            excludeSemantics: true,
+            onTap: () => pickDate(false),
+            child: TextButton(
+              style: TextButton.styleFrom(
+                minimumSize: const Size(0, 48),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 4,
+                  vertical: 12,
+                ),
+                textStyle: Theme.of(context).textTheme.bodyLarge,
+              ),
+              onPressed: () => pickDate(false),
+              child: Text(strings.date(due), textAlign: TextAlign.center),
+            ),
+          ),
+        ),
+        const SizedBox(width: 4),
+        Container(width: 1, height: 32, color: Theme.of(context).dividerColor),
+        const SizedBox(width: 4),
+        Expanded(
+          flex: 4,
+          child: Semantics(
+            key: const Key('editor-time'),
+            label: '${strings.t('시간')}, ${strings.time(due)}',
+            button: true,
+            excludeSemantics: true,
+            onTap: pickTime,
+            child: TextButton(
+              style: TextButton.styleFrom(
+                minimumSize: const Size(0, 48),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 4,
+                  vertical: 12,
+                ),
+                textStyle: Theme.of(context).textTheme.bodyLarge,
+              ),
+              onPressed: pickTime,
+              child: Text(strings.time(due), textAlign: TextAlign.center),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+
+  Widget selectionPanel({
+    required Key key,
+    required String label,
+    required String value,
+    required bool expanded,
+    required VoidCallback onTap,
+    required List<Widget> children,
+  }) => Column(
+    key: key,
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      Semantics(
+        button: true,
+        expanded: expanded,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(4),
+          onTap: onTap,
+          child: InputDecorator(
+            decoration: fieldDecoration(label),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 48),
+              child: Row(
+                children: [
+                  Expanded(child: Text(value)),
+                  const SizedBox(width: 8),
+                  Icon(expanded ? Icons.expand_less : Icons.expand_more),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+      if (expanded) const SizedBox(height: 12),
+      Visibility(
+        visible: expanded,
+        maintainState: true,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: children,
+        ),
+      ),
+    ],
+  );
+
+  String get intervalSummary {
+    if (!validInterval(interval.text)) {
+      return strings.t('1~365를 입력해주세요');
+    }
+    final count = int.parse(interval.text);
+    if (count == 1) {
+      return strings.t(
+        repeat == RepeatUnit.daily
+            ? '매일'
+            : repeat == RepeatUnit.weekly || repeat == RepeatUnit.weeklyGoal
+            ? '매주'
+            : '매월',
+      );
+    }
+    return strings.t(
+      repeat == RepeatUnit.daily
+          ? '{days}일마다'
+          : repeat == RepeatUnit.weekly || repeat == RepeatUnit.weeklyGoal
+          ? '{weeks}주마다'
+          : '{months}개월마다',
+      args: {'days': count, 'weeks': count, 'months': count},
+    );
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
@@ -166,12 +351,14 @@ class _TaskEditorState extends State<TaskEditor> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            dateTimeField(),
+            const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               key: const Key('editor-category'),
               isExpanded: true,
               itemHeight: null,
               initialValue: category,
-              decoration: InputDecoration(labelText: strings.t('분류')),
+              decoration: fieldDecoration('분류'),
               items:
                   [
                         '생활',
@@ -191,40 +378,18 @@ class _TaskEditorState extends State<TaskEditor> {
               onChanged: (v) => setState(() => category = v!),
             ),
             const SizedBox(height: 16),
-            Text(strings.t('날짜')),
-            const SizedBox(height: 8),
-            OutlinedButton.icon(
-              key: const Key('editor-date'),
-              style: OutlinedButton.styleFrom(minimumSize: const Size(0, 48)),
-              onPressed: () => pickDate(false),
-              icon: const Icon(Icons.calendar_today_outlined),
-              label: Text(strings.date(due)),
-            ),
-            const SizedBox(height: 16),
-            Text(strings.t('시간')),
-            const SizedBox(height: 8),
-            OutlinedButton.icon(
-              key: const Key('editor-time'),
-              style: OutlinedButton.styleFrom(minimumSize: const Size(0, 48)),
-              onPressed: () async {
-                final value = await showPersistentTimePicker(
-                  context: context,
-                  initialTime: TimeOfDay.fromDateTime(due),
-                );
-                if (value != null && mounted) {
-                  setState(
-                    () => due = DateTime(
-                      due.year,
-                      due.month,
-                      due.day,
-                      value.hour,
-                      value.minute,
-                    ),
-                  );
-                }
-              },
-              icon: const Icon(Icons.schedule),
-              label: Text(strings.time(due)),
+            DropdownButtonFormField<int>(
+              key: const Key('editor-priority'),
+              isExpanded: true,
+              itemHeight: null,
+              initialValue: priority,
+              decoration: fieldDecoration('우선순위'),
+              items: [
+                DropdownMenuItem(value: 0, child: Text(strings.t('낮음'))),
+                DropdownMenuItem(value: 1, child: Text(strings.t('보통'))),
+                DropdownMenuItem(value: 2, child: Text(strings.t('높음'))),
+              ],
+              onChanged: (v) => setState(() => priority = v!),
             ),
             const SizedBox(height: 16),
             TextFormField(
@@ -232,7 +397,7 @@ class _TaskEditorState extends State<TaskEditor> {
               controller: title,
               focusNode: titleFocus,
               textInputAction: TextInputAction.done,
-              decoration: InputDecoration(labelText: strings.t('할 일')),
+              decoration: fieldDecoration('할 일'),
               maxLength: 100,
               validator: (v) => v == null || v.trim().isEmpty
                   ? strings.t('제목을 입력해주세요')
@@ -242,34 +407,19 @@ class _TaskEditorState extends State<TaskEditor> {
             TextFormField(
               key: const Key('editor-note'),
               controller: note,
-              decoration: InputDecoration(labelText: strings.t('메모')),
+              decoration: fieldDecoration('메모'),
               minLines: 2,
               maxLines: 4,
             ),
             const SizedBox(height: 16),
-            DropdownButtonFormField<int>(
-              key: const Key('editor-priority'),
-              isExpanded: true,
-              itemHeight: null,
-              initialValue: priority,
-              decoration: InputDecoration(labelText: strings.t('우선순위')),
-              items: [
-                DropdownMenuItem(value: 0, child: Text(strings.t('낮음'))),
-                DropdownMenuItem(value: 1, child: Text(strings.t('보통'))),
-                DropdownMenuItem(value: 2, child: Text(strings.t('높음'))),
-              ],
-              onChanged: (v) => setState(() => priority = v!),
-            ),
-            const SizedBox(height: 16),
-            ExpansionTile(
+            selectionPanel(
               key: const Key('overdue-settings'),
-
-              title: Text(strings.t('미완료 재알림')),
-              subtitle: Text(
-                overdueDays == 0
-                    ? strings.t('꺼짐')
-                    : '${overdueDays == 1 ? strings.t('매일') : strings.t('{days}일마다', args: {'days': overdueDays})} · ${overdueMinute == null ? strings.t('예정 시간과 같게') : strings.time(DateTime(2026, 1, 1, overdueMinute! ~/ 60, overdueMinute! % 60))}',
-              ),
+              label: '미완료 재알림',
+              value: overdueDays == 0
+                  ? strings.t('꺼짐')
+                  : '${overdueDays == 1 ? strings.t('매일') : strings.t('{days}일마다', args: {'days': overdueDays})} · ${overdueMinute == null ? strings.t('예정 시간과 같게') : strings.time(DateTime(2026, 1, 1, overdueMinute! ~/ 60, overdueMinute! % 60))}',
+              expanded: overdueExpanded,
+              onTap: () => setState(() => overdueExpanded = !overdueExpanded),
               children: [
                 if (!widget.premium)
                   Text(
@@ -281,7 +431,7 @@ class _TaskEditorState extends State<TaskEditor> {
                     itemHeight: null,
                     key: const Key('overdue-interval'),
                     initialValue: overdueDays,
-                    decoration: InputDecoration(labelText: strings.t('재알림 간격')),
+                    decoration: fieldDecoration('재알림 간격'),
                     items: [
                       DropdownMenuItem(
                         value: 0,
@@ -319,25 +469,10 @@ class _TaskEditorState extends State<TaskEditor> {
                       ),
                     ),
                     if (overdueMinute != null)
-                      OutlinedButton.icon(
-                        icon: const Icon(Icons.schedule),
-                        label: Text(
-                          strings.t(
-                            '재알림 {time}',
-                            args: {
-                              'time': strings.time(
-                                DateTime(
-                                  2026,
-                                  1,
-                                  1,
-                                  overdueMinute! ~/ 60,
-                                  overdueMinute! % 60,
-                                ),
-                              ),
-                            },
-                          ),
-                        ),
-                        onPressed: () async {
+                      InkWell(
+                        key: const Key('overdue-time'),
+                        onTap: () async {
+                          FocusScope.of(context).unfocus();
                           final picked = await showPersistentTimePicker(
                             context: context,
                             initialTime: TimeOfDay(
@@ -352,6 +487,26 @@ class _TaskEditorState extends State<TaskEditor> {
                             );
                           }
                         },
+                        child: InputDecorator(
+                          decoration: fieldDecoration('재알림 시간'),
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(minHeight: 48),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                strings.time(
+                                  DateTime(
+                                    2026,
+                                    1,
+                                    1,
+                                    overdueMinute! ~/ 60,
+                                    overdueMinute! % 60,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     const SizedBox(height: 8),
                     Text(
@@ -367,13 +522,14 @@ class _TaskEditorState extends State<TaskEditor> {
                 ],
               ],
             ),
+            explanation(strings.t('기한이 지난 같은 일을 완료할 때까지 다시 알려요.')),
             const SizedBox(height: 16),
             DropdownButtonFormField<RepeatUnit>(
               key: const Key('editor-repeat'),
               isExpanded: true,
               itemHeight: null,
               initialValue: repeat,
-              decoration: InputDecoration(labelText: strings.t('반복')),
+              decoration: fieldDecoration('반복'),
               items: RepeatUnit.values
                   .map(
                     (r) => DropdownMenuItem(
@@ -393,44 +549,47 @@ class _TaskEditorState extends State<TaskEditor> {
                     ),
                   )
                   .toList(),
-              onChanged: (v) => setState(() {
-                repeat = v!;
-                if (repeat == RepeatUnit.monthlyWeekday &&
-                    weekdays.length > 1) {
-                  final first = weekdays.toList()..sort();
-                  weekdays = {first.first};
-                }
-              }),
+              onChanged: (v) => setState(() => repeat = v!),
             ),
+            explanation(strings.t('반복을 설정하면 패턴대로 새로운 회차가 생겨요.')),
             if (repeat != RepeatUnit.none) ...[
               const SizedBox(height: 16),
-              TextFormField(
-                controller: interval,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: strings.t(
-                    repeat == RepeatUnit.daily
-                        ? '반복 간격 (일)'
-                        : repeat == RepeatUnit.weekly ||
-                              repeat == RepeatUnit.weeklyGoal
-                        ? '반복 간격 (주)'
-                        : '반복 간격 (개월)',
+              selectionPanel(
+                key: const Key('editor-interval-settings'),
+                label: '반복 간격',
+                value: intervalSummary,
+                expanded: intervalExpanded,
+                onTap: () =>
+                    setState(() => intervalExpanded = !intervalExpanded),
+                children: [
+                  TextFormField(
+                    key: const Key('editor-interval'),
+                    controller: interval,
+                    focusNode: intervalFocus,
+                    keyboardType: TextInputType.number,
+                    decoration: fieldDecoration(
+                      repeat == RepeatUnit.daily
+                          ? '반복 간격 (일)'
+                          : repeat == RepeatUnit.weekly ||
+                                repeat == RepeatUnit.weeklyGoal
+                          ? '반복 간격 (주)'
+                          : '반복 간격 (개월)',
+                    ),
+                    onChanged: (_) => setState(() {}),
+                    validator: (v) => validInterval(v ?? '')
+                        ? null
+                        : strings.t('1~365를 입력해주세요'),
                   ),
-                ),
-                validator: (v) =>
-                    int.tryParse(v ?? '') == null ||
-                        int.parse(v!) < 1 ||
-                        int.parse(v) > 365
-                    ? strings.t('1~365를 입력해주세요')
-                    : null,
+                ],
               ),
+              explanation(strings.t('간격 변경은 선택이에요. 예: 2주마다, 3개월마다.')),
               if (repeat == RepeatUnit.weeklyGoal) ...[
                 const SizedBox(height: 16),
                 DropdownButtonFormField<int>(
                   isExpanded: true,
                   itemHeight: null,
                   initialValue: countPerWeek,
-                  decoration: InputDecoration(labelText: strings.t('일주일 목표')),
+                  decoration: fieldDecoration('일주일 목표'),
                   items: List.generate(
                     7,
                     (i) => DropdownMenuItem(
@@ -447,7 +606,7 @@ class _TaskEditorState extends State<TaskEditor> {
                 const SizedBox(height: 12),
                 Text(
                   strings.t(
-                    '요일을 정하지 않고 하루에 한 번 할 수 있어요. 이번 주 목표를 채우면 남은 날의 알림은 쉬고 다음 주에 다시 시작합니다.',
+                    '요일을 정하지 않고 하루에 한 번 할 수 있어요. 해당 주의 목표를 채우면 남은 날의 알림은 쉬어요. 2주 간격이면 한 주를 쉬고 다음 해당 주에 다시 시작해요.',
                   ),
                 ),
               ],
@@ -482,7 +641,7 @@ class _TaskEditorState extends State<TaskEditor> {
                   isExpanded: true,
                   itemHeight: null,
                   initialValue: monthWeek,
-                  decoration: InputDecoration(labelText: strings.t('몇 번째 주')),
+                  decoration: fieldDecoration('몇 번째 주'),
                   items: [1, 2, 3, 4, -1]
                       .map(
                         (v) => DropdownMenuItem(
@@ -497,16 +656,30 @@ class _TaskEditorState extends State<TaskEditor> {
                 ),
               ],
               const SizedBox(height: 16),
-              OutlinedButton.icon(
-                onPressed: () => pickDate(true),
-                icon: const Icon(Icons.event_available_outlined),
-                label: Text(
-                  end == null
-                      ? strings.t('종료 날짜 없음')
-                      : strings.t(
-                          '{date}까지',
-                          args: {'date': strings.date(end!)},
-                        ),
+              InkWell(
+                key: const Key('editor-end-date'),
+                onTap: () => pickDate(true),
+                child: InputDecorator(
+                  decoration: fieldDecoration('종료 날짜 (선택)'),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(minHeight: 48),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        end == null
+                            ? strings.t('종료 날짜 없음')
+                            : strings.t(
+                                '{date}까지',
+                                args: {'date': strings.date(end!)},
+                              ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              explanation(
+                strings.t(
+                  '간격은 반복 패턴의 주기예요. 종료 날짜는 새 회차를 만드는 마지막 날이며, 미완료 재알림 설정과는 별개예요.',
                 ),
               ),
               if (end != null)
@@ -523,22 +696,24 @@ class _TaskEditorState extends State<TaskEditor> {
                 ),
               ),
             const SizedBox(height: 24),
-            const Divider(),
-            const SizedBox(height: 16),
-            Text(
-              strings.t('실행 보조'),
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-            const SizedBox(height: 12),
             TextFormField(
               key: const Key('editor-small-step'),
               controller: small,
               enabled: widget.premium,
-              decoration: InputDecoration(
-                labelText: strings.t('작은 첫걸음'),
-                hintText: strings.t('운동복 입고 5분만 움직이기'),
+              decoration: fieldDecoration(
+                '작게 시작하기 (선택)',
+                hint: '예: 운동복 입기, 책 한 쪽 펼치기',
+              ),
+              minLines: 1,
+              maxLines: 3,
+            ),
+            explanation(
+              strings.t(
+                '바로 할 수 있는 첫 행동을 적어보세요. 오늘 같은 일을 세 번 이상 미루면 상세 화면의 ‘5분 시작’ 안내에 보여요.',
               ),
             ),
+            if (!widget.premium)
+              explanation(strings.t('작게 시작하기는 Pro 기능이에요. 적어둔 내용은 보관돼요.')),
             const SizedBox(height: 32),
           ],
         ),

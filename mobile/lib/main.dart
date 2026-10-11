@@ -5,6 +5,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:workmanager/workmanager.dart';
 
 import 'app/task_controller.dart';
+import 'app/keyboard_dismissal.dart';
 import 'data/task_repository.dart';
 import 'features/home_screen.dart';
 import 'services/reminder_scheduler.dart';
@@ -169,6 +170,7 @@ class _HangeoreumAppState extends State<HangeoreumApp>
       title: AppStrings(controller.localeController.locale.languageCode)
           .brandName,
       debugShowCheckedModeBanner: false,
+      builder: (context, child) => KeyboardDismissal(child: child!),
       locale: controller.localeController.locale,
       supportedLocales: const [Locale('ko'), Locale('en')],
       localizationsDelegates: [

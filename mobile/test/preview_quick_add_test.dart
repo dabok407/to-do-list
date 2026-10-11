@@ -63,6 +63,15 @@ void main() {
       final controller = await _preview(tester);
       final before = await controller.repository.tasks();
       expect(before, hasLength(5));
+      final now = DateTime.now();
+      final chosen = DateTime(now.year, now.month, 16);
+      final date = find.byKey(Key('calendar-date-${dayKey(chosen)}'));
+      await tester.ensureVisible(date);
+      await tester.pumpAndSettle();
+      await tester.tap(date);
+      await tester.pumpAndSettle();
+      expect(find.text('월 보기'), findsOneWidget);
+      expect(find.text('주 보기'), findsNothing);
       final timeButton = find.byKey(const Key('quick-add-time'));
       await tester.ensureVisible(timeButton);
       await tester.pumpAndSettle();
@@ -80,7 +89,7 @@ void main() {
       final added = stored.singleWhere(
         (task) => task.title == '미리보기에서 추가한 새 할 일',
       );
-      expect(dayOf(added.due), dayOf(DateTime.now()));
+      expect(dayOf(added.due), chosen);
       expect(added.due.hour, initial.hour);
       expect(added.due.minute, 25);
       expect(controller.items.any((item) => item.task.id == added.id), isTrue);
