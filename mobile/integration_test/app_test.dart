@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:hangeoreum/main.dart' as app;
 import 'package:hangeoreum/domain/task.dart';
@@ -92,6 +93,126 @@ void main() {
     await controller.delete(duplicate);
     expect(controller.items, hasLength(1));
     debugPrint('NATIVE_SAME_TIME_REMINDERS_ISOLATED_OK');
+    // Wait for two independent task reminders to actually reach the OS at the
+    // same clock time. Pending requests alone cannot prove their delivery.
+    final deliveryCreated = DateTime.now();
+    final deliveryDue = DateTime(
+      deliveryCreated.year,
+      deliveryCreated.month,
+      deliveryCreated.day,
+      deliveryCreated.hour,
+      deliveryCreated.minute + 2,
+    );
+    final deliveryTasks = [
+      for (final suffix in ['a', 'b'])
+        Task(
+          id: 'integration-delivered-$suffix',
+          groupId: 'integration-delivered-$suffix',
+          title: '같은 시각 실제 알림 $suffix',
+          due: deliveryDue,
+          created: deliveryCreated,
+          overdueDays: 0,
+        ),
+    ];
+    String? activePayload(ActiveNotification notification) =>
+        notification.payload ?? notification.tag;
+    Future<List<ActiveNotification>> waitForActive(
+      bool Function(List<ActiveNotification>) ready,
+      Duration timeout,
+    ) async {
+      final result = await tester.runAsync(() async {
+        final elapsed = Stopwatch()..start();
+        var active = await controller.reminders.plugin.getActiveNotifications();
+        while (!ready(active) && elapsed.elapsed < timeout) {
+          await Future<void>.delayed(const Duration(milliseconds: 500));
+          active = await controller.reminders.plugin.getActiveNotifications();
+        }
+        return active;
+      });
+      expect(result, isNotNull);
+      return result!;
+    }
+
+    try {
+      for (final task in deliveryTasks) {
+        await controller.save(task);
+      }
+      final deliveryOccurrences = [
+        for (final task in deliveryTasks)
+          controller.items.singleWhere((o) => o.task.id == task.id),
+      ];
+      final deliveryPayloads = deliveryOccurrences.map((o) => o.id).toSet();
+      expect(deliveryPayloads, hasLength(2));
+      final deliveryJobs = controller.reminders.lastPlan!.jobs
+          .where((job) => deliveryPayloads.contains(job.payload))
+          .toList();
+      expect(deliveryJobs, hasLength(2));
+      expect(deliveryJobs.map((job) => job.at), everyElement(deliveryDue));
+      expect(
+        deliveryDue.difference(DateTime.now()),
+        greaterThan(const Duration(seconds: 20)),
+        reason:
+            'Both minute-based reminders must be registered before delivery.',
+      );
+      final deliveryPending = await controller.reminders.plugin
+          .pendingNotificationRequests();
+      final deliveryIds = {
+        for (final payload in deliveryPayloads)
+          payload: deliveryPending.singleWhere((n) => n.payload == payload).id,
+      };
+      expect(deliveryIds.values.toSet(), hasLength(2));
+      final delivered = await waitForActive(
+        (active) => deliveryIds.entries.every(
+          (expected) => active.any(
+            (n) => n.id == expected.value && activePayload(n) == expected.key,
+          ),
+        ),
+        deliveryDue.difference(DateTime.now()) + const Duration(seconds: 45),
+      );
+      for (final expected in deliveryIds.entries) {
+        expect(
+          delivered.any(
+            (n) => n.id == expected.value && activePayload(n) == expected.key,
+          ),
+          isTrue,
+          reason:
+              'platform=${Platform.operatingSystem}; due=$deliveryDue; '
+              'expected=${deliveryIds.entries.toList()}; '
+              'active=${delivered.map((n) => '${n.id}:${activePayload(n)}').toList()}',
+        );
+      }
+      final firstDelivery = deliveryOccurrences.first;
+      final secondDelivery = deliveryOccurrences.last;
+      await controller.act(firstDelivery, 'complete');
+      final afterCompletion = await waitForActive(
+        (active) =>
+            !active.any((n) => activePayload(n) == firstDelivery.id) &&
+            active.any(
+              (n) =>
+                  n.id == deliveryIds[secondDelivery.id] &&
+                  activePayload(n) == secondDelivery.id,
+            ),
+        const Duration(seconds: 5),
+      );
+      expect(
+        afterCompletion.any((n) => activePayload(n) == firstDelivery.id),
+        isFalse,
+      );
+      expect(
+        afterCompletion.any(
+          (n) =>
+              n.id == deliveryIds[secondDelivery.id] &&
+              activePayload(n) == secondDelivery.id,
+        ),
+        isTrue,
+      );
+      debugPrint('NATIVE_SAME_TIME_DELIVERED_OK');
+    } finally {
+      for (final task in deliveryTasks) {
+        await controller.delete(task);
+      }
+    }
+    expect(controller.items, hasLength(1));
     await controller.act(occurrence, 'snooze', minutes: 30);
     await tester.pumpAndSettle();
     expect(controller.items.single.status, TaskStatus.paused);
@@ -309,5 +430,5 @@ void main() {
     if (Platform.isAndroid) await binding.convertFlutterSurfaceToImage();
     await tester.pumpAndSettle();
     await binding.takeScreenshot('calendar');
-  }, timeout: const Timeout(Duration(minutes: 3)));
+  }, timeout: const Timeout(Duration(minutes: 6)));
 }
