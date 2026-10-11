@@ -1,12 +1,29 @@
 # 투두닉(Todoniq): Windows에서 iPhone TestFlight 빌드 준비하기
 
-2026-10-11 현재, 최종 소스 `2951bdb7c9ae5feb70d1ff40ad49d4b8bf1cf8db`의 **1.0.0 (501)**이 [실제 macOS 서명 실행 38103987813](https://github.com/dabok407/to-do-list/actions/runs/38103987813)과 [원본 IPA 업로드 실행 38105521301](https://github.com/dabok407/to-do-list/actions/runs/38105521301)에 성공했습니다. Apple API에서 빌드 ID `6e4f66d2-a918-4ff2-8345-3633ed4b76b2`의 **processingState=VALID, expired=false, usesNonExemptEncryption=false, internalBuildState=IN_BETA_TESTING**을 확인했습니다. Apple 업로드 시각은 **2026-10-11 11:39:13 KST**입니다. 기존 **Todoniq Owner** 내부 그룹에 501과 101이 연결되어 본인 내부 테스트가 가능합니다.
+2026-10-11 현재, 최종 소스 `fc88e97b140db0c32a2ba88b97a621f04187b9e5`의 **1.0.0 (601)**이 [Android·iOS 네이티브 QA 실행 38114962066](https://github.com/dabok407/to-do-list/actions/runs/38114962066), [실제 macOS 서명 실행 38115046318](https://github.com/dabok407/to-do-list/actions/runs/38115046318), [원본 IPA 업로드 실행 38118780821](https://github.com/dabok407/to-do-list/actions/runs/38118780821)에 성공했습니다. Apple API에서 빌드 ID `ef4ef617-58c7-4177-9688-5a3cb99a1546`의 **processingState=VALID, expired=false, usesNonExemptEncryption=false, internalBuildState=IN_BETA_TESTING**을 확인했습니다. Apple 업로드 시각은 **2026-10-11 15:45:14 KST**입니다. 기존 **Todoniq Owner** 내부 그룹에 601·501·101이 연결되어 본인 내부 테스트가 가능합니다.
 
-사용자의 실제 iPhone에 **101 설치가 확인됐으며, 501 업데이트와 휴대폰 재검증은 대기 중**입니다. 외부 그룹의 101은 TestFlight 베타 심사 대기 중이고 501은 외부 그룹에 연결하지 않았습니다. 공개 App Store 버전 1.0.0에는 아직 101이 연결되어 있으며 정식 심사는 제출하지 않았습니다.
+사용자는 실제 iPhone에서 **501 업데이트를 설치한 뒤 피드백을 제공했고**, 이를 반영한 601의 실제 iPhone 검증은 아직 남아 있습니다. 외부 그룹의 101은 TestFlight 베타 심사 대기 중이고 501·601은 외부 그룹에 배포하지 않았습니다. 공개 App Store 버전 1.0.0에는 아직 101이 연결되어 있으며 정식 심사는 제출하지 않았습니다.
 
 개인 Mac을 구매할 필요는 없습니다. Windows에서 준비하고 GitHub Actions의 **macOS 15 / Xcode 26.3 / Flutter 3.47.6** 실행기로 빌드합니다. iOS 서명·빌드는 실제 macOS 환경에서 실행됩니다. [Flutter iOS 배포 안내](https://docs.flutter.dev/deployment/ios)
 
-## 501에서 달라진 화면과 입력
+## 601에서 달라진 화면과 입력
+
+1. 전체 화면에서 입력 필드 밖을 누르거나 스크롤하면 키보드를 닫습니다. 작성 중인 초안을 유지하며 필드 이동과 버튼 동작도 그대로 실행합니다.
+2. 월 보기에서 날짜를 누르면 선택한 날짜의 주 보기로 전환하는 동작을 복원했습니다.
+3. 날짜와 시간을 하나의 테두리·라벨이 있는 같은 행에 배치했습니다. 왼쪽은 날짜, 오른쪽은 시간이며 모든 테두리 입력의 떠 있는 라벨 표시를 통일했습니다.
+4. 편집 순서는 날짜/시간 → 분류 → 우선순위 → 할 일 → 메모 → 미완료 재알림 → 반복 → 선택형 ‘작게 시작하기’입니다.
+5. 반복 간격의 기본값 1은 접힌 상태로 표시합니다. 설명은 N주·N개월 반복 주기를 안내합니다.
+6. 반복 종료일은 새 회차를 만드는 마지막 날이며, 오래된 미완료 회차의 재알림과 별개임을 안내합니다.
+7. 주간·월간 반복 패턴을 오가도 선택한 요일을 유지하고, 잘못된 반복 간격은 오류 안내와 포커스로 알려줍니다.
+8. 도움말은 ‘작게 시작하기’에 적은 첫 행동이 같은 회차를 오늘 3번 이상 미룬 뒤 상세 화면의 ‘5분 시작’ 안내에 표시된다고 설명합니다.
+
+로컬 `flutter analyze`는 **문제 없음**, 단위·위젯 테스트는 **208개 통과 / 선택형 스토어 이미지 생성 테스트 1개 건너뜀**입니다. [모바일 자동 QA 실행 38114962066](https://github.com/dabok407/to-do-list/actions/runs/38114962066)의 Android·iOS 네이티브 검증도 성공했습니다. 양쪽 실행 로그의 `NATIVE_KEYBOARD_DISMISSAL_OK`, iOS의 `IOS_TERMINATED_NOTIFICATION_OK`, Android의 `BACKGROUND_NOTIFICATION_OK`·`REBOOT_NOTIFICATION_OK`와 위젯 콜드 딥 링크 검증을 확인했습니다. 자동 검증과 실제 iPhone 설치 후 검증은 구분하며, 601의 실제 iPhone 알림·위젯·입력 흐름과 실제 스토어 구매는 아직 검증하지 않았습니다.
+
+## 이전 501 배포 이력
+
+소스 `2951bdb7c9ae5feb70d1ff40ad49d4b8bf1cf8db`의 **1.0.0 (501)**은 [macOS 서명 실행 38103987813](https://github.com/dabok407/to-do-list/actions/runs/38103987813)과 [원본 IPA 업로드 실행 38105521301](https://github.com/dabok407/to-do-list/actions/runs/38105521301)에 성공했습니다. Apple API에서 빌드 ID `6e4f66d2-a918-4ff2-8345-3633ed4b76b2`의 **processingState=VALID, expired=false, usesNonExemptEncryption=false, internalBuildState=IN_BETA_TESTING**을 확인했습니다. Apple 업로드 시각은 **2026-10-11 11:39:13 KST**, 원본 IPA SHA-256은 `6551ceabb0f6a0d47864e1c9efe9a1aee948154484fce1e73983816f9186fef7`입니다. 이 해시는 501의 기록이며 601의 해시가 아닙니다. 이후 사용자가 실제 iPhone에 501 업데이트를 설치하고 피드백을 제공했습니다.
+
+501 당시 화면과 입력 변경은 다음과 같습니다. 월 보기 유지 동작과 편집 순서는 이후 601에서 위 내용으로 변경됐습니다.
 
 1. 월 보기에서 날짜를 눌러도 월 보기를 유지하고, 주 보기로 강제 축소하지 않습니다.
 2. 빠른 추가 입력을 자체 Material 위에 그려 테두리 겹침과 스크롤 전 화면 갱신 문제를 해결했습니다. 체험 안내와의 간격은 16픽셀입니다.
@@ -101,7 +118,7 @@ openssl pkcs12 -export -inkey firstkan-distribution.key -in distribution.pem -ou
 
 ## 6. TestFlight 업로드
 
-이번 작업은 사용자가 배포 자격 증명 준비와 GitHub Secrets 저장·업로드 사용을 승인했습니다. 먼저 생성한 서명 IPA를 업로드할 때는 **Upload existing signed iOS build to TestFlight** (`ios-testflight-upload.yml`)를 실행합니다. 최신 501의 입력 예시는 원본 성공 실행 **38103987813**, 버전 **1.0.0**, 빌드 **501**입니다. 원본 실행의 저장소·브랜치·워크플로·성공 상태, GitHub 아티팩트 digest, manifest/IPA SHA-256와 macOS 실제 서명·프로파일·App Group을 검사한 뒤 원본 IPA를 그대로 업로드합니다. 이번 [업로드 실행 38105521301](https://github.com/dabok407/to-do-list/actions/runs/38105521301)은 검증·업로드에 성공했으며 원본 IPA SHA-256은 `6551ceabb0f6a0d47864e1c9efe9a1aee948154484fce1e73983816f9186fef7`입니다. 재빌드하거나 앱 코드와 빌드 번호를 변경하지 않습니다.
+이번 작업은 사용자가 배포 자격 증명 준비와 GitHub Secrets 저장·업로드 사용을 승인했습니다. 먼저 생성한 서명 IPA를 업로드할 때는 **Upload existing signed iOS build to TestFlight** (`ios-testflight-upload.yml`)를 실행합니다. 최신 601의 입력 예시는 원본 성공 실행 **38115046318**, 버전 **1.0.0**, 빌드 **601**입니다. 원본 실행의 저장소·브랜치·워크플로·성공 상태, GitHub 아티팩트 digest, manifest/IPA SHA-256와 macOS 실제 서명·프로파일·App Group을 검사한 뒤 원본 IPA를 그대로 업로드합니다. 이번 [업로드 실행 38118780821](https://github.com/dabok407/to-do-list/actions/runs/38118780821)은 검증·업로드에 성공했으며, 실행 로그에서 확인한 601의 원본 IPA SHA-256은 `577f15e39ec6fef7a29f5f28595764ffccea80018fb3daf0869b98a0a93fa11b`입니다. 재빌드하거나 앱 코드와 빌드 번호를 변경하지 않습니다.
 
 새 앱 코드로 빌드를 만들 때는 `ios-testflight.yml`의 `upload_to_testflight`를 **true**로 실행할 수도 있습니다. Apple은 이미 업로드한 버전의 같은 빌드 번호를 다시 받지 않으므로 새 빌드에는 새 번호를 사용합니다. 두 workflow 모두 App Store Connect에 빌드만 업로드하며 공개 App Review에 제출하지 않습니다.
 
@@ -111,7 +128,7 @@ openssl pkcs12 -export -inkey firstkan-distribution.key -in distribution.pem -ou
 
 실제 IPA의 Flutter.framework에는 BoringSSL의 표준 TLS 암호화 구현이 포함되어 있습니다. 앱에서 별도의 암호화 API를 호출하지 않아도 Apple의 확인 범위에는 포함된 외부 라이브러리가 들어갑니다. 2026-10-10 사용자 승인에 따라 첫 App Store 출시는 프랑스를 제외합니다. 콘솔에서 **Apple OS 암호화를 대체하거나 병행하는 표준 알고리즘**과 **프랑스 배포: 아니요**를 저장했고, 빌드 101의 **수출 규정 관련 문서 누락**이 해소되어 **제출 준비 완료**로 변경된 것을 확인했습니다.
 
-501에서도 Apple API의 `usesNonExemptEncryption=false`와 내부 테스트 가능 상태를 확인했습니다.
+501과 최신 601 모두 Apple API의 `usesNonExemptEncryption=false`와 내부 테스트 가능 상태를 확인했습니다.
 
 Apple 안내는 OS 외 표준 암호화를 사용하는 앱의 프랑스 App Store 배포에 프랑스 암호화 신고서를 요구합니다. 프랑스를 추가할 때는 해당 신고서 요건과 수출 답변을 다시 확인합니다. 수출 답변과 별도로 실제 App Availability에서도 프랑스를 제외해 **사용 불가**, 나머지 174개 국가 또는 지역이 선택된 것을 재확인했습니다. 향후 국가 자동 추가는 껐습니다. `ITSAppUsesNonExemptEncryption=NO`는 자동으로 추가하지 않았습니다. [Apple 수출 규정 문서 기준](https://developer.apple.com/help/app-store-connect/reference/app-information/export-compliance-documentation-for-encryption)
 
@@ -120,10 +137,10 @@ Apple 안내는 OS 외 표준 암호화를 사용하는 앱의 프랑스 App Sto
 1. App Store에서 Apple의 **TestFlight** 앱을 설치합니다.
 2. App Store Connect → **앱 → 투두닉 - 할 일과 캘린더 → TestFlight**를 엽니다.
 3. **Internal Testing → Todoniq Owner**에서 기존 내부 테스트 그룹을 엽니다.
-4. 그룹에 **1.0.0 (501)**이 연결되어 있는지 확인합니다. 새 내부 테스터를 추가할 때는 **Invite Testers**에서 테스트할 App Store Connect 사용자를 선택합니다.
-5. 기존에 101을 설치한 iPhone의 TestFlight에서 501로 **Update**합니다. 처음 설치하는 경우 실제 Apple 계정에 온 초대를 받아 **Install**을 누릅니다.
+4. 그룹에 **1.0.0 (601)**이 연결되어 내부 테스트가 가능한지 확인합니다. 새 내부 테스터를 추가할 때는 **Invite Testers**에서 테스트할 App Store Connect 사용자를 선택합니다.
+5. 기존에 501을 설치한 iPhone의 TestFlight에서 601로 **Update**합니다. 처음 설치하는 경우 실제 Apple 계정에 온 초대를 받아 **Install**을 누릅니다.
 
-현재 **Todoniq Owner** 내부 그룹은 자동 배포를 끄고 빌드를 수동으로 추가하도록 설정했습니다. **1.0.0 (501)과 1.0.0 (101)**이 연결되어 있으며, 501은 내부 테스트 가능 상태입니다. 사용자의 실제 iPhone에 101이 설치된 것은 확인했고, 501 업데이트·알림·위젯 재검증은 남아 있습니다. 사용자가 요청한 추가 테스터 한 명은 **Todoniq Preview** 외부 그룹에 등록했습니다. 외부 그룹의 101은 **TestFlight 베타 심사 대기 중**이며 501은 외부 그룹에 연결하지 않았습니다. 외부 테스터의 설치 초대는 승인된 빌드가 제공된 후 가능합니다. 공개 초대 링크는 만들지 않았습니다. 테스터의 개인 이메일은 공개 문서에 기록하지 않습니다.
+현재 **Todoniq Owner** 내부 그룹은 자동 배포를 끄고 빌드를 수동으로 추가하도록 설정했습니다. **1.0.0 (601)·1.0.0 (501)·1.0.0 (101)**의 연결을 확인했고, 601은 **IN_BETA_TESTING**으로 내부 테스트가 가능합니다. 사용자의 실제 iPhone에 501 업데이트가 설치됐고 피드백을 받았습니다. 601의 실제 iPhone 업데이트·알림·위젯·입력 흐름 검증은 남아 있습니다. 사용자가 요청한 추가 테스터 한 명은 **Todoniq Preview** 외부 그룹에 등록했습니다. 외부 그룹의 101은 **TestFlight 베타 심사 대기 중**이며 501·601은 외부 그룹에 배포하지 않았습니다. 601의 외부 상태는 **READY_FOR_BETA_SUBMISSION**이며 외부 그룹 연결·베타 심사 신청은 진행하지 않았습니다. 외부 테스터의 설치 초대는 승인된 빌드가 제공된 후 가능합니다. 공개 초대 링크는 만들지 않았습니다. 테스터의 개인 이메일은 공개 문서에 기록하지 않습니다.
 
 내부 테스트 설치와 공개 App Store 출시는 다른 단계입니다. 외부 테스터 배포에는 Beta App Review가 필요할 수 있습니다. 실제 구독 결제 테스트에는 구독 상품·계약·Sandbox 설정도 별도로 완료해야 합니다. [Apple 내부 테스터 안내](https://developer.apple.com/help/app-store-connect/test-a-beta-version/add-internal-testers)
 
@@ -135,7 +152,7 @@ Apple 안내는 OS 외 표준 암호화를 사용하는 앱의 프랑스 App Sto
 - 빌드 번호 중복: 새 번호로 실행.
 - 업로드 성공 후 빌드 미표시: Apple 처리 상태와 업로드 단계 결과를 확인.
 
-현재 남은 실제 검증은 **501의 iPhone 업데이트·알림·위젯 재검증과 실제 구독 구매 확인**입니다. 권한 재허용도 미검증입니다. 501의 macOS 서명 빌드·원본 IPA 업로드·Apple 처리·암호화 답변 확인과 소유자 내부 그룹 연결은 완료했습니다. 외부 그룹의 101은 베타 심사 승인을 기다리며 501 외부 배포는 아직 진행하지 않았습니다. Apple 구독 그룹 `22461798`과 연간 상품 `6821330921`(`hangeoreum_pro_yearly`)을 생성하고 1년 기간·한국어·영어 이름과 설명을 저장했습니다. 그룹 표시 이름도 한국어 투두닉 Pro / 영어 Todoniq Pro로 저장했으며 앱 이름 사용 기본 옵션을 유지했습니다. 연간 완납 상품의 판매 국가를 프랑스 제외 174개 국가 또는 지역·향후 국가 자동 추가 끔으로 저장했습니다. 가격·상품 심사 자료·계약·세금/계좌와 실제 스토어 구매 검증은 남아 있습니다. TestFlight 베타 심사 제출을 공개 App Store 심사 제출이나 출시 완료로 표시하지 않습니다.
+현재 남은 실제 검증은 **601의 iPhone 업데이트·알림·위젯·입력 흐름 검증과 실제 구독 구매 확인**입니다. 권한 재허용도 미검증입니다. 601의 Android·iOS 네이티브 QA·macOS 서명 빌드·원본 IPA 업로드·Apple 처리·암호화 답변 확인과 소유자 내부 그룹 연결은 완료했습니다. 외부 그룹의 101은 베타 심사 승인을 기다리며 501·601 외부 배포는 아직 진행하지 않았습니다. Apple 구독 그룹 `22461798`과 연간 상품 `6821330921`(`hangeoreum_pro_yearly`)을 생성하고 1년 기간·한국어·영어 이름과 설명을 저장했습니다. 그룹 표시 이름도 한국어 투두닉 Pro / 영어 Todoniq Pro로 저장했으며 앱 이름 사용 기본 옵션을 유지했습니다. 연간 완납 상품의 판매 국가를 프랑스 제외 174개 국가 또는 지역·향후 국가 자동 추가 끔으로 저장했습니다. 가격·상품 심사 자료·계약·세금/계좌와 실제 스토어 구매 검증은 남아 있습니다. TestFlight 베타 심사 제출을 공개 App Store 심사 제출이나 출시 완료로 표시하지 않습니다.
 
 공개 App Store 버전 1.0.0에는 빌드 101을 연결·저장했습니다. 무료 설치 가격 $0.00, 프랑스 제외 174개 국가 또는 지역·향후 국가 자동 추가 끔, 첫 모바일 출시의 Mac·Vision Pro 배포 끔을 저장했습니다. 콘텐츠 권리는 타사 콘텐츠 없음, 연령 설문은 의료 정보 없음·웰빙 주제 포함으로 저장했으며 대한민국 전체·일반 글로벌 9+가 적용됩니다. 개인정보 답변은 데이터 미수집으로 초안을 저장했고 게시 동의는 대기 중입니다.
 
