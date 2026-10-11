@@ -134,7 +134,15 @@ images = list(pathlib.Path(sys.argv[1]).rglob('ios-background-notification.png')
 assert len(images) == 1, f'Expected one screenshot from this flow, found {images}'
 shutil.copyfile(images[0], sys.argv[2])
 PY
-swift tool/verify_ios_screen.swift "$results/ios-background-notification.png" \
-  "$test_title" "$test_body" > "$results/ios-background-notification-ocr.log"
+if [[ "$language" == en ]]; then
+  # Maestro already required the exact title/body, and the app brand was
+  # checked above. Permit the known q/g OCR confusion only on this banner.
+  swift tool/verify_ios_screen.swift "$results/ios-background-notification.png" \
+    "$test_title" "$test_body" --allow-todoniq-banner-ocr \
+    > "$results/ios-background-notification-ocr.log"
+else
+  swift tool/verify_ios_screen.swift "$results/ios-background-notification.png" \
+    "$test_title" "$test_body" > "$results/ios-background-notification-ocr.log"
+fi
 echo 'IOS_TERMINATED_NOTIFICATION_OK'
 

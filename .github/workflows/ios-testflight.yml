@@ -40,14 +40,17 @@ jobs:
           set -euo pipefail
           fixture=tool/fixtures/ios-closed-reminder.png
           body='Check that this reminder arrives while the app is closed.'
-          swift tool/verify_ios_screen.swift "$fixture" 'Todoniq reminder test' "$body"
-          if negative_output="$(swift tool/verify_ios_screen.swift "$fixture" 'Todoniq wrong reminder title' "$body" 2>&1)"; then
-            printf '%s\n' "$negative_output"
-            echo 'OCR accepted a wrong notification title.' >&2
-            exit 1
-          fi
-          printf '%s\n' "$negative_output"
-          [[ "$negative_output" == *'Expected visible screen text: Todoniq wrong reminder title'* ]]
+          swift tool/verify_ios_screen.swift "$fixture" 'Todoniq reminder test' "$body" --allow-todoniq-banner-ocr
+          wrong_title_status=0
+          wrong_title_output="$(swift tool/verify_ios_screen.swift "$fixture" 'Todoniq wrong reminder title' "$body" 2>&1)" || wrong_title_status=$?
+          printf '%s\n' "$wrong_title_output"
+          test "$wrong_title_status" -eq 1
+          [[ "$wrong_title_output" == *'Expected visible screen text: Todoniq wrong reminder title'* ]]
+          wrong_body_status=0
+          wrong_body_output="$(swift tool/verify_ios_screen.swift "$fixture" 'Todoniq reminder test' 'Wrong reminder body' --allow-todoniq-banner-ocr 2>&1)" || wrong_body_status=$?
+          printf '%s\n' "$wrong_body_output"
+          test "$wrong_body_status" -eq 1
+          [[ "$wrong_body_output" == *'Expected visible screen text: Wrong reminder body'* ]]
           echo 'IOS_OCR_NOTIFICATION_FIXTURE_OK'
       # Verified upstream v2.19.0 commit; do not execute a mutable signing dependency.
       - uses: subosito/flutter-action@e938fdf56512cc96ef2f93601a5a40bde3801046
