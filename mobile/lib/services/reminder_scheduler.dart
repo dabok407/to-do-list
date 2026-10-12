@@ -9,7 +9,10 @@ import 'notification_plan.dart';
 import '../l10n/app_strings.dart';
 
 class ReminderScheduler {
+  ReminderScheduler({DateTime Function()? now}) : _now = now ?? DateTime.now;
+
   static const testNotificationId = 100000;
+  static const _testPayloadPrefix = 'todoniq:test:v1:';
   // Foundation can return GMT rather than an IANA region on iOS simulators
   // and devices configured to a zero-offset time zone.
   static tz.Location resolveTimeZone(String identifier) =>
@@ -17,6 +20,8 @@ class ReminderScheduler {
       ? tz.UTC
       : tz.getLocation(identifier);
   final plugin = FlutterLocalNotificationsPlugin();
+  final DateTime Function() _now;
+  Future<void> _queuedWork = Future<void>.value();
   Future<void> Function(String id, String action)? onAction;
   NotificationPlan? lastPlan;
   DateTime? accessUntil;
@@ -60,6 +65,8 @@ class ReminderScheduler {
   }
 
   Future<void> respond(NotificationResponse response) async {
+    // A test request carries scheduling metadata, not a task identity.
+    if (response.id == testNotificationId) return;
     final id = response.payload;
     if (id != null) {
       final action = response.actionId;
@@ -177,15 +184,27 @@ class ReminderScheduler {
   Future<void> sync(
     List<Occurrence> items, {
     Map<String, List<DateTime>> exceptions = const {},
+  }) => _serial(() => _sync(items, exceptions: exceptions));
+
+  Future<void> _serial(Future<void> Function() operation) {
+    final current = _queuedWork.then((_) => operation());
+    // Report a failed operation to its caller without poisoning later work.
+    _queuedWork = current.catchError((Object _) {});
+    return current;
+  }
+
+  Future<void> _sync(
+    List<Occurrence> items, {
+    required Map<String, List<DateTime>> exceptions,
   }) async {
-    if (accessUntil != null && !accessUntil!.isAfter(DateTime.now())) {
+    if (accessUntil != null && !accessUntil!.isAfter(_now())) {
       await plugin.cancelAll();
       lastPlan = NotificationPlan([], 0, null);
       return;
     }
     final zone = await FlutterTimezone.getLocalTimezone();
     tz.setLocalLocation(resolveTimeZone(zone.identifier));
-    final now = DateTime.now(), scheduleMode = await mode();
+    final now = _now(), scheduleMode = await mode();
     lastPlan = NotificationPlan.build(
       items,
       now: now,
@@ -196,6 +215,8 @@ class ReminderScheduler {
     // Deleted and completed reminders disappear, while active alerts survive refill.
     final activePayloads = <int, String>{};
     for (final notification in await plugin.getActiveNotifications()) {
+      // Keep an already delivered test banner; it is not an obsolete task.
+      if (notification.id == testNotificationId) continue;
       // The current Android plugin omits payload from delivered notifications.
       // Do not infer an old untagged banner from a hash or pending request: that
       // ID may have since been reused by another task. New banners carry a tag.
@@ -208,9 +229,34 @@ class ReminderScheduler {
         activePayloads[notification.id!] = payload;
       }
     }
+    PendingNotificationRequest? pendingTest;
+    DateTime? testAt;
+    for (final request in await plugin.pendingNotificationRequests()) {
+      if (request.id != testNotificationId) continue;
+      final at = _testTime(request.payload);
+      if (at != null && _canScheduleTest(at)) {
+        pendingTest = request;
+        testAt = at;
+      }
+      break;
+    }
     // Cancel delivered alerts by their real platform ID and payload above. A
     // recomputed hash alone could belong to another task after collision handling.
     await plugin.cancelAllPendingNotifications();
+    // Pending requests survive a new scheduler instance through their payload.
+    // Restore the original instant first, without extending the ten-second wait.
+    // A request that fired or expired is absent or no longer in the future.
+    if (pendingTest != null && testAt != null && _canScheduleTest(testAt)) {
+      await plugin.zonedSchedule(
+        id: testNotificationId,
+        title: pendingTest.title,
+        body: pendingTest.body,
+        scheduledDate: tz.TZDateTime.from(testAt, tz.local),
+        notificationDetails: details(),
+        androidScheduleMode: scheduleMode,
+        payload: pendingTest.payload,
+      );
+    }
     final ids = <int>{testNotificationId};
     final jobsPerPayload = <String, int>{};
     for (final job in lastPlan!.jobs) {
@@ -265,22 +311,45 @@ class ReminderScheduler {
     }
   }
 
-  Future<void> testNotification() async {
-    if (accessUntil != null &&
-        !DateTime.now()
-            .add(const Duration(seconds: 10))
-            .isBefore(accessUntil!)) {
-      return;
+  static DateTime? _testTime(String? payload) {
+    if (payload == null || !payload.startsWith(_testPayloadPrefix)) return null;
+    final timestamp = int.tryParse(
+      payload.substring(_testPayloadPrefix.length),
+    );
+    if (timestamp == null) return null;
+    try {
+      return DateTime.fromMillisecondsSinceEpoch(timestamp, isUtc: true);
+    } on ArgumentError {
+      return null;
     }
-    await requestPermissions();
+  }
+
+  bool _canScheduleTest(DateTime at) =>
+      at.isAfter(_now()) && (accessUntil == null || at.isBefore(accessUntil!));
+
+  Future<void> testNotification({bool requestPermission = true}) =>
+      _serial(() => _testNotification(requestPermission: requestPermission));
+
+  Future<void> _testNotification({required bool requestPermission}) async {
+    if (!_canScheduleTest(_now().add(const Duration(seconds: 10)))) return;
+    if (requestPermission) await requestPermissions();
+    final scheduleMode = await mode();
+    // Permission dialogs can remain open past the access deadline. Darwin
+    // calendar triggers use whole seconds, so the payload must match that instant.
+    final at = DateTime.fromMillisecondsSinceEpoch(
+      (_now().add(const Duration(seconds: 10)).millisecondsSinceEpoch ~/ 1000) *
+          1000,
+      isUtc: true,
+    );
+    if (!_canScheduleTest(at)) return;
     await plugin.zonedSchedule(
       id: testNotificationId,
       title: AppStrings.current.t('투두닉 테스트'),
       body: AppStrings.current.t('앱 밖에서도 알림이 도착하는지 확인해주세요.'),
-      scheduledDate: tz.TZDateTime.now(tz.local)
-          .add(const Duration(seconds: 10)),
+      scheduledDate: tz.TZDateTime.from(at, tz.local),
       notificationDetails: details(),
-      androidScheduleMode: await mode(),
+      androidScheduleMode: scheduleMode,
+      payload: '$_testPayloadPrefix${at.millisecondsSinceEpoch}',
     );
   }
 }

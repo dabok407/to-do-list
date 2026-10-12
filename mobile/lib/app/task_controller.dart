@@ -55,6 +55,34 @@ class TaskController extends ChangeNotifier {
   }
 
   Future<void> reconcile() => _serial(_reconcile);
+  Future<void> testReminder() => _serial(() async {
+    // Ask before taking the lease: a permission dialog may remain open longer
+    // than the foreground/background scheduling lock lasts.
+    await reminders.requestPermissions();
+    final owner = 'test${DateTime.now().microsecondsSinceEpoch}';
+    var leased = await repository.acquireReminderLease(owner);
+    for (var attempt = 0; !leased && attempt < 15; attempt++) {
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+      leased = await repository.acquireReminderLease(owner);
+    }
+    if (!leased) {
+      throw StateError(
+        AppStrings.current.t('알림 예약을 갱신하고 있어요. 잠시 후 다시 시도해주세요.'),
+      );
+    }
+    try {
+      await access?.load();
+      reminders.accessUntil = access == null
+          ? null
+          : access!.enabled
+          ? access!.until
+          : DateTime(1970);
+      await reminders.testNotification(requestPermission: false);
+    } finally {
+      await repository.releaseReminderLease(owner);
+    }
+  });
+
   Future<void> _reconcile() async {
     await refresh();
     final owner = 'ui${DateTime.now().microsecondsSinceEpoch}';

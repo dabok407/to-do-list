@@ -1581,7 +1581,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       const SizedBox(height: 12),
       OutlinedButton(
         onPressed: () => subscription.hasAccess
-            ? run(c.reminders.testNotification)
+            ? run(c.testReminder)
             : openPro(),
         child: Text(strings.t('10초 뒤 테스트 알림')),
       ),

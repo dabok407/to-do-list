@@ -268,7 +268,47 @@ void main() {
     await tester.tap(find.byTooltip(strings.t('완료 해제')));
     await tester.pumpAndSettle();
     expect(controller.items.single.status, TaskStatus.paused);
-    await controller.reminders.testNotification();
+    await controller.testReminder();
+    final beforeTestRefill = await controller.reminders.plugin
+        .pendingNotificationRequests();
+    final testRequests = beforeTestRefill
+        .where((n) => n.id == ReminderScheduler.testNotificationId)
+        .toList();
+    expect(
+      testRequests,
+      hasLength(1),
+      reason:
+          'The production test reminder must be pending before delivery. '
+          'platform=${Platform.operatingSystem}; '
+          'pending=${beforeTestRefill.map((n) => '${n.id}:${n.payload}').toList()}',
+    );
+    final originalTestRequest = testRequests.single;
+    expect(originalTestRequest.payload, isNotEmpty);
+    expect(originalTestRequest.title, strings.t('투두닉 테스트'));
+    expect(originalTestRequest.body, strings.t('앱 밖에서도 알림이 도착하는지 확인해주세요.'));
+    // Force the same refill that can follow a foreground resume or task edit.
+    // Its payload includes the original absolute delivery time: preserving it
+    // proves that refill neither cancels the test nor restarts its ten seconds.
+    await controller.reconcile();
+    final afterTestRefill = await controller.reminders.plugin
+        .pendingNotificationRequests();
+    final restoredTestRequests = afterTestRefill
+        .where((n) => n.id == ReminderScheduler.testNotificationId)
+        .toList();
+    expect(
+      restoredTestRequests,
+      hasLength(1),
+      reason:
+          'Reconciliation must preserve the pending test reminder. '
+          'platform=${Platform.operatingSystem}; '
+          'original=${originalTestRequest.id}:${originalTestRequest.payload}; '
+          'pending=${afterTestRefill.map((n) => '${n.id}:${n.payload}').toList()}',
+    );
+    final restoredTestRequest = restoredTestRequests.single;
+    expect(restoredTestRequest.payload, originalTestRequest.payload);
+    expect(restoredTestRequest.title, originalTestRequest.title);
+    expect(restoredTestRequest.body, originalTestRequest.body);
+    debugPrint('NATIVE_TEST_REMINDER_REFILL_PRESERVED_OK');
     await tester.runAsync(() async {
       await Future<void>.delayed(const Duration(seconds: 12));
     });

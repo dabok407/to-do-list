@@ -1,4 +1,6 @@
 const coreEnglish = <String, String>{
+  '알림 예약을 갱신하고 있어요. 잠시 후 다시 시도해주세요.':
+      'Reminders are being refreshed. Please try again shortly.',
   '오늘': 'Today',
   '내일': 'Tomorrow',
   '어제': 'Yesterday',
