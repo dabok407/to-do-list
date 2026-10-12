@@ -25,6 +25,20 @@ const stateNames = ['예정', '진행 중', '보류', '완료', '건너뜀'];
 String timeLabel(DateTime d) =>
     '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
 
+// Material uses Sunday = 0, while DateTime uses Monday = 1. Keep calendar
+// display weeks separate from the Monday-based recurrence and quota logic.
+DateTime calendarWeekStart(DateTime date, int firstDayOfWeekIndex) {
+  final offset = (date.weekday % 7 - firstDayOfWeekIndex + 7) % 7;
+  return DateTime(date.year, date.month, date.day - offset);
+}
+
+int calendarMonthCellCount(DateTime month, int firstDayOfWeekIndex) {
+  final first = DateTime(month.year, month.month);
+  final offset = (first.weekday % 7 - firstDayOfWeekIndex + 7) % 7;
+  final days = DateTime(month.year, month.month + 1, 0).day;
+  return ((offset + days) / 7).ceil() * 7;
+}
+
 class HomeScreen extends StatefulWidget {
   final TaskController controller;
   final SubscriptionService? subscription;
@@ -41,11 +55,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   bool detailVisible = false;
   bool quickExpanded = false;
   bool quickTimeChosen = false;
+  bool quickTimeError = false;
   String? quickTitleError;
   late TimeOfDay quickTime;
   late final subscription = widget.subscription ?? SubscriptionService();
   final quickTitle = TextEditingController();
   final quickTitleFocus = FocusNode();
+  final quickTimeAnchor = GlobalKey();
   final bodyScroll = ScrollController();
   Timer? clockRefresh;
   String quickCategory = '생활';
@@ -610,14 +626,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     final daySize =
         26.0 *
         (MediaQuery.textScalerOf(context).scale(13) / 13).clamp(1.0, 1.6);
-    final first = week ? weekOf(selected) : DateTime(month.year, month.month);
-    final start = weekOf(first);
-    final count = week
-        ? 7
-        : ((first.weekday - 1 + DateTime(month.year, month.month + 1, 0).day) /
-                      7)
-                  .ceil() *
-              7;
+    final firstDayOfWeekIndex = MaterialLocalizations.of(context)
+        .firstDayOfWeekIndex;
+    final first = week ? selected : DateTime(month.year, month.month);
+    final start = calendarWeekStart(first, firstDayOfWeekIndex);
+    final count = week ? 7 : calendarMonthCellCount(month, firstDayOfWeekIndex);
     final now = dayOf(DateTime.now());
     final scale = (MediaQuery.textScalerOf(context).scale(11) / 11).clamp(
       1.0,
@@ -640,23 +653,26 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         child: Column(
           children: [
             Row(
-              children: List.generate(
-                7,
-                (i) => Expanded(
+              children: List.generate(7, (i) {
+                final weekday = (firstDayOfWeekIndex + i + 6) % 7 + 1;
+                return Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 7),
                     child: Center(
                       child: Text(
-                        strings.weekday(i + 1),
+                        strings.weekday(weekday),
+                        key: Key('calendar-weekday-$weekday'),
                         style: TextStyle(
-                          color: i == 6 ? priorityRed : mutedText,
+                          color: weekday == DateTime.sunday
+                              ? priorityRed
+                              : mutedText,
                           fontSize: 12,
                         ),
                       ),
                     ),
                   ),
-                ),
-              ),
+                );
+              }),
             ),
             GridView.builder(
               shrinkWrap: true,
@@ -932,12 +948,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         begin = summary == 0
             ? today
             : summary == 1
-            ? today.subtract(Duration(days: today.weekday - 1))
+            ? calendarWeekStart(
+                today,
+                MaterialLocalizations.of(context).firstDayOfWeekIndex,
+              )
             : DateTime(today.year, today.month);
     final end = summary == 0
         ? begin
         : summary == 1
-        ? begin.add(const Duration(days: 6))
+        ? DateTime(begin.year, begin.month, begin.day + 6)
         : DateTime(today.year, today.month + 1, 0);
     final summarized = c.items
         .where(
@@ -1139,6 +1158,19 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       quickTitleFocus.requestFocus();
       return;
     }
+    if (!quickTimeChosen) {
+      FocusScope.of(context).unfocus();
+      setState(() => quickTimeError = true);
+      final anchor = quickTimeAnchor.currentContext;
+      if (anchor != null) {
+        await Scrollable.ensureVisible(
+          anchor,
+          alignment: .5,
+          duration: const Duration(milliseconds: 200),
+        );
+      }
+      return;
+    }
     final now = DateTime.now();
     final due = DateTime(
       selected.year,
@@ -1185,6 +1217,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       );
       if (!mounted) return;
       quickTitle.clear();
+      setState(() {
+        quickTimeChosen = false;
+        quickTimeError = false;
+      });
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(strings.t('할 일을 등록했어요.'))));
     });
@@ -1193,6 +1229,63 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Widget quickAdd() => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
+      SizedBox(
+        key: quickTimeAnchor,
+        child: OutlinedButton.icon(
+          key: const Key('quick-add-time'),
+          onPressed: busy
+              ? null
+              : () async {
+                  FocusScope.of(context).unfocus();
+                  final value = await showPersistentTimePicker(
+                    context: context,
+                    initialTime: quickTime,
+                  );
+                  if (value == null || !mounted) return;
+                  setState(() {
+                    quickTime = value;
+                    quickTimeChosen = true;
+                    quickTimeError = false;
+                  });
+                },
+          icon: const Icon(Icons.schedule, size: 20),
+          label: Text(
+            quickTimeChosen
+                ? strings.t(
+                    '시간 · {time}',
+                    args: {
+                      'time': strings.time(
+                        DateTime(2000, 1, 1, quickTime.hour, quickTime.minute),
+                      ),
+                    },
+                  )
+                : strings.t('시간 선택'),
+          ),
+        ),
+      ),
+      const SizedBox(height: 8),
+      Text(
+        quickTimeChosen
+            ? strings.t(
+                '{date} {time}에 등록돼요.',
+                args: {
+                  'date': strings.dateShort(selected),
+                  'time': strings.time(
+                    DateTime(2000, 1, 1, quickTime.hour, quickTime.minute),
+                  ),
+                },
+              )
+            : strings.t('시간을 먼저 선택해주세요.'),
+        key: const Key('quick-add-time-hint'),
+        semanticsLabel: quickTimeError ? strings.t('시간을 먼저 선택해주세요.') : null,
+        style: TextStyle(
+          fontSize: 13,
+          color: quickTimeError
+              ? Theme.of(context).colorScheme.error
+              : mutedText,
+        ),
+      ),
+      const SizedBox(height: 12),
       Wrap(
         spacing: 6,
         runSpacing: 8,
@@ -1208,7 +1301,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             )
             .toList(),
       ),
-      const SizedBox(height: 10),
+      const SizedBox(height: 12),
       TextField(
         key: const Key('quick-add-title'),
         controller: quickTitle,
@@ -1230,48 +1323,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             icon: const Icon(Icons.arrow_upward),
           ),
         ),
-      ),
-      const SizedBox(height: 12),
-      OutlinedButton.icon(
-        key: const Key('quick-add-time'),
-        onPressed: busy
-            ? null
-            : () async {
-                FocusScope.of(context).unfocus();
-                final value = await showPersistentTimePicker(
-                  context: context,
-                  initialTime: quickTime,
-                );
-                if (value == null || !mounted) return;
-                setState(() {
-                  quickTime = value;
-                  quickTimeChosen = true;
-                });
-              },
-        icon: const Icon(Icons.schedule, size: 20),
-        label: Text(
-          strings.t(
-            '시간 · {time}',
-            args: {
-              'time': strings.time(
-                DateTime(2000, 1, 1, quickTime.hour, quickTime.minute),
-              ),
-            },
-          ),
-        ),
-      ),
-      const SizedBox(height: 8),
-      Text(
-        strings.t(
-          '{date} {time}에 등록돼요.',
-          args: {
-            'date': strings.dateShort(selected),
-            'time': strings.time(
-              DateTime(2000, 1, 1, quickTime.hour, quickTime.minute),
-            ),
-          },
-        ),
-        style: const TextStyle(fontSize: 13, color: Color(0xff626873)),
       ),
     ],
   );

@@ -57,6 +57,8 @@ const Map<String, String> homeEnglish = {
   "그래도 등록": "Add anyway",
   "할 일을 등록했어요.": "Task added.",
   "시간 · {time}": "Time · {time}",
+  "시간 선택": "Choose time",
+  "시간을 먼저 선택해주세요.": "Choose a time first.",
   "{date} {time}에 등록돼요.": "Due {date} at {time}.",
   "지금부터 1시간 뒤로 등록돼요. 상세 화면에서 시간을 바꿀 수 있어요.":
       "Due in one hour. You can change the time in task details.",

@@ -11,6 +11,7 @@ import 'package:hangeoreum/features/task_editor.dart';
 import 'package:hangeoreum/main.dart';
 import 'package:hangeoreum/services/reminder_scheduler.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 const _layoutScale = String.fromEnvironment(
   'QA_TEXT_SCALE',
@@ -488,6 +489,14 @@ void main() {
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
       await tester.tap(find.text('간단히 추가'));
+      await tester.pumpAndSettle();
+      SharedPreferences.setMockInitialValues({});
+      final time = find.byKey(const Key('quick-add-time'));
+      await tester.ensureVisible(time);
+      await tester.pumpAndSettle();
+      await tester.tap(time);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('확인'));
       await tester.pumpAndSettle();
       await tester.ensureVisible(find.byType(TextField));
       await tester.enterText(find.byType(TextField), '빠르게 기록한 할 일');

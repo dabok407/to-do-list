@@ -22,15 +22,26 @@ class _UnusedDatabase implements Database {
 
 class _QuickRepository extends TaskRepository {
   final stored = <Task>[];
+  final settings = <String, String>{};
+  var reads = 0;
   Completer<void>? readGate;
   Object? readError;
   _QuickRepository() : super(_UnusedDatabase());
 
   @override
   Future<List<Task>> tasks() async {
+    reads++;
     if (readGate != null) await readGate!.future;
     if (readError != null) throw readError!;
     return List.of(stored);
+  }
+
+  @override
+  Future<String?> setting(String key) async => settings[key];
+
+  @override
+  Future<void> setSetting(String key, String value) async {
+    settings[key] = value;
   }
 }
 
@@ -79,6 +90,7 @@ Future<_QuickController> _home(
   WidgetTester tester, {
   Size size = const Size(430, 932),
   double scale = 1,
+  String language = 'ko',
   List<Task> tasks = const [],
   GlobalKey? pixelBoundary,
 }) async {
@@ -89,6 +101,7 @@ Future<_QuickController> _home(
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
   final controller = _QuickController(_QuickRepository());
+  await controller.localeController.setPreference(language);
   final subscription = _TrialSubscription();
   for (final task in tasks) {
     controller.seed(task);
@@ -130,6 +143,53 @@ Future<void> _add(WidgetTester tester, String title) async {
   // The in-flight save indicator intentionally remains active while the user
   // decides whether a duplicate is allowed; wait for the dialog, not infinity.
   if (find.byType(AlertDialog).evaluate().isEmpty) await tester.pumpAndSettle();
+}
+
+Future<TimeOfDay> _chooseTime(
+  WidgetTester tester, {
+  bool accept = true,
+  TimeOfDay? value,
+}) async {
+  final time = find.byKey(const Key('quick-add-time'));
+  await tester.ensureVisible(time);
+  await tester.pumpAndSettle();
+  await tester.tap(time);
+  await tester.pumpAndSettle();
+  final initial = tester
+      .widget<TimePickerDialog>(find.byType(TimePickerDialog))
+      .initialTime;
+  if (value != null) {
+    if (find.byIcon(Icons.keyboard_outlined).evaluate().isNotEmpty) {
+      await tester.tap(find.byIcon(Icons.keyboard_outlined));
+      await tester.pumpAndSettle();
+    }
+    final uses12HourClock = find.text('오후').evaluate().isNotEmpty;
+    final hour = uses12HourClock
+        ? (value.hourOfPeriod == 0 ? 12 : value.hourOfPeriod)
+        : value.hour;
+    await tester.enterText(find.byType(TextFormField).at(0), '$hour');
+    await tester.enterText(find.byType(TextFormField).at(1), '${value.minute}');
+    if (uses12HourClock) {
+      await tester.tap(find.text(value.hour >= 12 ? '오후' : '오전'));
+    }
+    await tester.pumpAndSettle();
+  }
+  await tester.tap(find.text(accept ? '확인' : '취소'));
+  await tester.pumpAndSettle();
+  expect(find.byType(TimePickerDialog), findsNothing);
+  return initial;
+}
+
+void _expectTimeRequired(WidgetTester tester) {
+  final hint = tester.widget<Text>(
+    find.byKey(const Key('quick-add-time-hint')),
+  );
+  expect(hint.data, '시간을 먼저 선택해주세요.');
+  expect(hint.semanticsLabel, '시간을 먼저 선택해주세요.');
+  final theme = Theme.of(
+    tester.element(find.byKey(const Key('quick-add-time-hint'))),
+  );
+  expect(hint.style!.color, theme.colorScheme.error);
 }
 
 Task _task(String id, String title, DateTime due) =>
@@ -337,6 +397,7 @@ void main() {
   ) async {
     final controller = await _home(tester);
     await _expand(tester);
+    final time = await _chooseTime(tester);
     final field = find.byKey(const Key('quick-add-title'));
     await tester.ensureVisible(field);
     await tester.enterText(field, '키보드로 추가하는 일');
@@ -344,6 +405,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(controller.saved.single.title, '키보드로 추가하는 일');
     expect(dayOf(controller.saved.single.due), dayOf(DateTime.now()));
+    expect(controller.saved.single.due.hour, time.hour);
+    expect(controller.saved.single.due.minute, time.minute);
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
@@ -362,6 +425,7 @@ void main() {
         ],
       );
       await _expand(tester);
+      await _chooseTime(tester);
       await _add(tester, '  filter clean ');
       expect(find.text('중복된 내용입니다.'), findsOneWidget);
       expect(controller.saved, isEmpty);
@@ -391,6 +455,7 @@ void main() {
       final controller = await _home(tester);
       controller.fixture.readGate = Completer<void>();
       await _expand(tester);
+      await _chooseTime(tester);
       final field = find.byKey(const Key('quick-add-title'));
       await tester.ensureVisible(field);
       await tester.enterText(field, '한 번만 등록');
@@ -416,6 +481,7 @@ void main() {
     final controller = await _home(tester);
     controller.fixture.readError = StateError('read failed');
     await _expand(tester);
+    await _chooseTime(tester);
     await _add(tester, '오류 후 다시 등록');
     expect(controller.saved, isEmpty);
     expect(find.text('처리하지 못했습니다. 다시 시도해주세요.'), findsOneWidget);
@@ -432,6 +498,130 @@ void main() {
     expect(controller.saved.single.title, '오류 후 다시 등록');
     await tester.pumpWidget(const SizedBox.shrink());
   });
+
+  for (final action in ['arrow', 'keyboard done']) {
+    testWidgets(
+      '$action without an accepted time preserves the title and never reads or saves tasks',
+      (tester) async {
+        final controller = await _home(tester);
+        await _expand(tester);
+        final initialReads = controller.fixture.reads;
+        if (action == 'arrow') {
+          await _add(tester, '시간을 아직 선택하지 않은 일');
+        } else {
+          final field = find.byKey(const Key('quick-add-title'));
+          await tester.ensureVisible(field);
+          await tester.enterText(field, '시간을 아직 선택하지 않은 일');
+          await tester.testTextInput.receiveAction(TextInputAction.done);
+          await tester.pumpAndSettle();
+        }
+        _expectTimeRequired(tester);
+        expect(controller.fixture.reads, initialReads);
+        expect(controller.saved, isEmpty);
+        expect(
+          tester
+              .widget<TextField>(find.byKey(const Key('quick-add-title')))
+              .controller!
+              .text,
+          '시간을 아직 선택하지 않은 일',
+        );
+        expect(find.text('할 일을 등록했어요.'), findsNothing);
+        expect(tester.takeException(), isNull);
+        await tester.pumpWidget(const SizedBox.shrink());
+      },
+    );
+  }
+
+  testWidgets('cancelled time selection does not permit quick add', (
+    tester,
+  ) async {
+    final controller = await _home(tester);
+    await _expand(tester);
+    await _chooseTime(tester, accept: false);
+    await _add(tester, '취소한 시간을 쓰면 안 되는 일');
+    _expectTimeRequired(tester);
+    expect(controller.saved, isEmpty);
+    expect(controller.fixture.reads, 0);
+    await _chooseTime(tester);
+    expect(
+      tester
+          .widget<Text>(find.byKey(const Key('quick-add-time-hint')))
+          .semanticsLabel,
+      isNull,
+    );
+    await _add(tester, '취소한 시간을 쓰면 안 되는 일');
+    expect(controller.saved, hasLength(1));
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets(
+    'each successful registration requires time confirmation again and remembers the picker time',
+    (tester) async {
+      final controller = await _home(tester);
+      await _expand(tester);
+      const remembered = TimeOfDay(hour: 22, minute: 47);
+      await _chooseTime(tester, value: remembered);
+      await _add(tester, '첫 번째 등록');
+      expect(controller.saved, hasLength(1));
+      expect(find.text('시간 선택'), findsOneWidget);
+      await _add(tester, '두 번째 등록');
+      _expectTimeRequired(tester);
+      expect(controller.saved, hasLength(1));
+      expect(controller.fixture.reads, 1);
+      final nextInitial = await _chooseTime(tester, accept: false);
+      expect(nextInitial, remembered);
+      await _add(tester, '두 번째 등록');
+      expect(controller.saved, hasLength(1));
+      await _chooseTime(tester);
+      await _add(tester, '두 번째 등록');
+      expect(controller.saved.map((task) => task.title), [
+        '첫 번째 등록',
+        '두 번째 등록',
+      ]);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+
+  for (final language in ['ko', 'en']) {
+    testWidgets(
+      '$language 320px at 2x text places time, hint and category before the title',
+      (tester) async {
+        await _home(
+          tester,
+          size: const Size(320, 2200),
+          scale: 2,
+          language: language,
+        );
+        await _expand(tester);
+        final time = tester.getRect(find.byKey(const Key('quick-add-time')));
+        final hint = tester.getRect(
+          find.byKey(const Key('quick-add-time-hint')),
+        );
+        final title = tester.getRect(find.byKey(const Key('quick-add-title')));
+        final categories = find.descendant(
+          of: find.byKey(const Key('quick-add-card')),
+          matching: find.byType(ChoiceChip),
+        );
+        expect(time.bottom, lessThanOrEqualTo(hint.top));
+        for (final category in categories.evaluate()) {
+          final rect = tester.getRect(find.byWidget(category.widget));
+          expect(hint.bottom, lessThanOrEqualTo(rect.top));
+          expect(rect.bottom, lessThanOrEqualTo(title.top));
+          expect(rect.left, greaterThanOrEqualTo(0));
+          expect(rect.right, lessThanOrEqualTo(320));
+        }
+        expect(time.height, greaterThanOrEqualTo(48));
+        expect(time.left, greaterThanOrEqualTo(0));
+        expect(time.right, lessThanOrEqualTo(320));
+        expect(title.left, greaterThanOrEqualTo(0));
+        expect(title.right, lessThanOrEqualTo(320));
+        expect(tester.takeException(), isNull);
+        await tester.pumpWidget(const SizedBox.shrink());
+      },
+    );
+  }
 
   for (final platform in [TargetPlatform.iOS, TargetPlatform.android]) {
     for (final (size, scale) in [

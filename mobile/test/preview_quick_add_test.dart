@@ -45,6 +45,17 @@ Future<void> _add(WidgetTester tester, String title) async {
   if (find.byType(AlertDialog).evaluate().isEmpty) await tester.pumpAndSettle();
 }
 
+Future<void> _chooseTime(WidgetTester tester) async {
+  final time = find.byKey(const Key('quick-add-time'));
+  await tester.ensureVisible(time);
+  await tester.pumpAndSettle();
+  await tester.tap(time);
+  await tester.pumpAndSettle();
+  await tester.tap(find.text('확인'));
+  await tester.pumpAndSettle();
+  expect(find.byType(TimePickerDialog), findsNothing);
+}
+
 void main() {
   setUpAll(() async {
     await (FontLoader(
@@ -106,6 +117,7 @@ void main() {
       final controller = await _preview(tester);
       final seeded = await controller.repository.tasks();
       final original = seeded.singleWhere((task) => task.title == '에어컨 필터 청소');
+      await _chooseTime(tester);
       await _add(tester, original.title);
       expect(find.text('중복된 내용입니다.'), findsOneWidget);
       expect(await controller.repository.tasks(), hasLength(seeded.length));
@@ -129,14 +141,43 @@ void main() {
       expect(matching.map((task) => task.id).toSet(), hasLength(2));
       expect(stored, hasLength(seeded.length + 1));
       // The repository must also reflect additions, rather than only seed data.
+      await _chooseTime(tester);
       await _add(tester, '방금 저장한 미리보기 일정');
       stored = await controller.repository.tasks();
       expect(stored, hasLength(seeded.length + 2));
+      await _chooseTime(tester);
       await _add(tester, '방금 저장한 미리보기 일정');
       expect(find.text('중복된 내용입니다.'), findsOneWidget);
       await tester.tap(find.text('취소'));
       await tester.pumpAndSettle();
       expect(await controller.repository.tasks(), hasLength(seeded.length + 2));
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+
+  testWidgets(
+    'production preview requires an accepted time before saving a quick-add title',
+    (tester) async {
+      final controller = await _preview(tester);
+      final before = await controller.repository.tasks();
+      await _add(tester, '시간 선택 전 미리보기 일정');
+      expect(await controller.repository.tasks(), hasLength(before.length));
+      expect(
+        tester
+            .widget<Text>(find.byKey(const Key('quick-add-time-hint')))
+            .semanticsLabel,
+        '시간을 먼저 선택해주세요.',
+      );
+      expect(find.text('할 일을 등록했어요.'), findsNothing);
+      await _chooseTime(tester);
+      await _add(tester, '시간 선택 전 미리보기 일정');
+      final stored = await controller.repository.tasks();
+      expect(stored, hasLength(before.length + 1));
+      expect(
+        stored.where((task) => task.title == '시간 선택 전 미리보기 일정'),
+        hasLength(1),
+      );
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox.shrink());
     },
