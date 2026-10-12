@@ -10,6 +10,7 @@ import 'package:hangeoreum/main.dart';
 import 'package:hangeoreum/preview.dart'
     show PreviewController, PreviewSubscription;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hangeoreum/services/widget_service.dart';
 
 Future<PreviewController> _app(WidgetTester tester) async {
   tester.view.devicePixelRatio = 1;
@@ -51,6 +52,19 @@ Future<void> _type(WidgetTester tester, Finder field, String text) async {
 }
 
 void main() {
+  setUp(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          WidgetService.channel,
+          (call) async => call.method == 'getCalendarPreferences'
+              ? {'regionCode': 'KR', 'firstDayOfWeek': 0}
+              : null,
+        );
+  });
+  tearDown(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(WidgetService.channel, null);
+  });
   setUpAll(() async {
     await (FontLoader(
       'Pretendard',

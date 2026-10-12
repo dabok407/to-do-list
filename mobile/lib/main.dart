@@ -14,6 +14,7 @@ import 'services/background_refresh.dart';
 import 'services/subscription_service.dart';
 import 'services/feature_access.dart';
 import 'l10n/app_strings.dart';
+import 'l10n/device_calendar_localizations.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -154,6 +155,17 @@ class _HangeoreumAppState extends State<HangeoreumApp>
   void didChangeLocales(List<Locale>? locales) {
     if (controller.localeController.preference == 'system') {
       controller.setLanguage('system');
+    } else {
+      controller.localeController.refreshCalendarPreferences(
+        systemLocale: locales?.firstOrNull,
+      );
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      controller.localeController.refreshCalendarPreferences();
     }
   }
 
@@ -175,6 +187,9 @@ class _HangeoreumAppState extends State<HangeoreumApp>
       supportedLocales: const [Locale('ko'), Locale('en')],
       localizationsDelegates: [
         AppStrings.delegate,
+        DeviceCalendarMaterialDelegate(
+          firstDayOfWeekIndex: controller.localeController.firstDayOfWeekIndex,
+        ),
         ...GlobalMaterialLocalizations.delegates,
       ],
       theme: ThemeData(

@@ -13,6 +13,8 @@ import 'package:hangeoreum/services/reminder_scheduler.dart';
 import 'package:hangeoreum/services/feature_access.dart';
 import 'package:hangeoreum/services/subscription_service.dart';
 import 'package:hangeoreum/l10n/app_strings.dart';
+import 'package:hangeoreum/features/home_screen.dart';
+import 'package:hangeoreum/services/widget_service.dart';
 
 import 'bootstrap.dart';
 
@@ -20,6 +22,43 @@ void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   testWidgets('실제 기기 CRUD·알림 예약·완료 해제·DB 재연결', (tester) async {
     final controller = await launchApplication(tester);
+    // Read the real native OS preference, rather than mocking a Flutter locale.
+    // Explicit UI language changes must keep the device's calendar week intact.
+    final calendar = await tester.runAsync(
+      () => WidgetService.channel.invokeMapMethod<String, Object?>(
+        'getCalendarPreferences',
+      ),
+    );
+    expect(calendar, isNotNull);
+    final nativeFirstDay = calendar!['firstDayOfWeek'];
+    expect(nativeFirstDay, isA<int>());
+    expect(nativeFirstDay, inInclusiveRange(0, 6));
+    expect(calendar['regionCode'], isA<String>());
+    final savedLanguage = controller.localeController.preference;
+    for (final language in ['ko', 'en', savedLanguage]) {
+      await tester.runAsync(
+        () => controller.localeController.setPreference(language),
+      );
+      await tester.pumpAndSettle();
+      expect(controller.localeController.firstDayOfWeekIndex, nativeFirstDay);
+      expect(
+        MaterialLocalizations.of(tester.element(find.byType(HomeScreen)))
+            .firstDayOfWeekIndex,
+        nativeFirstDay,
+      );
+      final firstWeekday = ((nativeFirstDay as int) + 6) % 7 + 1;
+      expect(
+        tester.getTopLeft(find.byKey(Key('calendar-weekday-$firstWeekday'))).dx,
+        lessThan(
+          tester
+              .getTopLeft(
+                find.byKey(Key('calendar-weekday-${firstWeekday % 7 + 1}')),
+              )
+              .dx,
+        ),
+      );
+    }
+    debugPrint('NATIVE_DEVICE_CALENDAR_PREFERENCES_OK');
     // Keep the native device's real language. The production app resolves it
     // during startup, so UI finders must use that same resolved language.
     final strings = AppStrings(controller.localeController.locale.languageCode);

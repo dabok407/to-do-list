@@ -16,6 +16,7 @@ import 'package:hangeoreum/features/privacy_card.dart';
 import 'package:hangeoreum/main.dart';
 import 'package:hangeoreum/preview.dart';
 import 'package:hangeoreum/l10n/app_strings.dart';
+import 'package:hangeoreum/services/widget_service.dart';
 
 const _enabled = bool.fromEnvironment('STORE_CAPTURE');
 const _onlyPrivacy = bool.fromEnvironment('STORE_CAPTURE_PRIVACY_ONLY');
@@ -268,6 +269,24 @@ void main() {
       'Use ko or en',
     );
   }
+  TestWidgetsFlutterBinding.ensureInitialized();
+  final messenger =
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+  setUp(() {
+    // Store artwork deliberately keeps the approved Korean Sunday-first
+    // device setting in both UI languages; it is not native integration proof.
+    messenger.setMockMethodCallHandler(WidgetService.channel, (call) async {
+      if (call.method == 'getCalendarPreferences') {
+        return {'regionCode': 'KR', 'firstDayOfWeek': 0};
+      }
+      throw MissingPluginException(
+        'Native widget calls are outside artwork capture',
+      );
+    });
+  });
+  tearDown(
+    () => messenger.setMockMethodCallHandler(WidgetService.channel, null),
+  );
   setUpAll(() async {
     await (FontLoader(
       'Pretendard',

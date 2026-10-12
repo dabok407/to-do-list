@@ -9,6 +9,7 @@ import 'package:hangeoreum/l10n/app_strings.dart';
 import 'package:hangeoreum/main.dart';
 import 'package:hangeoreum/services/reminder_scheduler.dart';
 import 'package:hangeoreum/services/subscription_service.dart';
+import 'package:hangeoreum/services/widget_service.dart';
 import 'package:sqflite/sqflite.dart';
 
 class _NoDatabase implements Database {
@@ -144,6 +145,24 @@ void _phone(WidgetTester tester, double scale) {
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  final messenger =
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+  setUp(() {
+    // Layout fixtures use a fixed Korean device calendar; native integration is
+    // verified separately in device_region_calendar_test and native app tests.
+    messenger.setMockMethodCallHandler(WidgetService.channel, (call) async {
+      if (call.method == 'getCalendarPreferences') {
+        return {'regionCode': 'KR', 'firstDayOfWeek': 0};
+      }
+      throw MissingPluginException(
+        'Native widget calls are outside this fixture',
+      );
+    });
+  });
+  tearDown(
+    () => messenger.setMockMethodCallHandler(WidgetService.channel, null),
+  );
   setUpAll(() async {
     await (FontLoader(
       'Pretendard',

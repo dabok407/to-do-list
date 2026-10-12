@@ -48,8 +48,19 @@ class _LanguageWidgets extends WidgetService {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  final messenger =
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
   late TaskRepository repository;
   setUp(() async {
+    // These language fixtures do not test native device calendar integration.
+    messenger.setMockMethodCallHandler(WidgetService.channel, (call) async {
+      if (call.method == 'getCalendarPreferences') {
+        return {'regionCode': 'KR', 'firstDayOfWeek': 0};
+      }
+      throw MissingPluginException(
+        'Native widget calls require a dedicated mock',
+      );
+    });
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
     repository = await TaskRepository.open(databasePath: inMemoryDatabasePath);
@@ -57,6 +68,7 @@ void main() {
     LocaleController.currentPreference = 'system';
   });
   tearDown(() async {
+    messenger.setMockMethodCallHandler(WidgetService.channel, null);
     AppStrings.current = const AppStrings('ko');
     LocaleController.currentPreference = 'system';
     debugDefaultTargetPlatformOverride = null;
@@ -206,6 +218,10 @@ void main() {
       Map<Object?, Object?>? payload;
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(WidgetService.channel, (call) async {
+            if (call.method == 'getCalendarPreferences') {
+              return {'regionCode': 'KR', 'firstDayOfWeek': 0};
+            }
+            expect(call.method, 'update');
             payload = call.arguments as Map<Object?, Object?>;
             return null;
           });
@@ -231,6 +247,10 @@ void main() {
     final messenger =
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
     messenger.setMockMethodCallHandler(WidgetService.channel, (call) async {
+      if (call.method == 'getCalendarPreferences') {
+        return {'regionCode': 'KR', 'firstDayOfWeek': 0};
+      }
+      expect(call.method, 'update');
       payload = call.arguments as Map<Object?, Object?>;
       return null;
     });

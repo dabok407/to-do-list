@@ -12,6 +12,7 @@ import 'package:hangeoreum/main.dart';
 import 'package:hangeoreum/services/reminder_scheduler.dart';
 import 'package:hangeoreum/services/subscription_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hangeoreum/services/widget_service.dart';
 import 'package:sqflite/sqflite.dart';
 
 class _UnusedDatabase implements Database {
@@ -262,6 +263,19 @@ Future<void> _expectCardBordersAtLayout(
 }
 
 void main() {
+  setUp(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          WidgetService.channel,
+          (call) async => call.method == 'getCalendarPreferences'
+              ? {'regionCode': 'KR', 'firstDayOfWeek': 0}
+              : null,
+        );
+  });
+  tearDown(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(WidgetService.channel, null);
+  });
   setUpAll(() async {
     await (FontLoader(
       'Pretendard',

@@ -66,6 +66,8 @@ import workmanager_apple
     channel.setMethodCallHandler { [weak self] call, result in
       guard let self = self else { result(nil); return }
       switch call.method {
+      case "getCalendarPreferences":
+        result(calendarPreferences())
       case "update":
         refreshWidgetSnapshot(call.arguments, result: result)
       case "getLaunchUri":
@@ -96,6 +98,15 @@ import workmanager_apple
   }
 }
 
+private func calendarPreferences() -> [String: Any] {
+  // System region and calendar preferences stay independent of the app language.
+  // Foundation reads local settings without a location or network permission.
+  return [
+    "regionCode": Locale.autoupdatingCurrent.regionCode ?? "",
+    "firstDayOfWeek": Calendar.autoupdatingCurrent.firstWeekday - 1,
+  ]
+}
+
 private func refreshWidgetSnapshot(_ arguments: Any?, result: @escaping FlutterResult) {
   guard let args = arguments as? [String: Any], let tasks = args["tasks"] as? [[String: Any]] else {
     result(FlutterError(code: "invalid_snapshot", message: "Expected a task list", details: nil))
@@ -120,6 +131,7 @@ private final class BackgroundWidgetSnapshotPlugin: NSObject, FlutterPlugin {
   func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     if call.method == "update" { refreshWidgetSnapshot(call.arguments, result: result) }
     else if call.method == "getLaunchUri" { result(nil) }
+    else if call.method == "getCalendarPreferences" { result(calendarPreferences()) }
     else { result(FlutterMethodNotImplemented) }
   }
 }
