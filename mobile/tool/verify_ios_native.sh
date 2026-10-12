@@ -5,6 +5,19 @@ device="$1"
 package=com.dabok407.hangeoreum
 results=build/integration_test
 mkdir -p "$results"
+# Preserve the verification result while retaining evidence on every exit,
+# including a failed Maestro notification flow or screenshot/OCR assertion.
+capture_ios_notification_diagnostics() {
+  local verification_status=$?
+  trap - EXIT
+  set +e
+  xcrun simctl io "$device" screenshot "$results/ios-native-final.png"
+  xcrun simctl spawn "$device" log show --last 10m --style compact \
+    --predicate 'process == "Runner" OR subsystem BEGINSWITH "com.apple.UserNotifications" OR process == "usernotificationsd" OR (process == "SpringBoard" AND eventMessage CONTAINS[c] "notification")' \
+    > "$results/ios-notification-system.log" 2>&1
+  exit "$verification_status"
+}
+trap capture_ios_notification_diagnostics EXIT
 # XCTest can shut down the original device after using its own test clone.
 xcrun simctl boot "$device" || true
 xcrun simctl bootstatus "$device" -b

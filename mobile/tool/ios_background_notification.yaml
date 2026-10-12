@@ -18,10 +18,21 @@ appId: com.dabok407.hangeoreum
 - tapOn: "${TEST_BUTTON}"
 - pressKey: home
 - stopApp
-- swipe:
-    start: "20%, 1%"
-    end: "20%, 85%"
-    duration: 1000
+- waitForAnimationToEnd:
+    timeout: 3000
+# The simulator can ignore an edge gesture during the SpringBoard transition.
+# Retry the actual top-edge pull, bounded to three attempts; title/body checks
+# below remain mandatory even when the panel never opens or delivery fails.
+- repeat:
+    times: 3
+    while:
+      notVisible: ".*${TEST_TITLE}.*"
+    commands:
+      - swipe:
+          start: "15%, 0%"
+          end: "15%, 85%"
+          duration: 1000
+          waitToSettleTimeoutMs: 2000
 - extendedWaitUntil:
     visible: ".*${TEST_TITLE}.*"
     timeout: 30000

@@ -152,7 +152,7 @@ jobs:
       - name: Export native widget render attachments
         run: xcrun xcresulttool export attachments --path build/integration_test/native-widget.xcresult --output-path build/integration_test/widget-renders
       - name: Restore normal app and verify native deep link
-        timeout-minutes: 8
+        timeout-minutes: 12
         run: bash tool/verify_ios_native.sh "$SIMULATOR_ID"
       - name: iPhone notification permission denial
         timeout-minutes: 10
