@@ -1,0 +1,19 @@
+{
+  "source": "Production HangeoreumApp and ProScreen rendered by Flutter widget test",
+  "language": "ko",
+  "product_id": "hangeoreum_pro_yearly",
+  "display_price_fixture": "₩900",
+  "price_source": "App Store Connect configured yearly price verified 2026-10-11",
+  "native_device_capture": false,
+  "live_storekit_response": false,
+  "purchase_executed": false,
+  "dimensions": [
+    1179,
+    2556
+  ],
+  "purpose": "Explain the subscription offering; not evidence of purchase validation",
+  "screens": [
+    "pro-overview.png",
+    "pro-purchase.png"
+  ]
+}

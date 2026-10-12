@@ -1,0 +1,347 @@
+{
+  "verifiedAt": "2026-10-11T14:30:27.997Z",
+  "scope": "Public production HTML responsive layout, navigation minimum height and language; not legal certification or native app test",
+  "koreanSupport": [
+    {
+      "heading": "나만의 할 일, 투두닉",
+      "lang": "ko",
+      "navLinks": [
+        {
+          "height": 44,
+          "text": "한국어"
+        },
+        {
+          "height": 44,
+          "text": "English"
+        },
+        {
+          "height": 44,
+          "text": "지원"
+        },
+        {
+          "height": 44,
+          "text": "개인정보"
+        },
+        {
+          "height": 44,
+          "text": "구독·이용 안내"
+        }
+      ],
+      "scrollWidth": 305,
+      "title": "지원 안내 · 투두닉",
+      "width": 320
+    },
+    {
+      "heading": "나만의 할 일, 투두닉",
+      "lang": "ko",
+      "navLinks": [
+        {
+          "height": 44,
+          "text": "한국어"
+        },
+        {
+          "height": 44,
+          "text": "English"
+        },
+        {
+          "height": 44,
+          "text": "지원"
+        },
+        {
+          "height": 44,
+          "text": "개인정보"
+        },
+        {
+          "height": 44,
+          "text": "구독·이용 안내"
+        }
+      ],
+      "scrollWidth": 375,
+      "title": "지원 안내 · 투두닉",
+      "width": 390
+    },
+    {
+      "heading": "나만의 할 일, 투두닉",
+      "lang": "ko",
+      "navLinks": [
+        {
+          "height": 44,
+          "text": "한국어"
+        },
+        {
+          "height": 44,
+          "text": "English"
+        },
+        {
+          "height": 44,
+          "text": "지원"
+        },
+        {
+          "height": 44,
+          "text": "개인정보"
+        },
+        {
+          "height": 44,
+          "text": "구독·이용 안내"
+        }
+      ],
+      "scrollWidth": 753,
+      "title": "지원 안내 · 투두닉",
+      "width": 768
+    }
+  ],
+  "otherPages": [
+    {
+      "forms": 0,
+      "h1": "Your tasks. Your way.",
+      "lang": "en",
+      "main": true,
+      "minNavigationHeight": 44,
+      "scripts": 0,
+      "scrollWidth": 305,
+      "title": "Support · Todoniq",
+      "url": "https://dabok407.github.io/to-do-list/support-en.html",
+      "width": 320
+    },
+    {
+      "forms": 0,
+      "h1": "Your tasks. Your way.",
+      "lang": "en",
+      "main": true,
+      "minNavigationHeight": 44,
+      "scripts": 0,
+      "scrollWidth": 375,
+      "title": "Support · Todoniq",
+      "url": "https://dabok407.github.io/to-do-list/support-en.html",
+      "width": 390
+    },
+    {
+      "forms": 0,
+      "h1": "Your tasks. Your way.",
+      "lang": "en",
+      "main": true,
+      "minNavigationHeight": 44,
+      "scripts": 0,
+      "scrollWidth": 753,
+      "title": "Support · Todoniq",
+      "url": "https://dabok407.github.io/to-do-list/support-en.html",
+      "width": 768
+    },
+    {
+      "forms": 0,
+      "h1": "일정과 기록은 내 기기에",
+      "lang": "ko",
+      "main": true,
+      "minNavigationHeight": 44,
+      "scripts": 0,
+      "scrollWidth": 305,
+      "title": "개인정보 안내 · 투두닉",
+      "url": "https://dabok407.github.io/to-do-list/privacy.html",
+      "width": 320
+    },
+    {
+      "forms": 0,
+      "h1": "일정과 기록은 내 기기에",
+      "lang": "ko",
+      "main": true,
+      "minNavigationHeight": 44,
+      "scripts": 0,
+      "scrollWidth": 375,
+      "title": "개인정보 안내 · 투두닉",
+      "url": "https://dabok407.github.io/to-do-list/privacy.html",
+      "width": 390
+    },
+    {
+      "forms": 0,
+      "h1": "일정과 기록은 내 기기에",
+      "lang": "ko",
+      "main": true,
+      "minNavigationHeight": 44,
+      "scripts": 0,
+      "scrollWidth": 753,
+      "title": "개인정보 안내 · 투두닉",
+      "url": "https://dabok407.github.io/to-do-list/privacy.html",
+      "width": 768
+    },
+    {
+      "forms": 0,
+      "h1": "Your records stay on your device",
+      "lang": "en",
+      "main": true,
+      "minNavigationHeight": 44,
+      "scripts": 0,
+      "scrollWidth": 305,
+      "title": "Privacy · Todoniq",
+      "url": "https://dabok407.github.io/to-do-list/privacy-en.html",
+      "width": 320
+    },
+    {
+      "forms": 0,
+      "h1": "Your records stay on your device",
+      "lang": "en",
+      "main": true,
+      "minNavigationHeight": 44,
+      "scripts": 0,
+      "scrollWidth": 375,
+      "title": "Privacy · Todoniq",
+      "url": "https://dabok407.github.io/to-do-list/privacy-en.html",
+      "width": 390
+    },
+    {
+      "forms": 0,
+      "h1": "Your records stay on your device",
+      "lang": "en",
+      "main": true,
+      "minNavigationHeight": 44,
+      "scripts": 0,
+      "scrollWidth": 753,
+      "title": "Privacy · Todoniq",
+      "url": "https://dabok407.github.io/to-do-list/privacy-en.html",
+      "width": 768
+    },
+    {
+      "forms": 0,
+      "h1": "무료로 시작하고, 필요할 때 Pro로",
+      "lang": "ko",
+      "main": true,
+      "minNavigationHeight": 44,
+      "scripts": 0,
+      "scrollWidth": 305,
+      "title": "구독·이용 안내 · 투두닉",
+      "url": "https://dabok407.github.io/to-do-list/terms.html",
+      "width": 320
+    },
+    {
+      "forms": 0,
+      "h1": "무료로 시작하고, 필요할 때 Pro로",
+      "lang": "ko",
+      "main": true,
+      "minNavigationHeight": 44,
+      "scripts": 0,
+      "scrollWidth": 375,
+      "title": "구독·이용 안내 · 투두닉",
+      "url": "https://dabok407.github.io/to-do-list/terms.html",
+      "width": 390
+    },
+    {
+      "forms": 0,
+      "h1": "무료로 시작하고, 필요할 때 Pro로",
+      "lang": "ko",
+      "main": true,
+      "minNavigationHeight": 44,
+      "scripts": 0,
+      "scrollWidth": 753,
+      "title": "구독·이용 안내 · 투두닉",
+      "url": "https://dabok407.github.io/to-do-list/terms.html",
+      "width": 768
+    },
+    {
+      "forms": 0,
+      "h1": "Start free. Choose Pro when you need it.",
+      "lang": "en",
+      "main": true,
+      "minNavigationHeight": 44,
+      "scripts": 0,
+      "scrollWidth": 305,
+      "title": "Subscriptions & use · Todoniq",
+      "url": "https://dabok407.github.io/to-do-list/terms-en.html",
+      "width": 320
+    },
+    {
+      "forms": 0,
+      "h1": "Start free. Choose Pro when you need it.",
+      "lang": "en",
+      "main": true,
+      "minNavigationHeight": 44,
+      "scripts": 0,
+      "scrollWidth": 375,
+      "title": "Subscriptions & use · Todoniq",
+      "url": "https://dabok407.github.io/to-do-list/terms-en.html",
+      "width": 390
+    },
+    {
+      "forms": 0,
+      "h1": "Start free. Choose Pro when you need it.",
+      "lang": "en",
+      "main": true,
+      "minNavigationHeight": 44,
+      "scripts": 0,
+      "scrollWidth": 753,
+      "title": "Subscriptions & use · Todoniq",
+      "url": "https://dabok407.github.io/to-do-list/terms-en.html",
+      "width": 768
+    },
+    {
+      "forms": 0,
+      "h1": "나만의 할 일, 투두닉",
+      "lang": "ko",
+      "main": true,
+      "minNavigationHeight": 44,
+      "scripts": 0,
+      "scrollWidth": 305,
+      "title": "투두닉 · 나만의 할 일, 투두닉",
+      "url": "https://dabok407.github.io/to-do-list/index.html",
+      "width": 320
+    },
+    {
+      "forms": 0,
+      "h1": "나만의 할 일, 투두닉",
+      "lang": "ko",
+      "main": true,
+      "minNavigationHeight": 44,
+      "scripts": 0,
+      "scrollWidth": 375,
+      "title": "투두닉 · 나만의 할 일, 투두닉",
+      "url": "https://dabok407.github.io/to-do-list/index.html",
+      "width": 390
+    },
+    {
+      "forms": 0,
+      "h1": "나만의 할 일, 투두닉",
+      "lang": "ko",
+      "main": true,
+      "minNavigationHeight": 44,
+      "scripts": 0,
+      "scrollWidth": 753,
+      "title": "투두닉 · 나만의 할 일, 투두닉",
+      "url": "https://dabok407.github.io/to-do-list/index.html",
+      "width": 768
+    },
+    {
+      "forms": 0,
+      "h1": "Your tasks. Your way.",
+      "lang": "en",
+      "main": true,
+      "minNavigationHeight": 44,
+      "scripts": 0,
+      "scrollWidth": 305,
+      "title": "Todoniq · Your tasks. Your way.",
+      "url": "https://dabok407.github.io/to-do-list/index-en.html",
+      "width": 320
+    },
+    {
+      "forms": 0,
+      "h1": "Your tasks. Your way.",
+      "lang": "en",
+      "main": true,
+      "minNavigationHeight": 44,
+      "scripts": 0,
+      "scrollWidth": 375,
+      "title": "Todoniq · Your tasks. Your way.",
+      "url": "https://dabok407.github.io/to-do-list/index-en.html",
+      "width": 390
+    },
+    {
+      "forms": 0,
+      "h1": "Your tasks. Your way.",
+      "lang": "en",
+      "main": true,
+      "minNavigationHeight": 44,
+      "scripts": 0,
+      "scrollWidth": 753,
+      "title": "Todoniq · Your tasks. Your way.",
+      "url": "https://dabok407.github.io/to-do-list/index-en.html",
+      "width": 768
+    }
+  ]
+}

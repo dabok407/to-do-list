@@ -1,0 +1,30 @@
+{
+  "verified_at": "2026-10-11T14:31:04.274451+00:00",
+  "html_pages": 8,
+  "link_references_checked": 154,
+  "support_emails": [
+    "dabok407@gmail.com"
+  ],
+  "external_https_links": [
+    "https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages#data-collection",
+    "https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement",
+    "https://policies.google.com/privacy?hl=en",
+    "https://policies.google.com/privacy?hl=ko",
+    "https://support.apple.com/en-us/118223",
+    "https://support.apple.com/en-us/118428",
+    "https://support.apple.com/ko-kr/118223",
+    "https://support.apple.com/ko-kr/118428",
+    "https://support.google.com/googleplay/answer/2479637?hl=en",
+    "https://support.google.com/googleplay/answer/2479637?hl=ko",
+    "https://support.google.com/googleplay/answer/7018481?hl=en",
+    "https://support.google.com/googleplay/answer/7018481?hl=ko",
+    "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+    "https://www.apple.com/legal/privacy/"
+  ],
+  "external_link_destinations_visited": false,
+  "store_screenshots": 56,
+  "store_assets": 4,
+  "png_hashes_dimensions_verified": 60,
+  "archive_hashes_and_crc_verified": 4,
+  "scope": "Prepared site files and store assets only; not native purchase validation or legal certification"
+}
