@@ -1,5 +1,5 @@
 {
-  "verified_at": "2026-10-10T09:03:18.042Z",
+  "verified_at": "2026-10-12T07:09:34.252Z",
   "brands": {
     "ko": "투두닉",
     "en": "Todoniq"
@@ -32,8 +32,8 @@
       "width": 1179,
       "height": 2556,
       "channels": 3,
-      "bytes": 380955,
-      "sha256": "0e4605f9c993c58c20d25bc54707ab313e12673fa03f878ee09ccf14cbc0ce8f"
+      "bytes": 380315,
+      "sha256": "d3b4ef3bdaaa6254ec04f6297fa2666cb18524d1237689795dd85d4f2b2e328d"
     },
     {
       "file": "screenshots/iphone/02-overdue.png",
@@ -95,8 +95,8 @@
       "width": 1320,
       "height": 2868,
       "channels": 3,
-      "bytes": 440153,
-      "sha256": "f1a299f67f20cfadbdec8be1f2a06ae6e6a9a9377bff411c7651eedeee95b391"
+      "bytes": 438666,
+      "sha256": "d2f93ea1f30c7a85e8ae1f7c9a7195965e34e57e9e09a5e39a77f9de6f661771"
     },
     {
       "file": "screenshots/iphone-large/02-overdue.png",
@@ -158,8 +158,8 @@
       "width": 2064,
       "height": 2752,
       "channels": 3,
-      "bytes": 410005,
-      "sha256": "1e3f4a10847defebe2e92066cf22d513300d4db3fa26cea31252c1c1f70f4219"
+      "bytes": 404945,
+      "sha256": "c7f96d1c9e85c4ba7437564ff2bb05cb84a05247f3a9269d2baa38ceef60d4a1"
     },
     {
       "file": "screenshots/ipad/02-overdue.png",
@@ -221,8 +221,8 @@
       "width": 1080,
       "height": 1920,
       "channels": 3,
-      "bytes": 230041,
-      "sha256": "ff213880468444ef0acb73acd1a3b80c39f7965228f31b7801d549da9c9788cc"
+      "bytes": 229110,
+      "sha256": "21bbbfa2ad4d295ae341c325fe6a3368b95abb7008406fa3672a2926c496ff16"
     },
     {
       "file": "screenshots/android/02-overdue.png",
@@ -284,8 +284,8 @@
       "width": 1179,
       "height": 2556,
       "channels": 3,
-      "bytes": 416066,
-      "sha256": "8c6a3ccd8a7aefb9019962511d8da48bfacb561196d1c27e45facb7235af6199"
+      "bytes": 414058,
+      "sha256": "ac1afb614f7c90d2d8c53c092d279664041f2a7bb211bff200a6ba3e15bc648e"
     },
     {
       "file": "screenshots/en/iphone/02-overdue.png",
@@ -347,8 +347,8 @@
       "width": 1320,
       "height": 2868,
       "channels": 3,
-      "bytes": 481277,
-      "sha256": "78b162f39298cb42dacfd433c9b64d4631b54e955868c30c8b8236cdecc4501f"
+      "bytes": 479206,
+      "sha256": "eaaa5f827dd50c2c433d6d2965bbe360ee058d7176664e41f169ef072d2663b5"
     },
     {
       "file": "screenshots/en/iphone-large/02-overdue.png",
@@ -410,8 +410,8 @@
       "width": 2064,
       "height": 2752,
       "channels": 3,
-      "bytes": 479795,
-      "sha256": "c7f63251936c2b71dee8b10fd26228597fdbbbfadb1f8a2b8b3ca41a1720358c"
+      "bytes": 471893,
+      "sha256": "000c5f6b51be22edaf7ad4ba2e096bb4704811b1bbe5b45cc973f317945f4604"
     },
     {
       "file": "screenshots/en/ipad/02-overdue.png",
@@ -473,8 +473,8 @@
       "width": 1080,
       "height": 1920,
       "channels": 3,
-      "bytes": 240834,
-      "sha256": "8f9b6ace9ae68d4da4958ad0b8a8ec06eb2ce69f8ab6a3f4fbc7d2bedc3cdd8b"
+      "bytes": 240553,
+      "sha256": "c9995a06da005395ed66b6dd1677751c30d9b8e221ff5248e9d7d2fabf0a3d53"
     },
     {
       "file": "screenshots/en/android/02-overdue.png",
@@ -535,16 +535,16 @@
       "width": 1024,
       "height": 500,
       "channels": 3,
-      "bytes": 77456,
-      "sha256": "a858c8220767cdf1eead1a2afd616ccdea71f256fa8dba281ea98091a8c7f61b"
+      "bytes": 77007,
+      "sha256": "f4385b6b11731dce91b2ffbe56cba142a99b0ef53321a30293403300ec81f641"
     },
     {
       "file": "assets/play-feature-1024x500-en.png",
       "width": 1024,
       "height": 500,
       "channels": 3,
-      "bytes": 80780,
-      "sha256": "72007976e5b053176c9861e8ed74ab61fb5a59b3e091047b02b54fa189cbdd54"
+      "bytes": 80411,
+      "sha256": "d0691d39ce4d0e26bad9cc268dd51edaa829a2238b256a9adcf6f358b8e8aaa3"
     },
     {
       "file": "assets/app-store-icon-1024.png",

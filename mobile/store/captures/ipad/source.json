@@ -12,7 +12,7 @@
   ],
   "logical_width": 1032,
   "logical_height": 1376,
-  "pixel_ratio": 2.0,
+  "pixel_ratio": 2,
   "png_width": 2064,
   "png_height": 2752,
   "sample_day": "2026-10-10",
@@ -43,5 +43,16 @@
     "06-statistics-detail.png",
     "07-privacy.png",
     "08-pro.png"
-  ]
+  ],
+  "scene_provenance": {
+    "01-calendar.png": {
+      "sample_day": "2026-10-12",
+      "captured_at": "2026-10-12T07:08:10.410Z",
+      "source": "Production HangeoreumApp widgets rendered by Flutter widget test",
+      "source_git_commit": "ecd75f46a59734fbf40249af8a2a1048839ff8db",
+      "native_device_capture": false,
+      "first_day_of_week_index": 0,
+      "week_start": "Sunday"
+    }
+  }
 }

@@ -1,5 +1,17 @@
 # 투두닉(Todoniq): Windows에서 iPhone TestFlight 빌드 준비하기
 
+## 최신 801 업데이트 — 2026-10-12
+
+빠른 추가에서 **시간 먼저 → 분류 → 할 일 입력·등록** 순서로 배치하고, 시간 선택을 확인하기 전에는 화살표·키보드 완료로 등록하지 않게 했다. 캘린더는 한국어와 기본 영어(미국)에서 **일요일부터 토요일** 순서로 표시하며 날짜 선택 후 주 보기 전환을 유지한다. 시간 선택 취소·중복 확인·초안 보존·다음 등록의 시간 확인 초기화와 월/주 경계·큰 글씨를 검증했다.
+
+앱 소스 `ecd75f46a59734fbf40249af8a2a1048839ff8db`의 **1.0.0 (801)**이 [Android·iOS 네이티브 QA 실행 38210974017](https://github.com/dabok407/to-do-list/actions/runs/38210974017), [macOS 서명 실행 38211045565](https://github.com/dabok407/to-do-list/actions/runs/38211045565), [원본 IPA 업로드 실행 38214436529](https://github.com/dabok407/to-do-list/actions/runs/38214436529)에 성공했다. 정적 분석 문제 없음, 전체 **275개 통과 / 선택형 이미지 생성 1개 건너뜀**이며 실제 앱 종료 후 알림과 위젯·권한 거부 검증도 통과했다. 검증 과정에서 발견한 테스트 알림 취소 경합은 원래 예약 시각 보존·직렬화·SQLite lease로 수정했다. 첫 후보 701은 업로드하지 않았다.
+
+원본 IPA SHA-256은 `41ebf554f054a3681853b2a3aa08c6c4a7fbeb51b87dc734108b5f6ce6e47a52`, Apple 빌드 ID는 `93d71a68-32d9-48f8-884b-860d890dc699`다. Apple 업로드 시각은 **2026-10-12 15:50:50 KST**, 처리 상태는 **VALID / expired=false**다. 마지막 확인 시 수출 규정 정보와 내부 **Todoniq Owner** 그룹 연결은 아직 대기 중이다. API 변경 HTTP 403 후 브라우저 로그인 만료를 확인하여 사용자 재로그인을 요청했다. 업로드 성공을 iPhone 설치 가능으로 표시하지 않는다.
+
+공개 심사 초안과 외부 베타는 기존 **601** 상태를 유지한다. 이번 801 업데이트에서 계약·세금·EU 연락처·외부 초대·정식 심사 제출은 변경하지 않았다. 아래 601 기록은 이전 배포 이력이다.
+
+로컬 한영 캘린더 소개 이미지 8장과 ZIP 4개도 일요일 시작으로 갱신·검증했다. 승인된 iPad 구도·문안과 다른 소개 PNG 48장·아이콘 2개는 유지했다. App Store Connect의 기존 이미지 교체는 아직 수행하지 않았다.
+
 > 2026-10-11 최신 결정: 사용자는 본인 명의 개인사업자 등록을 신청하고 발급을 기다립니다. 기존 Apple 계정·앱·서명을 유지하며 타인 사업자·세금·은행 정보를 혼합하지 않습니다. TestFlight 외부 601 베타 심사는 신청 완료, 공개 App Store의 앱 601·Pro 상품·구독 그룹 심사 초안은 준비 완료이며 정식 심사는 미제출입니다.
 
 2026-10-11 현재, 최종 소스 `fc88e97b140db0c32a2ba88b97a621f04187b9e5`의 **1.0.0 (601)**이 [Android·iOS 네이티브 QA 실행 38114962066](https://github.com/dabok407/to-do-list/actions/runs/38114962066), [실제 macOS 서명 실행 38115046318](https://github.com/dabok407/to-do-list/actions/runs/38115046318), [원본 IPA 업로드 실행 38118780821](https://github.com/dabok407/to-do-list/actions/runs/38118780821)에 성공했습니다. Apple API에서 빌드 ID `ef4ef617-58c7-4177-9688-5a3cb99a1546`의 **processingState=VALID, expired=false, usesNonExemptEncryption=false, internalBuildState=IN_BETA_TESTING**을 확인했습니다. Apple 업로드 시각은 **2026-10-11 15:45:14 KST**입니다. 기존 **Todoniq Owner** 내부 그룹에 601·501·101이 연결되어 본인 내부 테스트가 가능합니다.
