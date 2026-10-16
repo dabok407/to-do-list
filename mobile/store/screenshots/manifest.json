@@ -40,5 +40,215 @@
     "05-stats-detail.png",
     "06-stats.png",
     "07-privacy.png"
-  ]
+  ],
+  "apple_artwork_policy": 1,
+  "artwork": {
+    "iphone": [
+      {
+        "out": "01-calendar",
+        "source": "01-calendar",
+        "title": "나만의 할 일, 투두닉",
+        "sub": "회원가입 없이, 일정은 내 기기에만",
+        "access": "캘린더 · 기본 기능",
+        "sha256": "30949895ee2b8fc4f2e9e928485432dc07dce364a5f92870e559c3822561c3ba",
+        "capture_sha256": "5922839f7bdf98f9a8b57afb7b684d4cea85b06ae384fb53454f44cadc3425bc"
+      },
+      {
+        "out": "02-overdue",
+        "source": "02-overdue",
+        "title": "끝내지 못한 일도\n잊지 않게",
+        "sub": "남은 일을 모아 보고, 원하는 주기로 다시 알림",
+        "access": "Pro · 구독 필요",
+        "pro": true,
+        "sha256": "b07d2fc561cfa17b6de41585957300a4bf318c6ad22de88baf19bfccb9deeca3",
+        "capture_sha256": "c61b3dd372a2b0730bdd526c985dffb65388cbf48b61ad03a5175960a34110d9"
+      },
+      {
+        "out": "03-start",
+        "source": "03-small-start",
+        "title": "어렵다면,\n5분만 시작해요",
+        "sub": "미루던 일도 작은 첫걸음부터",
+        "access": "Pro · 구독 필요",
+        "pro": true,
+        "sha256": "3270675af8ef8237c20259de2476a1356e5b86c65e043b64056c1c6aed5ded67",
+        "capture_sha256": "ee45cc7e95c1a066f66af156420dad91e9cc1c996f8410dcd4eab88281def686"
+      },
+      {
+        "out": "04-repeat",
+        "source": "04-repeat",
+        "title": "반복 일정은\n내 생활에 맞게",
+        "sub": "요일과 주기, 시작일과 종료일까지",
+        "access": "반복 일정 · 기본 기능",
+        "sha256": "b5c5a844f9e511972d15ba045cbafc1c7e810172b363ec2b454d7e3b8af05a56",
+        "capture_sha256": "4e3e88307ffd2a96c086676a9df61623b3669b62f4a4c3da63fbcb0b733793a1"
+      },
+      {
+        "out": "05-stats-detail",
+        "source": "06-statistics-detail",
+        "title": "나의 실행 패턴을\n알아봐요",
+        "sub": "최근 30일의 완료율과 미룬 시간을 확인해요",
+        "access": "Pro · 구독 필요",
+        "pro": true,
+        "sha256": "6724ab2b6781a6afa63fae3256e04b6969a49dc966938ff5be200f8cc1b824de",
+        "capture_sha256": "55c40bc5bf7720d516a7c56aec2e257e49c53734c3d22c9a954952f759cacc85"
+      },
+      {
+        "out": "06-stats",
+        "source": "06-statistics",
+        "title": "내가 해낸 일을\n돌아보기",
+        "sub": "완료한 일과 미룬 기록을 한눈에",
+        "access": "Pro · 구독 필요",
+        "pro": true,
+        "sha256": "0c8b9003c51bc4b28cc99742901ba679ea67459ce8766f065372a001d512a4e7",
+        "capture_sha256": "92e45e4bea52ce79e9a62e1ffd440a28a74177236a1a7b78c6d7883924689b23"
+      },
+      {
+        "out": "07-privacy",
+        "source": "07-privacy",
+        "title": "내 일정은\n내 기기에",
+        "sub": "회원가입 없이, 할 일과 메모를 로컬에 저장",
+        "access": "할 일·메모를 개발자 서버로 보내지 않아요",
+        "sha256": "3b56102d52664a490e3bfe325672e21fcefdc68230e0254c4f6abd52c440815e",
+        "capture_sha256": "7b5d4e854ff8a3fdcdfc96064fef65a83b82abaf66d6790a2b7ae837cb83a204"
+      }
+    ],
+    "iphone-large": [
+      {
+        "out": "01-calendar",
+        "source": "01-calendar",
+        "title": "나만의 할 일, 투두닉",
+        "sub": "회원가입 없이, 일정은 내 기기에만",
+        "access": "캘린더 · 기본 기능",
+        "sha256": "5311006061e4fee6d343c1177a8c999de26fa038b5fbce1b33b819ba7d6666dc",
+        "capture_sha256": "5922839f7bdf98f9a8b57afb7b684d4cea85b06ae384fb53454f44cadc3425bc"
+      },
+      {
+        "out": "02-overdue",
+        "source": "02-overdue",
+        "title": "끝내지 못한 일도\n잊지 않게",
+        "sub": "남은 일을 모아 보고, 원하는 주기로 다시 알림",
+        "access": "Pro · 구독 필요",
+        "pro": true,
+        "sha256": "0568781b908b219570f93520a6196695f61d0270817eb45eb919a020a7c65d27",
+        "capture_sha256": "c61b3dd372a2b0730bdd526c985dffb65388cbf48b61ad03a5175960a34110d9"
+      },
+      {
+        "out": "03-start",
+        "source": "03-small-start",
+        "title": "어렵다면,\n5분만 시작해요",
+        "sub": "미루던 일도 작은 첫걸음부터",
+        "access": "Pro · 구독 필요",
+        "pro": true,
+        "sha256": "4787ae292a490a3729ae8622b026eb4d0666e2675961b9c33ba259073d829567",
+        "capture_sha256": "ee45cc7e95c1a066f66af156420dad91e9cc1c996f8410dcd4eab88281def686"
+      },
+      {
+        "out": "04-repeat",
+        "source": "04-repeat",
+        "title": "반복 일정은\n내 생활에 맞게",
+        "sub": "요일과 주기, 시작일과 종료일까지",
+        "access": "반복 일정 · 기본 기능",
+        "sha256": "b6b9f1840008b4482493967189f0b6c2329e808056294c4fdaf1336914962a48",
+        "capture_sha256": "4e3e88307ffd2a96c086676a9df61623b3669b62f4a4c3da63fbcb0b733793a1"
+      },
+      {
+        "out": "05-stats-detail",
+        "source": "06-statistics-detail",
+        "title": "나의 실행 패턴을\n알아봐요",
+        "sub": "최근 30일의 완료율과 미룬 시간을 확인해요",
+        "access": "Pro · 구독 필요",
+        "pro": true,
+        "sha256": "f3c79d8eddd0ece9d8c23912990068cfe6b6d44a592241cb19f41d0b8b4f158f",
+        "capture_sha256": "55c40bc5bf7720d516a7c56aec2e257e49c53734c3d22c9a954952f759cacc85"
+      },
+      {
+        "out": "06-stats",
+        "source": "06-statistics",
+        "title": "내가 해낸 일을\n돌아보기",
+        "sub": "완료한 일과 미룬 기록을 한눈에",
+        "access": "Pro · 구독 필요",
+        "pro": true,
+        "sha256": "952cf7e2ea3542d5634d1dc643ec8574de8da3d4bd6a65aa337d2f0761853335",
+        "capture_sha256": "92e45e4bea52ce79e9a62e1ffd440a28a74177236a1a7b78c6d7883924689b23"
+      },
+      {
+        "out": "07-privacy",
+        "source": "07-privacy",
+        "title": "내 일정은\n내 기기에",
+        "sub": "회원가입 없이, 할 일과 메모를 로컬에 저장",
+        "access": "할 일·메모를 개발자 서버로 보내지 않아요",
+        "sha256": "458f365cd814d38b9ccaf59ae4eba1eb01f27b746377145b3fa7acf30d6d644a",
+        "capture_sha256": "7b5d4e854ff8a3fdcdfc96064fef65a83b82abaf66d6790a2b7ae837cb83a204"
+      }
+    ],
+    "ipad": [
+      {
+        "out": "01-calendar",
+        "source": "01-calendar",
+        "title": "나만의 할 일, 투두닉",
+        "sub": "회원가입 없이, 일정은 내 기기에만",
+        "access": "캘린더 · 기본 기능",
+        "sha256": "1dacec04fa611efbfb1dcb45beeed8c6ea7a595a4465fb876ec2636b2a08fb4d",
+        "capture_sha256": "cc122f6c61cfc0eecbb38c237af3bc779d8431c3b3371eb3ceaf8034d0cafb6f"
+      },
+      {
+        "out": "02-overdue",
+        "source": "02-overdue",
+        "title": "끝내지 못한 일도\n잊지 않게",
+        "sub": "남은 일을 모아 보고, 원하는 주기로 다시 알림",
+        "access": "Pro · 구독 필요",
+        "pro": true,
+        "sha256": "b0a3f123c6ebe3a62fffbcf19bc048d7cb7184ea3a9d8184ce9702ff2c9a60df",
+        "capture_sha256": "4f72e8243e8c5bc712d9106d2f846372d966484abbfeca52d36ee8c91a7e08c8"
+      },
+      {
+        "out": "03-start",
+        "source": "03-small-start",
+        "title": "어렵다면,\n5분만 시작해요",
+        "sub": "미루던 일도 작은 첫걸음부터",
+        "access": "Pro · 구독 필요",
+        "pro": true,
+        "sha256": "17ef1a786c94deb7a1ece239cdd31f324e327285693ec5e2495d564fbcd0f489",
+        "capture_sha256": "676c44a36b97eea050332a3820169c11e1ce115a245f600ecd755bd92a99bc62"
+      },
+      {
+        "out": "04-repeat",
+        "source": "04-repeat",
+        "title": "반복 일정은\n내 생활에 맞게",
+        "sub": "요일과 주기, 시작일과 종료일까지",
+        "access": "반복 일정 · 기본 기능",
+        "sha256": "d15f9e955da3cd188667bae13964b26ab768f512013647fc981704e813b12975",
+        "capture_sha256": "9fd22b700e3145d94b8489cfad3b349750241f40425e6c5792db131059e62de1"
+      },
+      {
+        "out": "05-stats-detail",
+        "source": "06-statistics-detail",
+        "title": "나의 실행 패턴을\n알아봐요",
+        "sub": "최근 30일의 완료율과 미룬 시간을 확인해요",
+        "access": "Pro · 구독 필요",
+        "pro": true,
+        "sha256": "cd41618966bebe20f5253e2d37f125eaf6e9d2a5f0eed2d3b887d28e9668d5ae",
+        "capture_sha256": "5d623f68592d5193efd239305cc0edbbd668b597f8b1dedaa6962f2af7859815"
+      },
+      {
+        "out": "06-stats",
+        "source": "06-statistics",
+        "title": "내가 해낸 일을\n돌아보기",
+        "sub": "완료한 일과 미룬 기록을 한눈에",
+        "access": "Pro · 구독 필요",
+        "pro": true,
+        "sha256": "ddb2ba53345113ab52322e6149cf3f8d32eda58ab55116796830aafc2f748fa7",
+        "capture_sha256": "5d623f68592d5193efd239305cc0edbbd668b597f8b1dedaa6962f2af7859815"
+      },
+      {
+        "out": "07-privacy",
+        "source": "07-privacy",
+        "title": "내 일정은\n내 기기에",
+        "sub": "회원가입 없이, 할 일과 메모를 로컬에 저장",
+        "access": "할 일·메모를 개발자 서버로 보내지 않아요",
+        "sha256": "6cb6b561db9f9f62ba6f55e9fbf537c080f5469ff0c932f7c815ee0d4fa41b2d",
+        "capture_sha256": "f1ceb8c2e86063e63b476c53c29a8273a61ad6cb43794b11d483a7e2426d1b30"
+      }
+    ]
+  }
 }

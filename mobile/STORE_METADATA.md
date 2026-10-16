@@ -1,6 +1,14 @@
 # 투두닉 스토어 등록 자료
 
-> 2026-10-11 최종 준비 상태: 사용자는 본인 명의 개인사업자 등록을 신청했고 발급을 기다린다. 기존 Apple 계정·앱·서명을 유지하며, 타인 명의 사업자·세금·은행 정보를 혼합하지 않는다. 한영 소개·이미지 등록, TestFlight 601 외부 베타 심사 신청, 앱 601·Pro 상품·구독 그룹의 정식 심사 초안 구성을 완료했다. 정식 심사는 미제출이다. 개인사업자 번호·개인 주소·금융 정보는 이 저장소에 기록하지 않는다.
+> 2026-10-16 메타데이터 수정: Apple은 최신 제출 앱 **1.0.0 (1001)**을 **2.3.10(설명의 Android 언급)·2.3.7(소개 스크린샷의 가격·무료 표현)**로 반려했다. 아래 Apple 한국어·영어 설명과 공개 안내 사이트 8개의 로컬 수정은 완료했다. 스크린샷에는 금액·무료·할인·체험 기간 홍보를 넣지 않는다. **Apple 등록값 수정·이미지 교체·재심사 제출은 아직 수행하지 않았다.** 브라우저 연결이 되지 않고 기존 API 키는 등록정보 쓰기 권한이 없어 소개글 변경이 차단됐다. 권한을 임의로 확대하지 않았다. 사이트도 아직 미게시이며 새 빌드의 생성·업로드 완료로 기록하지 않는다. 실제 StoreKit 결제 검증은 미확인이다. 10월 12일 이하 상태는 당시 제출 이력이다.
+
+> 2026-10-12 현재 상태: 공개 App Store 버전 1.0.0의 빌드를 **601에서 1001로 교체·저장**했다. 1001은 네이티브 QA·배포 서명·원본 IPA 업로드·Apple 처리·수출 규정 저장과 Todoniq Owner 내부 그룹 연결을 완료했고 **테스트 중**이다. 실제 iPhone의 1001 설치와 StoreKit 결제 검증은 아직 확인하지 않았다. **앱 1.0.0 (1001)·Pro 연간 상품·구독 그룹 총 3개를 최종 제출**했다. Apple의 **3개의 항목 제출됨** 확인과 각 항목의 **심사 대기 중** 상태를 확인했으며, 제출 화면의 시각은 **2026-10-12 21:23 KST**다. 승인 후 자동 출시 설정을 유지한다. 외부 베타는 기존 601을 유지한다.
+
+본인 사업자 증명서로 한국 세금 정보를 제출했고 Apple 처리 대기 중이다. 유료 계약·수익 지급 계좌·미국 세금 양식 2개는 활성 상태를 확인했다. EU DSA는 인증 흐름 재시작과 동일 문서 재첨부 후 **최종 제출에 성공**했으며 Business 화면의 **2026-10-12 / 심사 중**을 확인했다. 앞선 오류의 단일 원인은 확정하지 않았다. 거래자 검증 결과 확인은 남아 있다. 앱 배포 국가와 Pro 판매 국가는 각각 **전체 175개 국가 또는 지역**으로 저장했고, Pro 확인 화면에서 대한민국 연간 **₩900**을 확인했다. Pro 심사 메모의 빌드 번호는 **601에서 1001로 수정·저장**했다. 개인사업자 번호·서류·개인 주소·금융 정보는 이 저장소에 기록하지 않는다.
+
+한국어·영어의 중형 iPhone·13인치 iPad에 **각 7장, 총 28개 PNG 재등록과 순서 확인을 완료**했다. 첫 캘린더 이미지 4장은 최신 일요일 시작 화면이며 나머지 24장은 기존 파일과 같다. 승인된 구도·문안·장수를 유지했다.
+
+> 2026-10-11 당시 준비 상태: 사용자는 본인 명의 개인사업자 등록을 신청했고 발급을 기다렸다. 기존 Apple 계정·앱·서명을 유지하며, 타인 명의 사업자·세금·은행 정보를 혼합하지 않았다. 한영 소개·이미지 등록, TestFlight 601 외부 베타 심사 신청, 앱 601·Pro 상품·구독 그룹의 정식 심사 초안 구성을 완료했다. 정식 심사는 미제출이었다. 아래 601 배포·등록 기록은 당시의 이력이며 현재 계정·제출 상태는 위 요약을 따른다.
 
 작성 기준: 2026-10-11. 확정 브랜드는 한국어 **투두닉**, 영어 **Todoniq**다. 슬로건은 **나만의 할 일, 투두닉 / Your tasks. Your way.**이며 아래 문안을 새 브랜드로 준비했다. 새 브랜드의 실제 앱 원본 48장·소개 PNG 56장·등록 자산 4개와 ZIP 4개의 로컬 검증을 완료했다. 새 브랜드 안내 사이트 게시, 한국어·영어 HTML 8개의 HTTP 200 응답과 브랜드, 실제 브라우저의 한영 지원 첫 화면 문구도 확인했다.
 
@@ -15,8 +23,8 @@ App Store Connect에 **투두닉 - 할 일과 캘린더 / Todoniq - Tasks & Cale
 | 아이콘 | `store/assets/`에 Apple 1024px·Play 512px 준비 | 최종 등록 시 파일 선택 |
 | 소개 스크린샷 | 새 투두닉 / Todoniq 원본 48장, 소개 PNG 56장·등록 자산 4개·ZIP 4개 로컬 검증 완료. Apple 한영 이미지 28장 저장 완료 | Play 업로드·최종 배포 앱 대조 |
 | 지원·개인정보·이용 안내 | 투두닉 / Todoniq 사이트 게시·8개 HTML HTTP 200·한영 지원 첫 화면 확인. 기존 링크 테스트 5개 통과 | 운영 주체·정책 확인·Play 입력 |
-| Pro 상품 | Apple 구독 그룹·연간 상품, 한영 이름·설명·심사 메모·심사용 화면 저장. 미국 US$0.69/년·대한민국 ₩900/년 및 148개 판매 국가 저장. 앱 601과 같은 초안에 상품·구독 그룹 추가 완료 | Sandbox 실제 구매/복원·갱신 등 검증, 유료 계약 활성화 |
-| 심사 자료 | 한영 심사 안내·승인받은 연락처 저장. 수정본 601 네이티브 QA·서명·업로드·Apple 처리·본인 내부 테스트 배포 완료. 사용자 UI 수용·출시 승인, 공개 버전 601 연결·승인 후 자동 출시 설정 저장, 데이터 수집 없음 게시 완료·601 심사 초안 준비 | 601 실제 iPhone 전체 기능 검증·실제 구독 구매 검증·공개 심사 제출 |
+| Pro 상품 | Apple 구독 그룹·연간 상품, 한영 이름·설명·심사용 화면 저장. 미국 US$0.69/년·대한민국 ₩900/년, 전체 175개 판매 국가 저장. 심사 메모를 1001 기준으로 수정하고 앱 1001과 동시 제출 완료·심사 대기 중 | Sandbox 실제 구매/복원·갱신 등 검증, 심사 결과 확인 |
+| 심사 자료 | 1001 네이티브 QA·서명·원본 업로드·Apple 처리·Owner 내부 배포 및 공개 버전 연결 완료. 한영 이미지 28장 재등록, 데이터 수집 없음 게시와 승인 후 자동 출시 설정 유지. 2026-10-12 21:23 KST 앱 1001·Pro·구독 그룹 3개 제출 완료·모두 심사 대기 중 | 1001 실제 iPhone 기능·실제 StoreKit 구매 검증, 심사 결과·출시 확인 |
 
 문의 이메일은 사용자가 공개용으로 지정했다. 개발자 가입 시 입력한 개인 주소·전화번호·계정 인증 정보는 공개 자료에 넣지 않는다. 심사 연락처·세금·은행 정보는 콘솔에 직접 입력한다.
 
@@ -184,9 +192,9 @@ The local trial and Google Play purchase testing are separate. Do not treat a tr
 투두닉의 첫 출시입니다. 캘린더와 반복 일정으로 할 일을 정리하고, 처음 7일은 알림·미루기·통계 등 전체 기능을 체험할 수 있습니다. 체험만으로 자동 결제되지 않습니다.
 ```
 
-## 한국어 상세 소개
+## Apple 한국어 상세 소개
 
-본문과 아래 해당 스토어의 공개 안내 링크 문단을 사용한다. Apple에는 새 투두닉 소개와 링크를 저장했다. Play 입력은 아직 수행하지 않았다.
+Apple에는 아래 본문과 Apple 전용 공개 안내 링크를 사용한다. 2026-10-16 반려 대응 수정본이며 콘솔 저장 여부는 별도로 확인한다. Play는 같은 기능 소개를 사용하되 아래 Google 전용 안내·링크를 덧붙인다. Play 입력은 아직 수행하지 않았다.
 
 ```text
 나만의 할 일, 투두닉.
@@ -225,7 +233,7 @@ The local trial and Google Play purchase testing are separate. Do not treat a tr
 알림, 미완료 재알림, 미루기, 실행 보조와 통계는 선택형 Pro 연간 구독으로 이용합니다. 사용자가 구매한 구독은 해지하지 않으면 1년 단위로 자동 갱신됩니다. 가격과 결제 조건은 구매한 스토어의 구매 확인 화면을 따릅니다. 구독 관리·해지·환불은 해당 스토어에서 진행합니다.
 
 이용 안내
-구매·구매 복원·구독 확인에는 인터넷 연결이 필요할 수 있습니다. 알림과 위젯 갱신은 기기의 알림 권한, 집중 모드, 절전·강제 종료 등 OS 설정과 예약 범위의 영향을 받습니다. 앱 삭제나 기기 변경 시 일정과 기록이 사라질 수 있으며 클라우드 복구를 제공하지 않습니다. 구매 복원은 일정 복원과 다르며 iOS와 Android의 구매 권한은 서로 공유되지 않습니다.
+구매·구매 복원·구독 확인에는 인터넷 연결이 필요할 수 있습니다. 알림과 위젯 갱신은 기기의 알림 권한, 집중 모드, 절전·강제 종료 등 OS 설정과 예약 범위의 영향을 받습니다. 앱 삭제나 기기 변경 시 일정과 기록이 사라질 수 있으며 클라우드 복구를 제공하지 않습니다. 구매 복원은 일정 복원과 다릅니다.
 
 문의: dabok407@gmail.com
 ```
@@ -241,6 +249,8 @@ Apple 설명 끝에 추가:
 Google 설명 끝에 추가:
 
 ```text
+iOS와 Android의 구매 권한은 서로 공유되지 않습니다.
+
 개인정보처리방침: https://dabok407.github.io/to-do-list/privacy.html
 지원 및 이용 안내: https://dabok407.github.io/to-do-list/support.html
 구독 및 이용약관: https://dabok407.github.io/to-do-list/terms.html
@@ -288,7 +298,7 @@ Your tasks. Your way. A calendar with local notes, no sign-up or ad tracking.
 Meet Todoniq. Organize tasks and repeating schedules in a calendar. Try all features for your first 7 days. The in-app evaluation does not start a subscription or charge you automatically.
 ```
 
-### English description
+### Apple English description
 
 ```text
 Your tasks. Your way.
@@ -327,12 +337,12 @@ Afterward, the calendar, creating, editing and deleting tasks and notes, repeati
 Reminders, overdue follow-ups, snoozing, start assistance and statistics require the optional annual Pro subscription. A subscription you purchase renews yearly unless canceled. The store purchase confirmation shows your local price and billing terms. Manage subscriptions, cancellations and refunds through the store where you purchased.
 
 Before you use the app
-Purchases, restoration and subscription checks may require internet access. Notifications and widget updates depend on OS permissions, Focus settings, battery restrictions, force-stop behavior and scheduling limits. Deleting the app or changing devices can erase your tasks and history; cloud recovery is not provided. Restoring a purchase does not restore task data, and iOS and Android purchases are not shared.
+Purchases, restoration and subscription checks may require internet access. Notifications and widget updates depend on OS permissions, Focus settings, battery restrictions, force-stop behavior and scheduling limits. Deleting the app or changing devices can erase your tasks and history; cloud recovery is not provided. Restoring a purchase does not restore task data.
 
 Support: dabok407@gmail.com
 ```
 
-이전 Apple 영어 설명에는 아래 링크를 저장했다. 새 Todoniq 설명에도 같은 링크를 유지한다. Play 영어 설명에는 마지막 줄을 공개 이용 안내 URL `https://dabok407.github.io/to-do-list/terms-en.html`로 바꾸어 입력한다.
+Apple 영어 설명에는 아래 링크를 덧붙인다. 2026-10-16 반려 대응에서는 위 본문과 링크를 함께 다시 저장하고 실제 콘솔 값을 확인한다. Play 영어 설명은 같은 기능 본문 뒤에 `iOS and Android purchases are not shared.`를 덧붙이고 마지막 링크를 공개 이용 안내 URL `https://dabok407.github.io/to-do-list/terms-en.html`로 바꾸어 입력한다.
 
 ```text
 Privacy Policy: https://dabok407.github.io/to-do-list/privacy-en.html
@@ -398,7 +408,7 @@ Tasks and history are stored on your device. Deleting the app or changing device
 | 6 | 내가 해낸 일을 돌아보기 | 예시 데이터로 계산한 30일 통계·90일 완료 기록 | Pro 통계 |
 | 7 | 내 일정은 내 기기에 | 앱의 개인정보 안내 또는 캘린더, 회원가입 없는 사용 | 로컬 저장 |
 
-화면을 크게 보여주고 이미지마다 해당 언어의 주 문구 하나만 사용한다. 흰색·짙은 회색과 실제 앱의 분류 색·중요한 일의 다크 레드를 사용한다. 가상의 생활 일정은 가능하지만 실제 사용자 개인정보나 개발자 계정 정보를 넣지 않는다. Pro 화면에 읽기 쉬운 구독 필요·처음 7일 체험 표시를 넣고 체험을 ‘7일 뒤 자동 결제’로 표현하지 않는다. 기존 네이티브 위젯 이미지는 최신 투두닉 / Todoniq 빌드·언어로 재캡처하고 검증하기 전까지 소개에서 제외한다.
+화면을 크게 보여주고 이미지마다 해당 언어의 주 문구 하나만 사용한다. 흰색·짙은 회색과 실제 앱의 분류 색·중요한 일의 다크 레드를 사용한다. 가상의 생활 일정은 가능하지만 실제 사용자 개인정보나 개발자 계정 정보를 넣지 않는다. Apple 소개 이미지에는 금액·무료·할인·체험 기간 홍보를 넣지 않으며 원본 앱 화면에 보이는 가격 홍보도 확인한다. Pro 기능은 읽기 쉬운 ‘Pro 구독 필요 / Requires Pro’로 구분한다. 체험 기간과 자동 결제 여부는 Apple 상세 설명과 실제 구매 안내에 정확히 적는다. Google 소개 자료와 실제 앱의 결제·체험 안내는 별도 정책과 용도에 따라 관리한다. 기존 네이티브 위젯 이미지는 최신 투두닉 / Todoniq 빌드·언어로 재캡처하고 검증하기 전까지 소개에서 제외한다.
 
 아래 규격과 수량으로 투두닉 / Todoniq 소개 이미지를 새로 제작하고 검증했다. Apple의 이전 첫칸 브랜드 이미지 28장을 새 브랜드로 교체하고 언어·기기별 7장 저장을 확인했다. 로컬 파일 검증과 콘솔 반영은 구분한다.
 
@@ -542,8 +552,12 @@ Public support email: dabok407@gmail.com
 - [x] 대한민국 전자상거래법 항목의 활성화 상태 확인
 - [x] 미국 외국인 지위 인증서·W-8BEN 모두 활성화 확인
 - [x] 사용자 승인 후 EU 거래자 연락처 인증 완료
-- [ ] EU DSA 이름 확인 문서 제출·거래자 검증·EU 판매 국가 확대
-- [ ] Apple 유료 앱 계약 활성화, 대한민국 세금 등록, 제출한 은행 정보의 처리 완료·활성화 확인
+- [x] 2026-10-12 EU DSA 이름·주소 증빙 최종 제출 성공·심사 중 확인
+- [ ] EU DSA 거래자 검증 결과 확인
+- [x] 앱·Pro 판매 국가를 각각 전체 175개 국가 또는 지역으로 확대·저장 확인
+- [x] Apple 유료 앱 계약·수익 지급 계좌·미국 세금 양식 2개 활성 확인
+- [x] 본인 사업자 증명서로 2026-10-12 대한민국 세금 정보 제출
+- [ ] 대한민국 세금 정보 처리 완료 확인 — 현재 대기 중
 - [ ] Play 구독 상품·가격·결제 계정 등록
 - [x] 사용자가 TestFlight 빌드 101을 실제 iPhone에 설치·테스트한 사실 확인
 - [x] 수정본 501 소스의 Android·iOS 자동 검증: 실행 38103738656
@@ -555,7 +569,7 @@ Public support email: dabok407@gmail.com
 - [x] 수정본 601 배포 서명 IPA 생성 및 원본 IPA 업로드: 실행 38115046318 / 38118780821
 - [x] Apple 빌드 601 VALID·usesNonExemptEncryption=false·Todoniq Owner 내부 그룹 연결·IN_BETA_TESTING 확인
 - [x] 사용자의 수정본 601 UI 수용 및 이 빌드로 출시 승인
-- [ ] 수정본 601 실제 iPhone 전체 기능 검증
+- [ ] 공개 제출 빌드 1001 실제 iPhone 설치·전체 기능 검증
 - [ ] Sandbox 구매·복원 및 실제 스토어 구매·갱신·만료·환불 검증
 - [x] 배포 서명 IPA 1.0.0 (101) 생성·테스트·파일 및 프로파일 검증
 - [x] 원본 IPA 실제 macOS 서명 재검증·Apple 업로드 단계 성공: 실행 38047340077
@@ -564,23 +578,28 @@ Public support email: dabok407@gmail.com
 - [x] 이전 101 준비 당시 App Availability의 프랑스만 제외한 174개 국가 또는 지역 선택·저장 이력
 - [x] 2026-10-11 현재 App Availability에서 EU 27개국 제외 148개 국가 또는 지역 저장, 향후 국가 자동 추가 끔
 - [x] 무료 설치 가격 설정, 첫 모바일 출시에서 Mac·Vision Pro 배포 끔
-- [x] 공개 App Store 버전 1.0.0의 첨부 빌드 101을 601로 교체·저장
+- [x] 이전 공개 App Store 버전 1.0.0의 첨부 빌드 101을 601로 교체·저장한 이력
+- [x] 2026-10-12 공개 App Store 버전 1.0.0의 빌드 601을 1001로 교체·저장
 - [x] 공개 App Store 버전 1.0.0 승인 후 자동 출시 설정 저장
 - [x] Todoniq Owner 내부 테스트 그룹 생성, 수동 빌드 배포
 - [x] 빌드 101과 소유자 내부 테스터 연결, 초대됨 상태 확인
 - [x] 추가 외부 테스터 등록·이전 101 심사 철회 후 최신 601 베타 심사 제출·승인 후 자동 공지 설정
 - [ ] 외부 베타 심사 승인·초대 발송 확인
-- [ ] 최신 TestFlight 빌드 601의 실제 iPhone 알림·위젯·입력 흐름 검증
+- [ ] 최신 TestFlight 빌드 1001의 실제 iPhone 알림·위젯·입력 흐름 검증
 - [x] 승인받은 Apple 심사 연락처와 영어 심사 메모 저장
 - [x] Apple 콘텐츠 권리·연령 설문 저장: 타사 콘텐츠 없음, 의료 정보 없음·웰빙 주제 포함, 대한민국 전체·일반 글로벌 9+
 - [x] Apple 개인정보 답변 작성·저장: 앱·SDK 검수 근거로 데이터 미수집
 - [x] 게시 전 심사에 추가 사전 검증에서 개인정보 답변 미게시 오류로 차단된 이력 확인
 - [x] 사용자 동의 후 Apple 데이터 수집 없음 답변 게시 완료·실제 화면 확인
-- [x] 개인정보 차단 해소·601 심사 초안 준비됨
-- [x] Pro 심사용 화면 업로드 후 앱 601의 심사 초안에 연간 상품·구독 그룹 추가, 총 3개 항목·제출 버튼 활성화 확인
+- [x] 이전 개인정보 차단 해소·601 심사 초안 준비 이력
+- [x] 2026-10-11 Pro 심사용 화면 업로드 후 앱 601의 심사 초안에 연간 상품·구독 그룹 추가, 총 3개 항목·제출 버튼 활성화 확인 이력
+- [x] 2026-10-12 한영 중형 iPhone·13인치 iPad 각 7장, 총 28개 PNG 재등록·순서 확인 (최신 캘린더 4장·기존 동일 24장)
+- [x] Pro 심사 메모 빌드 601→1001 수정·저장, 대한민국 연간 ₩900 확인
+- [x] 앱 1.0.0 (1001)·Pro 연간 상품·구독 그룹 총 3개 최종 제출·모두 심사 대기 중 확인 (2026-10-12 21:23 KST)
 - [x] Play 앱 액세스·개인정보·등급·콘텐츠·권한 설문 답안과 근거 준비
 - [ ] 신규 Play 계정에서 준비한 설문 답안 입력·최종 AAB/SDK와 대조
-- [ ] 각 스토어 제출·심사 결과 확인
+- [ ] Apple 심사 결과와 승인 후 자동 출시 확인
+- [ ] Play 제출·심사 결과 확인
 
 ## 공식 규격 근거
 

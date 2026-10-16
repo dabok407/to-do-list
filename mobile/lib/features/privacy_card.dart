@@ -29,7 +29,7 @@ class PrivacyCard extends StatelessWidget {
         const SizedBox(height: 12),
         Text(
           AppStrings.of(context).t(
-            '기본 캘린더와 메모는 오프라인에서도 사용할 수 있어요. 구매·복원·구독 확인은 Apple 또는 Google 스토어와 통신합니다. 앱 삭제나 기기 변경 시 기록이 사라질 수 있어요.',
+            '기본 캘린더와 메모는 오프라인에서도 사용할 수 있어요. 구매·복원·구독 확인은 기기의 스토어와 통신합니다. 앱 삭제나 기기 변경 시 기록이 사라질 수 있어요.',
           ),
           style: const TextStyle(
             fontSize: 13,

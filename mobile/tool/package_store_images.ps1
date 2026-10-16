@@ -1,3 +1,7 @@
+param(
+    [ValidateSet('all', 'app-store', 'play-store')]
+    [string]$StorePlatform = 'all'
+)
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -7,9 +11,13 @@ if ($report.screenshots -ne 56 -or $report.assets -ne 4) { throw 'Verify the cur
 if ($report.brands.ko -ne '투두닉' -or $report.brands.en -ne 'Todoniq') { throw 'Verify the current Todoniq brand before packaging.' }
 $names = @('01-calendar','02-overdue','03-start','04-repeat','05-stats-detail','06-stats','07-privacy')
 $packages = @()
+$packageReportPath = Join-Path $storeRoot 'assets/package-verification.json'
+$previousPackages = if (Test-Path -LiteralPath $packageReportPath) { (Get-Content -LiteralPath $packageReportPath -Raw | ConvertFrom-Json).packages } else { @() }
 foreach ($language in @('ko', 'en')) {
     $suffix = if ($language -eq 'en') { '-en' } else { '' }
     foreach ($platform in @('app-store', 'play-store')) {
+        if ($StorePlatform -ne 'all' -and $StorePlatform -ne $platform) { continue }
+        if ($platform -eq 'app-store' -and ($report.apple_artwork_policy -ne 1 -or $report.apple_artwork_text_reviewed -ne 42)) { throw 'Verify the current Apple artwork text policy before packaging.' }
         $devices = if ($platform -eq 'app-store') { @('iphone', 'iphone-large', 'ipad') } else { @('android') }
         $files = [System.Collections.Generic.List[object]]::new()
         foreach ($device in $devices) {
@@ -61,4 +69,6 @@ foreach ($language in @('ko', 'en')) {
         Write-Output "PASS $platform $language archive: $($files.Count) entries match the verified PNGs."
     }
 }
-@{ verified_at = [DateTime]::UtcNow.ToString('o'); brands = $report.brands; packages = $packages } | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $storeRoot 'assets/package-verification.json') -Encoding utf8
+$updatedNames = @($packages | ForEach-Object { $_.file })
+$packages += @($previousPackages | Where-Object { $_.file -notin $updatedNames })
+@{ verified_at = [DateTime]::UtcNow.ToString('o'); brands = $report.brands; packages = $packages } | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $packageReportPath -Encoding utf8

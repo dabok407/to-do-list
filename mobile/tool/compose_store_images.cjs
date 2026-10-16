@@ -4,6 +4,8 @@
 const fs = require('node:fs/promises');
 const syncFs = require('node:fs');
 const path = require('node:path');
+const crypto = require('node:crypto');
+const { APPLE_ARTWORK_POLICY_VERSION, appleDevices, appleArtworkStory } = require('./store_artwork_policy.cjs');
 const root = path.resolve(__dirname, '..');
 const store = path.join(root, 'store');
 const fontfile = path.join(root, 'assets/fonts/PretendardVariable.ttf');
@@ -34,6 +36,7 @@ const devices = {
 // Re-export one device without changing artwork already approved for others.
 const deviceArg = process.argv.find(arg => arg.startsWith('--device='));
 const selectedDevice = deviceArg?.slice('--device='.length);
+const appleOnly = process.argv.includes('--platform=app-store');
 if (selectedDevice && !Object.hasOwn(devices, selectedDevice)) {
   throw new Error(`Unknown device: ${selectedDevice}`);
 }
@@ -59,9 +62,13 @@ const englishStories = [
   { out: '07-privacy', source: '07-privacy', title: 'Your plans stay\non your device', sub: 'No account. Tasks and notes are saved locally.', access: 'Tasks and notes are not sent to a developer server' },
 ];
 const englishDetails = { out: '05-stats-detail', source: '06-statistics-detail', title: 'Find your\nexecution patterns', sub: 'Review completion and snooze statistics over 30 days', access: 'Pro · Annual subscription · First 7 days free', pro: true };
-const storyFor = (device, index) => index === 4 && (device === 'android' || !nativeWidgets)
-  ? (english ? englishDetails : androidDetails)
-  : (english ? englishStories : stories)[index];
+const storyFor = (device, index) => {
+  const story = index === 4 && (device === 'android' || !nativeWidgets)
+    ? (english ? englishDetails : androidDetails)
+    : (english ? englishStories : stories)[index];
+  return appleDevices.includes(device) ? appleArtworkStory(story, language) : story;
+};
+const generatedArtwork = {};
 const xml = s => s.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 async function textLayer(text, size, color = ink, weight = 600, maxWidth) {
   const markup = `<span foreground="${color}" weight="${weight}">${xml(text)}</span>`;
@@ -144,7 +151,9 @@ async function exportScreen(device, d, s) {
   }
   const dir = path.join(outputRoot, device);
   await fs.mkdir(dir, { recursive: true });
-  await sharp({ create: { width: w, height: h, channels: 3, background: '#ffffff' } }).composite(layers).removeAlpha().png({ compressionLevel: 9 }).toFile(path.join(dir, `${s.out}.png`));
+  const output = path.join(dir, `${s.out}.png`);
+  await sharp({ create: { width: w, height: h, channels: 3, background: '#ffffff' } }).composite(layers).removeAlpha().png({ compressionLevel: 9 }).toFile(output);
+  (generatedArtwork[device] ||= []).push({ ...s, sha256: crypto.createHash('sha256').update(await fs.readFile(output)).digest('hex'), capture_sha256: crypto.createHash('sha256').update(await fs.readFile(input)).digest('hex') });
   console.log(`${device}/${s.out}.png ${w}x${h} RGB`);
 }
 async function featureGraphic() {
@@ -162,13 +171,17 @@ async function featureGraphic() {
   layers.push({ input: app, left: 974 - am.width, top: 16 });
   await sharp({ create: { width: 1024, height: 500, channels: 3, background: '#fff' } }).composite(layers).removeAlpha().png().toFile(path.join(store, `assets/play-feature-1024x500${english ? '-en' : ''}.png`));
 }
-async function contactSheet() {
+async function contactSheet(onlyApple = false) {
   const width = 1800, top = 135, cell = 240, gap = 12, left = 24;
   const layers = [];
   await addText(layers, english ? 'Todoniq · Store images in English' : '투두닉 · 스토어 소개 이미지', left, 31, 40, ink, 650, 1700);
-  await addText(layers, english ? 'iPhone medium + large / iPad / Android · 7 images each · Actual app components' : 'iPhone 중형 + 대형 / iPad / Android · 규격별 7장씩 · 실제 앱 화면 기반', left, 89, 21, muted, 400, 1700);
+  const subtitle = onlyApple
+    ? (english ? 'iPhone medium + large / iPad · 7 images each · Actual app components' : 'iPhone 중형 + 대형 / iPad · 규격별 7장씩 · 실제 앱 화면 기반')
+    : (english ? 'iPhone medium + large / iPad / Android · 7 images each · Actual app components' : 'iPhone 중형 + 대형 / iPad / Android · 규격별 7장씩 · 실제 앱 화면 기반');
+  await addText(layers, subtitle, left, 89, 21, muted, 400, 1700);
   let rowTop = top;
   for (const [device, d] of Object.entries(devices)) {
+    if (onlyApple && !appleDevices.includes(device)) continue;
     await addText(layers, d.label, left, rowTop, 26, ink, 600, 1700);
     rowTop += 45;
     const height = device === 'ipad' ? 320 : 520;
@@ -183,14 +196,18 @@ async function contactSheet() {
     }
     rowTop += height + 72;
   }
-  await sharp({ create: { width, height: rowTop, channels: 3, background: '#f5f6f7' } }).composite(layers).removeAlpha().png().toFile(path.join(store, `assets/store-contact-sheet${english ? '-en' : ''}.png`));
+  await sharp({ create: { width, height: rowTop, channels: 3, background: '#f5f6f7' } }).composite(layers).removeAlpha().png().toFile(path.join(store, `assets/${onlyApple ? 'app-store' : 'store'}-contact-sheet${english ? '-en' : ''}.png`));
 }
 (async () => {
   for (const [device, d] of Object.entries(devices)) {
+    if (appleOnly && !appleDevices.includes(device)) continue;
     if (selectedDevice && selectedDevice !== device) continue;
     for (let i = 0; i < stories.length; i++) await exportScreen(device, d, storyFor(device, i));
   }
-  if ((!selectedDevice || selectedDevice === 'android') && await exists(path.join(captureRoot, 'android/01-calendar.png'))) await featureGraphic();
+  if (!appleOnly && (!selectedDevice || selectedDevice === 'android') && await exists(path.join(captureRoot, 'android/01-calendar.png'))) await featureGraphic();
   await contactSheet();
-  await fs.writeFile(path.join(outputRoot, 'manifest.json'), JSON.stringify({ language, brand, slogan: english ? 'Your tasks. Your way.' : '나만의 할 일, 투두닉', nativeWidgets, devices: Object.keys(devices), specifications: devices, images: stories.map((_, i) => storyFor('iphone', i).out + '.png') }, null, 2));
+  await contactSheet(true);
+  const manifestPath = path.join(outputRoot, 'manifest.json');
+  const previous = await exists(manifestPath) ? JSON.parse(await fs.readFile(manifestPath, 'utf8')) : {};
+  await fs.writeFile(manifestPath, JSON.stringify({ language, brand, slogan: english ? 'Your tasks. Your way.' : '나만의 할 일, 투두닉', nativeWidgets, devices: Object.keys(devices), specifications: devices, images: stories.map((_, i) => storyFor('iphone', i).out + '.png'), apple_artwork_policy: APPLE_ARTWORK_POLICY_VERSION, artwork: { ...previous.artwork, ...generatedArtwork } }, null, 2));
 })().catch(e => { console.error(e); process.exitCode = 1; });

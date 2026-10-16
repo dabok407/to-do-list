@@ -40,5 +40,215 @@
     "05-stats-detail.png",
     "06-stats.png",
     "07-privacy.png"
-  ]
+  ],
+  "apple_artwork_policy": 1,
+  "artwork": {
+    "iphone": [
+      {
+        "out": "01-calendar",
+        "source": "01-calendar",
+        "title": "Your tasks. Your way.",
+        "sub": "No account. Your plans stay on your device.",
+        "access": "Calendar · Basic features",
+        "sha256": "f2dd708239712602d22e34d29d8503819c37fe6e3e3542503db906e3f356a90c",
+        "capture_sha256": "602c3bf35a451fd72eddb9d72b799b735979fe73d4c8799063fb6d30849c0180"
+      },
+      {
+        "out": "02-overdue",
+        "source": "02-overdue",
+        "title": "Keep unfinished tasks\nin sight",
+        "sub": "See what is left, with reminders on your schedule",
+        "access": "Pro · Subscription required",
+        "pro": true,
+        "sha256": "00dd7ca79dcefd6c6525df334b23968f979e1b7cdade715c40cb7a033cd6018a",
+        "capture_sha256": "df5e7b2408fdac256326d3eb7468bd7f28175a2641d168e3657662a1c96c9c5a"
+      },
+      {
+        "out": "03-start",
+        "source": "03-small-start",
+        "title": "Start small.\nTry five minutes.",
+        "sub": "Make the first step easier",
+        "access": "Pro · Subscription required",
+        "pro": true,
+        "sha256": "d8a31a35313624100b253995e1ee4b6d95cc7152a05a775e1e4cb89bc565fc09",
+        "capture_sha256": "9f12f1dc1c75f154ff096ea7e9b9cef3f0837122eb29555fa2227390bd6a8a9f"
+      },
+      {
+        "out": "04-repeat",
+        "source": "04-repeat",
+        "title": "Routines that fit\nyour life",
+        "sub": "Choose days, intervals, and an end date",
+        "access": "Repeating tasks · Basic features",
+        "sha256": "ac9be53471d91582a6d158ecd7fd24367edf1c972f6ee9e98c6484887bd26960",
+        "capture_sha256": "f9b7f9e5871e3c77a77e14c75c8af5b98cf23afcee0da4f69dc680e86f209d96"
+      },
+      {
+        "out": "05-stats-detail",
+        "source": "06-statistics-detail",
+        "title": "Find your\nexecution patterns",
+        "sub": "Review completion and snooze statistics over 30 days",
+        "access": "Pro · Subscription required",
+        "pro": true,
+        "sha256": "c433906d64f40a78db0b496d475fa381dd59601e98602c0b6958b6d43bc1ee5e",
+        "capture_sha256": "22ed21f45f6c7481de89a5384e00ae84c1fb6a5419835a456d1854dc82bedc67"
+      },
+      {
+        "out": "06-stats",
+        "source": "06-statistics",
+        "title": "See what you\nhave accomplished",
+        "sub": "Review completions and snooze history",
+        "access": "Pro · Subscription required",
+        "pro": true,
+        "sha256": "3a0a6a48645c0933cc45401ef6de4384e048b6c7d3cbc34460e5fa332e8d7eae",
+        "capture_sha256": "e1b6ff4f69ac6d09613c1aeffcda48f56314c31b21bf2d747b7b775a42dd3811"
+      },
+      {
+        "out": "07-privacy",
+        "source": "07-privacy",
+        "title": "Your plans stay\non your device",
+        "sub": "No account. Tasks and notes are saved locally.",
+        "access": "Tasks and notes are not sent to a developer server",
+        "sha256": "f37285deda79be80819fbdfd1934a359602eb1cb8c68dcdadb0d2792495d2e58",
+        "capture_sha256": "ae9099095f96f1abd4ceca3bde3812f4050739e254736ec37db7b61d7cb47012"
+      }
+    ],
+    "iphone-large": [
+      {
+        "out": "01-calendar",
+        "source": "01-calendar",
+        "title": "Your tasks. Your way.",
+        "sub": "No account. Your plans stay on your device.",
+        "access": "Calendar · Basic features",
+        "sha256": "05054df15c7b9dbd02192767d71dedbc083c11edf7629bab946bb52900023ad0",
+        "capture_sha256": "602c3bf35a451fd72eddb9d72b799b735979fe73d4c8799063fb6d30849c0180"
+      },
+      {
+        "out": "02-overdue",
+        "source": "02-overdue",
+        "title": "Keep unfinished tasks\nin sight",
+        "sub": "See what is left, with reminders on your schedule",
+        "access": "Pro · Subscription required",
+        "pro": true,
+        "sha256": "43a4b735be483ff5fc4dbc74c632f3ec6099ad88c3c2014fb9284ded46b3ef99",
+        "capture_sha256": "df5e7b2408fdac256326d3eb7468bd7f28175a2641d168e3657662a1c96c9c5a"
+      },
+      {
+        "out": "03-start",
+        "source": "03-small-start",
+        "title": "Start small.\nTry five minutes.",
+        "sub": "Make the first step easier",
+        "access": "Pro · Subscription required",
+        "pro": true,
+        "sha256": "31babc2af32600f175762bb5170952c109534c099da4aaff88ed167e8c6bd2dc",
+        "capture_sha256": "9f12f1dc1c75f154ff096ea7e9b9cef3f0837122eb29555fa2227390bd6a8a9f"
+      },
+      {
+        "out": "04-repeat",
+        "source": "04-repeat",
+        "title": "Routines that fit\nyour life",
+        "sub": "Choose days, intervals, and an end date",
+        "access": "Repeating tasks · Basic features",
+        "sha256": "6528014d2ed4f24a8c7bb2a4eaf62e0f74dd9210975ceaaa614ac86b20c309c6",
+        "capture_sha256": "f9b7f9e5871e3c77a77e14c75c8af5b98cf23afcee0da4f69dc680e86f209d96"
+      },
+      {
+        "out": "05-stats-detail",
+        "source": "06-statistics-detail",
+        "title": "Find your\nexecution patterns",
+        "sub": "Review completion and snooze statistics over 30 days",
+        "access": "Pro · Subscription required",
+        "pro": true,
+        "sha256": "9a3675474e2305a46ee200889b7c8d68b588f3ae76eb7a5411e300dc7187b113",
+        "capture_sha256": "22ed21f45f6c7481de89a5384e00ae84c1fb6a5419835a456d1854dc82bedc67"
+      },
+      {
+        "out": "06-stats",
+        "source": "06-statistics",
+        "title": "See what you\nhave accomplished",
+        "sub": "Review completions and snooze history",
+        "access": "Pro · Subscription required",
+        "pro": true,
+        "sha256": "65a7a433c4cbebd036b6beabad4d99cf463d8e26c57870dd5e3610ceeada0e46",
+        "capture_sha256": "e1b6ff4f69ac6d09613c1aeffcda48f56314c31b21bf2d747b7b775a42dd3811"
+      },
+      {
+        "out": "07-privacy",
+        "source": "07-privacy",
+        "title": "Your plans stay\non your device",
+        "sub": "No account. Tasks and notes are saved locally.",
+        "access": "Tasks and notes are not sent to a developer server",
+        "sha256": "2d241906feb679f968e20f10f6aa75556d8bee75e5e8492bad0cc73f520c0cc0",
+        "capture_sha256": "ae9099095f96f1abd4ceca3bde3812f4050739e254736ec37db7b61d7cb47012"
+      }
+    ],
+    "ipad": [
+      {
+        "out": "01-calendar",
+        "source": "01-calendar",
+        "title": "Your tasks. Your way.",
+        "sub": "No account. Your plans stay on your device.",
+        "access": "Calendar · Basic features",
+        "sha256": "ac49cac1dc3de3d01c6495dc7f0c011010c3b58398ef0460f60e62e816aa0480",
+        "capture_sha256": "fc5448da9dd449404e917c170162148193dcc4904f2f0aa4bc4369b36cd0cee8"
+      },
+      {
+        "out": "02-overdue",
+        "source": "02-overdue",
+        "title": "Keep unfinished tasks\nin sight",
+        "sub": "See what is left, with reminders on your schedule",
+        "access": "Pro · Subscription required",
+        "pro": true,
+        "sha256": "ce872fa25b65c4ae89318279794857e27c286551846b6b8e53c1249b45711124",
+        "capture_sha256": "706bb9ac8b8fe56011c30387cf40c428590d8f0c1b14f4a18586d77f585dc6ec"
+      },
+      {
+        "out": "03-start",
+        "source": "03-small-start",
+        "title": "Start small.\nTry five minutes.",
+        "sub": "Make the first step easier",
+        "access": "Pro · Subscription required",
+        "pro": true,
+        "sha256": "abce11ac29d81224b21455245aee1ae61b7088910a60936a23d1aebb43f2a0ab",
+        "capture_sha256": "96975f1f688168e624948007aff1ecbe41ed1a124a10f187d0a0176480fb7155"
+      },
+      {
+        "out": "04-repeat",
+        "source": "04-repeat",
+        "title": "Routines that fit\nyour life",
+        "sub": "Choose days, intervals, and an end date",
+        "access": "Repeating tasks · Basic features",
+        "sha256": "de416322eff7533a87e07bb6126c15e7c43f7fe8271d832e945d5f94231ce2ff",
+        "capture_sha256": "97a7eb0483c05640ebd39f36d3a5f1b196bc37802987dbda4084e9b7a537abbc"
+      },
+      {
+        "out": "05-stats-detail",
+        "source": "06-statistics-detail",
+        "title": "Find your\nexecution patterns",
+        "sub": "Review completion and snooze statistics over 30 days",
+        "access": "Pro · Subscription required",
+        "pro": true,
+        "sha256": "71166207dacc63325b45ad0adac27de90d891bbb45109bdeb0ba9b7a8ead61cf",
+        "capture_sha256": "36dc08b13d6f94d1202e1076fcba8975f480e4104d411c36858ee35fc0ad1bdd"
+      },
+      {
+        "out": "06-stats",
+        "source": "06-statistics",
+        "title": "See what you\nhave accomplished",
+        "sub": "Review completions and snooze history",
+        "access": "Pro · Subscription required",
+        "pro": true,
+        "sha256": "c49b03ec6fb75de5e02a3b36270ded31111d0501e67ad2d627aec0ce5bf04eed",
+        "capture_sha256": "36dc08b13d6f94d1202e1076fcba8975f480e4104d411c36858ee35fc0ad1bdd"
+      },
+      {
+        "out": "07-privacy",
+        "source": "07-privacy",
+        "title": "Your plans stay\non your device",
+        "sub": "No account. Tasks and notes are saved locally.",
+        "access": "Tasks and notes are not sent to a developer server",
+        "sha256": "a027a9c6729ffe6771de8e571382bd0cf382282300a66fe6c196360e4ae9952f",
+        "capture_sha256": "ecc2c33dc9161df8b9e2fc48d8cda18fd8a03d0595840ae6a5c3961524c40bde"
+      }
+    ]
+  }
 }

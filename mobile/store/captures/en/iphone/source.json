@@ -53,6 +53,24 @@
       "native_device_capture": false,
       "first_day_of_week_index": 0,
       "week_start": "Sunday"
+    },
+    "07-privacy.png": {
+      "capture_filter": "STORE_CAPTURE_PRIVACY_ONLY=true; test name ^ip",
+      "sha256": "ae9099095f96f1abd4ceca3bde3812f4050739e254736ec37db7b61d7cb47012",
+      "native_device_capture": false,
+      "source": "Production HangeoreumApp widgets rendered by Flutter widget test",
+      "captured_at": "2026-10-16T08:14:06.3773425Z",
+      "reason": "Platform-neutral store wording; genuine production UI recapture, no pixel retouching",
+      "working_tree_inputs": [
+        {
+          "file": "mobile/lib/features/privacy_card.dart",
+          "sha256": "12fc570ac9558fddd7515fe68fc41add190272b2d76ed8e5bfe4e960d3ef626d"
+        },
+        {
+          "file": "mobile/lib/l10n/editor_catalog.dart",
+          "sha256": "3d86ec74e7f1296a06b47734f03c118f1c6e38cb6b47791595082b0ede2ce3f1"
+        }
+      ]
     }
   }
 }

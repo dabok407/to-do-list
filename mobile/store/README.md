@@ -33,7 +33,9 @@
 
 Apple 공식 표에서 1179×2556은 Dynamic Island 중형, 1320×2868은 Dynamic Island 대형, 2064×2752는 13인치 iPad 허용 규격이다. 중형 iPhone 필수 안내와 대형 이미지가 없을 때의 조건을 함께 충족하도록 두 iPhone 크기를 준비했다. PNG 파일 검사와 실제 App Store Connect 슬롯·업로드 확인은 구분한다. [Apple 스크린샷 규격](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/)
 
-알림·미루기·실행 보조·통계에는 Pro 구독 필요를 표시한다. 첫 7일은 앱 내부 전체 기능 체험으로, 체험만으로 결제나 구독이 시작되지 않는다. 확정되지 않은 가격·다운로드 순위·의료 효과는 넣지 않는다. 앱의 위젯 보기는 무료이고 시작·미루기 동작은 Pro 기능이며, 소개 이미지의 위젯 장면 제외는 앱 기능 삭제를 뜻하지 않는다.
+알림·미루기·실행 보조·통계에는 Pro 구독 필요를 표시한다. Apple 소개 이미지에는 확정 여부와 관계없이 금액·무료·할인·체험 기간 홍보를 넣지 않는다(2.3.7). Apple 이미지의 다른 모바일 플랫폼 이름·로고도 제외한다(2.3.10). 기본 기능은 기본 기능으로, Pro 기능은 구독 필요로 명확히 구분한다(2.3.2). 첫 7일은 앱 내부 전체 기능 체험이며 자동 구독이 시작되지 않는다는 설명은 앱·상세 소개·지원 문서에서 제공한다. 다운로드 순위·의료 효과를 주장하지 않는다. 앱의 위젯 보기는 기본 기능이고 시작·미루기는 Pro 기능이며, 소개 이미지의 위젯 장면 제외는 앱 기능 삭제를 뜻하지 않는다.
+
+2026-10-16 반려 수정본은 Apple 이미지 42장과 심사용 Pro 화면 4장을 다시 제작했다. 개인정보 화면은 중립적인 스토어 안내를 사용하는 실제 앱 컴포넌트에서 재캡처했다. Apple 전용 검토 목록은 `assets/app-store-contact-sheet.png`, `assets/app-store-contact-sheet-en.png`다. 이 파일과 ZIP이 준비됐다는 사실은 Apple에 재등록·재심사했다는 뜻이 아니다. 기존 1001은 반려 상태이며 실제 등록 교체는 아직 실행하지 않았다.
 
 ## 화면 출처
 
@@ -60,6 +62,8 @@ node mobile/tool/compose_store_images.cjs --language=en
 node mobile/tool/verify_store_images.cjs
 ./mobile/tool/package_store_images.ps1
 ```
+
+Apple 자료만 수정할 때는 합성 명령에 `--platform=app-store`를 넣고 패키징 명령에 `-StorePlatform app-store`를 넣는다. 기존 Google 이미지는 재제작하지 않는다. 가격·무료·체험·타 플랫폼 문구 재발 방지는 `node --test mobile/tool/store_artwork_policy.test.cjs`로 검증한다.
 
 기존 이미지를 보존하고 대형 iPhone만 추가 생성하려면 합성 명령에 `--device=iphone-large`를 넣어 한국어·영어 각각 실행한다. 원본은 해당 언어의 `captures/iphone/`에서 읽고 새 파일은 `screenshots/iphone-large/`에 저장한다.
 

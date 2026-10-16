@@ -14,6 +14,7 @@ import 'package:hangeoreum/l10n/app_strings.dart';
 import 'package:hangeoreum/main.dart';
 import 'package:hangeoreum/preview.dart';
 import 'package:hangeoreum/services/subscription_service.dart';
+import 'package:hangeoreum/services/widget_service.dart';
 
 class _ReviewSubscription extends SubscriptionService {
   _ReviewSubscription(String displayPrice) {
@@ -37,6 +38,22 @@ void main() {
     test('Explicit Pro review artwork export only', () {}, skip: true);
     return;
   }
+  TestWidgetsFlutterBinding.ensureInitialized();
+  final messenger =
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+  setUp(() {
+    // This artwork fixture supplies a device calendar response just like the
+    // regular store capture fixture. It does not call a native/store service.
+    messenger.setMockMethodCallHandler(WidgetService.channel, (call) async {
+      if (call.method == 'getCalendarPreferences') {
+        return {'regionCode': 'KR', 'firstDayOfWeek': 0};
+      }
+      throw MissingPluginException('Native calls are outside review artwork');
+    });
+  });
+  tearDown(
+    () => messenger.setMockMethodCallHandler(WidgetService.channel, null),
+  );
   setUpAll(() async {
     await (FontLoader(
       'Pretendard',
@@ -121,6 +138,7 @@ void main() {
         await File('store/review/$language/source.json').writeAsString(
           '${const JsonEncoder.withIndent('  ').convert({
             'source': 'Production HangeoreumApp and ProScreen rendered by Flutter widget test',
+            'captured_at': DateTime.now().toUtc().toIso8601String(),
             'language': language,
             'product_id': 'hangeoreum_pro_yearly',
             'display_price_fixture': displayPrice,

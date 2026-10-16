@@ -1,5 +1,5 @@
 {
-  "verified_at": "2026-10-12T07:09:34.252Z",
+  "verified_at": "2026-10-16T08:20:50.252Z",
   "brands": {
     "ko": "투두닉",
     "en": "Todoniq"
@@ -24,6 +24,9 @@
       1920
     ]
   },
+  "apple_artwork_policy": 1,
+  "apple_artwork_text_reviewed": 42,
+  "source_pixels": "Production Flutter captures, composed without retouching; visual source-content review is separate",
   "apple_specification_reference": "https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/",
   "results": [
     {
@@ -32,8 +35,8 @@
       "width": 1179,
       "height": 2556,
       "channels": 3,
-      "bytes": 380315,
-      "sha256": "d3b4ef3bdaaa6254ec04f6297fa2666cb18524d1237689795dd85d4f2b2e328d"
+      "bytes": 380058,
+      "sha256": "30949895ee2b8fc4f2e9e928485432dc07dce364a5f92870e559c3822561c3ba"
     },
     {
       "file": "screenshots/iphone/02-overdue.png",
@@ -41,8 +44,8 @@
       "width": 1179,
       "height": 2556,
       "channels": 3,
-      "bytes": 175887,
-      "sha256": "0f98d9224d421de3fad3e09023e744696688d4dde9babdb687b97b2a7db8f47c"
+      "bytes": 174370,
+      "sha256": "b07d2fc561cfa17b6de41585957300a4bf318c6ad22de88baf19bfccb9deeca3"
     },
     {
       "file": "screenshots/iphone/03-start.png",
@@ -50,8 +53,8 @@
       "width": 1179,
       "height": 2556,
       "channels": 3,
-      "bytes": 164097,
-      "sha256": "b8a928fecf329aa4e1aa4ec6c4298dea390ddff129b1a443e541a93fb8263331"
+      "bytes": 162216,
+      "sha256": "3270675af8ef8237c20259de2476a1356e5b86c65e043b64056c1c6aed5ded67"
     },
     {
       "file": "screenshots/iphone/04-repeat.png",
@@ -68,8 +71,8 @@
       "width": 1179,
       "height": 2556,
       "channels": 3,
-      "bytes": 165531,
-      "sha256": "b6305ee9328630899e42c02a3ebd2c4b4c782e6bebbf4848de4740f60b996c85"
+      "bytes": 164016,
+      "sha256": "6724ab2b6781a6afa63fae3256e04b6969a49dc966938ff5be200f8cc1b824de"
     },
     {
       "file": "screenshots/iphone/06-stats.png",
@@ -77,8 +80,8 @@
       "width": 1179,
       "height": 2556,
       "channels": 3,
-      "bytes": 174532,
-      "sha256": "6e7e79cb8ad89b2d699bd174d91d65e45d90293d1be2efd17638a919ca6cba1d"
+      "bytes": 172726,
+      "sha256": "0c8b9003c51bc4b28cc99742901ba679ea67459ce8766f065372a001d512a4e7"
     },
     {
       "file": "screenshots/iphone/07-privacy.png",
@@ -86,8 +89,8 @@
       "width": 1179,
       "height": 2556,
       "channels": 3,
-      "bytes": 285320,
-      "sha256": "5aeaf9aab6896aaeb5d96ecf8882398bf6c10b6f98a3a010cc5653a5372ef182"
+      "bytes": 280831,
+      "sha256": "3b56102d52664a490e3bfe325672e21fcefdc68230e0254c4f6abd52c440815e"
     },
     {
       "file": "screenshots/iphone-large/01-calendar.png",
@@ -95,8 +98,8 @@
       "width": 1320,
       "height": 2868,
       "channels": 3,
-      "bytes": 438666,
-      "sha256": "d2f93ea1f30c7a85e8ae1f7c9a7195965e34e57e9e09a5e39a77f9de6f661771"
+      "bytes": 438507,
+      "sha256": "5311006061e4fee6d343c1177a8c999de26fa038b5fbce1b33b819ba7d6666dc"
     },
     {
       "file": "screenshots/iphone-large/02-overdue.png",
@@ -104,8 +107,8 @@
       "width": 1320,
       "height": 2868,
       "channels": 3,
-      "bytes": 203685,
-      "sha256": "d7eba820118e0d9c25cf1936c77087acb16f7053ec88ace67944866d1ab69a56"
+      "bytes": 201412,
+      "sha256": "0568781b908b219570f93520a6196695f61d0270817eb45eb919a020a7c65d27"
     },
     {
       "file": "screenshots/iphone-large/03-start.png",
@@ -113,8 +116,8 @@
       "width": 1320,
       "height": 2868,
       "channels": 3,
-      "bytes": 187129,
-      "sha256": "cc3d6aca07a43b3c5a6449b236a280386d4db74606c7baa53ef7a1a7a2f95c8a"
+      "bytes": 184996,
+      "sha256": "4787ae292a490a3729ae8622b026eb4d0666e2675961b9c33ba259073d829567"
     },
     {
       "file": "screenshots/iphone-large/04-repeat.png",
@@ -131,8 +134,8 @@
       "width": 1320,
       "height": 2868,
       "channels": 3,
-      "bytes": 188751,
-      "sha256": "85e66bfcb4950a61e6f993909e49d7a3d587ba964dadd323fac4379ab7286341"
+      "bytes": 186712,
+      "sha256": "f3c79d8eddd0ece9d8c23912990068cfe6b6d44a592241cb19f41d0b8b4f158f"
     },
     {
       "file": "screenshots/iphone-large/06-stats.png",
@@ -140,8 +143,8 @@
       "width": 1320,
       "height": 2868,
       "channels": 3,
-      "bytes": 199918,
-      "sha256": "ae6231c5a605e8eccd1480de9fdc013b8c16b67f71477421387ff10a13f6a5e7"
+      "bytes": 197012,
+      "sha256": "952cf7e2ea3542d5634d1dc643ec8574de8da3d4bd6a65aa337d2f0761853335"
     },
     {
       "file": "screenshots/iphone-large/07-privacy.png",
@@ -149,8 +152,8 @@
       "width": 1320,
       "height": 2868,
       "channels": 3,
-      "bytes": 327144,
-      "sha256": "eab6ea2c2d2033b78e3656512b286ab021de5b3d5c3af8ace2ab18e557aa4e14"
+      "bytes": 322255,
+      "sha256": "458f365cd814d38b9ccaf59ae4eba1eb01f27b746377145b3fa7acf30d6d644a"
     },
     {
       "file": "screenshots/ipad/01-calendar.png",
@@ -158,8 +161,8 @@
       "width": 2064,
       "height": 2752,
       "channels": 3,
-      "bytes": 404945,
-      "sha256": "c7f96d1c9e85c4ba7437564ff2bb05cb84a05247f3a9269d2baa38ceef60d4a1"
+      "bytes": 404620,
+      "sha256": "1dacec04fa611efbfb1dcb45beeed8c6ea7a595a4465fb876ec2636b2a08fb4d"
     },
     {
       "file": "screenshots/ipad/02-overdue.png",
@@ -167,8 +170,8 @@
       "width": 2064,
       "height": 2752,
       "channels": 3,
-      "bytes": 347712,
-      "sha256": "d77231f4d12cfbc49721200b6b6e7b0f8cd51667a64ce9622f9f5448f90ec3e4"
+      "bytes": 345195,
+      "sha256": "b0a3f123c6ebe3a62fffbcf19bc048d7cb7184ea3a9d8184ce9702ff2c9a60df"
     },
     {
       "file": "screenshots/ipad/03-start.png",
@@ -176,8 +179,8 @@
       "width": 2064,
       "height": 2752,
       "channels": 3,
-      "bytes": 287269,
-      "sha256": "ce132abef1ceca82a7ea40125ebd603efbd364b5414f73c0e54a9455885c453c"
+      "bytes": 284494,
+      "sha256": "17ef1a786c94deb7a1ece239cdd31f324e327285693ec5e2495d564fbcd0f489"
     },
     {
       "file": "screenshots/ipad/04-repeat.png",
@@ -194,8 +197,8 @@
       "width": 2064,
       "height": 2752,
       "channels": 3,
-      "bytes": 201236,
-      "sha256": "d5279f9193679482051514c41d505d3ee74b463db170b1ba23d9ca2620b1aa0f"
+      "bytes": 198536,
+      "sha256": "cd41618966bebe20f5253e2d37f125eaf6e9d2a5f0eed2d3b887d28e9668d5ae"
     },
     {
       "file": "screenshots/ipad/06-stats.png",
@@ -203,8 +206,8 @@
       "width": 2064,
       "height": 2752,
       "channels": 3,
-      "bytes": 193429,
-      "sha256": "bd761896ca26bc9f85acd78a5f0910086c76c7c30cb053238307345b64a6bef4"
+      "bytes": 190558,
+      "sha256": "ddb2ba53345113ab52322e6149cf3f8d32eda58ab55116796830aafc2f748fa7"
     },
     {
       "file": "screenshots/ipad/07-privacy.png",
@@ -212,8 +215,8 @@
       "width": 2064,
       "height": 2752,
       "channels": 3,
-      "bytes": 229268,
-      "sha256": "99f5a446ad6502311205a0548329b293be856d793b4896c8f868b5161678ab68"
+      "bytes": 226727,
+      "sha256": "6cb6b561db9f9f62ba6f55e9fbf537c080f5469ff0c932f7c815ee0d4fa41b2d"
     },
     {
       "file": "screenshots/android/01-calendar.png",
@@ -284,8 +287,8 @@
       "width": 1179,
       "height": 2556,
       "channels": 3,
-      "bytes": 414058,
-      "sha256": "ac1afb614f7c90d2d8c53c092d279664041f2a7bb211bff200a6ba3e15bc648e"
+      "bytes": 414242,
+      "sha256": "f2dd708239712602d22e34d29d8503819c37fe6e3e3542503db906e3f356a90c"
     },
     {
       "file": "screenshots/en/iphone/02-overdue.png",
@@ -293,8 +296,8 @@
       "width": 1179,
       "height": 2556,
       "channels": 3,
-      "bytes": 206506,
-      "sha256": "cc95f2a7c1a477cdd79b124c19eb211bee05d7a5a4c4c7963a0494858b49225c"
+      "bytes": 205616,
+      "sha256": "00dd7ca79dcefd6c6525df334b23968f979e1b7cdade715c40cb7a033cd6018a"
     },
     {
       "file": "screenshots/en/iphone/03-start.png",
@@ -302,8 +305,8 @@
       "width": 1179,
       "height": 2556,
       "channels": 3,
-      "bytes": 181445,
-      "sha256": "2d0e9e961301cfc280687e0060777010930ed27c49c72ce9be9853f715e6f780"
+      "bytes": 180368,
+      "sha256": "d8a31a35313624100b253995e1ee4b6d95cc7152a05a775e1e4cb89bc565fc09"
     },
     {
       "file": "screenshots/en/iphone/04-repeat.png",
@@ -311,8 +314,8 @@
       "width": 1179,
       "height": 2556,
       "channels": 3,
-      "bytes": 193176,
-      "sha256": "7fcb9f3e74b375a0dea1cb2d9be89e8dbb1f25c4def04ab5042bcd6c547e1a1c"
+      "bytes": 192984,
+      "sha256": "ac9be53471d91582a6d158ecd7fd24367edf1c972f6ee9e98c6484887bd26960"
     },
     {
       "file": "screenshots/en/iphone/05-stats-detail.png",
@@ -320,8 +323,8 @@
       "width": 1179,
       "height": 2556,
       "channels": 3,
-      "bytes": 211741,
-      "sha256": "56a8771ed93022d826ec734c3ffe58a9fb9e86db4cd26303adb8043f5e60a278"
+      "bytes": 210783,
+      "sha256": "c433906d64f40a78db0b496d475fa381dd59601e98602c0b6958b6d43bc1ee5e"
     },
     {
       "file": "screenshots/en/iphone/06-stats.png",
@@ -329,8 +332,8 @@
       "width": 1179,
       "height": 2556,
       "channels": 3,
-      "bytes": 207217,
-      "sha256": "8636945bc6d07ad89c328796d7b3a22eda359a4266db18e95810d5ee19e4d489"
+      "bytes": 206363,
+      "sha256": "3a0a6a48645c0933cc45401ef6de4384e048b6c7d3cbc34460e5fa332e8d7eae"
     },
     {
       "file": "screenshots/en/iphone/07-privacy.png",
@@ -338,8 +341,8 @@
       "width": 1179,
       "height": 2556,
       "channels": 3,
-      "bytes": 366918,
-      "sha256": "d42986d48728d0e64423ee57e5bb8e722c3da698e86c12f80875bb3b2988d869"
+      "bytes": 365868,
+      "sha256": "f37285deda79be80819fbdfd1934a359602eb1cb8c68dcdadb0d2792495d2e58"
     },
     {
       "file": "screenshots/en/iphone-large/01-calendar.png",
@@ -347,8 +350,8 @@
       "width": 1320,
       "height": 2868,
       "channels": 3,
-      "bytes": 479206,
-      "sha256": "eaaa5f827dd50c2c433d6d2965bbe360ee058d7176664e41f169ef072d2663b5"
+      "bytes": 479492,
+      "sha256": "05054df15c7b9dbd02192767d71dedbc083c11edf7629bab946bb52900023ad0"
     },
     {
       "file": "screenshots/en/iphone-large/02-overdue.png",
@@ -356,8 +359,8 @@
       "width": 1320,
       "height": 2868,
       "channels": 3,
-      "bytes": 237405,
-      "sha256": "889732ce28325d571490cfe189825001776153c9d3709c3cbf82b83b5a542346"
+      "bytes": 236636,
+      "sha256": "43a4b735be483ff5fc4dbc74c632f3ec6099ad88c3c2014fb9284ded46b3ef99"
     },
     {
       "file": "screenshots/en/iphone-large/03-start.png",
@@ -365,8 +368,8 @@
       "width": 1320,
       "height": 2868,
       "channels": 3,
-      "bytes": 210821,
-      "sha256": "ba86a34bd0b0df8074139c275be56b9963b566f1a5494a0588c4f00b30b60cdc"
+      "bytes": 211231,
+      "sha256": "31babc2af32600f175762bb5170952c109534c099da4aaff88ed167e8c6bd2dc"
     },
     {
       "file": "screenshots/en/iphone-large/04-repeat.png",
@@ -374,8 +377,8 @@
       "width": 1320,
       "height": 2868,
       "channels": 3,
-      "bytes": 223709,
-      "sha256": "05ddc18898acf483fa64ae8315d64beb2e4e397d2411b81a4ff2889268c30d69"
+      "bytes": 223442,
+      "sha256": "6528014d2ed4f24a8c7bb2a4eaf62e0f74dd9210975ceaaa614ac86b20c309c6"
     },
     {
       "file": "screenshots/en/iphone-large/05-stats-detail.png",
@@ -383,8 +386,8 @@
       "width": 1320,
       "height": 2868,
       "channels": 3,
-      "bytes": 245229,
-      "sha256": "4e6b06c685f2deb17c0610d05b6b3613d8e6d259d7ed8ff7a02b9db69657a1ee"
+      "bytes": 244238,
+      "sha256": "9a3675474e2305a46ee200889b7c8d68b588f3ae76eb7a5411e300dc7187b113"
     },
     {
       "file": "screenshots/en/iphone-large/06-stats.png",
@@ -392,8 +395,8 @@
       "width": 1320,
       "height": 2868,
       "channels": 3,
-      "bytes": 252025,
-      "sha256": "ac448ee6b7c17bb6e001d3a8373747c6bdb463b1c039b7eb50cf2c10426ade59"
+      "bytes": 250427,
+      "sha256": "65a7a433c4cbebd036b6beabad4d99cf463d8e26c57870dd5e3610ceeada0e46"
     },
     {
       "file": "screenshots/en/iphone-large/07-privacy.png",
@@ -401,8 +404,8 @@
       "width": 1320,
       "height": 2868,
       "channels": 3,
-      "bytes": 425302,
-      "sha256": "698f951884b1b50512f149d215580679e437404f0d756b8890735b5ae5b73aa6"
+      "bytes": 424690,
+      "sha256": "2d241906feb679f968e20f10f6aa75556d8bee75e5e8492bad0cc73f520c0cc0"
     },
     {
       "file": "screenshots/en/ipad/01-calendar.png",
@@ -410,8 +413,8 @@
       "width": 2064,
       "height": 2752,
       "channels": 3,
-      "bytes": 471893,
-      "sha256": "000c5f6b51be22edaf7ad4ba2e096bb4704811b1bbe5b45cc973f317945f4604"
+      "bytes": 472297,
+      "sha256": "ac49cac1dc3de3d01c6495dc7f0c011010c3b58398ef0460f60e62e816aa0480"
     },
     {
       "file": "screenshots/en/ipad/02-overdue.png",
@@ -419,8 +422,8 @@
       "width": 2064,
       "height": 2752,
       "channels": 3,
-      "bytes": 402541,
-      "sha256": "daa8eeabb3d358a801dba1cc2dff038739b73d02d108eb26feda13696136cf59"
+      "bytes": 401263,
+      "sha256": "ce872fa25b65c4ae89318279794857e27c286551846b6b8e53c1249b45711124"
     },
     {
       "file": "screenshots/en/ipad/03-start.png",
@@ -428,8 +431,8 @@
       "width": 2064,
       "height": 2752,
       "channels": 3,
-      "bytes": 340144,
-      "sha256": "8777c0d3c32c87d367a298b749eeae498432c36766ac5880d5319e278c03fbeb"
+      "bytes": 338667,
+      "sha256": "abce11ac29d81224b21455245aee1ae61b7088910a60936a23d1aebb43f2a0ab"
     },
     {
       "file": "screenshots/en/ipad/04-repeat.png",
@@ -437,8 +440,8 @@
       "width": 2064,
       "height": 2752,
       "channels": 3,
-      "bytes": 201019,
-      "sha256": "cb769777c1eccef87c6d13efaf43b71061f51d8b2e3bc5e2adce61926d8bc637"
+      "bytes": 200419,
+      "sha256": "de416322eff7533a87e07bb6126c15e7c43f7fe8271d832e945d5f94231ce2ff"
     },
     {
       "file": "screenshots/en/ipad/05-stats-detail.png",
@@ -446,8 +449,8 @@
       "width": 2064,
       "height": 2752,
       "channels": 3,
-      "bytes": 231209,
-      "sha256": "165b02571b42fe8f4044722909846cef36796cb5a1bf99e87733148f74c997c9"
+      "bytes": 229721,
+      "sha256": "71166207dacc63325b45ad0adac27de90d891bbb45109bdeb0ba9b7a8ead61cf"
     },
     {
       "file": "screenshots/en/ipad/06-stats.png",
@@ -455,8 +458,8 @@
       "width": 2064,
       "height": 2752,
       "channels": 3,
-      "bytes": 233597,
-      "sha256": "addd7769970d6848223f83da2ec16411e52f5a28a6c5d54bbf84fe61860a3af0"
+      "bytes": 231996,
+      "sha256": "c49b03ec6fb75de5e02a3b36270ded31111d0501e67ad2d627aec0ce5bf04eed"
     },
     {
       "file": "screenshots/en/ipad/07-privacy.png",
@@ -464,8 +467,8 @@
       "width": 2064,
       "height": 2752,
       "channels": 3,
-      "bytes": 275593,
-      "sha256": "64fe16c4f7891944baae8a67d0d1af0987817412e6aed171bc44fe1d7d4295be"
+      "bytes": 275252,
+      "sha256": "a027a9c6729ffe6771de8e571382bd0cf382282300a66fe6c196360e4ae9952f"
     },
     {
       "file": "screenshots/en/android/01-calendar.png",
