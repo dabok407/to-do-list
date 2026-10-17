@@ -23,10 +23,85 @@
     "nativeScenariosAdded": [
       "NATIVE_EDITOR_DIRECT_CHOICES_OK",
       "NATIVE_QUICK_DEFAULT_OTHER_SWIPE_OK"
-    ]
+    ],
+    "editorChoicesAndCaptureTestsPassed": 14,
+    "actualEditorPngCount": 2,
+    "webPreviewBuild": "PASSED",
+    "previewUrl": "http://127.0.0.1:5175/review.html?lang=ko"
   },
-  "nativeQa": {"status": "PENDING"},
-  "signedBuild": {"status": "PENDING", "appleUploadRequested": false},
+  "nativeQa": {
+    "status": "PASSED_ACROSS_ANDROID_AND_IOS_RECHECK",
+    "iosRunId": 39005355402,
+    "iosUrl": "https://github.com/dabok407/to-do-list/actions/runs/39005355402",
+    "androidRunId": 39002975587,
+    "androidUrl": "https://github.com/dabok407/to-do-list/actions/runs/39002975587",
+    "sourceCommit": "a25466abf9241c36cf3cc9121710b3252d7d3984",
+    "productionAppMatchesSignedBuild": true,
+    "iosSourceCommit": "a25466abf9241c36cf3cc9121710b3252d7d3984",
+    "androidSourceCommit": "0d8a02148e20191e3d3193fba6a6bb875221649e",
+    "android": "PASSED",
+    "ios": "PASSED",
+    "androidVerifiedScenarioMarkers": [
+      "NATIVE_EDITOR_DIRECT_CHOICES_OK",
+      "NATIVE_QUICK_DEFAULT_OTHER_SWIPE_OK"
+    ],
+    "iosIntegrationEvidence": {
+      "driverAllTestsPassed": true,
+      "mainDriverLog": ".tools/verification/39005355402/12091536264/ios-app_test-driver.log",
+      "mainDriverLogSha256": "e363e7fa0b82e1d446d3dd5d9704b524595272e3d1b136664ce32f3503692d7d",
+      "observedScenarioMarkers": [
+        "NATIVE_EDITOR_DIRECT_CHOICES_OK"
+      ],
+      "quickScenarioCompletionMarkerObserved": false,
+      "quickScenarioAssertionsUnconditional": true,
+      "endOfTestScreenshot": ".tools/verification/39005355402/12091536264/calendar.png",
+      "endOfTestScreenshotSha256": "f862c2503fca8e29791892b1ff6051f82177cb9479b62fef9e04e67a5667adb9",
+      "evidenceBasis": "The single testWidgets body executes quick-add, category, priority, swipe and native request cancellation/restoration assertions unconditionally before completing. Integration driver prints All tests passed only when response.allTestsPassed is true. Some later stdout markers are absent; their presence is not claimed.",
+      "notificationScreenshotOcr": "PASSED"
+    },
+    "initialRun": {
+      "runId": 39001801297,
+      "url": "https://github.com/dabok407/to-do-list/actions/runs/39001801297",
+      "conclusion": "failure",
+      "issue": "Native tooltip overlay matched the button tooltip more than once.",
+      "testOnlyFixCommit": "0d8a02148e20191e3d3193fba6a6bb875221649e",
+      "productionAppCodeChanged": false
+    },
+    "iosNavigationFailure": {
+      "runId": 39002975587,
+      "runConclusion": "failure",
+      "androidJob": "success",
+      "iosJob": "failure",
+      "issue": "Cold widget task details consumed the Settings tab tap.",
+      "testOnlyFixCommit": "78cf8ed9ff6e29195ceaf60cda5d9d374714a891",
+      "titleBodyAndScreenshotAssertionsRetained": true,
+      "productionAppCodeChanged": false
+    },
+    "cancelledTestRun": {
+      "runId": 39005041427,
+      "conclusion": "cancelled",
+      "reason": "Test-only logging import was missing; corrected and statically analyzed before redispatch.",
+      "productionAppCodeChanged": false
+    }
+  },
+  "signedBuild": {
+    "status": "SUCCESS",
+    "runId": 39001832328,
+    "url": "https://github.com/dabok407/to-do-list/actions/runs/39001832328",
+    "sourceCommit": "c9d0bb513c4012f7cffc1aa47106758e7443bcb1",
+    "appleUploadRequested": false,
+    "appleUploadStep": "skipped",
+    "localIpaVerified": true,
+    "artifactId": 12089297625,
+    "artifactDigest": "sha256:7bcea795f9e9db47a23ec7359cc597dc3de9de469f119cb375bacff28f613b74",
+    "ipaSha256": "7ce6d405fccb1ad75c8678243871eb895a0b25ca7a3c5b691aafb53442ba76cf",
+    "ipaBytes": 25108928,
+    "localIpaPath": "mobile/build/testflight/1.0.1-1202/Todoniq-1.0.1-1202.ipa",
+    "durableLocalBackup": ".tools/releases/ios/1.0.1-1202",
+    "nativeSignatureValidation": "performed by successful macOS signing workflow",
+    "githubArtifactRetentionDays": 14,
+    "artifactExpiryPolicy": "현재 upload-only workflow는 유효한 GitHub 아티팩트를 사용한다. 만료 후에는 로컬 원본의 해시·manifest·서명을 재검증하는 별도 업로드 경로가 필요하다."
+  },
   "whatsNew": {
     "ko": "목록을 오른쪽으로 밀어 완료하고, 완료된 할 일은 왼쪽으로 밀어 해제할 수 있습니다. 빠른 추가는 한 시간 뒤를 기본으로 제안합니다. 기타 분류와 분류·우선순위 선택 버튼을 추가했으며 새 일정의 기본 우선순위를 낮음으로 변경했습니다. Pro 구독이 확인되면 체험 안내를 숨깁니다. 일정 시간을 수정할 때 중복 일정이 생기던 문제도 수정했습니다.",
     "en-US": "Swipe right to complete a task and left to mark a completed task incomplete. Quick add now defaults to one hour from now. Added an Other category and direct category and priority buttons; new tasks default to Low priority. Trial prompts are hidden after a verified Pro purchase or restore. Fixed duplicate tasks when editing their date or time."
@@ -36,5 +111,17 @@
   "appleUploaded": false,
   "appStoreVersionCreated": false,
   "reviewSubmitted": false,
-  "googleAccountWorkRemainsOnHold": true
+  "googleAccountWorkRemainsOnHold": true,
+  "sourceCommit": "c9d0bb513c4012f7cffc1aa47106758e7443bcb1",
+  "preparedUploadWorkflow": {
+    "path": ".github/workflows/ios-testflight-upload.yml",
+    "inputs": {
+      "source_run_id": "39001832328",
+      "version": "1.0.1",
+      "build_number": "1202"
+    },
+    "dispatched": false
+  },
+  "preparationStatus": "SIGNED_IPA_VERIFIED_AND_READY_FOR_LATER_UPLOAD",
+  "verifiedOn": "2026-10-17"
 }
