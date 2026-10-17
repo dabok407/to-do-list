@@ -262,6 +262,94 @@ void main() {
         }
       });
 
+      for (final snoozed in [false, true]) {
+        test('${snoozed ? '미룬' : '예정'} 일정 시간 수정은 기존 예약을 교체하고 같은 제목의 다른 일정은 유지', () async {
+          sqfliteFfiInit();
+          databaseFactory = databaseFactoryFfi;
+          final repository = await TaskRepository.open(
+            databasePath: inMemoryDatabasePath,
+          );
+          addTearDown(repository.db.close);
+          final later = DateTime.now().add(const Duration(hours: 2));
+          final originalDue = DateTime(
+            later.year,
+            later.month,
+            later.day,
+            later.hour,
+            later.minute,
+          );
+          final changedDue = originalDue.add(const Duration(hours: 3));
+          await repository.saveTask(makeTask('edited', originalDue));
+          await repository.saveTask(makeTask('unrelated', originalDue));
+          var rows = await repository.occurrences();
+          final original = rows.singleWhere((o) => o.task.id == 'edited');
+          final unrelated = rows.singleWhere((o) => o.task.id == 'unrelated');
+          await scheduler.sync(rows);
+          expect(pending, hasLength(2));
+
+          if (snoozed) {
+            await repository.act(original.id, 'snooze', minutes: 10);
+            rows = await repository.occurrences();
+            await scheduler.sync(rows);
+          }
+          final previousRequest = pending.values.singleWhere(
+            (job) => job['payload'] == original.id,
+          );
+          final previousScheduledTime = previousRequest['scheduledDateTime'];
+
+          await repository.saveTask(
+            Task.fromMap({
+              ...original.task.toMap(),
+              'due': changedDue.toIso8601String(),
+            }),
+            occurrenceId: original.id,
+          );
+          await repository.materialize();
+          rows = await repository.occurrences();
+          expect(rows, hasLength(2));
+          expect(
+            rows.singleWhere((o) => o.task.id == 'edited').id,
+            original.id,
+          );
+          await scheduler.sync(rows);
+
+          // Inspect actual platform arguments, not just the notification plan.
+          expect(pending, hasLength(2));
+          expect(pending.values.map((job) => job['payload']).toSet(), {
+            original.id,
+            unrelated.id,
+          });
+          final editedRequest = pending.values.singleWhere(
+            (job) => job['payload'] == original.id,
+          );
+          final untouchedRequest = pending.values.singleWhere(
+            (job) => job['payload'] == unrelated.id,
+          );
+          DateTime wallTime(Map<String, Object?> request) {
+            final scheduled = DateTime.parse(
+              request['scheduledDateTime'] as String,
+            );
+            return DateTime(
+              scheduled.year,
+              scheduled.month,
+              scheduled.day,
+              scheduled.hour,
+              scheduled.minute,
+              scheduled.second,
+            );
+          }
+
+          expect(wallTime(editedRequest), changedDue);
+          expect(
+            editedRequest['scheduledDateTime'],
+            isNot(previousScheduledTime),
+          );
+          expect(wallTime(untouchedRequest), originalDue);
+          expect(editedRequest['title'], untouchedRequest['title']);
+          expect(editedRequest['id'], isNot(untouchedRequest['id']));
+        });
+      }
+
       test('실제 해시 충돌이 있어도 두 예약이 덮어쓰이지 않는다', () async {
         const idA = 'task-1gytfkf-1phy';
         const idB = 'task-bd897y-1q43';

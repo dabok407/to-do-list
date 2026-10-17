@@ -94,7 +94,7 @@ class TaskRepository {
 
   Future<List<Task>> tasks() async =>
       (await db.query('tasks')).map(Task.fromMap).toList();
-  Future<void> saveTask(Task task) async {
+  Future<void> saveTask(Task task, {String? occurrenceId}) async {
     await db.transaction((tx) async {
       final existing = await tx.query(
         'tasks',
@@ -102,23 +102,111 @@ class TaskRepository {
         whereArgs: [task.id],
       );
       if (existing.isEmpty) {
+        if (occurrenceId != null) {
+          throw StateError('Edited task no longer exists');
+        }
         await tx.insert('tasks', task.toMap());
       } else {
+        if (occurrenceId != null &&
+            (await tx.query(
+              'occurrences',
+              columns: ['id'],
+              where: 'id=? AND task_id=?',
+              whereArgs: [occurrenceId, task.id],
+            )).isEmpty) {
+          throw StateError('Edited occurrence no longer exists');
+        }
         await tx.update(
           'tasks',
           task.toMap(),
           where: 'id=?',
           whereArgs: [task.id],
         );
-        // Editing the series preserves terminal and already-started history.
-        await tx.delete(
-          'occurrences',
-          where: "task_id=? AND state='pending' AND snoozes=0",
-          whereArgs: [task.id],
-        );
+        final previous = Task.fromMap(existing.single);
+        if (previous.repeat == RepeatUnit.none &&
+            task.repeat == RepeatUnit.none) {
+          await _updateSingleOccurrence(tx, previous, task, occurrenceId);
+        } else {
+          // Editing the series preserves terminal and already-started history.
+          await tx.delete(
+            'occurrences',
+            where: "task_id=? AND state='pending' AND snoozes=0",
+            whereArgs: [task.id],
+          );
+        }
       }
     });
     await materialize();
+  }
+
+  Future<void> _updateSingleOccurrence(
+    Transaction tx,
+    Task previous,
+    Task edited,
+    String? occurrenceId,
+  ) async {
+    final rows = await tx.query(
+      'occurrences',
+      where: 'task_id=?',
+      whereArgs: [previous.id],
+      orderBy: 'original_due',
+    );
+    final eventIds = (await tx.rawQuery(
+      'SELECT DISTINCT occurrence_id FROM events WHERE occurrence_id IN '
+      '(SELECT id FROM occurrences WHERE task_id=?)',
+      [previous.id],
+    )).map((e) => e['occurrence_id']).toSet();
+    bool untouched(Map<String, Object?> row) =>
+        row['state'] == 'pending' &&
+        row['snoozes'] == 0 &&
+        row['started'] == null &&
+        row['completed'] == null &&
+        row['small_active'] == 0 &&
+        row['before_complete'] == null &&
+        row['quota_skipped'] == 0 &&
+        !eventIds.contains(row['id']);
+
+    final history = rows.where((row) => !untouched(row)).toList();
+    final selected = occurrenceId != null
+        ? rows.where((row) => row['id'] == occurrenceId).firstOrNull
+        : history.length == 1
+        ? history.single
+        : rows
+                  .where(
+                    (row) =>
+                        row['original_due'] == previous.due.toIso8601String(),
+                  )
+                  .firstOrNull ??
+              rows.firstOrNull;
+    if (selected == null) {
+      if (occurrenceId != null) {
+        throw StateError('Edited occurrence no longer exists');
+      }
+      return;
+    }
+
+    final newDue = edited.due.toIso8601String();
+    for (final row in rows.where((row) => row['id'] != selected['id'])) {
+      if (untouched(row)) {
+        // Older versions could leave an untouched duplicate after moving a
+        // snoozed/started task. Never merge or discard another row's history.
+        await tx.delete('occurrences', where: 'id=?', whereArgs: [row['id']]);
+      } else if (row['original_due'] == newDue) {
+        throw StateError('Another occurrence has history at the edited time');
+      }
+    }
+    final moved = selected['original_due'] != newDue;
+    await tx.update(
+      'occurrences',
+      {
+        'original_due': newDue,
+        if (moved &&
+            (selected['state'] == 'pending' || selected['state'] == 'paused'))
+          'reminder': newDue,
+      },
+      where: 'id=?',
+      whereArgs: [selected['id']],
+    );
   }
 
   Future<void> deleteTask(String id) async {
@@ -204,7 +292,7 @@ class TaskRepository {
   }) async {
     final source = original.task;
     if (source.repeat == RepeatUnit.none) {
-      await saveTask(edited);
+      await saveTask(edited, occurrenceId: original.id);
       return;
     }
     final replacement = Task.fromMap({
@@ -318,8 +406,10 @@ class TaskRepository {
   Future<void> materialize({DateTime? through}) async {
     final now = DateTime.now();
     final until = through ?? DateTime(now.year, now.month + 3, 0);
-    final all = await tasks();
     await db.transaction((tx) async {
+      // Foreground edits and headless materialization share this database.
+      // Read the schedule under the same lock used to insert its occurrences.
+      final all = (await tx.query('tasks')).map(Task.fromMap).toList();
       for (final t in all) {
         final exceptions = (await tx.query(
           'recurrence_exceptions',

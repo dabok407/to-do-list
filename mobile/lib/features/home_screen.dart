@@ -243,8 +243,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     );
     if (result != null) {
       await run(
-        () => onlyThis != null
-            ? c.editOccurrence(occurrence!, result, onlyThis: onlyThis)
+        () => occurrence != null
+            ? c.editOccurrence(occurrence, result, onlyThis: onlyThis ?? true)
             : c.save(result),
       );
     }
