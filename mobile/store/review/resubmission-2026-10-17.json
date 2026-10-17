@@ -1,0 +1,90 @@
+{
+  "appId": "6821236391",
+  "version": "1.0.0",
+  "buildNumber": "1101",
+  "buildId": "969eb0ab-714b-4da5-9da5-959f889688b7",
+  "sourceSha": "a9828e4c990ebdd1878b37325b0a387cd7c01386",
+  "reviewSubmissionId": "88f8d59f-d908-4bb0-bd89-6a9cc8fe0658",
+  "submittedAtAsDisplayed": "2026-10-17 11:15 KST",
+  "reviewStateAsDisplayed": "심사 대기 중",
+  "items": [
+    {
+      "type": "appVersion",
+      "name": "iOS 1.0.0 (1101)",
+      "stateAsDisplayed": "심사 대기 중"
+    },
+    {
+      "type": "subscription",
+      "name": "Todoniq Pro Annual",
+      "stateAsDisplayed": "심사 대기 중"
+    },
+    {
+      "type": "subscriptionGroup",
+      "name": "투두닉 Pro",
+      "stateAsDisplayed": "심사 대기 중"
+    }
+  ],
+  "approvalConfirmed": false,
+  "releaseMode": "AFTER_APPROVAL",
+  "localizationFieldsMatchPreparedCopy": true,
+  "screenshotSets": [
+    {
+      "locale": "ko",
+      "displayType": "APP_IPHONE_61",
+      "count": 7,
+      "orderMatches": true,
+      "localChecksumAndSizeMatch": true,
+      "allDeliveryStates": "COMPLETE",
+      "sourceChecksumAlgorithm": "MD5"
+    },
+    {
+      "locale": "ko",
+      "displayType": "APP_IPAD_PRO_3GEN_129",
+      "count": 7,
+      "orderMatches": true,
+      "localChecksumAndSizeMatch": true,
+      "allDeliveryStates": "COMPLETE",
+      "sourceChecksumAlgorithm": "MD5"
+    },
+    {
+      "locale": "en-US",
+      "displayType": "APP_IPHONE_61",
+      "count": 7,
+      "orderMatches": true,
+      "localChecksumAndSizeMatch": true,
+      "allDeliveryStates": "COMPLETE",
+      "sourceChecksumAlgorithm": "MD5"
+    },
+    {
+      "locale": "en-US",
+      "displayType": "APP_IPAD_PRO_3GEN_129",
+      "count": 7,
+      "orderMatches": true,
+      "localChecksumAndSizeMatch": true,
+      "allDeliveryStates": "COMPLETE",
+      "sourceChecksumAlgorithm": "MD5"
+    }
+  ],
+  "totalScreenshotsReplaced": 28,
+  "testFlight": {
+    "processingState": "VALID",
+    "expired": false,
+    "usesNonExemptEncryption": false,
+    "internalBuildState": "IN_BETA_TESTING",
+    "ownerGroupConnected": true
+  },
+  "appReviewNotesUpdated": true,
+  "appReviewAttachment": "pro-purchase.png",
+  "reviewAttachmentProvenance": "Production Flutter ProScreen rendered with configured price fixture; not a native-device capture or completed StoreKit transaction.",
+  "subscriptionSpecificReviewDetailsModified": false,
+  "subscriptionSpecificReviewDetailsReason": "Read-only while attached to the existing submission; retained. Updated purchase UI attached to the app review instead.",
+  "subscriptionOrGroupDeleted": false,
+  "separateResolutionCenterReplySent": false,
+  "actualPhysicalIPhoneInstallationVerified": false,
+  "actualStoreKitPurchaseOrRestoreVerified": false,
+  "googleAccountWorkOnHoldByUser": true,
+  "verificationSources": [
+    "App Store Connect UI submission status and displayed timestamp",
+    "Official App Store Connect API read-only comparison of locale fields, screenshot checksums/sizes/order/delivery states and TestFlight entitlement metadata"
+  ]
+}
