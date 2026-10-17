@@ -10,6 +10,7 @@ import 'pro_screen.dart';
 import 'privacy_card.dart';
 import 'store_policy_links.dart';
 import 'persistent_time_picker.dart';
+import 'equal_choice_row.dart';
 import '../services/subscription_service.dart';
 import '../l10n/app_strings.dart';
 
@@ -1360,20 +1361,19 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         style: const TextStyle(fontSize: 13, color: mutedText),
       ),
       const SizedBox(height: 12),
-      Wrap(
-        spacing: 6,
-        runSpacing: 8,
-        children: categoryColors.keys
-            .map(
-              (name) => ChoiceChip(
-                label: Text(strings.category(name)),
-                selected: quickCategory == name,
-                onSelected: busy
-                    ? null
-                    : (_) => setState(() => quickCategory = name),
-              ),
-            )
-            .toList(),
+      EqualChoiceRow<String>(
+        key: const Key('quick-category-row'),
+        choices: {
+          for (final name in categoryColors.keys) name: strings.category(name),
+        },
+        value: quickCategory,
+        optionKeyPrefix: 'quick-category-option',
+        onChanged: busy
+            ? null
+            : (name) {
+                FocusScope.of(context).unfocus();
+                setState(() => quickCategory = name);
+              },
       ),
       const SizedBox(height: 12),
       TextField(

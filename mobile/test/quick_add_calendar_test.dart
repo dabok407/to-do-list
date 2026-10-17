@@ -452,7 +452,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(controller.saved.single.title, '키보드로 추가하는 일');
     _expectDefaultDue(controller.saved.single.due, before, DateTime.now());
-    expect(controller.saved.single.priority, 0);
+    expect(controller.saved.single.priority, 1);
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
@@ -566,7 +566,7 @@ void main() {
         }
         expect(controller.fixture.reads, initialReads + 1);
         expect(controller.saved.single.title, '기본 시간으로 등록하는 일');
-        expect(controller.saved.single.priority, 0);
+        expect(controller.saved.single.priority, 1);
         _expectDefaultDue(controller.saved.single.due, before, DateTime.now());
         expect(
           tester
@@ -651,7 +651,7 @@ void main() {
       final next = controller.saved.last;
       _expectDefaultDue(next.due, beforeSave, DateTime.now());
       expect(TimeOfDay.fromDateTime(next.due), nextInitial);
-      expect(next.priority, 0);
+      expect(next.priority, 1);
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox.shrink());
     },
@@ -764,7 +764,7 @@ void main() {
         await tester.testTextInput.receiveAction(TextInputAction.done);
         await tester.pumpAndSettle();
         expect(controller.saved.single.category, '기타');
-        expect(controller.saved.single.priority, 0);
+        expect(controller.saved.single.priority, 1);
         expect(tester.takeException(), isNull);
         await tester.pumpWidget(const SizedBox.shrink());
       },

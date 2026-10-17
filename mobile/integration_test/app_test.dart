@@ -78,12 +78,21 @@ void main() {
       find.descendant(of: priorityPanel, matching: find.byType(ChoiceChip)),
     );
     expect(
-      priorityChoices.map((choice) => (choice.label as Text).data),
+      priorityChoices.map(
+        (choice) => tester
+            .widget<Text>(
+              find.descendant(
+                of: find.byWidget(choice),
+                matching: find.byType(Text),
+              ),
+            )
+            .data,
+      ),
       ['높음', '보통', '낮음'].map(strings.t),
     );
     expect(
       tester
-          .widget<ChoiceChip>(find.byKey(const Key('editor-priority-option-0')))
+          .widget<ChoiceChip>(find.byKey(const Key('editor-priority-option-1')))
           .selected,
       isTrue,
     );
@@ -281,7 +290,7 @@ void main() {
       );
       final quickTask = quickOccurrence.task;
       expect(quickTask.category, '기타');
-      expect(quickTask.priority, 0);
+      expect(quickTask.priority, 1);
       expect(quickTask.due, isIn(defaultCandidates));
       expect(quickOccurrence.originalDue, quickTask.due);
       expect(quickOccurrence.status, TaskStatus.pending);

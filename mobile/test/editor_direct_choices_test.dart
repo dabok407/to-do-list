@@ -83,16 +83,16 @@ void main() {
         final choice = _category(category);
         expect(choice, findsOneWidget);
         expect(
-          tester.widget<ChoiceChip>(choice).label,
-          isA<Text>().having(
-            (label) => label.data,
-            'label',
-            strings.category(category),
-          ),
+          tester
+              .widget<Text>(
+                find.descendant(of: choice, matching: find.byType(Text)),
+              )
+              .data,
+          strings.category(category),
         );
       }
       expect(tester.widget<ChoiceChip>(_category('생활')).selected, isTrue);
-      expect(tester.widget<ChoiceChip>(_priority(0)).selected, isTrue);
+      expect(tester.widget<ChoiceChip>(_priority(1)).selected, isTrue);
       final priorities = tester.widgetList<ChoiceChip>(
         find.descendant(
           of: find.byKey(const Key('editor-priority')),
@@ -100,7 +100,16 @@ void main() {
         ),
       );
       expect(
-        priorities.map((choice) => (choice.label as Text).data),
+        priorities.map(
+          (choice) => tester
+              .widget<Text>(
+                find.descendant(
+                  of: find.byWidget(choice),
+                  matching: find.byType(Text),
+                ),
+              )
+              .data,
+        ),
         ['높음', '보통', '낮음'].map(strings.t),
       );
       expect(
@@ -117,7 +126,7 @@ void main() {
       expect(tester.widget<ChoiceChip>(_category('생활')).selected, isFalse);
       await _tapChoice(tester, _priority(2));
       expect(tester.widget<ChoiceChip>(_priority(2)).selected, isTrue);
-      expect(tester.widget<ChoiceChip>(_priority(0)).selected, isFalse);
+      expect(tester.widget<ChoiceChip>(_priority(1)).selected, isFalse);
       await _tapChoice(tester, _priority(1));
       expect(tester.widget<ChoiceChip>(_priority(1)).selected, isTrue);
       final title = find.byKey(const Key('editor-title'));
@@ -130,7 +139,7 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('$language a new task saves low priority by default', (
+    testWidgets('$language a new task saves normal priority by default', (
       tester,
     ) async {
       Task? saved;
@@ -142,7 +151,7 @@ void main() {
       await tester.enterText(title, 'Default priority');
       await tester.tap(find.text(strings.t('저장')));
       await tester.pumpAndSettle();
-      expect(saved?.priority, 0);
+      expect(saved?.priority, 1);
       expect(saved?.category, '생활');
       expect(tester.takeException(), isNull);
     });
@@ -199,8 +208,13 @@ void main() {
       await tester.tap(find.text('Open'));
       await tester.pumpAndSettle();
       final longText = tester.widget<Text>(find.text(longCategory));
-      expect(longText.maxLines, isNull);
       expect(longText.overflow, isNot(TextOverflow.ellipsis));
+      expect(
+        tester
+            .renderObject<RenderParagraph>(find.text(longCategory))
+            .didExceedMaxLines,
+        isFalse,
+      );
       final choiceKeys = <String, List<Key>>{
         'editor-category': [
           // Check the original custom choice before switching to built-ins.
@@ -293,7 +307,7 @@ void main() {
       Scrollable.of(firstField).position.jumpTo(0);
       await tester.pumpAndSettle();
       expect(tester.widget<ChoiceChip>(_category('기타')).selected, isTrue);
-      expect(tester.widget<ChoiceChip>(_priority(0)).selected, isTrue);
+      expect(tester.widget<ChoiceChip>(_priority(1)).selected, isTrue);
       expect(tester.testTextInput.isVisible, isFalse);
       expect(tester.takeException(), isNull);
       await tester.runAsync(() async {

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../domain/task.dart';
 import '../l10n/app_strings.dart';
 import 'persistent_time_picker.dart';
+import 'equal_choice_row.dart';
 
 /// Match quick add while keeping the selected calendar date, even at midnight.
 DateTime defaultTaskDue(DateTime selectedDate, {DateTime? now}) {
@@ -196,28 +197,14 @@ class _TaskEditorState extends State<TaskEditor> {
     key: key,
     decoration: fieldDecoration(label)
         .copyWith(contentPadding: const EdgeInsets.fromLTRB(12, 12, 12, 12)),
-    child: LayoutBuilder(
-      builder: (context, constraints) => Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: choices.entries
-            .map(
-              (option) => ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: constraints.maxWidth),
-                child: ChoiceChip(
-                  key: ValueKey('$optionKeyPrefix-${option.key}'),
-                  label: Text(option.value),
-                  selected: value == option.key,
-                  materialTapTargetSize: MaterialTapTargetSize.padded,
-                  onSelected: (_) {
-                    FocusScope.of(context).unfocus();
-                    onChanged(option.key);
-                  },
-                ),
-              ),
-            )
-            .toList(),
-      ),
+    child: EqualChoiceRow<T>(
+      choices: choices,
+      value: value,
+      optionKeyPrefix: optionKeyPrefix,
+      onChanged: (choice) {
+        FocusScope.of(context).unfocus();
+        onChanged(choice);
+      },
     ),
   );
 

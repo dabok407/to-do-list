@@ -26,9 +26,9 @@ void main() {
   }
 
   test(
-    'new tasks use low priority while explicit stored priorities survive',
+    'new tasks use normal priority while explicit stored priorities survive',
     () {
-      expect(task().priority, 0);
+      expect(task().priority, 1);
       for (final priority in [0, 1, 2]) {
         final saved = task(priority: priority).toMap();
         expect(Task.fromMap(saved).priority, priority);
@@ -64,6 +64,9 @@ void main() {
       () async {
         await repository.saveTask(task());
         await repository.saveTask(
+          task(id: 'existing-low', category: '생활', priority: 0),
+        );
+        await repository.saveTask(
           task(id: 'existing-normal', category: '운동', priority: 1),
         );
         await repository.saveTask(
@@ -75,14 +78,16 @@ void main() {
           for (final value in await repository.tasks()) value.id: value,
         };
         expect(saved['new-task']?.category, '기타');
-        expect(saved['new-task']?.priority, 0);
+        expect(saved['new-task']?.priority, 1);
+        expect(saved['existing-low']?.category, '생활');
+        expect(saved['existing-low']?.priority, 0);
         expect(saved['existing-normal']?.category, '운동');
         expect(saved['existing-normal']?.priority, 1);
         expect(saved['existing-high']?.category, '내 분류');
         expect(saved['existing-high']?.priority, 2);
 
         final occurrences = await repository.occurrences();
-        expect(occurrences, hasLength(3));
+        expect(occurrences, hasLength(4));
         expect(
           occurrences
               .singleWhere((value) => value.task.id == 'new-task')

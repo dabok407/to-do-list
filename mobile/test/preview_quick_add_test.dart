@@ -189,7 +189,7 @@ void main() {
           defaultQuickDue(dayOf(afterDefault), afterDefault),
         ]),
       );
-      expect(saved.priority, 0);
+      expect(saved.priority, 1);
       expect(find.byType(TimePickerDialog), findsNothing);
       expect(find.text('할 일을 등록했어요.'), findsOneWidget);
       expect(tester.takeException(), isNull);
