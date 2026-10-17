@@ -17,7 +17,12 @@ class _ProScreenState extends State<ProScreen> {
   @override
   void initState() {
     super.initState();
-    widget.subscription.refresh();
+    // The same service also notifies HomeScreen. Refresh after the route has
+    // built so a synchronous busy notification cannot rebuild its parent
+    // during Navigator's route construction.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) widget.subscription.refresh();
+    });
   }
 
   @override
@@ -30,43 +35,50 @@ class _ProScreenState extends State<ProScreen> {
         body: ListView(
           padding: const EdgeInsets.all(24),
           children: [
-            Text(
-              strings.t('기억하는 일에서\n실행하는 일까지'),
-              style: const TextStyle(
-                fontSize: 28,
-                height: 1.3,
-                fontWeight: FontWeight.w600,
-                letterSpacing: -.6,
+            if (!s.paidAccess) ...[
+              Text(
+                strings.t('기억하는 일에서\n실행하는 일까지'),
+                style: const TextStyle(
+                  fontSize: 28,
+                  height: 1.3,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -.6,
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              s.trialActive
-                  ? strings.t('처음 7일은 모든 기능을 사용할 수 있어요.\n체험만으로 자동 결제되지 않아요.')
-                  : strings.t('캘린더와 메모는 무료로.\n알림·미루기·통계는 Pro로 계속하세요.'),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              strings.t('무료로 계속'),
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              strings.t('캘린더 · 할 일과 메모 작성·수정·삭제 · 반복 일정 · 완료와 해제 · 위젯 일정 보기'),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              strings.t('7일 체험 후 Pro'),
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              strings.t(
-                '예정 알림 · 미완료 재알림 · 미루기 · 지금 시작·5분 실행 보조 · 30일·90일 통계 · 분류별 분석',
+              const SizedBox(height: 16),
+              Text(
+                s.trialActive
+                    ? strings.t('처음 7일은 모든 기능을 사용할 수 있어요.\n체험만으로 자동 결제되지 않아요.')
+                    : strings.t('캘린더와 메모는 무료로.\n알림·미루기·통계는 Pro로 계속하세요.'),
               ),
-            ),
-            const SizedBox(height: 16),
-            const SizedBox(height: 24),
+              const SizedBox(height: 24),
+              Text(
+                strings.t('무료로 계속'),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                strings.t('캘린더 · 할 일과 메모 작성·수정·삭제 · 반복 일정 · 완료와 해제 · 위젯 일정 보기'),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                strings.t('7일 체험 후 Pro'),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                strings.t(
+                  '예정 알림 · 미완료 재알림 · 미루기 · 지금 시작·5분 실행 보조 · 30일·90일 통계 · 분류별 분석',
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -118,22 +130,23 @@ class _ProScreenState extends State<ProScreen> {
                   key: const Key('billing-message'),
                 ),
               ),
-            FilledButton(
-              onPressed: s.busy || s.pending || !s.available || s.paidAccess
-                  ? null
-                  : s.purchase,
-              child: Text(
-                s.busy
-                    ? strings.t('스토어 확인 중…')
-                    : s.pending
-                    ? strings.t('결제 승인 대기 중')
-                    : s.paidAccess
-                    ? strings.t('Pro 이용 중')
-                    : s.price == null
-                    ? strings.t('가격 확인 필요')
-                    : strings.t('{price}에 연간 구독', args: {'price': s.price!}),
+            if (!s.paidAccess)
+              FilledButton(
+                onPressed: s.busy || s.pending || !s.available || s.paidAccess
+                    ? null
+                    : s.purchase,
+                child: Text(
+                  s.busy
+                      ? strings.t('스토어 확인 중…')
+                      : s.pending
+                      ? strings.t('결제 승인 대기 중')
+                      : s.paidAccess
+                      ? strings.t('Pro 이용 중')
+                      : s.price == null
+                      ? strings.t('가격 확인 필요')
+                      : strings.t('{price}에 연간 구독', args: {'price': s.price!}),
+                ),
               ),
-            ),
             const SizedBox(height: 8),
             Wrap(
               spacing: 12,

@@ -8,6 +8,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hangeoreum/app/task_controller.dart';
 import 'package:hangeoreum/data/task_repository.dart';
 import 'package:hangeoreum/domain/task.dart';
+import 'package:hangeoreum/features/home_screen.dart';
+import 'package:hangeoreum/l10n/app_strings.dart';
 import 'package:hangeoreum/main.dart';
 import 'package:hangeoreum/services/reminder_scheduler.dart';
 import 'package:hangeoreum/services/subscription_service.dart';
@@ -181,16 +183,20 @@ Future<TimeOfDay> _chooseTime(
   return initial;
 }
 
-void _expectTimeRequired(WidgetTester tester) {
-  final hint = tester.widget<Text>(
-    find.byKey(const Key('quick-add-time-hint')),
-  );
-  expect(hint.data, '시간을 먼저 선택해주세요.');
-  expect(hint.semanticsLabel, '시간을 먼저 선택해주세요.');
-  final theme = Theme.of(
-    tester.element(find.byKey(const Key('quick-add-time-hint'))),
-  );
-  expect(hint.style!.color, theme.colorScheme.error);
+void _expectDefaultDue(DateTime due, DateTime before, DateTime after) {
+  DateTime toMinute(DateTime value) =>
+      DateTime(value.year, value.month, value.day, value.hour, value.minute);
+  expect(due.isBefore(toMinute(before.add(const Duration(hours: 1)))), isFalse);
+  expect(due.isAfter(toMinute(after.add(const Duration(hours: 1)))), isFalse);
+}
+
+void _expectDueHint(WidgetTester tester, DateTime due) {
+  final finder = find.byKey(const Key('quick-add-time-hint'));
+  final strings = AppStrings.of(tester.element(finder));
+  final hint = tester.widget<Text>(finder);
+  expect(hint.data, contains(strings.dateShort(due)));
+  expect(hint.data, contains(strings.time(due)));
+  expect(hint.semanticsLabel, isNull);
 }
 
 Task _task(String id, String title, DateTime due) =>
@@ -282,6 +288,33 @@ void main() {
     )..addFont(rootBundle.load('assets/fonts/PretendardVariable.ttf'))).load();
   });
   setUp(() => SharedPreferences.setMockInitialValues({}));
+
+  test('quick default is one hour later with minute precision', () {
+    final now = DateTime(2026, 10, 17, 13, 23, 45, 200);
+    expect(
+      defaultQuickDue(DateTime(2026, 10, 17), now),
+      DateTime(2026, 10, 17, 14, 23),
+    );
+  });
+
+  test('quick default moves to the following day across midnight', () {
+    final now = DateTime(2026, 12, 31, 23, 40);
+    expect(
+      defaultQuickDue(DateTime(2026, 12, 31), now),
+      DateTime(2027, 1, 1, 0, 40),
+    );
+  });
+
+  test('another selected day keeps its date and uses the next-hour clock', () {
+    expect(
+      defaultQuickDue(DateTime(2026, 11, 2), DateTime(2026, 10, 17, 15, 18)),
+      DateTime(2026, 11, 2, 16, 18),
+    );
+    expect(
+      defaultQuickDue(DateTime(2026, 10, 1), DateTime(2026, 10, 17, 23, 40)),
+      DateTime(2026, 10, 1, 0, 40),
+    );
+  });
 
   testWidgets('month date selection opens its week and updates the day list', (
     tester,
@@ -410,17 +443,16 @@ void main() {
     tester,
   ) async {
     final controller = await _home(tester);
+    final before = DateTime.now();
     await _expand(tester);
-    final time = await _chooseTime(tester);
     final field = find.byKey(const Key('quick-add-title'));
     await tester.ensureVisible(field);
     await tester.enterText(field, '키보드로 추가하는 일');
     await tester.testTextInput.receiveAction(TextInputAction.done);
     await tester.pumpAndSettle();
     expect(controller.saved.single.title, '키보드로 추가하는 일');
-    expect(dayOf(controller.saved.single.due), dayOf(DateTime.now()));
-    expect(controller.saved.single.due.hour, time.hour);
-    expect(controller.saved.single.due.minute, time.minute);
+    _expectDefaultDue(controller.saved.single.due, before, DateTime.now());
+    expect(controller.saved.single.priority, 0);
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
@@ -515,88 +547,229 @@ void main() {
 
   for (final action in ['arrow', 'keyboard done']) {
     testWidgets(
-      '$action without an accepted time preserves the title and never reads or saves tasks',
+      '$action uses the displayed next-hour default without opening the picker',
       (tester) async {
         final controller = await _home(tester);
+        final before = DateTime.now();
         await _expand(tester);
         final initialReads = controller.fixture.reads;
+        expect(find.text('시간 선택'), findsNothing);
+        expect(find.text('시간을 먼저 선택해주세요.'), findsNothing);
         if (action == 'arrow') {
-          await _add(tester, '시간을 아직 선택하지 않은 일');
+          await _add(tester, '기본 시간으로 등록하는 일');
         } else {
           final field = find.byKey(const Key('quick-add-title'));
           await tester.ensureVisible(field);
-          await tester.enterText(field, '시간을 아직 선택하지 않은 일');
+          await tester.enterText(field, '기본 시간으로 등록하는 일');
           await tester.testTextInput.receiveAction(TextInputAction.done);
           await tester.pumpAndSettle();
         }
-        _expectTimeRequired(tester);
-        expect(controller.fixture.reads, initialReads);
-        expect(controller.saved, isEmpty);
+        expect(controller.fixture.reads, initialReads + 1);
+        expect(controller.saved.single.title, '기본 시간으로 등록하는 일');
+        expect(controller.saved.single.priority, 0);
+        _expectDefaultDue(controller.saved.single.due, before, DateTime.now());
         expect(
           tester
               .widget<TextField>(find.byKey(const Key('quick-add-title')))
               .controller!
               .text,
-          '시간을 아직 선택하지 않은 일',
+          isEmpty,
         );
-        expect(find.text('할 일을 등록했어요.'), findsNothing);
+        expect(find.text('할 일을 등록했어요.'), findsOneWidget);
         expect(tester.takeException(), isNull);
         await tester.pumpWidget(const SizedBox.shrink());
       },
     );
   }
 
-  testWidgets('cancelled time selection does not permit quick add', (
+  testWidgets(
+    'cancelled time picker keeps the displayed default and permits add',
+    (tester) async {
+      final controller = await _home(tester);
+      final before = DateTime.now();
+      await _expand(tester);
+      final previousHint = tester
+          .widget<Text>(find.byKey(const Key('quick-add-time-hint')))
+          .data;
+      await _chooseTime(tester, accept: false);
+      expect(
+        tester.widget<Text>(find.byKey(const Key('quick-add-time-hint'))).data,
+        previousHint,
+      );
+      await _add(tester, '취소해도 기본 시간은 유지');
+      expect(controller.saved, hasLength(1));
+      _expectDefaultDue(controller.saved.single.due, before, DateTime.now());
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+
+  testWidgets('cancelled replacement keeps a previously selected manual time', (
     tester,
   ) async {
     final controller = await _home(tester);
     await _expand(tester);
-    await _chooseTime(tester, accept: false);
-    await _add(tester, '취소한 시간을 쓰면 안 되는 일');
-    _expectTimeRequired(tester);
-    expect(controller.saved, isEmpty);
-    expect(controller.fixture.reads, 0);
-    await _chooseTime(tester);
-    expect(
-      tester
-          .widget<Text>(find.byKey(const Key('quick-add-time-hint')))
-          .semanticsLabel,
-      isNull,
+    await _chooseTime(tester, value: const TimeOfDay(hour: 16, minute: 42));
+    final previousHint = tester
+        .widget<Text>(find.byKey(const Key('quick-add-time-hint')))
+        .data;
+    await _chooseTime(
+      tester,
+      accept: false,
+      value: const TimeOfDay(hour: 9, minute: 8),
     );
-    await _add(tester, '취소한 시간을 쓰면 안 되는 일');
-    expect(controller.saved, hasLength(1));
+    expect(
+      tester.widget<Text>(find.byKey(const Key('quick-add-time-hint'))).data,
+      previousHint,
+    );
+    await _add(tester, '시간 변경 취소');
+    expect(controller.saved.single.due.hour, 16);
+    expect(controller.saved.single.due.minute, 42);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
   testWidgets(
-    'each successful registration requires time confirmation again and remembers the picker time',
+    'each successful registration resets the next draft to the next-hour default',
     (tester) async {
       final controller = await _home(tester);
       await _expand(tester);
-      const remembered = TimeOfDay(hour: 22, minute: 47);
-      await _chooseTime(tester, value: remembered);
+      const manual = TimeOfDay(hour: 22, minute: 47);
+      await _chooseTime(tester, value: manual);
+      final beforeSave = DateTime.now();
       await _add(tester, '첫 번째 등록');
       expect(controller.saved, hasLength(1));
-      expect(find.text('시간 선택'), findsOneWidget);
-      await _add(tester, '두 번째 등록');
-      _expectTimeRequired(tester);
-      expect(controller.saved, hasLength(1));
-      expect(controller.fixture.reads, 1);
+      expect(controller.saved.single.due.hour, manual.hour);
+      expect(controller.saved.single.due.minute, manual.minute);
+      expect(find.text('시간 선택'), findsNothing);
       final nextInitial = await _chooseTime(tester, accept: false);
-      expect(nextInitial, remembered);
-      await _add(tester, '두 번째 등록');
-      expect(controller.saved, hasLength(1));
-      await _chooseTime(tester);
       await _add(tester, '두 번째 등록');
       expect(controller.saved.map((task) => task.title), [
         '첫 번째 등록',
         '두 번째 등록',
       ]);
+      final next = controller.saved.last;
+      _expectDefaultDue(next.due, beforeSave, DateTime.now());
+      expect(TimeOfDay.fromDateTime(next.due), nextInitial);
+      expect(next.priority, 0);
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox.shrink());
     },
   );
+
+  testWidgets(
+    'reopening quick add preserves the manually selected draft time',
+    (tester) async {
+      final controller = await _home(tester);
+      await _expand(tester);
+      const manual = TimeOfDay(hour: 3, minute: 17);
+      await _chooseTime(tester, value: manual);
+      await _expand(tester);
+      await _expand(tester);
+      final reopenedTime = await _chooseTime(tester, accept: false);
+      expect(reopenedTime, manual);
+      await _add(tester, '다시 펼쳐도 수동 시간 유지');
+      expect(controller.saved.single.due.hour, manual.hour);
+      expect(controller.saved.single.due.minute, manual.minute);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+
+  testWidgets('reopening an automatic draft uses the next-hour default', (
+    tester,
+  ) async {
+    final controller = await _home(tester);
+    await _expand(tester);
+    await _chooseTime(tester, accept: false);
+    await _expand(tester);
+    final beforeReopen = DateTime.now();
+    await _expand(tester);
+    await _add(tester, '다시 펼친 기본 시간');
+    _expectDefaultDue(
+      controller.saved.single.due,
+      beforeReopen,
+      DateTime.now(),
+    );
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('changing the calendar date keeps the manually chosen clock', (
+    tester,
+  ) async {
+    final controller = await _home(tester);
+    await _expand(tester);
+    const manual = TimeOfDay(hour: 17, minute: 26);
+    await _chooseTime(tester, value: manual);
+    final now = DateTime.now();
+    final chosen = DateTime(now.year, now.month, now.day == 16 ? 17 : 16);
+    final date = find.byKey(Key('calendar-date-${dayKey(chosen)}'));
+    await Scrollable.ensureVisible(tester.element(date), alignment: .5);
+    await tester.pumpAndSettle();
+    expect(date.hitTestable(), findsOneWidget);
+    await tester.tap(date.hitTestable());
+    await tester.pumpAndSettle();
+    final due = chosen.add(const Duration(hours: 17, minutes: 26));
+    _expectDueHint(tester, due);
+    await _add(tester, '날짜만 바꿔도 선택한 시간 유지');
+    expect(controller.saved.single.due, due);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('another calendar day uses its date and the next-hour default', (
+    tester,
+  ) async {
+    final controller = await _home(tester);
+    final now = DateTime.now();
+    final chosen = DateTime(now.year, now.month, now.day == 16 ? 17 : 16);
+    final date = find.byKey(Key('calendar-date-${dayKey(chosen)}'));
+    await tester.ensureVisible(date);
+    await tester.tap(date);
+    await tester.pumpAndSettle();
+    final before = DateTime.now();
+    await _expand(tester);
+    await _add(tester, '다른 날짜 기본 시간');
+    final due = controller.saved.single.due;
+    expect(dayOf(due), chosen);
+    expect(
+      TimeOfDay.fromDateTime(due),
+      isIn([
+        TimeOfDay.fromDateTime(before.add(const Duration(hours: 1))),
+        TimeOfDay.fromDateTime(DateTime.now().add(const Duration(hours: 1))),
+      ]),
+    );
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  for (final language in ['ko', 'en']) {
+    testWidgets(
+      '$language quick Other selection saves its stable category key',
+      (tester) async {
+        final controller = await _home(tester, language: language);
+        await _expand(tester);
+        final other = find.widgetWithText(
+          ChoiceChip,
+          language == 'en' ? 'Other' : '기타',
+        );
+        await tester.ensureVisible(other);
+        await tester.tap(other);
+        await tester.pumpAndSettle();
+        expect(tester.widget<ChoiceChip>(other).selected, isTrue);
+        final title = find.byKey(const Key('quick-add-title'));
+        await tester.ensureVisible(title);
+        await tester.enterText(title, 'Other category task');
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle();
+        expect(controller.saved.single.category, '기타');
+        expect(controller.saved.single.priority, 0);
+        expect(tester.takeException(), isNull);
+        await tester.pumpWidget(const SizedBox.shrink());
+      },
+    );
+  }
 
   for (final language in ['ko', 'en']) {
     testWidgets(

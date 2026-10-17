@@ -1,5 +1,8 @@
 // English copy for the existing home components. Korean keys remain the fallback.
 const Map<String, String> homeEnglish = {
+  "할 일을 완료했어요.": "Task completed.",
+  "완료를 해제했어요.": "Task marked incomplete.",
+  "되돌리기": "Undo",
   "처리하지 못했습니다. 다시 시도해주세요.": "Something went wrong. Please try again.",
   "어떤 일정을 수정할까요?": "Which tasks should change?",
   "이번 일정만": "Only this task",

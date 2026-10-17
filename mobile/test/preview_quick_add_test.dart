@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hangeoreum/domain/task.dart';
 import 'package:hangeoreum/features/persistent_time_picker.dart';
+import 'package:hangeoreum/features/home_screen.dart';
 import 'package:hangeoreum/main.dart';
 import 'package:hangeoreum/preview.dart'
     show PreviewController, PreviewSubscription;
@@ -171,27 +172,26 @@ void main() {
   );
 
   testWidgets(
-    'production preview requires an accepted time before saving a quick-add title',
+    'production preview saves the displayed next-hour default without a picker',
     (tester) async {
+      final beforeDefault = DateTime.now();
       final controller = await _preview(tester);
+      final afterDefault = DateTime.now();
       final before = await controller.repository.tasks();
-      await _add(tester, '시간 선택 전 미리보기 일정');
-      expect(await controller.repository.tasks(), hasLength(before.length));
-      expect(
-        tester
-            .widget<Text>(find.byKey(const Key('quick-add-time-hint')))
-            .semanticsLabel,
-        '시간을 먼저 선택해주세요.',
-      );
-      expect(find.text('할 일을 등록했어요.'), findsNothing);
-      await _chooseTime(tester);
-      await _add(tester, '시간 선택 전 미리보기 일정');
+      await _add(tester, '기본 시간 미리보기 일정');
       final stored = await controller.repository.tasks();
       expect(stored, hasLength(before.length + 1));
+      final saved = stored.singleWhere((task) => task.title == '기본 시간 미리보기 일정');
       expect(
-        stored.where((task) => task.title == '시간 선택 전 미리보기 일정'),
-        hasLength(1),
+        saved.due,
+        isIn([
+          defaultQuickDue(dayOf(beforeDefault), beforeDefault),
+          defaultQuickDue(dayOf(afterDefault), afterDefault),
+        ]),
       );
+      expect(saved.priority, 0);
+      expect(find.byType(TimePickerDialog), findsNothing);
+      expect(find.text('할 일을 등록했어요.'), findsOneWidget);
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox.shrink());
     },

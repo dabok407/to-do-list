@@ -4,6 +4,10 @@ enum TaskStatus { pending, progressing, paused, completed, skipped }
 
 enum RepeatUnit { none, daily, weekly, monthly, monthlyWeekday, weeklyGoal }
 
+// Stable storage identifiers. Display language changes only their labels.
+const taskCategories = ['생활', '업무', '건강', '배움', '기타'];
+const defaultTaskPriority = 0;
+
 DateTime dayOf(DateTime d) => DateTime(d.year, d.month, d.day);
 DateTime weekOf(DateTime d) => DateTime(d.year, d.month, d.day - d.weekday + 1);
 String dayKey(DateTime d) =>
@@ -76,7 +80,7 @@ class Task {
     this.note = '',
     this.category = '생활',
     this.smallStep = '',
-    this.priority = 1,
+    this.priority = defaultTaskPriority,
     this.repeat = RepeatUnit.none,
     this.interval = 1,
     this.weekdays = const [],

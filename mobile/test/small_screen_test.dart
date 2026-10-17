@@ -584,15 +584,15 @@ void main() {
         );
         await tester.tap(find.byIcon(Icons.auto_graph));
         await tester.pumpAndSettle();
-        expect(find.text('무료로 계속'), findsOneWidget);
         if (premium) {
-          await tester.scrollUntilVisible(find.byType(FilledButton), 150);
-          await tester.pumpAndSettle();
+          expect(find.text('무료로 계속'), findsNothing);
+          expect(find.text('7일 체험 후 Pro'), findsNothing);
+          expect(find.byType(FilledButton), findsNothing);
           expect(find.text('Pro 이용 중'), findsWidgets);
-          expect(
-            tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
-            isNull,
-          );
+          expect(find.text('구매 복원'), findsOneWidget);
+          expect(find.text('구독 관리·해지'), findsOneWidget);
+        } else {
+          expect(find.text('무료로 계속'), findsOneWidget);
         }
         expect(tester.takeException(), isNull);
         await tester.pumpWidget(const SizedBox.shrink());

@@ -64,6 +64,47 @@ void main() {
     final strings = AppStrings(controller.localeController.locale.languageCode);
     await tester.tap(find.byTooltip(strings.t('할 일 추가')));
     await tester.pumpAndSettle();
+    final categoryPanel = find.byKey(const Key('editor-category'));
+    final priorityPanel = find.byKey(const Key('editor-priority'));
+    expect(
+      find.descendant(
+        of: categoryPanel,
+        matching: find.byType(DropdownButtonFormField<String>),
+      ),
+      findsNothing,
+    );
+    final priorityChoices = tester.widgetList<ChoiceChip>(
+      find.descendant(of: priorityPanel, matching: find.byType(ChoiceChip)),
+    );
+    expect(
+      priorityChoices.map((choice) => (choice.label as Text).data),
+      ['높음', '보통', '낮음'].map(strings.t),
+    );
+    expect(
+      tester
+          .widget<ChoiceChip>(find.byKey(const Key('editor-priority-option-0')))
+          .selected,
+      isTrue,
+    );
+    // Exercise the new direct choices without changing the established native
+    // reminder/widget fixture that the rest of this scenario relies on.
+    for (final category in ['기타', '생활']) {
+      final choice = find.byKey(Key('editor-category-option-$category'));
+      await tester.ensureVisible(choice);
+      await tester.pumpAndSettle();
+      await tester.tap(choice);
+      await tester.pumpAndSettle();
+      expect(tester.widget<ChoiceChip>(choice).selected, isTrue);
+    }
+    for (final priority in [2, 1, 0]) {
+      final choice = find.byKey(Key('editor-priority-option-$priority'));
+      await tester.ensureVisible(choice);
+      await tester.pumpAndSettle();
+      await tester.tap(choice);
+      await tester.pumpAndSettle();
+      expect(tester.widget<ChoiceChip>(choice).selected, isTrue);
+    }
+    debugPrint('NATIVE_EDITOR_DIRECT_CHOICES_OK');
     final titleInput = find.byKey(const Key('editor-title'));
     await tester.ensureVisible(titleInput);
     await tester.enterText(titleInput, '안방 대청소 통합 테스트');
@@ -143,6 +184,145 @@ void main() {
     await controller.delete(duplicate);
     expect(controller.items, hasLength(1));
     debugPrint('NATIVE_SAME_TIME_REMINDERS_ISOLATED_OK');
+    // A separate temporary task covers quick defaults and horizontal gestures
+    // through the real database/controller on both OSes. It is deleted before
+    // the existing single-task notification and restart assertions continue.
+    final quickTitle =
+        'integration-quick-other-${DateTime.now().microsecondsSinceEpoch}';
+    Future<void> selectTab(String label) async {
+      await tester.tap(
+        find.descendant(
+          of: find.byType(NavigationBar),
+          matching: find.text(strings.t(label)),
+        ),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    Future<void> swipeTask(String id, {required bool right}) async {
+      final row = find.byKey(ValueKey('task-swipe-$id'));
+      await tester.ensureVisible(row);
+      await tester.pumpAndSettle();
+      final bounds = tester.getRect(row);
+      await tester.dragFrom(
+        Offset(
+          bounds.left + bounds.width * (right ? .15 : .85),
+          bounds.center.dy,
+        ),
+        Offset(bounds.width * (right ? .75 : -.75), 0),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    try {
+      final selectedDay = dayOf(DateTime.now());
+      final date = find.byKey(Key('calendar-date-${dayKey(selectedDay)}'));
+      await tester.ensureVisible(date);
+      await tester.pumpAndSettle();
+      await tester.tap(date);
+      await tester.pumpAndSettle();
+      final quick = find.byKey(const Key('quick-add'));
+      await tester.ensureVisible(quick);
+      await tester.pumpAndSettle();
+      final beforeDefault = DateTime.now();
+      await tester.tap(quick);
+      await tester.pumpAndSettle();
+      final afterDefault = DateTime.now();
+      final defaultCandidates = {
+        defaultQuickDue(selectedDay, beforeDefault),
+        defaultQuickDue(selectedDay, afterDefault),
+      };
+      final time = find.byKey(const Key('quick-add-time'));
+      expect(time, findsOneWidget);
+      final displayedTime = tester.widget<Text>(
+        find.descendant(of: time, matching: find.byType(Text)),
+      );
+      expect(
+        displayedTime.data,
+        isIn([
+          for (final candidate in defaultCandidates)
+            strings.t('시간 · {time}', args: {'time': strings.time(candidate)}),
+        ]),
+      );
+      final quickCategory = find.descendant(
+        of: find.byKey(const Key('quick-add-card')),
+        matching: find.widgetWithText(ChoiceChip, strings.category('기타')),
+      );
+      await tester.ensureVisible(quickCategory);
+      await tester.pumpAndSettle();
+      await tester.tap(quickCategory);
+      await tester.pumpAndSettle();
+      expect(tester.widget<ChoiceChip>(quickCategory).selected, isTrue);
+      final quickInput = find.byKey(const Key('quick-add-title'));
+      await tester.ensureVisible(quickInput);
+      await tester.enterText(quickInput, quickTitle);
+      await tester.pumpAndSettle();
+      final quickSubmit = find.byTooltip(strings.t('빠른 추가'));
+      await Scrollable.ensureVisible(
+        tester.element(quickSubmit),
+        alignment: .5,
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(quickSubmit);
+      await tester.pumpAndSettle();
+      expect(find.byType(TimePickerDialog), findsNothing);
+      final quickOccurrence = controller.items.singleWhere(
+        (item) => item.task.title == quickTitle,
+      );
+      final quickTask = quickOccurrence.task;
+      expect(quickTask.category, '기타');
+      expect(quickTask.priority, 0);
+      expect(quickTask.due, isIn(defaultCandidates));
+      expect(quickOccurrence.originalDue, quickTask.due);
+      expect(quickOccurrence.status, TaskStatus.pending);
+      expect(
+        (await controller.reminders.plugin.pendingNotificationRequests()).any(
+          (request) => request.payload == quickOccurrence.id,
+        ),
+        isTrue,
+      );
+      await selectTab('예정');
+      await swipeTask(quickOccurrence.id, right: true);
+      final completed = controller.items.singleWhere(
+        (item) => item.id == quickOccurrence.id,
+      );
+      expect(completed.status, TaskStatus.completed);
+      expect(completed.task.id, quickTask.id);
+      expect(completed.beforeComplete, TaskStatus.pending);
+      expect(completed.completed, isNotNull);
+      expect(
+        find.byKey(ValueKey('task-swipe-${quickOccurrence.id}')),
+        findsNothing,
+      );
+      await selectTab('완료');
+      await swipeTask(quickOccurrence.id, right: false);
+      final restoredQuick = controller.items.singleWhere(
+        (item) => item.id == quickOccurrence.id,
+      );
+      expect(restoredQuick.status, TaskStatus.pending);
+      expect(restoredQuick.task.toMap(), quickTask.toMap());
+      expect(restoredQuick.originalDue, quickOccurrence.originalDue);
+      expect(restoredQuick.reminder, quickOccurrence.reminder);
+      expect(restoredQuick.started, quickOccurrence.started);
+      expect(restoredQuick.completed, isNull);
+      expect(restoredQuick.snoozes, quickOccurrence.snoozes);
+      expect(restoredQuick.beforeComplete, isNull);
+      expect(
+        (await controller.reminders.plugin.pendingNotificationRequests()).any(
+          (request) => request.payload == quickOccurrence.id,
+        ),
+        isTrue,
+      );
+      debugPrint('NATIVE_QUICK_DEFAULT_OTHER_SWIPE_OK');
+    } finally {
+      for (final task in (await controller.repository.tasks()).where(
+        (task) => task.title == quickTitle,
+      )) {
+        await controller.delete(task);
+      }
+    }
+    expect(controller.items, hasLength(1));
+    await selectTab('캘린더');
     // Wait for two independent task reminders to actually reach the OS at the
     // same clock time. Pending requests alone cannot prove their delivery.
     final deliveryCreated = DateTime.now();

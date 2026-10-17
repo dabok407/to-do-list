@@ -20,10 +20,17 @@ const categoryColors = {
   '업무': Color(0xff315dca),
   '건강': Color(0xff267447),
   '배움': Color(0xff7546ba),
+  '기타': Color(0xff59636f),
 };
 const stateNames = ['예정', '진행 중', '보류', '완료', '건너뜀'];
 String timeLabel(DateTime d) =>
     '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
+
+DateTime defaultQuickDue(DateTime selectedDate, DateTime now) {
+  final next = now.add(const Duration(hours: 1));
+  final date = dayOf(selectedDate) == dayOf(now) ? next : selectedDate;
+  return DateTime(date.year, date.month, date.day, next.hour, next.minute);
+}
 
 // Material uses Sunday = 0, while DateTime uses Monday = 1. Keep calendar
 // display weeks separate from the Monday-based recurrence and quota logic.
@@ -54,10 +61,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   bool week = false, busy = false;
   bool detailVisible = false;
   bool quickExpanded = false;
-  bool quickTimeChosen = false;
-  bool quickTimeError = false;
+  bool quickTimeEdited = false;
   String? quickTitleError;
   late TimeOfDay quickTime;
+  late DateTime quickDate;
   late final subscription = widget.subscription ?? SubscriptionService();
   final quickTitle = TextEditingController();
   final quickTitleFocus = FocusNode();
@@ -70,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    quickTime = defaultQuickTime(selected);
+    resetQuickTime();
     WidgetsBinding.instance.addObserver(this);
     c.addListener(changed);
     subscription.addListener(subscriptionChanged);
@@ -163,18 +170,20 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     }
   }
 
-  TimeOfDay defaultQuickTime(DateTime date) {
-    final now = DateTime.now();
-    if (dayOf(now) != dayOf(date)) return const TimeOfDay(hour: 9, minute: 0);
-    // A late-night quick add must not silently move into the following day.
-    final minute = (now.hour * 60 + now.minute + 60).clamp(0, 1439);
-    return TimeOfDay(hour: minute ~/ 60, minute: minute % 60);
+  void resetQuickTime() {
+    final due = defaultQuickDue(selected, DateTime.now());
+    quickDate = dayOf(due);
+    quickTime = TimeOfDay.fromDateTime(due);
   }
 
   void selectCalendarDate(DateTime date) {
     selected = date;
     month = DateTime(date.year, date.month);
-    if (!quickTimeChosen) quickTime = defaultQuickTime(date);
+    if (quickTimeEdited) {
+      quickDate = dayOf(date);
+    } else {
+      resetQuickTime();
+    }
   }
 
   Future<void> edit([Task? task, Occurrence? occurrence]) async {
@@ -534,93 +543,177 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     openRequestedTask();
   }
 
-  Widget row(Occurrence o) => ListTile(
-    contentPadding: const EdgeInsets.symmetric(vertical: 5),
-    leading: IconButton(
-      tooltip: o.status == TaskStatus.completed
-          ? strings.t('완료 해제')
-          : strings.t('완료 처리'),
-      onPressed: busy || o.status == TaskStatus.skipped
-          ? null
-          : () => run(
-              () => c.act(
-                o,
-                o.status == TaskStatus.completed ? 'uncomplete' : 'complete',
-              ),
-            ),
-      icon: Icon(
-        o.status == TaskStatus.completed
-            ? Icons.check_circle
-            : Icons.radio_button_unchecked,
-        color: o.status == TaskStatus.completed
-            ? mutedText
-            : o.task.priority == 2
-            ? priorityRed
-            : categoryColors[o.task.category],
-      ),
-    ),
-    title: Text(
-      o.task.title,
-      style: TextStyle(
-        fontWeight: FontWeight.w500,
-        color: o.status == TaskStatus.completed ? mutedText : null,
-        decoration: o.status == TaskStatus.completed
-            ? TextDecoration.lineThrough
-            : null,
-      ),
-    ),
-    subtitle: Padding(
-      padding: const EdgeInsets.only(top: 6),
-      child: Wrap(
-        spacing: 6,
-        children: [
-          if (o.task.priority == 2)
-            Text(strings.t('● 높음'), style: TextStyle(color: priorityRed)),
-          Text(
-            o.quotaSkipped
-                ? strings.t('이번 주 목표 달성')
-                : strings.t(stateNames[o.status.index]),
+  Future<void> toggleCompletion(Occurrence o, {bool fromSwipe = false}) async {
+    if (busy || o.status == TaskStatus.skipped) return;
+    final completing = o.status != TaskStatus.completed;
+    await run(() => c.act(o, completing ? 'complete' : 'uncomplete'));
+    if (!mounted || !fromSwipe) return;
+    final updated = c.items.where((item) => item.id == o.id).firstOrNull;
+    if (updated == null ||
+        (completing && updated.status != TaskStatus.completed) ||
+        (!completing && updated.status == TaskStatus.completed)) {
+      return;
+    }
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(strings.t(completing ? '할 일을 완료했어요.' : '완료를 해제했어요.')),
+          action: SnackBarAction(
+            label: strings.t('되돌리기'),
+            onPressed: () {
+              final current = c.items
+                  .where((item) => item.id == o.id)
+                  .firstOrNull;
+              if (current != null && current.status == updated.status) {
+                run(
+                  () => c.act(current, completing ? 'uncomplete' : 'complete'),
+                );
+              }
+            },
           ),
-          if (page != 0) Text('· ${strings.date(o.originalDue)}'),
-          if (o.task.repeat != RepeatUnit.none) Text(strings.t('· 반복')),
-          if (o.status == TaskStatus.paused)
-            Text(
-              strings.t(
-                '· {time} 재알림',
-                args: {'time': strings.time(o.reminder)},
+        ),
+      );
+  }
+
+  Widget row(Occurrence o) => Dismissible(
+    key: ValueKey('task-swipe-${o.id}'),
+    direction: busy || o.status == TaskStatus.skipped
+        ? DismissDirection.none
+        : o.status == TaskStatus.completed
+        ? DismissDirection.endToStart
+        : DismissDirection.startToEnd,
+    dismissThresholds: const {
+      DismissDirection.startToEnd: .35,
+      DismissDirection.endToStart: .35,
+    },
+    confirmDismiss: (_) async {
+      await toggleCompletion(o, fromSwipe: true);
+      // A swipe changes status; it never deletes the task or its history.
+      return false;
+    },
+    background: Container(
+      alignment: o.status == TaskStatus.completed
+          ? Alignment.centerRight
+          : Alignment.centerLeft,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: o.status == TaskStatus.completed
+            ? const Color(0xffeceeef)
+            : const Color(0xff252923),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        mainAxisAlignment: o.status == TaskStatus.completed
+            ? MainAxisAlignment.end
+            : MainAxisAlignment.start,
+        children: [
+          Icon(
+            o.status == TaskStatus.completed ? Icons.undo : Icons.check,
+            color: o.status == TaskStatus.completed ? mutedText : Colors.white,
+          ),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(
+              strings.t(o.status == TaskStatus.completed ? '완료 해제' : '완료 처리'),
+              style: TextStyle(
+                color: o.status == TaskStatus.completed
+                    ? mutedText
+                    : Colors.white,
+                fontWeight: FontWeight.w600,
               ),
             ),
+          ),
         ],
       ),
     ),
-    trailing: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          strings.time(o.originalDue),
-          style: const TextStyle(fontSize: 12, color: Color(0xff626873)),
-        ),
-        if (o.active && o.status != TaskStatus.progressing)
-          IconButton(
-            key: ValueKey('start-${o.id}'),
-            tooltip: strings.t(
-              '{title} 지금 시작{pro}',
-              args: {
-                'title': o.task.title,
-                'pro': subscription.hasAccess ? '' : ' · Pro',
-              },
-            ),
-            onPressed: busy ? null : () => taskAction(o, 'start'),
-            icon: Icon(
-              subscription.hasAccess
-                  ? Icons.play_arrow_rounded
-                  : Icons.lock_outline,
-              size: 23,
-            ),
+    child: Material(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: ListTile(
+        key: ValueKey('task-row-${o.id}'),
+        contentPadding: const EdgeInsets.symmetric(vertical: 5),
+        leading: IconButton(
+          tooltip: o.status == TaskStatus.completed
+              ? strings.t('완료 해제')
+              : strings.t('완료 처리'),
+          onPressed: busy || o.status == TaskStatus.skipped
+              ? null
+              : () => toggleCompletion(o),
+          icon: Icon(
+            o.status == TaskStatus.completed
+                ? Icons.check_circle
+                : Icons.radio_button_unchecked,
+            color: o.status == TaskStatus.completed
+                ? mutedText
+                : o.task.priority == 2
+                ? priorityRed
+                : categoryColors[o.task.category],
           ),
-      ],
+        ),
+        title: Text(
+          o.task.title,
+          style: TextStyle(
+            fontWeight: FontWeight.w500,
+            color: o.status == TaskStatus.completed ? mutedText : null,
+            decoration: o.status == TaskStatus.completed
+                ? TextDecoration.lineThrough
+                : null,
+          ),
+        ),
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: 6),
+          child: Wrap(
+            spacing: 6,
+            children: [
+              if (o.task.priority == 2)
+                Text(strings.t('● 높음'), style: TextStyle(color: priorityRed)),
+              Text(
+                o.quotaSkipped
+                    ? strings.t('이번 주 목표 달성')
+                    : strings.t(stateNames[o.status.index]),
+              ),
+              if (page != 0) Text('· ${strings.date(o.originalDue)}'),
+              if (o.task.repeat != RepeatUnit.none) Text(strings.t('· 반복')),
+              if (o.status == TaskStatus.paused)
+                Text(
+                  strings.t(
+                    '· {time} 재알림',
+                    args: {'time': strings.time(o.reminder)},
+                  ),
+                ),
+            ],
+          ),
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              strings.time(o.originalDue),
+              style: const TextStyle(fontSize: 12, color: Color(0xff626873)),
+            ),
+            if (o.active && o.status != TaskStatus.progressing)
+              IconButton(
+                key: ValueKey('start-${o.id}'),
+                tooltip: strings.t(
+                  '{title} 지금 시작{pro}',
+                  args: {
+                    'title': o.task.title,
+                    'pro': subscription.hasAccess ? '' : ' · Pro',
+                  },
+                ),
+                onPressed: busy ? null : () => taskAction(o, 'start'),
+                icon: Icon(
+                  subscription.hasAccess
+                      ? Icons.play_arrow_rounded
+                      : Icons.lock_outline,
+                  size: 23,
+                ),
+              ),
+          ],
+        ),
+        onTap: () => detail(o),
+      ),
     ),
-    onTap: () => detail(o),
   );
   Widget calendar() {
     final daySize =
@@ -1115,7 +1208,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 child: InkWell(
                   key: const Key('quick-add'),
                   borderRadius: BorderRadius.circular(12),
-                  onTap: () => setState(() => quickExpanded = !quickExpanded),
+                  onTap: () => setState(() {
+                    quickExpanded = !quickExpanded;
+                    if (quickExpanded && !quickTimeEdited) resetQuickTime();
+                  }),
                   child: ListTile(
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -1139,8 +1235,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             ],
           ),
         ),
-        const SizedBox(height: 16),
-        accessNotice(),
+        if (!subscription.paidAccess) ...[
+          const SizedBox(height: 16),
+          accessNotice(),
+        ],
       ],
     );
   }
@@ -1158,24 +1256,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       quickTitleFocus.requestFocus();
       return;
     }
-    if (!quickTimeChosen) {
-      FocusScope.of(context).unfocus();
-      setState(() => quickTimeError = true);
-      final anchor = quickTimeAnchor.currentContext;
-      if (anchor != null) {
-        await Scrollable.ensureVisible(
-          anchor,
-          alignment: .5,
-          duration: const Duration(milliseconds: 200),
-        );
-      }
-      return;
-    }
     final now = DateTime.now();
     final due = DateTime(
-      selected.year,
-      selected.month,
-      selected.day,
+      quickDate.year,
+      quickDate.month,
+      quickDate.day,
       quickTime.hour,
       quickTime.minute,
     );
@@ -1218,8 +1303,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       if (!mounted) return;
       quickTitle.clear();
       setState(() {
-        quickTimeChosen = false;
-        quickTimeError = false;
+        quickTimeEdited = false;
+        resetQuickTime();
       });
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(strings.t('할 일을 등록했어요.'))));
@@ -1244,46 +1329,35 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   if (value == null || !mounted) return;
                   setState(() {
                     quickTime = value;
-                    quickTimeChosen = true;
-                    quickTimeError = false;
+                    quickTimeEdited = true;
                   });
                 },
           icon: const Icon(Icons.schedule, size: 20),
           label: Text(
-            quickTimeChosen
-                ? strings.t(
-                    '시간 · {time}',
-                    args: {
-                      'time': strings.time(
-                        DateTime(2000, 1, 1, quickTime.hour, quickTime.minute),
-                      ),
-                    },
-                  )
-                : strings.t('시간 선택'),
+            strings.t(
+              '시간 · {time}',
+              args: {
+                'time': strings.time(
+                  DateTime(2000, 1, 1, quickTime.hour, quickTime.minute),
+                ),
+              },
+            ),
           ),
         ),
       ),
       const SizedBox(height: 8),
       Text(
-        quickTimeChosen
-            ? strings.t(
-                '{date} {time}에 등록돼요.',
-                args: {
-                  'date': strings.dateShort(selected),
-                  'time': strings.time(
-                    DateTime(2000, 1, 1, quickTime.hour, quickTime.minute),
-                  ),
-                },
-              )
-            : strings.t('시간을 먼저 선택해주세요.'),
-        key: const Key('quick-add-time-hint'),
-        semanticsLabel: quickTimeError ? strings.t('시간을 먼저 선택해주세요.') : null,
-        style: TextStyle(
-          fontSize: 13,
-          color: quickTimeError
-              ? Theme.of(context).colorScheme.error
-              : mutedText,
+        strings.t(
+          '{date} {time}에 등록돼요.',
+          args: {
+            'date': strings.dateShort(quickDate),
+            'time': strings.time(
+              DateTime(2000, 1, 1, quickTime.hour, quickTime.minute),
+            ),
+          },
         ),
+        key: const Key('quick-add-time-hint'),
+        style: const TextStyle(fontSize: 13, color: mutedText),
       ),
       const SizedBox(height: 12),
       Wrap(
@@ -1580,9 +1654,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       ],
       const SizedBox(height: 12),
       OutlinedButton(
-        onPressed: () => subscription.hasAccess
-            ? run(c.testReminder)
-            : openPro(),
+        onPressed: () =>
+            subscription.hasAccess ? run(c.testReminder) : openPro(),
         child: Text(strings.t('10초 뒤 테스트 알림')),
       ),
       const SizedBox(height: 20),

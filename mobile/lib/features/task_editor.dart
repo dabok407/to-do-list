@@ -42,7 +42,7 @@ class _TaskEditorState extends State<TaskEditor> {
   late TextEditingController title, note, small, interval;
   late DateTime due;
   DateTime? end;
-  int priority = 1, monthWeek = 1, countPerWeek = 1;
+  int priority = defaultTaskPriority, monthWeek = 1, countPerWeek = 1;
   int overdueDays = 1;
   int? overdueMinute;
   RepeatUnit repeat = RepeatUnit.none;
@@ -62,7 +62,7 @@ class _TaskEditorState extends State<TaskEditor> {
     intervalExpanded = (t?.interval ?? 1) > 1;
     due = t?.due ?? defaultTaskDue(widget.initialDate);
     end = t?.end;
-    priority = t?.priority ?? 1;
+    priority = t?.priority ?? defaultTaskPriority;
     category = t?.category ?? '생활';
     repeat = t?.repeat ?? RepeatUnit.none;
     weeklyWeekdays = (t?.weekdays ?? [due.weekday]).toSet();
@@ -183,6 +183,42 @@ class _TaskEditorState extends State<TaskEditor> {
   Widget explanation(String text) => Padding(
     padding: const EdgeInsets.only(top: 8),
     child: Text(text, style: Theme.of(context).textTheme.bodySmall),
+  );
+
+  Widget choiceField<T>({
+    required Key key,
+    required String label,
+    required T value,
+    required Map<T, String> choices,
+    required ValueChanged<T> onChanged,
+    required String optionKeyPrefix,
+  }) => InputDecorator(
+    key: key,
+    decoration: fieldDecoration(label)
+        .copyWith(contentPadding: const EdgeInsets.fromLTRB(12, 12, 12, 12)),
+    child: LayoutBuilder(
+      builder: (context, constraints) => Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: choices.entries
+            .map(
+              (option) => ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: constraints.maxWidth),
+                child: ChoiceChip(
+                  key: ValueKey('$optionKeyPrefix-${option.key}'),
+                  label: Text(option.value),
+                  selected: value == option.key,
+                  materialTapTargetSize: MaterialTapTargetSize.padded,
+                  onSelected: (_) {
+                    FocusScope.of(context).unfocus();
+                    onChanged(option.key);
+                  },
+                ),
+              ),
+            )
+            .toList(),
+      ),
+    ),
   );
 
   Future<void> pickTime() async {
@@ -353,43 +389,29 @@ class _TaskEditorState extends State<TaskEditor> {
           children: [
             dateTimeField(),
             const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
+            choiceField<String>(
               key: const Key('editor-category'),
-              isExpanded: true,
-              itemHeight: null,
-              initialValue: category,
-              decoration: fieldDecoration('분류'),
-              items:
-                  [
-                        '생활',
-                        '업무',
-                        '건강',
-                        '배움',
-                        if (!['생활', '업무', '건강', '배움'].contains(category))
-                          category,
-                      ]
-                      .map(
-                        (c) => DropdownMenuItem(
-                          value: c,
-                          child: Text(strings.category(c)),
-                        ),
-                      )
-                      .toList(),
-              onChanged: (v) => setState(() => category = v!),
+              label: '분류',
+              value: category,
+              choices: {
+                for (final c in [...taskCategories, category])
+                  c: strings.category(c),
+              },
+              optionKeyPrefix: 'editor-category-option',
+              onChanged: (v) => setState(() => category = v),
             ),
             const SizedBox(height: 16),
-            DropdownButtonFormField<int>(
+            choiceField<int>(
               key: const Key('editor-priority'),
-              isExpanded: true,
-              itemHeight: null,
-              initialValue: priority,
-              decoration: fieldDecoration('우선순위'),
-              items: [
-                DropdownMenuItem(value: 0, child: Text(strings.t('낮음'))),
-                DropdownMenuItem(value: 1, child: Text(strings.t('보통'))),
-                DropdownMenuItem(value: 2, child: Text(strings.t('높음'))),
-              ],
-              onChanged: (v) => setState(() => priority = v!),
+              label: '우선순위',
+              value: priority,
+              choices: {
+                2: strings.t('높음'),
+                1: strings.t('보통'),
+                0: strings.t('낮음'),
+              },
+              optionKeyPrefix: 'editor-priority-option',
+              onChanged: (v) => setState(() => priority = v),
             ),
             const SizedBox(height: 16),
             TextFormField(

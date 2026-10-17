@@ -114,12 +114,29 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
-      await _show(tester, find.byType(FilledButton));
+      if (paid) {
+        expect(find.byType(FilledButton), findsNothing);
+        expect(find.text('Pro after the 7-day trial'), findsNothing);
+        await _show(tester, find.text('Manage or cancel subscription'));
+        expect(
+          tester
+              .widget<TextButton>(
+                find.widgetWithText(
+                  TextButton,
+                  'Manage or cancel subscription',
+                ),
+              )
+              .onPressed,
+          isNotNull,
+        );
+      } else {
+        await _show(tester, find.byType(FilledButton));
+        expect(
+          tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
+          isNotNull,
+        );
+      }
       expect(tester.takeException(), isNull);
-      expect(
-        tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
-        paid ? isNull : isNotNull,
-      );
       await _show(tester, find.text('Terms and privacy information'));
       expect(tester.takeException(), isNull);
       await tester.tap(find.text('Terms and privacy information'));
