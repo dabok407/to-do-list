@@ -23,15 +23,29 @@
   "nativeQa": {
     "runId": 38996307891,
     "url": "https://github.com/dabok407/to-do-list/actions/runs/38996307891",
-    "status": "ANDROID_PASSED_IOS_RECHECK_REQUIRED",
+    "status": "PASSED_WITH_IOS_RECHECK",
+    "initialRunConclusion": "failure",
     "android": "PASSED",
-    "ios": "FAILED_NOTIFICATION_CENTER_COUNT_NAVIGATION",
+    "ios": "PASSED",
     "iosInitialFailure": {
       "artifactId": 12088175596,
       "observedControl": "1 Notification",
       "systemBannerDeliveryRecorded": true,
       "exactTitleBodyAndPixelAssertionsRetained": true,
       "productionAppCodeChangedForRecheck": false
+    },
+    "iosRecheck": {
+      "runId": 38998601067,
+      "url": "https://github.com/dabok407/to-do-list/actions/runs/38998601067",
+      "sourceCommit": "5e3eebd5bbe72b3ec4749bac7813b5f14be5df9e",
+      "status": "SUCCESS",
+      "verifiedLogMarkers": [
+        "IOS_COLD_WIDGET_DEEP_LINK_OK",
+        "IOS_TERMINATED_NOTIFICATION_OK",
+        "TEST SUCCEEDED"
+      ],
+      "productionAppSourceMatchesSignedBuild": true,
+      "androidRepeated": false
     }
   },
   "signedBuild": {
@@ -44,7 +58,11 @@
     "artifactDigest": "sha256:65bdb067211891c8f98c6b288147e34cf40ae3a82b242af91c6444e707a6b7c3",
     "ipaSha256": "bc9039d539ea129c9587056eb4618f0f980b1e998cdc0cb0267471365c279d67",
     "ipaBytes": 25097416,
-    "localIpaFilename": "Todoniq-1.0.1-1201.ipa"
+    "localIpaFilename": "Todoniq-1.0.1-1201.ipa",
+    "appleUploadStep": "skipped",
+    "durableLocalBackup": ".tools/releases/ios/1.0.1-1201",
+    "githubArtifactRetentionDays": 14,
+    "artifactExpiryPolicy": "현재 upload-only workflow는 유효한 GitHub 아티팩트를 사용한다. 만료 후에는 로컬 원본의 해시·manifest·서명을 재검증하는 별도 업로드 경로를 사용해야 하며 자동으로 이 경로가 제공되는 것으로 간주하지 않는다."
   },
   "whatsNew": {
     "ko": "일정의 날짜와 시간을 수정할 때 새 일정이 추가되던 문제를 수정했습니다. 기존 일정의 진행 상태와 이력을 유지하고, 예정·미룬 일정의 알림을 변경한 시각으로 갱신합니다.",
@@ -55,6 +73,17 @@
   "actualStoreKitVerified": false,
   "appleUploaded": false,
   "appStoreVersionCreated": false,
+  "preparedUploadWorkflow": {
+    "path": ".github/workflows/ios-testflight-upload.yml",
+    "inputs": {
+      "source_run_id": "38996342887",
+      "version": "1.0.1",
+      "build_number": "1201"
+    },
+    "dispatched": false
+  },
   "reviewSubmitted": false,
-  "googleAccountWorkRemainsOnHold": true
+  "googleAccountWorkRemainsOnHold": true,
+  "preparationStatus": "SIGNED_IPA_VERIFIED_AND_READY_FOR_LATER_UPLOAD",
+  "verifiedOn": "2026-10-17"
 }
