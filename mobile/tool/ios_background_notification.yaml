@@ -26,13 +26,24 @@ appId: com.dabok407.hangeoreum
 - repeat:
     times: 3
     while:
-      notVisible: ".*${TEST_TITLE}.*"
+      notVisible: ".*${TEST_TITLE}.*|[0-9]+ Notifications?"
     commands:
       - swipe:
           start: "15%, 0%"
           end: "15%, 85%"
           duration: 1000
           waitToSettleTimeoutMs: 2000
+# Notification Center can use the system's Count display instead of showing
+# cards. Wait for delivery, then expand that visible control like a user would.
+# The count is only navigation evidence; the exact title/body remain required.
+- extendedWaitUntil:
+    visible: ".*${TEST_TITLE}.*|[0-9]+ Notifications?"
+    timeout: 30000
+- runFlow:
+    when:
+      visible: "[0-9]+ Notifications?"
+    commands:
+      - tapOn: "[0-9]+ Notifications?"
 - extendedWaitUntil:
     visible: ".*${TEST_TITLE}.*"
     timeout: 30000

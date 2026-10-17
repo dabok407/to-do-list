@@ -1,0 +1,60 @@
+{
+  "preparedOn": "2026-10-17",
+  "version": "1.0.1",
+  "buildNumber": "1201",
+  "sourceCommit": "6982e24b742944b47cfd046d65c962c4843bde98",
+  "currentReviewVersion": "1.0.0 (1101)",
+  "currentReviewChanged": false,
+  "userReportedIssue": "기존 일정 시간을 변경하면 변경된 시간으로 새 일정이 추가되는 문제",
+  "fixes": [
+    "단발 일정의 날짜와 시간을 기존 회차 ID·진행 상태·이력을 유지한 채 수정",
+    "예정·미룬 일정의 알림을 변경한 시각으로 갱신",
+    "반복 일정에서 이번만 분리한 단발 일정을 재수정할 때 중복 방지",
+    "백그라운드 갱신과 재수정이 겹쳐 옛 시간의 회차가 재생성되는 경합 방지",
+    "삭제된 회차를 편집 중 저장해 재생성하는 경로 차단"
+  ],
+  "localValidation": {
+    "analyze": "PASSED",
+    "testsPassed": 344,
+    "optionalImageGenerationTestsSkipped": 1,
+    "newDatabaseRegressionTests": 22,
+    "newPlatformSchedulingRegressionTests": 4
+  },
+  "nativeQa": {
+    "runId": 38996307891,
+    "url": "https://github.com/dabok407/to-do-list/actions/runs/38996307891",
+    "status": "ANDROID_PASSED_IOS_RECHECK_REQUIRED",
+    "android": "PASSED",
+    "ios": "FAILED_NOTIFICATION_CENTER_COUNT_NAVIGATION",
+    "iosInitialFailure": {
+      "artifactId": 12088175596,
+      "observedControl": "1 Notification",
+      "systemBannerDeliveryRecorded": true,
+      "exactTitleBodyAndPixelAssertionsRetained": true,
+      "productionAppCodeChangedForRecheck": false
+    }
+  },
+  "signedBuild": {
+    "runId": 38996342887,
+    "url": "https://github.com/dabok407/to-do-list/actions/runs/38996342887",
+    "status": "SUCCESS",
+    "appleUploadRequested": false,
+    "localIpaVerified": true,
+    "artifactId": 12087772835,
+    "artifactDigest": "sha256:65bdb067211891c8f98c6b288147e34cf40ae3a82b242af91c6444e707a6b7c3",
+    "ipaSha256": "bc9039d539ea129c9587056eb4618f0f980b1e998cdc0cb0267471365c279d67",
+    "ipaBytes": 25097416,
+    "localIpaFilename": "Todoniq-1.0.1-1201.ipa"
+  },
+  "whatsNew": {
+    "ko": "일정의 날짜와 시간을 수정할 때 새 일정이 추가되던 문제를 수정했습니다. 기존 일정의 진행 상태와 이력을 유지하고, 예정·미룬 일정의 알림을 변경한 시각으로 갱신합니다.",
+    "en-US": "Fixed an issue where changing a task's date or time could create a duplicate. Existing task status and history are preserved, and reminders for pending or snoozed tasks now follow the edited time."
+  },
+  "legacyDataPolicy": "이력이 없는 미사용 중복만 정리하며, 실제 이력이 있는 회차를 자동 병합·삭제하지 않는다. 같은 시각의 이력 충돌은 편집 전체를 롤백해 보존한다.",
+  "physicalIphoneVerified": false,
+  "actualStoreKitVerified": false,
+  "appleUploaded": false,
+  "appStoreVersionCreated": false,
+  "reviewSubmitted": false,
+  "googleAccountWorkRemainsOnHold": true
+}
