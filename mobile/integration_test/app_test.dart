@@ -257,7 +257,16 @@ void main() {
       await tester.ensureVisible(quickInput);
       await tester.enterText(quickInput, quickTitle);
       await tester.pumpAndSettle();
-      final quickSubmit = find.byTooltip(strings.t('빠른 추가'));
+      // A live native tooltip overlay can contain the same message as the
+      // source tooltip. Select the actual button, never an overlay copy.
+      final quickSubmit = find.descendant(
+        of: find.byKey(const Key('quick-add-title')),
+        matching: find.byWidgetPredicate(
+          (widget) =>
+              widget is IconButton && widget.tooltip == strings.t('빠른 추가'),
+        ),
+      );
+      expect(quickSubmit, findsOneWidget);
       await Scrollable.ensureVisible(
         tester.element(quickSubmit),
         alignment: .5,
@@ -290,6 +299,12 @@ void main() {
       expect(completed.task.id, quickTask.id);
       expect(completed.beforeComplete, TaskStatus.pending);
       expect(completed.completed, isNotNull);
+      expect(
+        (await controller.reminders.plugin.pendingNotificationRequests()).any(
+          (request) => request.payload == quickOccurrence.id,
+        ),
+        isFalse,
+      );
       expect(
         find.byKey(ValueKey('task-swipe-${quickOccurrence.id}')),
         findsNothing,
