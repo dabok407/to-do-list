@@ -9,7 +9,26 @@ appId: com.dabok407.hangeoreum
 - extendedWaitUntil:
     visible: "${SETTINGS_LABEL}(\\n.*)?"
     timeout: 30000
-- tapOn: "${SETTINGS_LABEL}(\\n.*)?"
+# A cold widget link can leave task details open above the tab bar. Its
+# dismissible barrier may consume a Settings tap, so close the visible sheet
+# first and retry actual tab navigation at most three times. Require a field
+# unique to Settings before looking for the reminder button.
+- repeat:
+    times: 3
+    while:
+      notVisible: "${SETTINGS_CONTENT}(\\n.*)?"
+    commands:
+      - runFlow:
+          when:
+            visible: "${CLOSE_LABEL}"
+          commands:
+            - tapOn: "${CLOSE_LABEL}"
+      - tapOn: "${SETTINGS_LABEL}(\\n.*)?"
+      - waitForAnimationToEnd:
+          timeout: 3000
+- extendedWaitUntil:
+    visible: "${SETTINGS_CONTENT}(\\n.*)?"
+    timeout: 30000
 - scrollUntilVisible:
     element:
       text: "${TEST_BUTTON}"

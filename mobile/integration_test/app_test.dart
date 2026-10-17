@@ -104,7 +104,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(tester.widget<ChoiceChip>(choice).selected, isTrue);
     }
-    debugPrint('NATIVE_EDITOR_DIRECT_CHOICES_OK');
+    debugPrintSynchronously('NATIVE_EDITOR_DIRECT_CHOICES_OK');
     final titleInput = find.byKey(const Key('editor-title'));
     await tester.ensureVisible(titleInput);
     await tester.enterText(titleInput, '안방 대청소 통합 테스트');
@@ -328,7 +328,7 @@ void main() {
         ),
         isTrue,
       );
-      debugPrint('NATIVE_QUICK_DEFAULT_OTHER_SWIPE_OK');
+      debugPrintSynchronously('NATIVE_QUICK_DEFAULT_OTHER_SWIPE_OK');
     } finally {
       for (final task in (await controller.repository.tasks()).where(
         (task) => task.title == quickTitle,

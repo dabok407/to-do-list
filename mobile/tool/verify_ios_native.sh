@@ -54,12 +54,16 @@ PY
 if [[ "$language" == en ]]; then
   progressing_label='In progress'
   settings_label='Settings'
+  settings_content='(Language|Your plans stay on your device)'
+  close_label='Close'
   test_button='Test reminder in 10 seconds'
   test_title='Todoniq reminder test'
   test_body='Check that this reminder arrives while the app is closed.'
 else
   progressing_label='진행 중'
   settings_label='설정'
+  settings_content='(언어|나의 일정은, 나의 기기에만)'
+  close_label='닫기'
   test_button='10초 뒤 테스트 알림'
   test_title='투두닉 테스트'
   test_body='앱 밖에서도 알림이 도착하는지 확인해주세요.'
@@ -131,7 +135,8 @@ notification_results="$results/maestro-notification-$(date +%s)"
 set +e
 maestro --device "$device" test --debug-output="$notification_results" \
   --test-output-dir="$notification_results" \
-  -e SETTINGS_LABEL="$settings_label" -e TEST_BUTTON="$test_button" \
+  -e SETTINGS_LABEL="$settings_label" -e SETTINGS_CONTENT="$settings_content" \
+  -e CLOSE_LABEL="$close_label" -e TEST_BUTTON="$test_button" \
   -e TEST_TITLE="$test_title" -e TEST_BODY="$test_body" \
   tool/ios_background_notification.yaml \
   > "$results/ios-background-notification-ui.log" 2>&1
