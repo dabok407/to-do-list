@@ -108,7 +108,7 @@
   },
   "physicalIphoneVerified": false,
   "actualStoreKitVerified": false,
-  "appleUploaded": false,
+  "appleUploaded": true,
   "appStoreVersionCreated": false,
   "reviewSubmitted": false,
   "googleAccountWorkRemainsOnHold": true,
@@ -120,8 +120,59 @@
       "version": "1.0.1",
       "build_number": "1202"
     },
-    "dispatched": false
+    "dispatched": true,
+    "runId": 39015097225,
+    "url": "https://github.com/dabok407/to-do-list/actions/runs/39015097225",
+    "workflowSourceCommit": "56b83137bcbbb947b8146ee599ecc6ee8bd6f1bb"
   },
-  "preparationStatus": "SIGNED_IPA_VERIFIED_AND_READY_FOR_LATER_UPLOAD",
-  "verifiedOn": "2026-10-17"
+  "preparationStatus": "TESTFLIGHT_OWNER_READY_PUBLIC_REVIEW_UNCHANGED",
+  "verifiedOn": "2026-10-17",
+  "testFlightUpload": {
+    "runId": 39015097225,
+    "url": "https://github.com/dabok407/to-do-list/actions/runs/39015097225",
+    "conclusion": "success",
+    "sourceRunId": 39001832328,
+    "sourceCommit": "c9d0bb513c4012f7cffc1aa47106758e7443bcb1",
+    "workflowSourceCommit": "56b83137bcbbb947b8146ee599ecc6ee8bd6f1bb",
+    "rebuilt": false,
+    "originalIpaSha256": "7ce6d405fccb1ad75c8678243871eb895a0b25ca7a3c5b691aafb53442ba76cf",
+    "appleBuildId": "957b1e9f-984b-4000-b18d-55f3540a4390",
+    "version": "1.0.1",
+    "buildNumber": "1202",
+    "uploadedAtKst": "2026-10-17T16:51:25+09:00",
+    "processingState": "VALID",
+    "expired": false,
+    "usesNonExemptEncryption": false,
+    "internalBuildState": "IN_BETA_TESTING",
+    "ownerGroupName": "Todoniq Owner",
+    "ownerGroupId": "dc538037-0974-4862-93ea-4b5dc7880d0f",
+    "ownerGroupConnected": true,
+    "ownerTesterMembershipConfirmedInBrowser": true,
+    "existingGroupBuildsRetained": true,
+    "externalGroupChanged": false,
+    "encryptionAnswer": "Same verified native/dependency/build-script source as1101; saved for1202 in existing signed-in browser after limited API returned403. No credential privileges changed.",
+    "publicVersionBefore": {
+      "versionId": "5ef76c78-bf15-4ae0-851d-5cc1f080d61d",
+      "version": "1.0.0",
+      "buildId": "969eb0ab-714b-4da5-9da5-959f889688b7",
+      "buildNumber": "1101",
+      "state": "WAITING_FOR_REVIEW",
+      "releaseType": "AFTER_APPROVAL"
+    },
+    "publicVersionAfter": {
+      "versionId": "5ef76c78-bf15-4ae0-851d-5cc1f080d61d",
+      "version": "1.0.0",
+      "buildId": "969eb0ab-714b-4da5-9da5-959f889688b7",
+      "buildNumber": "1101",
+      "state": "WAITING_FOR_REVIEW",
+      "releaseType": "AFTER_APPROVAL"
+    },
+    "publicVersionAttachmentUnchanged": true,
+    "publicReleaseTypeUnchanged": true,
+    "reviewSubmitted": false,
+    "appStoreVersionCreated": false,
+    "evidenceScreenshot": ".tools/apple-membership/update-1.0.1-1202/testflight-owner-ready.png",
+    "evidenceScreenshotSha256": "6dfee8b30579bbc2d8c1e375274b0f1eaca923bf742c0db7349edcb57dac2888",
+    "verifiedAtKst": "2026-10-17T16:55:57+09:00"
+  }
 }
