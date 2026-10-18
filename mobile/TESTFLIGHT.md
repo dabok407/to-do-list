@@ -1,6 +1,14 @@
 # 투두닉(Todoniq): Windows에서 iPhone TestFlight 빌드 준비하기
 
-## 현재 — 1202 내부 TestFlight 업데이트 가능 (2026-10-17)
+## 현재 — 1203 내부 TestFlight 업데이트 가능 (2026-10-18)
+
+**1.0.1 (1203)**에 분류 버튼 5개 한 줄 균등 배치와 새 일정 기본 우선순위 **보통**을 반영했다. 기본 분류는 생활이며 기존 일정의 분류·우선순위는 유지한다. iPhone에서 **TestFlight → 투두닉 → 업데이트**로 설치한다. 목록에 업데이트가 바로 보이지 않으면 아래로 당겨 새로고침하고, 앱 상세 화면에서 **1.0.1 (1203)**인지 확인한다.
+
+검증 소스 `daf25c5987fd292060b7805e290e068bfd525597`의 [서명·업로드 39026570583](https://github.com/dabok407/to-do-list/actions/runs/39026570583)와 [Android·iOS QA 39026551490](https://github.com/dabok407/to-do-list/actions/runs/39026551490)가 모두 **SUCCESS**다. 로컬 테스트 **430개 통과 / 선택형 캡처 3개 건너뜀**, 정적 분석 문제 없음이다. 원본 IPA SHA-256은 `4304207c4accf4be3bb73a9ecbf7927cebf5f821e2596e4a6532ec0af7e2e89b`이며 로컬·별도 백업·manifest·GitHub 아티팩트 digest를 대조했다.
+
+Apple 빌드 `d49a0d17-346d-4d59-a5ce-2fdcec9bad0a`의 **VALID / expired=false / usesNonExemptEncryption=false / IN_BETA_TESTING**, 기존 Todoniq Owner 그룹의 **테스트 중** 표시를 **2026-10-18 09:45 KST**에 확인했다. 업로드 시각은 **2026-10-17 20:11:47 KST**다. 기존 1101·1202 그룹 연결과 공개 **1.0.0 (1101)**의 심사 대기·선택 빌드·승인 후 자동 출시 설정을 유지했다. 새 공개 버전·업데이트 심사·외부 그룹은 변경하지 않았다. 실제 iPhone의 1203 설치와 실제 StoreKit 결제는 아직 확인하지 않았다. [1203 검증·업로드 기록](store/review/update-1.0.1-1203.json)에 근거를 남겼다.
+
+## 이전 — 1202 내부 TestFlight 업데이트 제공 (2026-10-17)
 
 **1.0.1 (1202)**을 [원본 IPA 업로드 39015097225](https://github.com/dabok407/to-do-list/actions/runs/39015097225)로 전달하고 Apple의 **VALID / expired=false / usesNonExemptEncryption=false**를 확인했다. 기존 **Todoniq Owner** 내부 그룹에 추가했으며 공식 API의 **IN_BETA_TESTING**과 브라우저의 **테스트 중** 표시를 확인했다. 본인 iPhone에서 **TestFlight → 투두닉 → 업데이트**로 **1.0.1 (1202)**을 받을 수 있다. 업데이트가 바로 보이지 않으면 앱 목록을 아래로 당겨 새로고침한다.
 

@@ -1,0 +1,132 @@
+{
+  "preparedOn": "2026-10-17",
+  "verifiedOn": "2026-10-18",
+  "version": "1.0.1",
+  "buildNumber": "1203",
+  "sourceCommit": "daf25c5987fd292060b7805e290e068bfd525597",
+  "currentReviewVersion": "1.0.0 (1101)",
+  "currentReviewChanged": false,
+  "includedRequests": [
+    "빠른 추가·상세 등록의 분류 5개가 간격을 제외한 너비를 균등하게 채우는 한 행 배치",
+    "상세 우선순위 3개 균등 배치와 높음·보통·낮음 순서 유지",
+    "새 일정의 기본 우선순위 보통(1), 분류 생활 유지",
+    "큰 글씨·영문은 라벨 전체를 표시하며 행 높이 확장"
+  ],
+  "dataPolicy": "기존 일정의 분류·우선순위·진행 이력은 보존한다. 보통 기본값은 새 일정에만 적용하며 기존 사용자 분류도 표시한다.",
+  "localValidation": {
+    "analyze": "PASSED",
+    "testsPassed": 430,
+    "optionalCaptureTestsSkipped": 3,
+    "newResponsiveTestsPassed": 37,
+    "logicalWidths": [
+      320,
+      375,
+      402,
+      440
+    ],
+    "languages": [
+      "ko",
+      "en"
+    ],
+    "textScales": [
+      1,
+      2
+    ],
+    "actualAppRenderPngCount": 4,
+    "webPreviewBuild": "PASSED",
+    "physicalDeviceCapture": false
+  },
+  "nativeQa": {
+    "status": "PASSED",
+    "sourceCommit": "daf25c5987fd292060b7805e290e068bfd525597",
+    "runId": 39026551490,
+    "url": "https://github.com/dabok407/to-do-list/actions/runs/39026551490",
+    "android": "PASSED",
+    "ios": "PASSED",
+    "jobs": [
+      {
+        "id": 117378551497,
+        "name": "android",
+        "conclusion": "success"
+      },
+      {
+        "id": 117378551750,
+        "name": "ios",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "signedBuild": {
+    "status": "SUCCESS",
+    "runId": 39026570583,
+    "url": "https://github.com/dabok407/to-do-list/actions/runs/39026570583",
+    "version": "1.0.1",
+    "build": "1203",
+    "sourceCommit": "daf25c5987fd292060b7805e290e068bfd525597",
+    "artifactId": 12099386070,
+    "artifactDigest": "sha256:0e79ed9cd3e1087aa0c77d51c9ae7d0a31b625a6b3604b19c8dc51338656f679",
+    "artifactDigestVerified": true,
+    "ipaSha256": "4304207c4accf4be3bb73a9ecbf7927cebf5f821e2596e4a6532ec0af7e2e89b",
+    "ipaBytes": 25111184,
+    "localIpaPath": "mobile/build/testflight/1.0.1-1203/Todoniq-1.0.1-1203.ipa",
+    "durableLocalBackup": ".tools/releases/ios/1.0.1-1203",
+    "manifestVerified": true,
+    "nativeSignatureValidation": "performed by successful macOS signing workflow",
+    "appleUploadStep": "success",
+    "githubArtifactRetentionDays": 14,
+    "appStoreVersionCreated": false,
+    "reviewSubmitted": false
+  },
+  "testFlightUpload": {
+    "runId": 39026570583,
+    "url": "https://github.com/dabok407/to-do-list/actions/runs/39026570583",
+    "conclusion": "success",
+    "sourceCommit": "daf25c5987fd292060b7805e290e068bfd525597",
+    "rebuiltForUpload": false,
+    "appleBuildId": "d49a0d17-346d-4d59-a5ce-2fdcec9bad0a",
+    "version": "1.0.1",
+    "buildNumber": "1203",
+    "uploadedAtKst": "2026-10-17T20:11:47+09:00",
+    "verifiedReadyAtKst": "2026-10-18T09:45:29.962514+09:00",
+    "processingState": "VALID",
+    "expired": false,
+    "usesNonExemptEncryption": false,
+    "internalBuildState": "IN_BETA_TESTING",
+    "ownerGroupName": "Todoniq Owner",
+    "ownerGroupId": "dc538037-0974-4862-93ea-4b5dc7880d0f",
+    "ownerGroupConnected": true,
+    "ownerTesterMembershipConfirmedInBrowser": true,
+    "existingGroupBuildsRetained": true,
+    "externalGroupChanged": false,
+    "encryptionAnswer": "Saved in the existing signed-in browser. Native code, iOS configuration, dependencies and signing script match verified1101; this source only changes Flutter UI/default priority and tests.",
+    "publicVersionBefore": {
+      "versionId": "5ef76c78-bf15-4ae0-851d-5cc1f080d61d",
+      "version": "1.0.0",
+      "buildId": "969eb0ab-714b-4da5-9da5-959f889688b7",
+      "buildNumber": "1101",
+      "state": "WAITING_FOR_REVIEW",
+      "releaseType": "AFTER_APPROVAL"
+    },
+    "publicVersionAfter": {
+      "versionId": "5ef76c78-bf15-4ae0-851d-5cc1f080d61d",
+      "version": "1.0.0",
+      "buildId": "969eb0ab-714b-4da5-9da5-959f889688b7",
+      "buildNumber": "1101",
+      "state": "WAITING_FOR_REVIEW",
+      "releaseType": "AFTER_APPROVAL"
+    },
+    "proofScreenshot": ".tools/apple-membership/update-1.0.1-1203/testflight-owner-ready.jpg",
+    "proofScreenshotSha256": "8ed244ed19b3203e6c0f465b9dd623ecee51c1d2289d9715920db3b71fd016a3"
+  },
+  "whatsNew": {
+    "ko": "분류 버튼 5개가 화면 너비를 고르게 나눠 한 줄에 표시됩니다. 새 일정의 기본 우선순위는 보통입니다. 기존 일정의 분류와 우선순위는 유지됩니다.",
+    "en-US": "Category buttons now share the available width equally in a single row. New tasks default to Normal priority. Existing task categories and priorities are preserved."
+  },
+  "physicalIphoneVerified": false,
+  "actualStoreKitVerified": false,
+  "appleUploaded": true,
+  "appStoreVersionCreated": false,
+  "reviewSubmitted": false,
+  "googleAccountWorkRemainsOnHold": true,
+  "preparationStatus": "TESTFLIGHT_OWNER_READY_PUBLIC_REVIEW_UNCHANGED"
+}
