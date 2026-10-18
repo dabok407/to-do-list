@@ -1,5 +1,11 @@
 # 투두닉 스토어 등록 자료
 
+> **2026-10-18 10:33 KST 최신 1203 재심사 접수 완료**: 사용자 승인으로 기존 1101 제출을 철회하고 같은 공개 버전 레코드를 **1.0.1**로 변경한 뒤 기존 **1203** 바이너리를 연결했다. 새 제출 `3fa9f819-92c4-4b4f-85e3-afa568bd28d7`의 **앱 1.0.1 (1203)·Todoniq Pro Annual·Pro 구독 그룹 3개 모두 심사 대기 중**을 실제 Apple 화면에서 확인했고, 제출 후 API도 **WAITING_FOR_REVIEW / AFTER_APPROVAL**을 반환했다. 승인 후 자동 출시를 유지하며 승인·공개 출시 완료로 표시하지 않는다.
+
+최신 한국어 **2,017자**·영어 **3,725자**의 설명과 1203 영어 심사 메모를 저장했다. 한영 설명·프로모션·검색어·앱명·부제·개인정보 URL을 API의 실제 등록값과 대조했다. Apple 중형 iPhone·iPad 한영 **4세트 총 28장**을 새로 교체했고 모두 **COMPLETE**, 파일명·순서·크기·MD5 및 로컬 SHA 출처가 일치한다. 로컬 Apple 소개는 대형 iPhone을 포함해 **42장**이며 한영 ZIP 2개 각각 22파일 검증도 통과했다. 한영 캡처 테스트 4개·이미지 정책 테스트 5개·전체 소개 PNG 56장/자산 4개 규격·정적 분석을 통과했다. 공개 이미지의 가격·무료·체험 기간·타 모바일 플랫폼 홍보 제거와 Pro 구독 필요 표시는 유지한다.
+
+연간 상품 심사 메모에 남은 **1.0.0 (1001)**을 **최초 공개 출시 1.0.1 (1203)**로 수정했다. 상품의 나머지 내용·가격·기간·판매 지역은 바꾸지 않았다. 기존 비공개 `pro-purchase` 첨부와 fixture 기반 화면 렌더의 비실결제 증빙 안내를 유지했으며 별도 심사 메시지 회신은 보내지 않았다. 프로덕션 소스 `daf25c5987fd292060b7805e290e068bfd525597`·Apple 빌드 `d49a0d17-346d-4d59-a5ce-2fdcec9bad0a`를 그대로 사용했고 재빌드·재서명·재업로드하지 않았다. 실제 iPhone StoreKit 구매 검증은 여전히 미확인이고 Google 계정 작업은 보류다. [1203 재심사 접수·대조 기록](store/review/resubmission-2026-10-18-1203.json)을 따른다. 아래의 1101 및 이전 일자 기록은 당시의 이력으로 보존한다.
+
 > **2026-10-17 11:15 KST 재심사 제출 완료**: 기존 제출 ID `88f8d59f-d908-4bb0-bd89-6a9cc8fe0658`를 유지해 **앱 1.0.0 (1101)·Todoniq Pro Annual·투두닉 Pro 구독 그룹 총 3개를 다시 제출**했고, Apple 실제 화면에서 **모두 심사 대기 중**을 확인했다. 승인 후 자동 출시 설정은 유지한다. 1101 수출 규정 답변 `usesNonExemptEncryption=false` 저장과 Todoniq Owner 내부 그룹 연결을 완료했고 API에서 **VALID / expired=false / IN_BETA_TESTING**을 확인했다. 1101의 실제 iPhone 설치와 실제 StoreKit 구매·복원 등 검증은 별도 미확인이다.
 
 한국어·영어 설명을 공개 링크까지 전체 저장하고 준비 JSON과 대조했다(1,821/3,389자). 기존 한국어·영어의 중형 iPhone·iPad 4개 슬롯에 **각 7장, 총 28장**을 교체했으며 API의 sourceFileChecksum(MD5)·파일 크기·이름·번호 순서를 로컬 파일과 대조해 일치를 확인했다. 공개 버전 첨부 빌드를 **1001→1101**로 교체·저장하고, **2026-10-17 반려 사유 2.3.10·2.3.7 수정 내역과 1101 기준 안내를 앱 심사 메모에 저장**했다. 앱 심사 첨부파일로 영어 `store/review/en/pro-purchase.png`를 업로드했다. **별도의 심사 메시지 회신은 전송하지 않았다.** 수정 내용은 앱 심사 메모로 전달했다. 구독 상품 자체의 심사용 이미지·메모는 기존 제출 잠금으로 수정하지 못했으며 상품과 그룹을 삭제하거나 다시 만들지 않고 유지했다.
@@ -58,12 +64,12 @@ Apple 앱 개인정보 **데이터 수집 없음** 답변 게시와 개인정보
 | 종류 / 카테고리 | 앱 / 생산성(Productivity) |
 | 설치 가격 | Apple 무료 설치 $0.00 저장 완료 + 선택형 앱 내 연간 구독 |
 | 앱 식별자 | `com.dabok407.hangeoreum` |
-| 현재 버전 / 빌드 | 공개 버전 `1.0.0 (1101)`로 교체·저장 후 재심사 제출 완료·심사 대기 중. 1101 VALID / expired=false / usesNonExemptEncryption=false / IN_BETA_TESTING, Todoniq Owner 연결 완료. 실제 iPhone 설치·StoreKit 구매 검증은 미확인. 소스 기본값 `1.0.0+1`을 CI 빌드 번호로 재정의 |
+| 현재 버전 / 빌드 | 공개 버전 `1.0.1 (1203)`로 변경·저장 후 2026-10-18 10:33 KST 재심사 접수·심사 대기 확인. 1203 VALID / expired=false / usesNonExemptEncryption=false / IN_BETA_TESTING, Todoniq Owner 연결 유지. 실제 iPhone StoreKit 구매 검증은 미확인. 소스 기본값 `1.0.0+1`을 CI 빌드 번호로 재정의 |
 | Apple ID | `6821236391` — 앱 등록 완료 |
 | Apple SKU | `cheotkan-ios-001` — 등록 완료, 내부 관리용 |
 | Apple Team ID | `B2MTNFVL58` |
 | 출시 국가 | 2026-10-12 마지막 확인: Apple 앱·Pro 각각 전체 175개 국가 또는 지역 저장. 10월 11일 EU 제외 148개·이전 프랑스 제외 174개는 과거 이력. 개별 국가 인증 결과와 실제 출시 여부는 별도 확인. Play 계정 작업 보류 |
-| 출시 방식 | Apple 승인 후 자동 출시 설정 유지. 10월 17일 11:15 KST 수정본 1101·Pro·구독 그룹 재제출 완료·모두 심사 대기 중. Play 계정 작업 보류 |
+| 출시 방식 | Apple 승인 후 자동 출시 설정 유지. 10월 18일 10:33 KST 최신 1203·Pro·구독 그룹 재제출 완료·모두 심사 대기 중. Play 계정 작업 보류 |
 | 문의 이메일 | `dabok407@gmail.com` |
 | 저작권 표시 | `2026 Todoniq` — Apple 저장 완료, 최종 권리자 명칭 검토 |
 
@@ -99,7 +105,7 @@ App Store Connect → 앱 → **투두닉 - 할 일과 캘린더**(Apple ID `682
 | 이름 — 한국어 / 영어 | 투두닉 - 할 일과 캘린더 / Todoniq - Tasks & Calendar | 각 최대 30자. 콘솔 저장 완료 |
 | 부제 | 투두와 일정, 미루지 않는 작은 시작 | 최대 30자. 콘솔 저장 완료 |
 | 프로모션 텍스트 | 아래 문구 | 선택, 최대 170자 |
-| 설명 | 아래 상세 소개 + 개인정보·이용약관 링크 | 한영 JSON과 정확히 일치(1,821/3,389자). 10월 17일 브라우저로 전체 저장·실제 등록값 확인 |
+| 설명 | 아래 상세 소개 + 개인정보·이용약관 링크 | 10월 18일 1203 기준 한영 전체 저장·API 대조 완료. 한국어 2,017자·영어 3,725자. 빠른 추가·분류 버튼·스와이프 완료/해제 추가, 기존 개인정보·구독 조건 유지 |
 | 키워드 | 아래 검색어 | 최대 100바이트, 콘솔 최종 확인 |
 | 지원 URL | 위 언어별 지원 페이지 | 기존 URL 유지. 10월 16일 Pages 교정 배포 SUCCESS·HTTP 200·소스 일치 확인 |
 | 개인정보처리방침 URL | 위 언어별 개인정보 페이지 | 기존 URL 유지. 10월 16일 교정 배포·HTTP 200·언어별 정책·소스 일치 확인 |
@@ -107,12 +113,12 @@ App Store Connect → 앱 → **투두닉 - 할 일과 캘린더**(Apple ID `682
 | 스크린샷 | Apple용 한영 42장·ZIP 2개 수정·로컬 검증 완료 | 10월 17일 기존 4개 언어/기기 슬롯에 총 28장 실제 교체. API sourceFileChecksum(MD5)·파일 크기·이름·순서 대조 통과 |
 | 앱 미리보기 영상 | 실제 동작 영상 | 선택, 첫 제출에는 생략 가능 |
 | 카테고리·연령 등급 | 생산성 / 의료 정보 없음·웰빙 주제 포함으로 설문 저장 | 대한민국 전체, 일반 글로벌 9+; 지역별 등급은 Apple 설문 결과 적용 |
-| 콘텐츠 권리·앱 개인정보 | 타사 콘텐츠 없음 저장, 사용자 승인 후 데이터 수집 없음 답변 게시 완료·개인정보 URL 저장 이력 유지 | 1001 반려 사유 2.3.10·2.3.7 수정, 1101 재심사 제출 완료·심사 대기 중 |
+| 콘텐츠 권리·앱 개인정보 | 타사 콘텐츠 없음 저장, 사용자 승인 후 데이터 수집 없음 답변 게시 완료·개인정보 URL 저장 이력 유지 | 1001 반려 사유 2.3.10·2.3.7 수정 유지, 1203 재심사 접수·심사 대기 확인 |
 | 저작권 | 2026 Todoniq | 콘솔 저장 완료, 최종 권리자 명칭 검토 |
 | 심사 연락처 | 담당자 이름·이메일·전화 | 사용자 승인 후 콘솔 저장 완료. 개인 전화번호는 공개 소스에 기록하지 않음 |
 | 로그인 정보 | 앱 로그인 필요 없음 | 테스트 계정 불필요 |
-| 심사 메모 | 2026-10-17 수정 내역과 최종 1101 기준 안내 저장, 영어 pro-purchase.png를 앱 심사 첨부파일로 업로드 | 별도 메시지 회신은 미전송. 상품 자체의 기존 심사 이미지·메모는 제출 잠금으로 유지 |
-| 빌드·수출 규정 질문 | 1.0.0 (1101), ID 969eb0ab-714b-4da5-9da5-959f889688b7 | VALID / expired=false / usesNonExemptEncryption=false / IN_BETA_TESTING. 10월 17일 수출 규정 답변·Owner 연결·공개 버전 1101 저장 완료 |
+| 심사 메모 | 아래 1.0.1 (1203) 영어 안내 저장·대조 완료. 구독 조건·검토 순서·시간 변경 회귀 확인 포함 | 1101 메모 저장은 이전 이력. 상품 자체 메모의 구형 1001도 1203으로 교정. 3항목 함께 재제출·심사 대기 확인 |
+| 빌드·수출 규정 질문 | 공개 심사 빌드 1.0.1 (1203), ID d49a0d17-346d-4d59-a5ce-2fdcec9bad0a | 10월 18일 VALID / expired=false / usesNonExemptEncryption=false / IN_BETA_TESTING 및 Owner 연결 확인. 공개 버전의 정확한 1203 연결·WAITING_FOR_REVIEW / AFTER_APPROVAL을 제출 후 API로 재확인 |
 
 첫 버전에는 Apple의 ‘이 버전의 새로운 기능’ 항목이 제공되지 않는다. 이후 업데이트부터 변경 내역을 작성한다.
 
@@ -210,7 +216,7 @@ The local trial and Google Play purchase testing are separate. Do not treat a tr
 
 ## Apple 한국어 상세 소개
 
-Apple에는 아래 본문과 Apple 전용 공개 안내 링크를 사용한다. 2026-10-16 반려 대응 수정본이며 콘솔 저장 여부는 별도로 확인한다. Play는 같은 기능 소개를 사용하되 아래 Google 전용 안내·링크를 덧붙인다. Play 입력은 아직 수행하지 않았다.
+Apple에는 아래 본문과 Apple 전용 공개 안내 링크를 사용한다. 2026-10-18 최신 1203 기준으로 저장하고 제출 후 API의 실제 문안과 대조를 완료했다. 기존 반려 대응의 플랫폼 언급 제거·구독 조건·공개 링크를 유지한다. Play는 같은 기능 소개를 사용하되 아래 Google 전용 안내·링크를 덧붙인다. Play 입력은 아직 수행하지 않았다.
 
 ```text
 나만의 할 일, 투두닉.
@@ -221,6 +227,9 @@ Apple에는 아래 본문과 Apple 전용 공개 안내 링크를 사용한다. 
 
 오늘과 앞으로의 일정을 한눈에
 월·주 캘린더와 날짜별 목록에서 할 일을 확인하세요. 아직 끝내지 못한 일은 눈에 잘 보이는 곳에 모아두고, 시간과 우선순위로 다음 할 일을 정리할 수 있습니다.
+
+시간과 내용으로 간단히 추가
+지금보다 한 시간 뒤의 시각을 기본으로 제안합니다. 시간을 먼저 확인하고 할 일을 입력해 등록하세요. 생활·업무·건강·배움·기타 분류와 높음·보통·낮음 우선순위를 버튼으로 고를 수 있습니다. 새 일정은 생활·보통으로 시작합니다. 목록에서 오른쪽으로 밀어 완료하고, 완료된 일은 왼쪽으로 밀어 완료를 해제할 수 있습니다.
 
 내 생활에 맞는 반복 일정
 한 번만 하는 일정, 매일·매주·매월 반복, 특정 요일과 주 몇 회 목표를 설정하세요. 반복 종료일을 정하고, 이번 회차나 앞으로의 일정만 수정할 수도 있습니다.
@@ -326,6 +335,9 @@ From a daily walk to a weekend bedroom clean-up, Todoniq helps you plan what nee
 See today and what comes next
 Use the month or week calendar and daily task lists to organize your plans. Unfinished tasks stay visible so you can choose what to do next by time and priority.
 
+Add tasks with fewer steps
+Quick Add suggests a time one hour from now; check the time, then enter your task. Choose Personal, Work, Health, Learning or Other, and High, Normal or Low priority with buttons. New tasks start with Personal and Normal. Swipe a task right to complete it, or swipe a completed task left to undo completion.
+
 Repeat on your terms
 Create one-off tasks, daily, weekly or monthly repeats, selected weekdays and weekly targets. Set an end date and edit one occurrence or future occurrences.
 
@@ -358,7 +370,7 @@ Purchases, restoration and subscription checks may require internet access. Noti
 Support: dabok407@gmail.com
 ```
 
-Apple 영어 설명에는 아래 링크를 덧붙인다. 2026-10-16 반려 대응에서는 위 본문과 링크를 함께 다시 저장하고 실제 콘솔 값을 확인한다. Play 영어 설명은 같은 기능 본문 뒤에 `iOS and Android purchases are not shared.`를 덧붙이고 마지막 링크를 공개 이용 안내 URL `https://dabok407.github.io/to-do-list/terms-en.html`로 바꾸어 입력한다.
+Apple 영어 설명에는 아래 링크를 덧붙인다. 2026-10-18 1203 재제출에서 위 본문과 링크를 함께 저장하고 제출 후 API의 실제 값과 일치를 확인했다. Play 영어 설명은 같은 기능 본문 뒤에 `iOS and Android purchases are not shared.`를 덧붙이고 마지막 링크를 공개 이용 안내 URL `https://dabok407.github.io/to-do-list/terms-en.html`로 바꾸어 입력한다.
 
 ```text
 Privacy Policy: https://dabok407.github.io/to-do-list/privacy-en.html
@@ -448,7 +460,7 @@ Apple은 기기 규격별 1~10장, 투명도 없는 PNG/JPEG를 지원한다. �
 
 ## Pro 연간 구독 자료
 
-2026-10-17 기준: 기존 상품·표시 이름·가격을 유지하며 앱 1101과 함께 상품·그룹을 재제출했고 모두 심사 대기 중이다. 수출 규정·공개 버전 1101 선택과 앱 심사 메모 저장은 완료했다. 상품 자체의 심사용 이미지·메모는 기존 제출에 잠겨 수정하지 못했으며, 상품·그룹은 삭제하지 않았다. 실제 StoreKit 구매 검증은 미확인이다. 아래 명시된 10월 11일·12일 상태는 당시 이력이다.
+2026-10-18 10:33 KST 최신 기준: 기존 상품·표시 이름·가격·연간 기간·판매 지역을 유지하며 **앱 1.0.1 (1203)·연간 상품·구독 그룹 3개를 재제출**했고 실제 화면에서 모두 심사 대기 중임을 확인했다. 상품 자체 메모에 남은 **1.0.0 (1001)**을 **최초 공개 출시 1.0.1 (1203)**로 수정·저장했다. 비공개 Pro 구매 화면과 fixture 기반 렌더의 비실결제 증빙 안내는 유지했다. 상품·그룹을 삭제하거나 새로 만들지 않았으며 실제 StoreKit 구매 검증은 미확인이다. 아래 명시된 10월 11일·12일·17일 상태는 당시 이력으로 보존하며 최신 접수 결과는 [1203 재심사 기록](store/review/resubmission-2026-10-18-1203.json)을 따른다.
 
 | 항목 | 준비 값 |
 | --- | --- |
@@ -489,23 +501,25 @@ Apple의 저장된 시작 가격은 미국 US$0.69/년·대한민국 ₩900/년�
 
 ## 심사자 메모 초안
 
-Apple 심사 메모와 Google 앱 액세스 설명에 사용할 수 있다. 두 문안은 동일한 동작을 설명하며, 제출 직전 서명한 최종 빌드·실제 상품과 대조한다. 심사 연락처의 개인 이름·전화번호는 콘솔에 직접 입력한다.
+아래는 Apple 1.0.1 (1203) 재제출용 문안이다. 실제 저장 여부는 재제출 결과와 구분한다. 두 언어 문안은 동일한 동작을 설명하며, 서명·업로드된 1203과 기존 구독 상품을 사용한다. 심사 연락처의 개인 이름·전화번호는 기존 콘솔 값을 유지한다. 아래 자동 검증 안내는 실제 기기의 구매·복원 성공 증빙을 뜻하지 않는다.
 
 ### 한국어 심사 메모
 
 ```text
+이번 제출은 최초 출시를 위한 버전 1.0.1, 빌드 1203입니다. 이전 빌드 1101을 최신 수정본으로 교체합니다. 앞선 반려에 대응해 설명의 타 모바일 플랫폼 언급과 소개 이미지의 가격·무료·체험 기간 홍보를 제거한 상태를 유지합니다.
+
 투두닉은 일정과 기록을 기기에 저장하는 할 일·리마인더 앱입니다. 앱 계정이나 로그인이 필요하지 않습니다. 한국어·영어를 지원하며 설정 → 언어에서 기기 설정 사용, 한국어 또는 English를 선택할 수 있습니다.
 
 첫 실행 7일 동안 전체 기능을 이용할 수 있습니다. 앱 내부 체험으로, 스토어 구독 무료 체험이 아니며 결제나 구독이 자동으로 시작되지 않습니다. 체험 이후에도 캘린더, 할 일·메모 작성·수정·삭제, 반복 일정, 완료·완료 해제와 위젯 보기는 무료입니다. 알림·미완료 재알림·미루기·실행 보조·통계는 선택형 연간 자동 갱신 Pro 구독(hangeoreum_pro_yearly)이 필요합니다. 실제 가격과 결제 조건은 스토어 구매 확인 화면에 표시됩니다.
 
 권장 확인 순서:
-1. 캘린더에서 날짜를 선택하고 제목·날짜·시간이 있는 할 일을 추가합니다.
-2. 할 일을 수정하고 체크박스로 완료 및 완료 해제를 확인합니다.
-3. 반복·종료일을 설정하고 이번 회차·앞으로의 회차 수정/삭제를 확인합니다.
-4. 알림을 허용하고 설정의 테스트 알림을 예약한 뒤 앱을 나가 로컬 알림을 확인합니다.
-5. 할 일에서 지금 시작, 10분 미루기와 미완료 재알림 설정을 확인합니다.
+1. 캘린더에서 날짜를 선택하고 간단히 추가를 펼칩니다. 시각은 현재보다 한 시간 뒤가 기본이며, 시간을 확인·변경한 다음 내용을 입력하고 화살표로 등록합니다. 다른 날짜를 선택한 경우 그 날짜를 유지합니다.
+2. 분류는 생활·업무·건강·배움·기타, 우선순위는 높음·보통·낮음 버튼으로 선택합니다. 새 일정 기본값은 생활·보통입니다. 분류 5개는 한 행의 너비를 고르게 사용하며 큰 글씨에서는 라벨 높이가 늘어납니다.
+3. 예정 또는 날짜별 목록의 미완료 일을 오른쪽으로 밀어 완료합니다. 완료 목록에서 왼쪽으로 밀어 완료를 해제합니다. 체크박스도 계속 사용할 수 있습니다.
+4. 저장한 단일 일정의 날짜·시간을 변경한 뒤 하나의 일정으로 유지되는지 확인합니다. 반복 일정은 이번 회차·앞으로의 회차 수정/삭제를 구분합니다. 기존 일정의 분류·우선순위·진행 이력은 보존합니다.
+5. 알림을 허용하고 설정의 테스트 알림을 예약한 뒤 앱을 나가 로컬 알림을 확인합니다. 할 일에서 지금 시작, 10분 미루기와 미완료 재알림 설정을 확인합니다.
 6. 통계를 확인하고 홈 화면에 위젯을 추가해 예정된 일을 확인합니다.
-7. 투두닉 Pro에서 연간 구독, 구매 복원과 구독 관리를 확인합니다.
+7. 투두닉 Pro에서 연간 구독, 구매 복원과 구독 관리를 확인합니다. 스토어에서 유효한 Pro 권한을 확인하면 홈의 7일 체험·구매 안내 카드는 숨겨집니다.
 8. 설정에서 언어를 변경합니다. 입력한 일정·메모·분류 이름은 바뀌지 않습니다.
 
 일정·메모·실행 기록은 개발자 서버로 전송하지 않습니다. 결제·구독 확인은 플랫폼 스토어를 사용합니다. 광고·분석 SDK, 클라우드 동기화, 의료·진단 기능은 없습니다. 알림 전달과 위젯 갱신은 OS 권한과 예약 동작의 영향을 받습니다.
@@ -516,18 +530,20 @@ Apple 심사 메모와 Google 앱 액세스 설명에 사용할 수 있다. 두 
 ### English review notes
 
 ```text
+This submission is version 1.0.1, build 1203, for the first public release. It replaces build 1101 with the latest fixes. The previous review corrections are retained: descriptions do not refer to other mobile platforms, and promotional screenshots do not advertise prices, free offers or evaluation periods.
+
 Todoniq is a task and reminder app that stores task data on the device. No app account or sign-in is required. The interface supports Korean and English. In Settings, use Language to select Device language, 한국어 (Korean) or English.
 
 All features are available for 7 days from first launch. This is an in-app evaluation, not a store subscription trial, and does not automatically charge the user or start a subscription. Afterward, the calendar, creating, editing and deleting tasks and notes, recurrence, completion/undo and widget viewing remain free. Notifications, overdue reminders, snoozing, start/five-minute assistance and statistics require the optional yearly auto-renewing Pro subscription (hangeoreum_pro_yearly). The store purchase confirmation shows the actual local price and billing terms.
 
 Suggested review steps:
-1. Select a date in Calendar, add a task with title, date and time, and save.
-2. Open the task to edit it, complete it and undo completion using the checkbox.
-3. Set recurrence and an end date. Verify occurrence editing/deletion options.
-4. Allow notifications. In Settings, use the test notification control, then leave the app to observe the scheduled local notification.
-5. Open a task and try Start now, a 10-minute snooze and overdue-reminder settings.
+1. Select a Calendar date and open Quick Add. Its time defaults to one hour from now. Check or change the time, enter a title and tap the arrow to save. A separately selected calendar date is retained.
+2. Choose Personal, Work, Health, Learning or Other with category buttons; choose High, Normal or Low priority with buttons. New tasks default to Personal and Normal. The five categories share one row; labels can grow vertically with larger text.
+3. Swipe an unfinished item right in Upcoming or a date's list to complete it. Swipe a completed item left in Done to undo completion. The checkbox is also available.
+4. Change the date or time of a saved one-off task and confirm it remains a single task. For recurrence, verify the distinction between editing/deleting one occurrence and future occurrences. Existing categories, priorities and activity history are preserved.
+5. Allow notifications. In Settings, schedule a test notification, then leave the app to observe it. Open a task and try Start now, a 10-minute snooze and overdue-reminder settings.
 6. Open Insights to view statistics. Add the home-screen widget to see upcoming tasks.
-7. Open Todoniq Pro to review the annual subscription, Restore purchases and subscription management.
+7. Open Todoniq Pro to review the annual subscription, Restore purchases and subscription management. When the store confirms valid Pro access, the home evaluation/purchase card is hidden.
 8. Change the interface language in Settings. Your own task titles, notes and category names are kept unchanged.
 
 Task content and activity history are not uploaded to a developer server. Billing and subscription checks use the platform store. There are no ads, analytics SDKs, cloud sync or medical/diagnostic functions. Notification delivery and widget refresh are subject to OS permissions and scheduling behavior.

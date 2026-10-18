@@ -88,6 +88,13 @@ async function addText(layers, text, left, top, size, color, weight, width) {
   return t;
 }
 async function exists(file) { try { await fs.access(file); return true; } catch { return false; } }
+// An image preview or libvips may memory-map an existing PNG on Windows.
+// Replace its directory entry atomically; never truncate the mapped file.
+async function writeAtomically(file, bytes) {
+  const temporary = `${file}.new-${process.pid}`;
+  await fs.writeFile(temporary, bytes);
+  await fs.rename(temporary, file);
+}
 async function exportScreen(device, d, s) {
   // Keep the approved production pixels; export an additional Apple display
   // canvas without pretending it is a separate native-device screenshot.
@@ -152,7 +159,7 @@ async function exportScreen(device, d, s) {
   const dir = path.join(outputRoot, device);
   await fs.mkdir(dir, { recursive: true });
   const output = path.join(dir, `${s.out}.png`);
-  await sharp({ create: { width: w, height: h, channels: 3, background: '#ffffff' } }).composite(layers).removeAlpha().png({ compressionLevel: 9 }).toFile(output);
+  await writeAtomically(output, await sharp({ create: { width: w, height: h, channels: 3, background: '#ffffff' } }).composite(layers).removeAlpha().png({ compressionLevel: 9 }).toBuffer());
   (generatedArtwork[device] ||= []).push({ ...s, sha256: crypto.createHash('sha256').update(await fs.readFile(output)).digest('hex'), capture_sha256: crypto.createHash('sha256').update(await fs.readFile(input)).digest('hex') });
   console.log(`${device}/${s.out}.png ${w}x${h} RGB`);
 }
@@ -169,7 +176,7 @@ async function featureGraphic() {
   const am = await sharp(app).metadata();
   layers.push({ input: Buffer.from(`<svg width="1024" height="500"><rect x="${974 - am.width - 1}" y="15" width="${am.width + 2}" height="471" rx="8" fill="none" stroke="#c9cdd3"/></svg>`), left: 0, top: 0 });
   layers.push({ input: app, left: 974 - am.width, top: 16 });
-  await sharp({ create: { width: 1024, height: 500, channels: 3, background: '#fff' } }).composite(layers).removeAlpha().png().toFile(path.join(store, `assets/play-feature-1024x500${english ? '-en' : ''}.png`));
+  await writeAtomically(path.join(store, `assets/play-feature-1024x500${english ? '-en' : ''}.png`), await sharp({ create: { width: 1024, height: 500, channels: 3, background: '#fff' } }).composite(layers).removeAlpha().png().toBuffer());
 }
 async function contactSheet(onlyApple = false) {
   const width = 1800, top = 135, cell = 240, gap = 12, left = 24;
@@ -196,7 +203,7 @@ async function contactSheet(onlyApple = false) {
     }
     rowTop += height + 72;
   }
-  await sharp({ create: { width, height: rowTop, channels: 3, background: '#f5f6f7' } }).composite(layers).removeAlpha().png().toFile(path.join(store, `assets/${onlyApple ? 'app-store' : 'store'}-contact-sheet${english ? '-en' : ''}.png`));
+  await writeAtomically(path.join(store, `assets/${onlyApple ? 'app-store' : 'store'}-contact-sheet${english ? '-en' : ''}.png`), await sharp({ create: { width, height: rowTop, channels: 3, background: '#f5f6f7' } }).composite(layers).removeAlpha().png().toBuffer());
 }
 (async () => {
   for (const [device, d] of Object.entries(devices)) {
@@ -209,5 +216,5 @@ async function contactSheet(onlyApple = false) {
   await contactSheet(true);
   const manifestPath = path.join(outputRoot, 'manifest.json');
   const previous = await exists(manifestPath) ? JSON.parse(await fs.readFile(manifestPath, 'utf8')) : {};
-  await fs.writeFile(manifestPath, JSON.stringify({ language, brand, slogan: english ? 'Your tasks. Your way.' : '나만의 할 일, 투두닉', nativeWidgets, devices: Object.keys(devices), specifications: devices, images: stories.map((_, i) => storyFor('iphone', i).out + '.png'), apple_artwork_policy: APPLE_ARTWORK_POLICY_VERSION, artwork: { ...previous.artwork, ...generatedArtwork } }, null, 2));
+  await writeAtomically(manifestPath, JSON.stringify({ language, brand, slogan: english ? 'Your tasks. Your way.' : '나만의 할 일, 투두닉', nativeWidgets, devices: Object.keys(devices), specifications: devices, images: stories.map((_, i) => storyFor('iphone', i).out + '.png'), apple_artwork_policy: APPLE_ARTWORK_POLICY_VERSION, artwork: { ...previous.artwork, ...generatedArtwork } }, null, 2));
 })().catch(e => { console.error(e); process.exitCode = 1; });

@@ -50,8 +50,8 @@
         "title": "Your tasks. Your way.",
         "sub": "No account. Your plans stay on your device.",
         "access": "Calendar · Basic features",
-        "sha256": "f2dd708239712602d22e34d29d8503819c37fe6e3e3542503db906e3f356a90c",
-        "capture_sha256": "602c3bf35a451fd72eddb9d72b799b735979fe73d4c8799063fb6d30849c0180"
+        "sha256": "2c85c90829f47068cc2b6ac90b31ce3d681d876cd229b9b411d440480f7b6797",
+        "capture_sha256": "4eb59c5d4eb6980efc09067c991d6544fe159e56cc5a6a0407176aab83ca4c58"
       },
       {
         "out": "02-overdue",
@@ -60,8 +60,8 @@
         "sub": "See what is left, with reminders on your schedule",
         "access": "Pro · Subscription required",
         "pro": true,
-        "sha256": "00dd7ca79dcefd6c6525df334b23968f979e1b7cdade715c40cb7a033cd6018a",
-        "capture_sha256": "df5e7b2408fdac256326d3eb7468bd7f28175a2641d168e3657662a1c96c9c5a"
+        "sha256": "05a72c741ce2d1470c208631c8c04bc765268b51f57a260d1cf555c88ec759a4",
+        "capture_sha256": "5b55597d929c6ca4eb1e0e73b614ea3964fea4a43583183ee27e326040e2ecaa"
       },
       {
         "out": "03-start",
@@ -70,8 +70,8 @@
         "sub": "Make the first step easier",
         "access": "Pro · Subscription required",
         "pro": true,
-        "sha256": "d8a31a35313624100b253995e1ee4b6d95cc7152a05a775e1e4cb89bc565fc09",
-        "capture_sha256": "9f12f1dc1c75f154ff096ea7e9b9cef3f0837122eb29555fa2227390bd6a8a9f"
+        "sha256": "6ab86ab775f64d1dfa9b2103a8d9d2a97a13b3b7310b77cc7df4d74d3682309a",
+        "capture_sha256": "c418d92e1d5b59c2def9e1e159a5368f7633d04d01ca0b2a4c1e7e6bfc25e068"
       },
       {
         "out": "04-repeat",
@@ -79,8 +79,8 @@
         "title": "Routines that fit\nyour life",
         "sub": "Choose days, intervals, and an end date",
         "access": "Repeating tasks · Basic features",
-        "sha256": "ac9be53471d91582a6d158ecd7fd24367edf1c972f6ee9e98c6484887bd26960",
-        "capture_sha256": "f9b7f9e5871e3c77a77e14c75c8af5b98cf23afcee0da4f69dc680e86f209d96"
+        "sha256": "90c82e6afbd6c2060edca7db93ff8c3838872c8587f90a89fd31917ae39618a3",
+        "capture_sha256": "cedbeadbb89dc00e6afaf1141c1b506b7fd32a77e21ac98b1f964ff1be656641"
       },
       {
         "out": "05-stats-detail",
@@ -89,8 +89,8 @@
         "sub": "Review completion and snooze statistics over 30 days",
         "access": "Pro · Subscription required",
         "pro": true,
-        "sha256": "c433906d64f40a78db0b496d475fa381dd59601e98602c0b6958b6d43bc1ee5e",
-        "capture_sha256": "22ed21f45f6c7481de89a5384e00ae84c1fb6a5419835a456d1854dc82bedc67"
+        "sha256": "799875cc1f28bacc6cc0ac5a6a85f8319d879f7ef6295dddaa34d16ebf74a056",
+        "capture_sha256": "9d4e00220a27de652b5c136b2ab7ddae970d64695bc6c1fd67fa24da2b0096db"
       },
       {
         "out": "06-stats",
@@ -99,8 +99,8 @@
         "sub": "Review completions and snooze history",
         "access": "Pro · Subscription required",
         "pro": true,
-        "sha256": "3a0a6a48645c0933cc45401ef6de4384e048b6c7d3cbc34460e5fa332e8d7eae",
-        "capture_sha256": "e1b6ff4f69ac6d09613c1aeffcda48f56314c31b21bf2d747b7b775a42dd3811"
+        "sha256": "b54dc68260f6c007c08b84f7f48058945fcc38ce8e170f9bd458fc691d1d697b",
+        "capture_sha256": "7f9724bd4d02ff79429c31038ceeee7f65279a7c5d100558cded051b50562817"
       },
       {
         "out": "07-privacy",
@@ -119,8 +119,8 @@
         "title": "Your tasks. Your way.",
         "sub": "No account. Your plans stay on your device.",
         "access": "Calendar · Basic features",
-        "sha256": "05054df15c7b9dbd02192767d71dedbc083c11edf7629bab946bb52900023ad0",
-        "capture_sha256": "602c3bf35a451fd72eddb9d72b799b735979fe73d4c8799063fb6d30849c0180"
+        "sha256": "1bce00c6b2dc93bbc4c5626fc0c95742670ab61e2a97fef82658ff784e0897eb",
+        "capture_sha256": "4eb59c5d4eb6980efc09067c991d6544fe159e56cc5a6a0407176aab83ca4c58"
       },
       {
         "out": "02-overdue",
@@ -129,8 +129,8 @@
         "sub": "See what is left, with reminders on your schedule",
         "access": "Pro · Subscription required",
         "pro": true,
-        "sha256": "43a4b735be483ff5fc4dbc74c632f3ec6099ad88c3c2014fb9284ded46b3ef99",
-        "capture_sha256": "df5e7b2408fdac256326d3eb7468bd7f28175a2641d168e3657662a1c96c9c5a"
+        "sha256": "fc75951d256f4a527f0ba839036531e78c6d51b8df54a1ed6d5110aa8b00a15e",
+        "capture_sha256": "5b55597d929c6ca4eb1e0e73b614ea3964fea4a43583183ee27e326040e2ecaa"
       },
       {
         "out": "03-start",
@@ -139,8 +139,8 @@
         "sub": "Make the first step easier",
         "access": "Pro · Subscription required",
         "pro": true,
-        "sha256": "31babc2af32600f175762bb5170952c109534c099da4aaff88ed167e8c6bd2dc",
-        "capture_sha256": "9f12f1dc1c75f154ff096ea7e9b9cef3f0837122eb29555fa2227390bd6a8a9f"
+        "sha256": "b4045e2ed285b793ca0b8954a9cfb2fd68919aa2b92b26d5e571c11af86c1d0a",
+        "capture_sha256": "c418d92e1d5b59c2def9e1e159a5368f7633d04d01ca0b2a4c1e7e6bfc25e068"
       },
       {
         "out": "04-repeat",
@@ -148,8 +148,8 @@
         "title": "Routines that fit\nyour life",
         "sub": "Choose days, intervals, and an end date",
         "access": "Repeating tasks · Basic features",
-        "sha256": "6528014d2ed4f24a8c7bb2a4eaf62e0f74dd9210975ceaaa614ac86b20c309c6",
-        "capture_sha256": "f9b7f9e5871e3c77a77e14c75c8af5b98cf23afcee0da4f69dc680e86f209d96"
+        "sha256": "5ac435e8fe93c04c3ad2151ac82191ceb04a98ba11b0901a29b64dd99c432af0",
+        "capture_sha256": "cedbeadbb89dc00e6afaf1141c1b506b7fd32a77e21ac98b1f964ff1be656641"
       },
       {
         "out": "05-stats-detail",
@@ -158,8 +158,8 @@
         "sub": "Review completion and snooze statistics over 30 days",
         "access": "Pro · Subscription required",
         "pro": true,
-        "sha256": "9a3675474e2305a46ee200889b7c8d68b588f3ae76eb7a5411e300dc7187b113",
-        "capture_sha256": "22ed21f45f6c7481de89a5384e00ae84c1fb6a5419835a456d1854dc82bedc67"
+        "sha256": "03a3b59e7f8de4c6923e393f4cc8a8c737c656d3fcf9cb61e9cc810b9d9cc573",
+        "capture_sha256": "9d4e00220a27de652b5c136b2ab7ddae970d64695bc6c1fd67fa24da2b0096db"
       },
       {
         "out": "06-stats",
@@ -168,8 +168,8 @@
         "sub": "Review completions and snooze history",
         "access": "Pro · Subscription required",
         "pro": true,
-        "sha256": "65a7a433c4cbebd036b6beabad4d99cf463d8e26c57870dd5e3610ceeada0e46",
-        "capture_sha256": "e1b6ff4f69ac6d09613c1aeffcda48f56314c31b21bf2d747b7b775a42dd3811"
+        "sha256": "add64426c87a88c8c4f3d91c50eb545179aa8f16d83de492423f8839eadb75cb",
+        "capture_sha256": "7f9724bd4d02ff79429c31038ceeee7f65279a7c5d100558cded051b50562817"
       },
       {
         "out": "07-privacy",
@@ -188,8 +188,8 @@
         "title": "Your tasks. Your way.",
         "sub": "No account. Your plans stay on your device.",
         "access": "Calendar · Basic features",
-        "sha256": "ac49cac1dc3de3d01c6495dc7f0c011010c3b58398ef0460f60e62e816aa0480",
-        "capture_sha256": "fc5448da9dd449404e917c170162148193dcc4904f2f0aa4bc4369b36cd0cee8"
+        "sha256": "cb27a4f26f5e3fd7135a426ddf9725b32aa703e6eaf50fab8d1ed58a5141d681",
+        "capture_sha256": "0cb4e09443649725eccc5b6c33995cbd7d671c20a7b73146614480653edd802f"
       },
       {
         "out": "02-overdue",
@@ -198,8 +198,8 @@
         "sub": "See what is left, with reminders on your schedule",
         "access": "Pro · Subscription required",
         "pro": true,
-        "sha256": "ce872fa25b65c4ae89318279794857e27c286551846b6b8e53c1249b45711124",
-        "capture_sha256": "706bb9ac8b8fe56011c30387cf40c428590d8f0c1b14f4a18586d77f585dc6ec"
+        "sha256": "5f29de094bbff3497c10e88bb72f00ff5a63348460536c85af190a711acfd19b",
+        "capture_sha256": "d68977f61bfbd7635bebf39174e7866ae7fef77386f40f3e38d78dbe5d914c6d"
       },
       {
         "out": "03-start",
@@ -208,8 +208,8 @@
         "sub": "Make the first step easier",
         "access": "Pro · Subscription required",
         "pro": true,
-        "sha256": "abce11ac29d81224b21455245aee1ae61b7088910a60936a23d1aebb43f2a0ab",
-        "capture_sha256": "96975f1f688168e624948007aff1ecbe41ed1a124a10f187d0a0176480fb7155"
+        "sha256": "70a5b81d39cdfba8df09a53be8ea068b51b9ec3f71910abace468da7000be196",
+        "capture_sha256": "7714564430c47a913aa3371b5f3e228c41fe41968e7c047f023bdfe3512d667f"
       },
       {
         "out": "04-repeat",
@@ -217,8 +217,8 @@
         "title": "Routines that fit\nyour life",
         "sub": "Choose days, intervals, and an end date",
         "access": "Repeating tasks · Basic features",
-        "sha256": "de416322eff7533a87e07bb6126c15e7c43f7fe8271d832e945d5f94231ce2ff",
-        "capture_sha256": "97a7eb0483c05640ebd39f36d3a5f1b196bc37802987dbda4084e9b7a537abbc"
+        "sha256": "df68b1cac9d40cf5f9c1cb0fd19935884c10c8d2d4cbb08a121fa870f6634aa9",
+        "capture_sha256": "eda741e7adb65d95f60b454f92c38106b79bbf0c54bfa7adf514cc0071157054"
       },
       {
         "out": "05-stats-detail",
@@ -227,8 +227,8 @@
         "sub": "Review completion and snooze statistics over 30 days",
         "access": "Pro · Subscription required",
         "pro": true,
-        "sha256": "71166207dacc63325b45ad0adac27de90d891bbb45109bdeb0ba9b7a8ead61cf",
-        "capture_sha256": "36dc08b13d6f94d1202e1076fcba8975f480e4104d411c36858ee35fc0ad1bdd"
+        "sha256": "35711b6c5b4f3b2f22a3c6ae3129ebae4a44753a8c56e19e00ba7871976ced3f",
+        "capture_sha256": "60f9ae876333dd3d314b806b8784a66e52a80b1991f4ecc332efeaa7a186ecd4"
       },
       {
         "out": "06-stats",
@@ -237,8 +237,8 @@
         "sub": "Review completions and snooze history",
         "access": "Pro · Subscription required",
         "pro": true,
-        "sha256": "c49b03ec6fb75de5e02a3b36270ded31111d0501e67ad2d627aec0ce5bf04eed",
-        "capture_sha256": "36dc08b13d6f94d1202e1076fcba8975f480e4104d411c36858ee35fc0ad1bdd"
+        "sha256": "23318dcea21f211afd3a351b5dbd87682a27c9fb5dd730d82bdc0852b24d0204",
+        "capture_sha256": "60f9ae876333dd3d314b806b8784a66e52a80b1991f4ecc332efeaa7a186ecd4"
       },
       {
         "out": "07-privacy",

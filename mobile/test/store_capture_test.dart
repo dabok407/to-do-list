@@ -20,15 +20,35 @@ import 'package:hangeoreum/services/widget_service.dart';
 
 const _enabled = bool.fromEnvironment('STORE_CAPTURE');
 const _onlyPrivacy = bool.fromEnvironment('STORE_CAPTURE_PRIVACY_ONLY');
+const _platform = String.fromEnvironment(
+  'STORE_CAPTURE_PLATFORM',
+  defaultValue: 'all',
+);
+const _sourceCommit = String.fromEnvironment('STORE_CAPTURE_SOURCE_COMMIT');
 const _language = String.fromEnvironment(
   'STORE_CAPTURE_LANGUAGE',
   defaultValue: 'ko',
 );
 const _strings = AppStrings(_language);
 const _outputRoot = _language == 'en' ? 'store/captures/en' : 'store/captures';
+final _sceneProvenance = <String, Map<String, Object?>>{};
+final _forbiddenAppleArtworkText = RegExp(
+  r'\b(free|discount(ed)?|price|pricing|sale|trial|USD|EUR|KRW|Android|Google\s*Play|Play\s*Store)\b|무료|할인|체험|가격|요금|안드로이드|구글\s*플레이|[$€£¥₩]|\d[\d,.]*\s*(원|달러)',
+  caseSensitive: false,
+  unicode: true,
+);
 
 String _sample(String korean, String english) =>
     _language == 'en' ? english : korean;
+
+// Windows image previews can memory-map an existing image. Write a new inode
+// first, then replace its directory entry rather than truncating that image.
+Future<void> _writeAtomically(File output, List<int> bytes) async {
+  await output.parent.create(recursive: true);
+  final temporary = File('${output.path}.new-$pid');
+  await temporary.writeAsBytes(bytes, flush: true);
+  await temporary.rename(output.path);
+}
 
 Finder _navigation(String korean) => find.descendant(
   of: find.byType(NavigationBar),
@@ -78,7 +98,9 @@ Future<PreviewController> _fixture() async {
       due: DateTime(oldest.year, oldest.month, oldest.day, 19),
       created: recent,
       repeat: RepeatUnit.weekly,
-      weekdays: const [2, 4, 6],
+      // The editor route below starts from today's list. Keep this fictional
+      // routine visible on every capture day, including Sunday.
+      weekdays: ({2, 4, 6, today.weekday}.toList()..sort()),
       end: DateTime(today.year, today.month + 2, 0),
       smallStep: _sample('운동복 입고 5분만 걷기', 'Get dressed and walk for 5 minutes'),
     ),
@@ -241,16 +263,44 @@ Future<void> _capture(
 ) async {
   await tester.pumpAndSettle();
   expect(tester.takeException(), isNull);
+  final renderedText = find
+      .byType(Text)
+      .evaluate()
+      .map((element) {
+        final widget = element.widget as Text;
+        return widget.data ?? widget.textSpan?.toPlainText() ?? '';
+      })
+      .where((text) => text.isNotEmpty)
+      .toList();
+  // Inspect production UI text as well as the external artwork captions.
+  // The separate purchase-screen fixture is review evidence, not a public
+  // screenshot, so pricing there is intentionally outside this guard.
+  if (device != 'android' && name != '08-pro') {
+    for (final text in renderedText) {
+      expect(
+        _forbiddenAppleArtworkText.hasMatch(text),
+        isFalse,
+        reason: 'Apple artwork UI contains an offer/platform reference: $text',
+      );
+    }
+  }
   await tester.runAsync(() async {
     final boundary =
         key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
     final image = await boundary.toImage(pixelRatio: ratio);
     final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
     final output = File('$_outputRoot/$device/$name.png');
-    await output.parent.create(recursive: true);
-    await output.writeAsBytes(bytes!.buffer.asUint8List());
+    await _writeAtomically(output, bytes!.buffer.asUint8List());
     image.dispose();
   });
+  _sceneProvenance['$name.png'] = {
+    'captured_at': DateTime.now().toUtc().toIso8601String(),
+    if (_sourceCommit.isNotEmpty) 'source_git_commit': _sourceCommit,
+    'sample_day': dayKey(DateTime.now()),
+    'native_device_capture': false,
+    'rendered_text': renderedText,
+    'apple_artwork_ui_text_guard': device != 'android' && name != '08-pro',
+  };
 }
 
 void main() {
@@ -268,6 +318,13 @@ void main() {
       'STORE_CAPTURE_LANGUAGE',
       'Use ko or en',
     );
+  }
+  if (!{'all', 'app-store'}.contains(_platform)) {
+    throw ArgumentError.value(_platform, 'STORE_CAPTURE_PLATFORM');
+  }
+  if (_sourceCommit.isNotEmpty &&
+      !RegExp(r'^[a-f0-9]{40}$').hasMatch(_sourceCommit)) {
+    throw ArgumentError.value(_sourceCommit, 'STORE_CAPTURE_SOURCE_COMMIT');
   }
   TestWidgetsFlutterBinding.ensureInitialized();
   final messenger =
@@ -296,9 +353,11 @@ void main() {
     )..addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf'))).load();
   });
   for (final d in _devices) {
+    if (_platform == 'app-store' && !d.ios) continue;
     testWidgets('${d.name} $_language production-widget store captures', (
       tester,
     ) async {
+      _sceneProvenance.clear();
       tester.view.devicePixelRatio = d.ratio;
       tester.view.physicalSize = d.size * d.ratio;
       tester.view.padding = FakeViewPadding(
@@ -353,6 +412,45 @@ void main() {
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
 
+      // Extra source-only audit captures show 1203's direct category buttons
+      // and Normal default. Public artwork still uses its seven declared
+      // scenes; these files are never automatically included in that set.
+      final quickHeader = find.byKey(const Key('quick-add'));
+      await tester.ensureVisible(quickHeader);
+      await tester.pumpAndSettle();
+      await tester.tap(quickHeader);
+      await tester.pumpAndSettle();
+      await Scrollable.ensureVisible(
+        tester.element(quickHeader),
+        alignment: .08,
+      );
+      await _capture(tester, key, d.name, '09-quick-add-audit', d.ratio);
+      await tester.tap(quickHeader);
+      await tester.pumpAndSettle();
+      Navigator.of(tester.element(quickHeader)).push(
+        MaterialPageRoute<void>(
+          builder: (_) => TaskEditor(initialDate: dayOf(DateTime.now())),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        tester
+            .widget<ChoiceChip>(
+              find.byKey(const Key('editor-priority-option-1')),
+            )
+            .selected,
+        isTrue,
+      );
+      await _capture(tester, key, d.name, '10-editor-audit', d.ratio);
+      await tester.tap(find.byType(BackButton));
+      await tester.pumpAndSettle();
+      // Return to the calendar before selecting today's date.
+      await Scrollable.ensureVisible(
+        tester.element(find.byType(GridView).first),
+        alignment: 0,
+      );
+      await tester.pumpAndSettle();
+
       // Selecting a calendar day is the real one-tap route to that day's list.
       final day = find
           .descendant(
@@ -384,10 +482,24 @@ void main() {
       await tester.tap(find.text(_strings.t('계속')));
       await tester.pumpAndSettle();
       expect(find.byType(TaskEditor), findsOneWidget);
-      await Scrollable.ensureVisible(
-        tester.element(find.byType(DropdownButtonFormField<RepeatUnit>)),
-        alignment: .12,
+      final repeatControl = tester.element(
+        find.byType(DropdownButtonFormField<RepeatUnit>),
       );
+      await Scrollable.ensureVisible(
+        repeatControl,
+        alignment: d.name == 'iphone' ? 0 : .12,
+      );
+      await tester.pumpAndSettle();
+      if (d.name == 'iphone') {
+        // Keep the repeat label clear of the app bar without exposing half of
+        // the preceding reminder field in the promotional capture.
+        final position = Scrollable.of(repeatControl).position;
+        position.jumpTo(
+          (position.pixels - 12)
+              .clamp(position.minScrollExtent, position.maxScrollExtent)
+              .toDouble(),
+        );
+      }
       await _capture(tester, key, d.name, '04-repeat', d.ratio);
       await tester.tap(find.byType(BackButton));
       await tester.pumpAndSettle();
@@ -406,47 +518,55 @@ void main() {
       await tester.tap(find.byIcon(Icons.auto_graph));
       await _capture(tester, key, d.name, '08-pro', d.ratio);
       await tester.runAsync(() async {
-        await File('$_outputRoot/${d.name}/source.json').writeAsString(
-          const JsonEncoder.withIndent('  ').convert({
-            'source': 'Production HangeoreumApp widgets rendered by Flutter widget test',
-            'fixture': 'PreviewController with fictional household tasks; no private records',
-            'language': _language,
-            'display_name': AppStrings.appName,
-            'sample_titles_are_localized_fixtures': true,
-            'user_records_are_translated': false,
-            'native_device_capture': false,
-            'fonts': ['PretendardVariable.ttf', 'MaterialIcons-Regular.otf'],
-            'logical_width': d.size.width.toInt(),
-            'logical_height': d.size.height.toInt(),
-            'pixel_ratio': d.ratio,
-            'png_width': (d.size.width * d.ratio).toInt(),
-            'png_height': (d.size.height * d.ratio).toInt(),
-            'sample_day': dayKey(DateTime.now()),
-            'statistics_30_days': c.statistics,
-            'scene_labels': {
-              '01-calendar': _sample('할 일 캘린더', 'Task calendar'),
-              '02-overdue': _sample('아직 남은 일', 'Overdue tasks'),
-              '03-small-start': _sample('5분부터 시작', 'Start with 5 minutes'),
-              '04-repeat': _sample('반복 일정', 'Repeating tasks'),
-              '06-statistics': _sample('나의 흐름', 'My progress'),
-              '06-statistics-detail': _sample('30일 통계', '30-day insights'),
-              '07-privacy': _sample(
-                '개인정보와 언어 설정',
-                'Privacy and language settings',
-              ),
-              '08-pro': _sample('투두닉 Pro', 'Todoniq Pro'),
-            },
-            'screens': [
-              '01-calendar.png',
-              '02-overdue.png',
-              '03-small-start.png',
-              '04-repeat.png',
-              '06-statistics.png',
-              '06-statistics-detail.png',
-              '07-privacy.png',
-              '08-pro.png',
-            ],
-          }),
+        await _writeAtomically(
+          File('$_outputRoot/${d.name}/source.json'),
+          utf8.encode(
+            const JsonEncoder.withIndent('  ').convert({
+              'source': 'Production HangeoreumApp widgets rendered by Flutter widget test',
+              'fixture': 'PreviewController with fictional household tasks; no private records',
+              'language': _language,
+              'display_name': AppStrings.appName,
+              'sample_titles_are_localized_fixtures': true,
+              'user_records_are_translated': false,
+              'native_device_capture': false,
+              'capture_platform_filter': _platform,
+              if (_sourceCommit.isNotEmpty) 'source_git_commit': _sourceCommit,
+              'scene_provenance': Map.of(_sceneProvenance),
+              'fonts': ['PretendardVariable.ttf', 'MaterialIcons-Regular.otf'],
+              'logical_width': d.size.width.toInt(),
+              'logical_height': d.size.height.toInt(),
+              'pixel_ratio': d.ratio,
+              'png_width': (d.size.width * d.ratio).toInt(),
+              'png_height': (d.size.height * d.ratio).toInt(),
+              'sample_day': dayKey(DateTime.now()),
+              'statistics_30_days': c.statistics,
+              'scene_labels': {
+                '01-calendar': _sample('할 일 캘린더', 'Task calendar'),
+                '02-overdue': _sample('아직 남은 일', 'Overdue tasks'),
+                '03-small-start': _sample('5분부터 시작', 'Start with 5 minutes'),
+                '04-repeat': _sample('반복 일정', 'Repeating tasks'),
+                '06-statistics': _sample('나의 흐름', 'My progress'),
+                '06-statistics-detail': _sample('30일 통계', '30-day insights'),
+                '07-privacy': _sample(
+                  '개인정보와 언어 설정',
+                  'Privacy and language settings',
+                ),
+                '08-pro': _sample('투두닉 Pro', 'Todoniq Pro'),
+              },
+              'screens': [
+                '01-calendar.png',
+                '02-overdue.png',
+                '03-small-start.png',
+                '04-repeat.png',
+                '06-statistics.png',
+                '06-statistics-detail.png',
+                '07-privacy.png',
+                '08-pro.png',
+                '09-quick-add-audit.png',
+                '10-editor-audit.png',
+              ],
+            }),
+          ),
         );
       });
       await tester.pumpWidget(const SizedBox.shrink());

@@ -1,0 +1,280 @@
+{
+  "appId": "6821236391",
+  "versionId": "5ef76c78-bf15-4ae0-851d-5cc1f080d61d",
+  "version": "1.0.1",
+  "buildNumber": "1203",
+  "buildId": "d49a0d17-346d-4d59-a5ce-2fdcec9bad0a",
+  "sourceCommit": "daf25c5987fd292060b7805e290e068bfd525597",
+  "ipaSha256": "4304207c4accf4be3bb73a9ecbf7927cebf5f821e2596e4a6532ec0af7e2e89b",
+  "ipaBytes": 25111184,
+  "rebuiltOrReuploaded": false,
+  "oldSubmissionId": "88f8d59f-d908-4bb0-bd89-6a9cc8fe0658",
+  "oldBuild": "1101",
+  "oldSubmissionWithdrawn": true,
+  "submissionId": "3fa9f819-92c4-4b4f-85e3-afa568bd28d7",
+  "submittedAtKst": "2026-10-18T10:33:00+09:00",
+  "submittedTimePrecision": "minute from Apple UI",
+  "verifiedAtUtc": "2026-10-18T01:33:31.874836+00:00",
+  "submissionUrl": "https://appstoreconnect.apple.com/apps/6821236391/distribution/reviewsubmissions/details/3fa9f819-92c4-4b4f-85e3-afa568bd28d7",
+  "submissionItems": [
+    {
+      "name": "iOS app 1.0.1 (1203)",
+      "type": "APP_VERSION",
+      "state": "WAITING_FOR_REVIEW"
+    },
+    {
+      "name": "Todoniq Pro",
+      "type": "SUBSCRIPTION_GROUP",
+      "groupId": "22461798",
+      "state": "WAITING_FOR_REVIEW"
+    },
+    {
+      "name": "Todoniq Pro Annual",
+      "type": "SUBSCRIPTION",
+      "appleId": "6821330921",
+      "productId": "hangeoreum_pro_yearly",
+      "state": "WAITING_FOR_REVIEW"
+    }
+  ],
+  "releaseType": "AFTER_APPROVAL",
+  "versionState": "WAITING_FOR_REVIEW",
+  "localizations": [
+    {
+      "locale": "ko",
+      "descriptionCharacters": 2017,
+      "descriptionSha256": "2a28df3bf7fa1fa2a50a8cc9d0f21f986d533006601b4c8bb45eeff8cc3d1b37",
+      "titleSubtitlePrivacySupportAndMarketingUrlsMatched": true,
+      "promotionAndKeywordsMatched": true
+    },
+    {
+      "locale": "en-US",
+      "descriptionCharacters": 3725,
+      "descriptionSha256": "997411d67dae60ddf644fbd897292c154ae15f096dc017a092a0628b9bfc5474",
+      "titleSubtitlePrivacySupportAndMarketingUrlsMatched": true,
+      "promotionAndKeywordsMatched": true
+    }
+  ],
+  "appReviewNotesUpdated": true,
+  "annualSubscriptionReviewNotesUpdatedFrom": "1.0.0 (1001)",
+  "annualSubscriptionReviewNotesUpdatedTo": "1.0.1 (1203)",
+  "privateAppReviewAttachment": "Existing pro-purchase.png retained; same production purchase UI. Notes explain configured price fixture and no completed StoreKit transaction.",
+  "separateAppReviewMessageSent": false,
+  "publicScreenshots": [
+    {
+      "locale": "ko",
+      "displayType": "APP_IPHONE_61",
+      "images": [
+        {
+          "fileName": "01-calendar.png",
+          "bytes": 375872,
+          "md5": "ef0200351ec0d1bf9dfc928a75f4af2f",
+          "state": "COMPLETE"
+        },
+        {
+          "fileName": "02-overdue.png",
+          "bytes": 173443,
+          "md5": "d3cc70dcce9bd42b6288f0febcafec80",
+          "state": "COMPLETE"
+        },
+        {
+          "fileName": "03-start.png",
+          "bytes": 162191,
+          "md5": "7c7305c3c20b7bd36b4781e00dce7e26",
+          "state": "COMPLETE"
+        },
+        {
+          "fileName": "04-repeat.png",
+          "bytes": 199834,
+          "md5": "66bd8282087a64662d1fb88ea7f4dfb0",
+          "state": "COMPLETE"
+        },
+        {
+          "fileName": "05-stats-detail.png",
+          "bytes": 163348,
+          "md5": "77164b3d80c11159744baebc6e41ffed",
+          "state": "COMPLETE"
+        },
+        {
+          "fileName": "06-stats.png",
+          "bytes": 173283,
+          "md5": "d83c5160876ff25c553d800070c2bb13",
+          "state": "COMPLETE"
+        },
+        {
+          "fileName": "07-privacy.png",
+          "bytes": 280831,
+          "md5": "13aa86901a50c7498dc7242a73c7644c",
+          "state": "COMPLETE"
+        }
+      ]
+    },
+    {
+      "locale": "ko",
+      "displayType": "APP_IPAD_PRO_3GEN_129",
+      "images": [
+        {
+          "fileName": "01-calendar.png",
+          "bytes": 404981,
+          "md5": "c6569093bd6961e6556b9e41ad8490a9",
+          "state": "COMPLETE"
+        },
+        {
+          "fileName": "02-overdue.png",
+          "bytes": 348464,
+          "md5": "1e529cb7e678a533268ee581918e868f",
+          "state": "COMPLETE"
+        },
+        {
+          "fileName": "03-start.png",
+          "bytes": 285923,
+          "md5": "7850c74444b6ee2f68275657f5c5db8d",
+          "state": "COMPLETE"
+        },
+        {
+          "fileName": "04-repeat.png",
+          "bytes": 240560,
+          "md5": "dbce9743704875ed0c7c6e68b4b356ca",
+          "state": "COMPLETE"
+        },
+        {
+          "fileName": "05-stats-detail.png",
+          "bytes": 202876,
+          "md5": "0885029423f4def430a4cbf7aee7c56a",
+          "state": "COMPLETE"
+        },
+        {
+          "fileName": "06-stats.png",
+          "bytes": 195764,
+          "md5": "e5b2eb7532fad99b730d7e754e557f45",
+          "state": "COMPLETE"
+        },
+        {
+          "fileName": "07-privacy.png",
+          "bytes": 226727,
+          "md5": "142aba4103495e748da4b7c9c25018f7",
+          "state": "COMPLETE"
+        }
+      ]
+    },
+    {
+      "locale": "en-US",
+      "displayType": "APP_IPHONE_61",
+      "images": [
+        {
+          "fileName": "01-calendar.png",
+          "bytes": 411248,
+          "md5": "7ddeda32f7cc60577319a331d2c8f0d7",
+          "state": "COMPLETE"
+        },
+        {
+          "fileName": "02-overdue.png",
+          "bytes": 206270,
+          "md5": "aa452ef958047eaea6fc415ac3513959",
+          "state": "COMPLETE"
+        },
+        {
+          "fileName": "03-start.png",
+          "bytes": 181644,
+          "md5": "967475b3949b2c6f75d669c59bfe0ce1",
+          "state": "COMPLETE"
+        },
+        {
+          "fileName": "04-repeat.png",
+          "bytes": 262484,
+          "md5": "f65831db29af1e18403af05bff24293d",
+          "state": "COMPLETE"
+        },
+        {
+          "fileName": "05-stats-detail.png",
+          "bytes": 210114,
+          "md5": "a191095d3a61f39fc2dfa86b96abf9a6",
+          "state": "COMPLETE"
+        },
+        {
+          "fileName": "06-stats.png",
+          "bytes": 204961,
+          "md5": "7a69e4b531267d72fe8b9b0fd2469799",
+          "state": "COMPLETE"
+        },
+        {
+          "fileName": "07-privacy.png",
+          "bytes": 365868,
+          "md5": "2b64230bdcd1d630043974c1bc32a085",
+          "state": "COMPLETE"
+        }
+      ]
+    },
+    {
+      "locale": "en-US",
+      "displayType": "APP_IPAD_PRO_3GEN_129",
+      "images": [
+        {
+          "fileName": "01-calendar.png",
+          "bytes": 473406,
+          "md5": "9dcf9ed78e2a8f775219845b653ac44e",
+          "state": "COMPLETE"
+        },
+        {
+          "fileName": "02-overdue.png",
+          "bytes": 402491,
+          "md5": "7bac637dda9607fb9f7ccab774bc55b8",
+          "state": "COMPLETE"
+        },
+        {
+          "fileName": "03-start.png",
+          "bytes": 342505,
+          "md5": "81d07b4c8b69caf8494d711d38d22b99",
+          "state": "COMPLETE"
+        },
+        {
+          "fileName": "04-repeat.png",
+          "bytes": 298153,
+          "md5": "fbb9545216bcf45175c732fd1e7cfb84",
+          "state": "COMPLETE"
+        },
+        {
+          "fileName": "05-stats-detail.png",
+          "bytes": 233968,
+          "md5": "cb24d8bf051b4527fadeda3bdb8e896a",
+          "state": "COMPLETE"
+        },
+        {
+          "fileName": "06-stats.png",
+          "bytes": 235936,
+          "md5": "3c45ebf881d8ee31f2ed1e70ab1e4b3a",
+          "state": "COMPLETE"
+        },
+        {
+          "fileName": "07-privacy.png",
+          "bytes": 275252,
+          "md5": "efc934fd624d9ce56ebcfb4d134870d6",
+          "state": "COMPLETE"
+        }
+      ]
+    }
+  ],
+  "publicScreenshotsMatchedByNameOrderBytesAndMd5": true,
+  "publicScreenshotCount": 28,
+  "allPublicScreenshotDeliveryComplete": true,
+  "renderedAppleArtworkCount": 42,
+  "captureSourceMatchesBinaryProductionSource": true,
+  "productionCodeChanged": false,
+  "validation": {
+    "koAndEnCaptureTestsPassed": 4,
+    "artworkPolicyTestsPassed": 5,
+    "allLocalizedPngsVerified": 56,
+    "storeAssetsVerified": 4,
+    "appleArtworkSourceAndOutputShaVerified": 42,
+    "appleZipPackages": 2,
+    "entriesPerAppleZip": 22,
+    "flutterAnalyze": "No issues found",
+    "gitDiffCheck": "passed"
+  },
+  "testflightOwnerGroupPreserved": true,
+  "externalTestflightGroupsUnchanged": true,
+  "subscriptionPriceDurationAndCountriesUnchanged": true,
+  "credentialsAndContactsUnchanged": true,
+  "googleWork": "paused at user request",
+  "physicalIphoneAndStoreKitPurchaseVerification": "not verified by this metadata submission task",
+  "approvalOrPublicReleaseClaimed": false
+}
