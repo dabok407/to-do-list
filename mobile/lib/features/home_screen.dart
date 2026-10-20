@@ -11,6 +11,7 @@ import 'privacy_card.dart';
 import 'store_policy_links.dart';
 import 'persistent_time_picker.dart';
 import 'equal_choice_row.dart';
+import 'feedback_snackbar.dart';
 import '../services/subscription_service.dart';
 import '../l10n/app_strings.dart';
 
@@ -80,6 +81,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     super.initState();
     resetQuickTime();
     WidgetsBinding.instance.addObserver(this);
+    quickTitleFocus.addListener(quickTitleFocusChanged);
     c.addListener(changed);
     subscription.addListener(subscriptionChanged);
     clockRefresh = Timer.periodic(const Duration(minutes: 1), (_) {
@@ -121,6 +123,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     }
   }
 
+  void quickTitleFocusChanged() {
+    if (mounted) setState(() {});
+  }
+
   void openRequestedTask() {
     if (!mounted || detailVisible || c.pendingOpenId == null) return;
     final id = c.pendingOpenId;
@@ -140,6 +146,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     subscription.removeListener(subscriptionChanged);
     if (widget.subscription == null) subscription.dispose();
     quickTitle.dispose();
+    quickTitleFocus.removeListener(quickTitleFocusChanged);
     quickTitleFocus.dispose();
     bodyScroll.dispose();
     clockRefresh?.cancel();
@@ -163,7 +170,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(strings.t('처리하지 못했습니다. 다시 시도해주세요.'))),
+          feedbackSnackBar(content: Text(strings.t('처리하지 못했습니다. 다시 시도해주세요.'))),
         );
       }
     } finally {
@@ -389,7 +396,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                               ).difference(now).inMinutes;
                               if (remaining < 1) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
+                                  feedbackSnackBar(
                                     content: Text(
                                       strings.t('오늘 남은 시간이 없어요. 날짜를 변경해주세요.'),
                                     ),
@@ -558,7 +565,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        SnackBar(
+        feedbackSnackBar(
           content: Text(strings.t(completing ? '할 일을 완료했어요.' : '완료를 해제했어요.')),
           action: SnackBarAction(
             label: strings.t('되돌리기'),
@@ -1307,8 +1314,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         quickTimeEdited = false;
         resetQuickTime();
       });
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(strings.t('할 일을 등록했어요.'))));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(feedbackSnackBar(content: Text(strings.t('할 일을 등록했어요.'))));
     });
   }
 
@@ -1787,7 +1795,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         ],
       ),
     ),
-    floatingActionButton: page < 3
+    floatingActionButton: page < 3 && !quickTitleFocus.hasFocus
         ? FloatingActionButton.extended(
             onPressed: () => edit(),
             tooltip: strings.t('할 일 추가'),

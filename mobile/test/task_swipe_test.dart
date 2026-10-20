@@ -202,6 +202,42 @@ void main() {
   });
 
   for (final language in ['ko', 'en']) {
+    for (final completed in [false, true]) {
+      testWidgets(
+        '$language ${completed ? 'reopened' : 'completed'} feedback with Undo dismisses after three seconds',
+        (tester) async {
+          final occurrence = _occurrence(
+            status: completed ? TaskStatus.completed : TaskStatus.pending,
+          );
+          final controller = await _home(
+            tester,
+            occurrences: [occurrence],
+            language: language,
+          );
+          await _swipe(tester, occurrence, right: !completed);
+          final message = AppStrings(language)
+              .t(completed ? '완료를 해제했어요.' : '할 일을 완료했어요.');
+          final undo = AppStrings(language).t('되돌리기');
+          expect(find.text(message), findsOneWidget);
+          expect(find.text(undo), findsOneWidget);
+          await tester.pump(const Duration(seconds: 2));
+          expect(find.text(message), findsOneWidget);
+          // Include the short exit animation after the three-second timeout.
+          await tester.pump(const Duration(seconds: 1));
+          await tester.pumpAndSettle();
+          expect(find.text(message), findsNothing);
+          expect(find.text(undo), findsNothing);
+          expect(
+            controller.items.single.status,
+            completed ? TaskStatus.pending : TaskStatus.completed,
+          );
+          expect(controller.actions, hasLength(1));
+          expect(tester.takeException(), isNull);
+          await tester.pumpWidget(const SizedBox.shrink());
+        },
+      );
+    }
+
     testWidgets('$language queue swipe completes and Undo restores the row', (
       tester,
     ) async {

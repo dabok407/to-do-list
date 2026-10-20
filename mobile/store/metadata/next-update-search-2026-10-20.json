@@ -1,0 +1,76 @@
+{
+  "preparedAt": "2026-10-20",
+  "status": "prepared_not_submitted",
+  "platform": "APP_STORE",
+  "protectedSubmission": {
+    "version": "1.0.1",
+    "build": "1203",
+    "submissionId": "3fa9f819-92c4-4b4f-85e3-afa568bd28d7",
+    "submittedAt": "2026-10-18T10:33:00+09:00",
+    "currentState": "READY_FOR_SALE",
+    "stateCheckedAtUtc": "2026-10-20T09:31:20.879165+00:00",
+    "actionTaken": "none"
+  },
+  "changeScope": ["keywords"],
+  "unchanged": [
+    "appName",
+    "subtitle",
+    "promotionalText",
+    "description",
+    "screenshots",
+    "pricing",
+    "availability",
+    "subscriptionProducts"
+  ],
+  "localizations": {
+    "ko": {
+      "appName": "투두닉 - 할 일과 캘린더",
+      "subtitle": "투두와 일정, 미루지 않는 작은 시작",
+      "currentlySubmittedKeywords": "투두리스트,todo,to-do,to-do-list,스케줄,스케쥴,스케줄러,스케쥴러,리마인더",
+      "nextKeywords": "투두리스트,리마인더,리마인드,스케줄러,스케쥴러,스케줄,스케쥴,todo,memo",
+      "characterCount": 43,
+      "utf8ByteCount": 97,
+      "rationale": "요청한 한국어 리마인드·리마인더 및 스케줄/스케쥴/스케줄러/스케쥴러 표기를 모두 포함한다. 영어 하이픈 변형의 중복 공간을 줄이고 실제 메모 기능을 나타내는 memo를 담는다."
+    },
+    "en-US": {
+      "appName": "Todoniq - Tasks & Calendar",
+      "subtitle": "Plan your day. Start small.",
+      "currentlySubmittedKeywords": "todo,to-do,todolist,to-do-list,schedule,scheduler,agenda,reminder,routine,snooze,offline,private",
+      "nextKeywords": "todo,reminder,remind,schedule,scheduler,planner,agenda,checklist,routine,snooze,offline,private",
+      "characterCount": 95,
+      "utf8ByteCount": 95,
+      "rationale": "todo 하이픈·붙여쓰기 변형의 중복 공간을 줄이고 remind, planner, checklist를 추가한다. 제목·부제에 이미 있는 Tasks, Calendar, Plan 등은 반복하지 않는다."
+    }
+  },
+  "validation": {
+    "maximumCharacters": 100,
+    "maximumUtf8Bytes": 100,
+    "minimumCharactersPerTerm": 3,
+    "commaDelimitedWithoutPaddingSpaces": true,
+    "duplicateTerms": false,
+    "competitorNames": false,
+    "priceOrFreePromotion": false,
+    "medicalClaims": false,
+    "rankingGuarantee": false,
+    "keywordVolumeMeasured": false,
+    "storeSaved": false,
+    "submissionWithdrawn": false,
+    "reviewSubmitted": false
+  },
+  "measurementAfterRelease": [
+    "App Store search impressions",
+    "App Store search product-page conversion",
+    "App Store search downloads"
+  ],
+  "sources": [
+    "https://developer.apple.com/app-store/search/",
+    "https://developer.apple.com/app-store/product-page/",
+    "https://developer.apple.com/help/app-store-connect/reference/app-information/platform-version-information"
+  ],
+  "notes": [
+    "등록한 검색어는 노출 순위·모든 변형 검색어의 노출·검색 수요를 보장하지 않는다.",
+    "한영 현지화별로 관련 검색어를 준비하며 각 국가에서 모든 현지화가 동일하게 검색된다고 가정하지 않는다.",
+    "Apple 안내의 100자와 등록정보 참조의 100바이트를 모두 만족한다.",
+    "기존 1203은 READY_FOR_SALE 상태로 확인했으며 이번 검색어는 다음 업데이트에 적용할 자료다."
+  ]
+}

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../l10n/app_strings.dart';
+import 'feedback_snackbar.dart';
 
 /// Public documentation only. Opening these links never includes task data.
 class StorePolicyLinks extends StatelessWidget {
@@ -24,7 +25,7 @@ class StorePolicyLinks extends StatelessWidget {
     }
     if (!success && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        feedbackSnackBar(
           content: Text(
             AppStrings.of(context).t('브라우저를 열지 못했어요. 잠시 후 다시 시도해주세요.'),
           ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'feedback_snackbar.dart';
+
 import '../domain/task.dart';
 import '../l10n/app_strings.dart';
 import 'persistent_time_picker.dart';
@@ -133,8 +135,9 @@ class _TaskEditorState extends State<TaskEditor> {
       if ((repeat == RepeatUnit.weekly ||
               repeat == RepeatUnit.monthlyWeekday) &&
           weekdays.isEmpty) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(strings.t('반복할 요일을 선택해주세요'))));
+        ScaffoldMessenger.of(context).showSnackBar(
+          feedbackSnackBar(content: Text(strings.t('반복할 요일을 선택해주세요'))),
+        );
         return;
       }
       final now = DateTime.now();
