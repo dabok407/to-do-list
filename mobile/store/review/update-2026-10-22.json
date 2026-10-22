@@ -1,0 +1,178 @@
+{
+  "preparedOn": "2026-10-22",
+  "status": "LOCAL_MATERIALS_READY_NOT_SUBMITTED",
+  "appId": "6821236391",
+  "version": "1.0.2",
+  "plannedBuildNumber": "1301",
+  "buildNumberConfirmed": true,
+  "existingLiveVersion": {
+    "version": "1.0.1",
+    "build": "1203",
+    "preserve": true
+  },
+  "localizations": {
+    "ko": {
+      "appName": "투두닉 - 할 일과 캘린더",
+      "subtitle": "투두와 일정, 미루지 않는 작은 시작",
+      "subtitleAction": "retain_current_value_not_unselected_proposal",
+      "keywords": "투두리스트,리마인더,리마인드,스케줄러,스케쥴러,todo,to-do,미루기,메모장",
+      "keywordSource": "next-update-search-2026-10-20.json / alternatives.keepCurrentNameAndSubtitle",
+      "description": "나만의 할 일, 투두닉.\n\n할 일과 메모는 내 기기에 저장하고 개발자 서버로 보내지 않습니다. 회원가입과 광고 추적 없이 내 일정을 정리하세요. 기본 캘린더와 메모는 인터넷 없이 사용할 수 있습니다.\n\n운동처럼 매일 하는 일부터 주말의 안방 대청소까지. 투두닉은 해야 할 일을 캘린더에 정리하고, 작은 행동을 시작하도록 돕는 할 일·리마인더 앱입니다.\n\n오늘과 앞으로의 일정을 한눈에\n월·주 캘린더와 날짜별 목록에서 할 일을 확인하세요. 아직 끝내지 못한 일은 눈에 잘 보이는 곳에 모아둡니다. 예정·완료 목록은 날짜별로 모으고 시간을 따로 표시하며, 최신순과 오래된순으로 정렬할 수 있습니다.\n\n시간과 내용으로 간단히 추가\n지금보다 한 시간 뒤의 시각을 기본으로 제안합니다. 시간을 먼저 확인하고 할 일을 입력해 등록하세요. 생활·업무·건강·배움·기타 분류와 높음·보통·낮음 우선순위를 버튼으로 고를 수 있습니다. 새 일정은 생활·보통으로 시작합니다. 목록에서 오른쪽으로 밀어 완료하고, 완료된 일은 왼쪽으로 밀어 완료를 해제할 수 있습니다.\n\n내 생활에 맞는 반복 일정\n한 번만 하는 일정, 매일·매주·매월 반복, 특정 요일과 주 몇 회 목표를 설정하세요. 반복 종료일을 정하고, 이번 회차나 앞으로의 일정만 수정할 수도 있습니다.\n\n잊지 않도록 다시 알려드려요 — Pro\n지정한 시각의 알림과 기한이 지난 일의 재알림을 제공합니다. 미완료 재알림은 기본 하루 한 번이며, 할 일마다 간격과 시각을 바꾸거나 끌 수 있습니다. 알림 권한을 허용하면 앱을 열어두지 않아도 기기에 예약된 알림을 받을 수 있습니다.\n\n지금 시작하기 어렵다면 — Pro\n10분·30분·1시간 뒤로 미루거나 오늘 나중에 다시 할 수 있어요. 여러 번 미루는 날에는 작은 첫걸음을 정해 5분만 시작해 보세요. 시작·진행 중·보류·완료 상태로 일이 어디까지 왔는지 확인할 수 있습니다.\n\n내가 해낸 일을 돌아보기 — Pro\n최근 30일을 기본으로 원하는 조회 기간을 정하세요. 우선순위별 완료율은 원형 차트로, 분류별 완료 비중은 도넛 차트로 확인할 수 있습니다. 등록한 일, 미룬 횟수와 시간, 자주 완료한 시간대도 함께 살펴보세요.\n\n홈 화면에서 다음 일정 확인\n위젯에서 가까운 일정과 우선순위를 확인할 수 있습니다. 중요한 일을 보기 위해 매번 앱을 찾을 필요가 줄어듭니다.\n\n내 일정은 내 기기에\n회원가입 없이 사용합니다. 할 일·메모·실행 기록은 기기에 저장하며 개발자 서버로 전송하지 않습니다. 광고나 광고·분석 SDK, 클라우드 동기화가 없습니다. 기본 캘린더와 메모는 인터넷 없이 사용할 수 있습니다.\n\n한국어와 영어로 사용하기\n기기 언어를 따르거나 설정에서 한국어·영어를 직접 선택하세요. 직접 입력한 할 일 제목, 메모와 분류 이름은 언어를 바꿔도 그대로 보관합니다.\n\n무료 기능과 투두닉 Pro\n처음 실행한 뒤 7일 동안 전체 기능을 체험할 수 있습니다. 이 체험은 자동 결제로 전환되지 않습니다.\n체험이 끝나도 캘린더, 할 일·메모 작성·수정·삭제, 반복 일정, 완료와 완료 해제, 위젯 일정 보기는 무료입니다.\n알림, 미완료 재알림, 미루기, 실행 보조와 통계는 선택형 Pro 연간 구독으로 이용합니다. 사용자가 구매한 구독은 해지하지 않으면 1년 단위로 자동 갱신됩니다. 가격과 결제 조건은 구매한 스토어의 구매 확인 화면을 따릅니다. 구독 관리·해지·환불은 해당 스토어에서 진행합니다.\n\n이용 안내\n구매·구매 복원·구독 확인에는 인터넷 연결이 필요할 수 있습니다. 알림과 위젯 갱신은 기기의 알림 권한, 집중 모드, 절전·강제 종료 등 OS 설정과 예약 범위의 영향을 받습니다. 앱 삭제나 기기 변경 시 일정과 기록이 사라질 수 있으며 클라우드 복구를 제공하지 않습니다. 구매 복원은 일정 복원과 다릅니다.\n\n문의: dabok407@gmail.com\n\n개인정보처리방침: https://dabok407.github.io/to-do-list/privacy.html\n지원: https://dabok407.github.io/to-do-list/support.html\n이용약관(Apple 표준 EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "descriptionCharacters": 2079,
+      "whatsNew": "• 통계를 우선순위별·분류별 탭과 원형·도넛 차트로 새롭게 구성했습니다.\n• 최근 30일 외에도 원하는 기간의 통계를 조회할 수 있습니다.\n• 예정·완료 목록을 날짜별로 묶고 시간을 별도 칼럼에 표시했습니다. 최신순·오래된순 정렬도 추가했습니다.\n• 분류 아이콘과 색상을 화면 전반에 맞추고, 캘린더의 좌우 여백을 줄였습니다.\n• 간단히 추가에서 입력 중에는 추가 버튼을 숨기고, 완료·완료 해제 안내는 3초 뒤 사라지도록 다듬었습니다.",
+      "reviewNotes": "투두닉 버전 1.0.2, 빌드 1301 업데이트입니다. 최종 제출 전 업로드된 바이너리와 대조합니다. 통계와 목록 UI를 개선하며 로그인, 개발자 서버, 광고 SDK 또는 새로운 구독 상품은 추가하지 않습니다.\n\n통계의 기본 최근 30일과 기간 선택·초기화, 우선순위별 원형 차트와 분류별 도넛 차트를 확인해주세요. 반복 일정은 회차별로 집계하고 자동으로 건너뛴 주간 목표 회차는 제외합니다. 예정·완료 목록은 날짜 그룹과 별도 시간 칼럼을 제공하며 최신순·오래된순을 선택할 수 있습니다. 예정은 예정일시, 완료는 실제 완료일시 기준입니다. 간단히 추가 입력 시 추가 버튼이 숨겨지고 완료·완료 해제 안내는 3초 뒤 사라집니다. 캘린더 좌우 여백은 8 논리 픽셀입니다.\n\n기존 일정과 구독 권한을 유지합니다. 첫 7일 앱 내부 체험은 자동 결제로 전환되지 않습니다. 체험 후 기본 캘린더·할 일·메모·반복 일정·완료·위젯 보기는 계속 제공하고 알림·미루기·실행 보조·통계는 기존 연간 자동 갱신 Pro(hangeoreum_pro_yearly)로 제공합니다. 로그인이나 별도 심사 계정이 필요하지 않습니다. 공개 이미지에는 가격·무료·체험 홍보를 넣지 않고 Pro 구독 필요 여부만 표시합니다.",
+      "keywordCharacters": 44,
+      "keywordUtf8Bytes": 98
+    },
+    "en-US": {
+      "appName": "Todoniq - Tasks & Calendar",
+      "subtitle": "Plan your day. Start small.",
+      "subtitleAction": "retain_current_value_not_unselected_proposal",
+      "keywords": "todo,to-do,list,reminder,schedule,scheduler,planner,checklist,routine,snooze,offline,private,notes",
+      "keywordSource": "next-update-search-2026-10-20.json / alternatives.keepCurrentNameAndSubtitle",
+      "description": "Your tasks. Your way.\n\nTodoniq stores your tasks and notes on your device and does not send them to a developer server. No sign-up or advertising tracking. The basic calendar and notes work offline.\n\nFrom a daily walk to a weekend bedroom clean-up, Todoniq helps you plan what needs doing and take action.\n\nSee today and what comes next\nUse the month or week calendar and daily task lists to organize your plans. Unfinished tasks stay visible. Upcoming and Done group tasks by date with a separate time column, and offer newest- or oldest-first sorting.\n\nAdd tasks with fewer steps\nQuick Add suggests a time one hour from now; check the time, then enter your task. Choose Personal, Work, Health, Learning or Other, and High, Normal or Low priority with buttons. New tasks start with Personal and Normal. Swipe a task right to complete it, or swipe a completed task left to undo completion.\n\nRepeat on your terms\nCreate one-off tasks, daily, weekly or monthly repeats, selected weekdays and weekly targets. Set an end date and edit one occurrence or future occurrences.\n\nGet a reminder when you need it — Pro\nSchedule local reminders and follow-ups for overdue tasks. Overdue reminders default to once a day. Change their interval and time for each task, or turn them off. With notification permission, reminders already scheduled on your device can appear while the app is closed.\n\nMake starting easier — Pro\nSnooze for 10 minutes, 30 minutes, an hour or later today. After repeated postponements, try a smaller first step for just five minutes. Keep track of tasks that are started, in progress, postponed or completed.\n\nLook back at your progress — Pro\nStart with the last 30 days or choose a date range. See completion rates by priority in rings and completed tasks by category in a donut chart. Review task counts, snoozes and the times you most often finish tasks.\n\nSee upcoming tasks from your home screen\nThe widget shows nearby tasks and priorities, helping you check your plans without finding the app each time.\n\nYour plans stay on your device\nNo app account is required. Tasks, notes and activity history are stored locally and are not uploaded to a developer server. There are no ads, advertising or analytics SDKs, or cloud sync. The basic calendar and notes work offline.\n\nUse Korean or English\nFollow your device language or choose Korean or English in Settings. Your own task titles, notes and category names stay as you entered them when you change the interface language.\n\nFree features and Todoniq Pro\nAll features are available for 7 days from first launch. This in-app evaluation does not automatically start a subscription or charge you.\nAfterward, the calendar, creating, editing and deleting tasks and notes, repeating schedules, completing and undoing completion, and viewing the widget remain free.\nReminders, overdue follow-ups, snoozing, start assistance and statistics require the optional annual Pro subscription. A subscription you purchase renews yearly unless canceled. The store purchase confirmation shows your local price and billing terms. Manage subscriptions, cancellations and refunds through the store where you purchased.\n\nBefore you use the app\nPurchases, restoration and subscription checks may require internet access. Notifications and widget updates depend on OS permissions, Focus settings, battery restrictions, force-stop behavior and scheduling limits. Deleting the app or changing devices can erase your tasks and history; cloud recovery is not provided. Restoring a purchase does not restore task data.\n\nSupport: dabok407@gmail.com\n\nPrivacy Policy: https://dabok407.github.io/to-do-list/privacy-en.html\nSupport: https://dabok407.github.io/to-do-list/support-en.html\nTerms of Use (Apple Standard EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "descriptionCharacters": 3820,
+      "whatsNew": "• Redesigned Insights with priority and category tabs, rings and a donut chart.\n• Choose a date range as well as the default last 30 days.\n• Upcoming and Done now group tasks by date with a separate time column and newest- or oldest-first sorting.\n• Unified category icons and colors and gave the calendar more room.\n• The add button hides while typing in Quick Add. Completion and undo notices dismiss after 3 seconds.",
+      "reviewNotes": "This is Todoniq version 1.0.2, build 1301. The uploaded binary will be checked before final submission. The update changes the statistics and task-list interface; it does not introduce a login, developer server, advertising SDK or new subscription product.\n\nReview steps for this update:\n1. Open Insights. The default period is the last 30 days. Use the date-range control to select another period and the Last 30 days button to reset.\n2. Switch between By priority (completion-rate rings) and By category (the distribution of completed occurrences in a donut). Both use the selected period. Recurring occurrences are counted separately and automatically skipped weekly-target slots are excluded. Category colors match the calendar.\n3. Open Upcoming or Done. Tasks are grouped by date with a separate time column. Select Newest first or Oldest first. Upcoming sorts by scheduled date/time; Done uses the actual completion date/time. In-progress and overdue sections retain their grouping.\n4. Open Quick Add and type a task. The floating add button hides during input and returns after focus leaves the field. Complete or undo a task to see the temporary notice.\n5. Check the month and week calendar. Its horizontal inset is now 8 logical pixels. Date selection, recurrence and notification scheduling remain available.\n\nExisting task records and purchase access are retained. New tasks still default to Personal category and Normal priority. The app supports Korean and English and requires no app account.\n\nThe existing access model is unchanged: the first 7 days provide an in-app evaluation that does not automatically start or charge a subscription. Afterward the calendar, task/notes editing, recurrence, completion/undo and widget viewing remain available without Pro. Reminders, overdue follow-ups, snoozing, start assistance and statistics require the annual auto-renewing Pro subscription hangeoreum_pro_yearly. Purchase, restore and management are in Settings / Todoniq Pro. StoreKit supplies the local price and confirmation terms.\n\nThe descriptions contain no references to competing mobile platforms. Public artwork uses the production interface and does not advertise prices, free offers or evaluation periods; Pro screenshots disclose that a subscription is required. No credentials or special reviewer account are required.",
+      "keywordCharacters": 98,
+      "keywordUtf8Bytes": 98
+    }
+  },
+  "descriptionChanges": [
+    "Replace retired 90-day completion-calendar claim with the two actual chart tabs and selectable date period.",
+    "Describe date groups, separate time column and newest/oldest sorting.",
+    "Preserve local-storage privacy, subscription terms and Apple-specific policy/support/EULA links."
+  ],
+  "screenshotAudit": {
+    "status": "REGENERATED_VERIFIED_LOCALLY_NOT_UPLOADED",
+    "locales": [
+      "ko",
+      "en-US"
+    ],
+    "appleDevices": [
+      "iphone",
+      "iphone-large",
+      "ipad"
+    ],
+    "requiredRefresh": [
+      "01-calendar.png",
+      "05-stats-detail.png",
+      "06-stats.png"
+    ],
+    "recommendedRefresh": [
+      "02-overdue.png",
+      "03-start.png",
+      "04-repeat.png",
+      "07-privacy.png"
+    ],
+    "reason": "The new production statistics replaced the old completion calendar. Shared icons, list rows and the 8px calendar also changed. Regenerate all Apple scenes as one consistent set.",
+    "pipeline": [
+      "test/store_capture_test.dart: STORE_CAPTURE=true, STORE_CAPTURE_PLATFORM=app-store, STORE_CAPTURE_LANGUAGE=ko/en",
+      "tool/compose_store_images.cjs --platform=app-store --language=ko/en",
+      "tool/store_artwork_policy.test.cjs",
+      "tool/verify_store_images.cjs",
+      "tool/package_store_images.ps1 -StorePlatform app-store"
+    ],
+    "productionWidgetCaptureNotPhysicalDeviceScreenshot": true,
+    "largeIphoneCanvasUsesIphoneSourceWithoutRedrawingUi": true,
+    "publicProArtworkAccessDisclosure": {
+      "ko": "Pro · 구독 필요",
+      "en-US": "Pro · Subscription required"
+    },
+    "forbiddenPublicAppleArtwork": [
+      "price and currency references",
+      "free and trial offers",
+      "Android and other non-Apple store references"
+    ],
+    "privatePurchaseReviewImageKeptSeparateFromPublicArtwork": true,
+    "androidArtworkRegeneration": "on_hold_at_user_request",
+    "captureTestsPassed": 4,
+    "composedAppleImageCount": 42,
+    "formatVerifiedScreenshotCountIncludingPreservedAndroid": 56,
+    "formatVerifiedAssetCount": 4,
+    "verifiedAtUtc": "2026-10-22T05:35:31.544Z",
+    "sourceCommitRecorded": false,
+    "sourceCommitReason": "Working-tree production code was not committed at capture time; each scene records capture time, rendered text and source pixels. The composition manifest binds source and output by SHA-256.",
+    "sourceRecords": [
+      {
+        "file": "store/captures/iphone/source.json",
+        "sha256": "cf2533bd0abdcbadebeec14b12c746b15427742817d0887a73860fe4cb31ecd1"
+      },
+      {
+        "file": "store/captures/ipad/source.json",
+        "sha256": "473b251c7e1f0532b4f3c5bffd4785d38db7fd5c8877b8c895cb2fdfebf23a68"
+      },
+      {
+        "file": "store/captures/en/iphone/source.json",
+        "sha256": "45359462ae6d9d1a1668c048199351c706fd015ffe7cca777d9a5b5cc1d52608"
+      },
+      {
+        "file": "store/captures/en/ipad/source.json",
+        "sha256": "14d03a7af42a7c1aadc6981131448bf471271ccf3b24100ed344c4f09409e62d"
+      }
+    ],
+    "applePackages": [
+      {
+        "language": "ko",
+        "sha256": "b6136dd520586212c2f9c69d192b8a8f9ef2abaf269e6e4686ba06698c22f6a6",
+        "file": "app-store-images.zip",
+        "entries": 22
+      },
+      {
+        "language": "en",
+        "sha256": "84062c848ec5bfa75713c80ec526ee71bd61865c93540a9b79927f6c8004868f",
+        "file": "app-store-images-en.zip",
+        "entries": 22
+      }
+    ],
+    "visualReview": {
+      "passed": true,
+      "reviewed": [
+        "store/assets/app-store-contact-sheet.png",
+        "store/assets/app-store-contact-sheet-en.png",
+        "store/screenshots/iphone/05-stats-detail.png",
+        "store/screenshots/en/iphone/06-stats.png",
+        "store/screenshots/ipad/05-stats-detail.png"
+      ],
+      "findings": "Both localized contact sheets and representative full-size priority/category screenshots show the new production charts, period controls, aligned values, category colors/icons and subscription disclosure. No artwork header overlap, free/price/trial advertising or other-platform references were found. Bottom content scrolls naturally within the actual viewport."
+    }
+  },
+  "reviewRisksChecked": [
+    "2.3.10: No Android references in Apple descriptions or public artwork.",
+    "2.3.7: No prices/free/evaluation offers in public screenshots; accurate subscription terms remain in the description and private review notes.",
+    "2.3.2: Pro screenshots explicitly disclose the subscription requirement.",
+    "Remove obsolete 90-day calendar claim; do not imply a completed StoreKit purchase from screenshot fixtures.",
+    "Do not claim guaranteed reminders under all OS restrictions or absolute security.",
+    "No competitor keywords, ranking guarantees or medical/ADHD treatment claims.",
+    "Retain existing unselected subtitles; only use keyword alternatives compatible with current subtitles."
+  ],
+  "validation": {
+    "descriptionsWithin4000Characters": true,
+    "keywordsWithin100CharactersAndUtf8Bytes": true,
+    "subtitlesWithin30Characters": true,
+    "appleDescriptionsHaveNoOtherMobilePlatformReferences": true,
+    "screenshotRegenerationComplete": true,
+    "sourceAndArtworkHashVerified": true,
+    "appleMetadataSaved": false,
+    "appleBuildUploaded": false,
+    "reviewSubmitted": false,
+    "artworkPolicyTestsPassed": 5,
+    "appleCaptureTestsPassed": 4,
+    "appleImagePackagesVerified": 2,
+    "entriesPerApplePackage": 22,
+    "googleAssetsRegenerated": false
+  },
+  "unchanged": [
+    "subscriptionProduct",
+    "price",
+    "availability",
+    "developerIdentity",
+    "privacyCollectionAnswers",
+    "supportAndPrivacyUrls",
+    "promotionalText",
+    "appNames",
+    "subtitles"
+  ],
+  "googleAccountWorkRemainsOnHold": true,
+  "buildNumber": "1301"
+}

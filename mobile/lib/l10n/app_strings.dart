@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'core_catalog.dart';
 import 'home_catalog.dart';
 import 'editor_catalog.dart';
+import 'statistics_catalog.dart';
 
 /// UI copy only. Task titles, notes and stored category identifiers are never
 /// changed when the user switches the display language.
@@ -20,6 +21,17 @@ class AppStrings {
     ...coreEnglish,
     ...homeEnglish,
     ...editorEnglish,
+    ...statisticsEnglish,
+    '기한 지난 일': 'Overdue',
+    '완료 시각 기록 없음': 'Completion time not recorded',
+    '원래 예정 {date} {time}': 'Originally due {date} {time}',
+    '완료 시각 {time}': 'Completed at {time}',
+    '예정 시각 {time}': 'Due at {time}',
+    '예정일 기준': 'By due date',
+    '완료일 기준': 'By completion date',
+    '최신순': 'Newest first',
+    '오래된순': 'Oldest first',
+    '정렬 방식 선택': 'Choose sort order',
   };
 
   static AppStrings of(BuildContext context) {

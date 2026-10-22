@@ -669,15 +669,28 @@ class TaskRepository {
       ) ??
       0;
   Future<Map<String, Object>> stats() async {
-    final from = DateTime.now()
-        .subtract(const Duration(days: 30))
-        .toIso8601String();
-    final now = DateTime.now().toIso8601String();
+    final now = DateTime.now();
+    return statsForPeriod(
+      from: now.subtract(const Duration(days: 30)),
+      until: now,
+    );
+  }
+
+  Future<Map<String, Object>> statsForPeriod({
+    required DateTime from,
+    required DateTime until,
+  }) async {
+    if (from.isAfter(until)) {
+      throw ArgumentError('The statistics start must not follow the end.');
+    }
+    final now = DateTime.now();
+    final start = from.toLocal().toIso8601String();
+    final end = (until.isAfter(now) ? now : until).toLocal().toIso8601String();
     final registered =
         Sqflite.firstIntValue(
           await db.rawQuery(
-            'SELECT COUNT(*) FROM tasks WHERE created>=? AND derived=0',
-            [from],
+            'SELECT COUNT(*) FROM tasks WHERE created BETWEEN ? AND ? AND derived=0',
+            [start, end],
           ),
         ) ??
         0;
@@ -685,7 +698,7 @@ class TaskRepository {
         Sqflite.firstIntValue(
           await db.rawQuery(
             "SELECT COUNT(*) FROM occurrences WHERE quota_skipped=0 AND (original_due BETWEEN ? AND ? OR (state='completed' AND completed BETWEEN ? AND ?))",
-            [from, now, from, now],
+            [start, end, start, end],
           ),
         ) ??
         0;
@@ -693,17 +706,17 @@ class TaskRepository {
         Sqflite.firstIntValue(
           await db.rawQuery(
             "SELECT COUNT(*) FROM occurrences WHERE completed BETWEEN ? AND ? AND state='completed'",
-            [from, now],
+            [start, end],
           ),
         ) ??
         0;
     final delays = await db.rawQuery(
-      "SELECT COUNT(*) count, COALESCE(AVG(minutes),0) average FROM events WHERE type='snooze' AND at>=?",
-      [from],
+      "SELECT COUNT(*) count, COALESCE(AVG(minutes),0) average FROM events WHERE type='snooze' AND at BETWEEN ? AND ?",
+      [start, end],
     );
     final hours = await db.rawQuery(
-      "SELECT substr(completed,12,2) hour, COUNT(*) count FROM occurrences WHERE completed>=? GROUP BY hour ORDER BY count DESC LIMIT 1",
-      [from],
+      "SELECT substr(completed,12,2) hour, COUNT(*) count FROM occurrences WHERE state='completed' AND completed BETWEEN ? AND ? GROUP BY hour ORDER BY count DESC, hour ASC LIMIT 1",
+      [start, end],
     );
     return {
       'registered': registered,

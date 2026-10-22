@@ -1,5 +1,7 @@
 # 투두닉 스토어 등록 자료
 
+> **2026-10-22 업데이트 1.0.2 준비 중 · 아직 심사 미제출**: 확정한 통계 두 탭·기간 조회, 날짜 그룹/시간 칼럼과 정렬, 캘린더 좌우 8px, 입력 시 추가 버튼 숨김·3초 안내를 통합 검증한다. 한영 신규 설명·새로운 기능·심사 메모와 기존 부제를 유지하는 검색어 개선안은 [업데이트 등록 자료](store/review/update-2026-10-22.json)에 준비했다. 아래 현재 입력용 설명은 1.0.2 초안이며 공개 버전 1.0.1 (1203)의 등록값을 자동으로 바꾼 것은 아니다. Apple 이미지는 새 앱 화면으로 재생성·검증 후 교체하며, 가격·상품·배포 국가·개발자 정보는 변경하지 않는다.
+
 > **2026-10-20 현재 배포 상태 확인**: Apple 공식 조회에서 공개 버전 **1.0.1 (1203)**이 `READY_FOR_SALE`임을 확인했다. 10월 18일의 심사 대기는 아래에 당시 이력으로 보존한다. 이번 검색어 개선안은 다음 업데이트용 로컬 자료이며, 배포 중인 앱·등록값·새 심사 제출은 변경하지 않았다.
 
 > **2026-10-18 10:33 KST 최신 1203 재심사 접수 완료**: 사용자 승인으로 기존 1101 제출을 철회하고 같은 공개 버전 레코드를 **1.0.1**로 변경한 뒤 기존 **1203** 바이너리를 연결했다. 새 제출 `3fa9f819-92c4-4b4f-85e3-afa568bd28d7`의 **앱 1.0.1 (1203)·Todoniq Pro Annual·Pro 구독 그룹 3개 모두 심사 대기 중**을 실제 Apple 화면에서 확인했고, 제출 후 API도 **WAITING_FOR_REVIEW / AFTER_APPROVAL**을 반환했다. 승인 후 자동 출시를 유지하며 승인·공개 출시 완료로 표시하지 않는다.
@@ -144,20 +146,20 @@ App Store Connect → 앱 → **투두닉 - 할 일과 캘린더**(Apple ID `682
 
 제목과 겹치는 검색어·경쟁 앱 이름·검증되지 않은 ‘1위’ 같은 표현은 넣지 않았다.
 
-### 다음 업데이트 검색어 개선안 — 2026-10-20 (미적용)
+### 다음 업데이트 검색어 개선안 — 2026-10-20 (2차 검토, 미적용)
 
-아래는 **다음 업데이트에 적용할 로컬 준비안**이다. 위의 현재 등록 키워드와 2026-10-18에 제출한 **1.0.1 (1203)** 기록은 변경하지 않았다. App Store Connect 저장·심사 철회·새 제출은 하지 않았다. 제목·부제·프로모션·상세 소개·가격·배포 국가는 기존 값을 유지한다. 적용할 정확한 값과 길이는 [다음 업데이트 검색어 자료](store/metadata/next-update-search-2026-10-20.json)에 기록했다.
+아래는 **다음 업데이트에 적용할 로컬 추천안**이다. 위의 현재 등록값과 2026-10-18에 제출한 **1.0.1 (1203)** 기록은 변경하지 않았다. App Store Connect 저장·심사 철회·새 제출은 하지 않았다. 기존 제목·프로모션·상세 소개·가격·배포 국가는 유지하고, 다음 업데이트의 **부제·키워드** 개선을 제안한다. 현재 부제와 제안 부제는 [다음 업데이트 검색어 자료](store/metadata/next-update-search-2026-10-20.json)의 `subtitle`과 `nextSubtitle`로 구분하며, 1차안은 `previousProposal`, 제목·부제 유지 대안은 `alternatives`에 보존했다.
 
-| 현지화 | 다음 업데이트 키워드 | 문자 수 / UTF-8 바이트 |
-| --- | --- | --- |
-| 한국어 | `투두리스트,리마인더,리마인드,스케줄러,스케쥴러,스케줄,스케쥴,todo,memo` | 43자 / 97바이트 |
-| English (U.S.) | `todo,reminder,remind,schedule,scheduler,planner,agenda,checklist,routine,snooze,offline,private` | 95자 / 95바이트 |
+| 현지화 | 추천 부제 / 문자 수 | 다음 업데이트 키워드 | 문자 수 / UTF-8 바이트 |
+| --- | --- | --- | --- |
+| 한국어 | 리마인더·스케줄러, 메모와 반복 알림 / 20자 | `투두리스트,리마인드,스케쥴러,스케줄,스케쥴,todo,to-do,미루기,오프라인` | 43자 / 95바이트 |
+| English (U.S.) | Private Planner & Reminders / 27자 | `todo,to-do,list,schedule,scheduler,checklist,routine,snooze,offline,agenda,notes,recurring,organizer` | 100자 / 100바이트 |
 
-한국어는 요청받은 **투두리스트·리마인더·리마인드·스케줄러·스케쥴러**를 모두 포함하고 스케줄·스케쥴 표기도 유지한다. `todo`는 영문 검색, `memo`는 실제 기본 메모 기능을 위한 보조 검색어다. 영어는 **todo·reminder·remind·schedule·scheduler**를 유지·추가하면서 `planner`·`checklist`로 다른 실제 사용 의도를 담았다. 기존 `to-do`·`todolist`·`to-do-list` 표기에 사용하던 공간을 기능을 나타내는 단어로 바꿨다. 하이픈 차이마다 노출 효과가 더해진다고 가정하지 않으며, 모든 변형 검색어에 대한 노출을 보장하지 않는다.
+1차안은 국문 스케줄 표기 변형 4개가 쉼표까지 45바이트를 차지하고 영문 `remind`·`reminder`를 함께 사용해 기능별 검색 의도가 좁았으므로, 2차안은 부제에 리마인더·스케줄러·메모·반복 알림과 개인용 플래너 가치를 보여주고 키워드 공간을 확보했다. 영문에는 핵심 `list`와 `notes`·`recurring`·`organizer`를 추가하고, 국문에는 요청한 표기를 부제와 키워드에 나누어 담으면서 `미루기`·`오프라인`을 더했다.
 
-한국어 제목 **할 일·캘린더**, 부제 **투두·일정**과 영어 제목 **Tasks·Calendar**는 이미 등록한 값을 유지한다. 키워드에 브랜드·제목·부제·카테고리의 단어를 그대로 반복하지 않고, 경쟁 앱명·가격·무료 홍보·의료 효능·해시태그도 넣지 않는다. 설명문이나 프로모션에 검색어를 나열하지 않는다.
+한국어 제목 **투두닉 - 할 일과 캘린더**와 영어 제목 **Todoniq - Tasks & Calendar**는 그대로다. 부제에 넣은 단어를 숨은 키워드에 다시 넣지 않고 경쟁 앱명·가격·무료 홍보·의료 효능·해시태그도 넣지 않는다. `todo`·`to-do`는 의도한 표기 변형으로 유지하되 각각 별도의 노출 효과가 더해진다고 가정하지 않는다. 제목·부제를 유지하는 보수안은 한국어 44자/98바이트·영어 98자/98바이트이며 JSON에 정확한 문자열과 선택의 차이를 기록했다.
 
-[Apple 검색 안내](https://developer.apple.com/app-store/search/)는 제목·부제·키워드·카테고리와 다운로드·평점 등 사용자 행동을 검색 요소로 안내하며, 중복 단어와 불필요한 특수문자를 피하도록 설명한다. [제품 페이지 안내](https://developer.apple.com/app-store/product-page/)의 **100자**와 [등록정보 참조](https://developer.apple.com/help/app-store-connect/reference/app-information/platform-version-information)의 **100바이트**를 모두 만족하도록 검증했다. 모든 키워드는 3자 이상이다. 이는 검색량·경쟁도 실측이나 상위 노출 보장이 아니며, 출시 후 App Analytics의 **App Store 검색 유입·노출·전환율**을 비교해 다음 조정을 결정한다.
+[Apple 검색 안내](https://developer.apple.com/app-store/search/)는 제목·부제·키워드·카테고리와 다운로드·평점 등 사용자 행동을 검색 요소로 안내하며 중복 단어와 불필요한 특수문자를 피하도록 설명한다. [제품 페이지 안내](https://developer.apple.com/app-store/product-page/)의 **부제 30자·키워드 100자**와 [등록정보 참조](https://developer.apple.com/help/app-store-connect/reference/app-information/platform-version-information)의 **키워드 100바이트**를 모두 만족하도록 검증했고 각 키워드는 3자 이상이다. **검색량·경쟁도는 실측하지 않았으므로 최선·상위 노출·모든 표기 변형의 검색을 보장하지 않는다.** 출시 후 국가별 App Analytics의 App Store 검색 유입·노출·전환율을 비교해 다음 조정을 결정한다.
 
 ## Google Play 입력 항목
 
@@ -233,7 +235,7 @@ The local trial and Google Play purchase testing are separate. Do not treat a tr
 
 ## Apple 한국어 상세 소개
 
-Apple에는 아래 본문과 Apple 전용 공개 안내 링크를 사용한다. 2026-10-18 최신 1203 기준으로 저장하고 제출 후 API의 실제 문안과 대조를 완료했다. 기존 반려 대응의 플랫폼 언급 제거·구독 조건·공개 링크를 유지한다. Play는 같은 기능 소개를 사용하되 아래 Google 전용 안내·링크를 덧붙인다. Play 입력은 아직 수행하지 않았다.
+Apple에는 아래 1.0.2 준비 본문과 Apple 전용 공개 안내 링크를 사용한다. 아직 Apple에 저장·심사 제출하지 않은 초안이다. 2026-10-18 당시 1203 본문 저장·대조 이력과 구분하며, 기존 반려 대응의 플랫폼 언급 제거·구독 조건·공개 링크를 유지한다. Play는 같은 기능 소개를 사용하되 아래 Google 전용 안내·링크를 덧붙인다. Play 입력은 아직 수행하지 않았다.
 
 ```text
 나만의 할 일, 투두닉.
@@ -243,7 +245,7 @@ Apple에는 아래 본문과 Apple 전용 공개 안내 링크를 사용한다. 
 운동처럼 매일 하는 일부터 주말의 안방 대청소까지. 투두닉은 해야 할 일을 캘린더에 정리하고, 작은 행동을 시작하도록 돕는 할 일·리마인더 앱입니다.
 
 오늘과 앞으로의 일정을 한눈에
-월·주 캘린더와 날짜별 목록에서 할 일을 확인하세요. 아직 끝내지 못한 일은 눈에 잘 보이는 곳에 모아두고, 시간과 우선순위로 다음 할 일을 정리할 수 있습니다.
+월·주 캘린더와 날짜별 목록에서 할 일을 확인하세요. 아직 끝내지 못한 일은 눈에 잘 보이는 곳에 모아둡니다. 예정·완료 목록은 날짜별로 모으고 시간을 따로 표시하며, 최신순과 오래된순으로 정렬할 수 있습니다.
 
 시간과 내용으로 간단히 추가
 지금보다 한 시간 뒤의 시각을 기본으로 제안합니다. 시간을 먼저 확인하고 할 일을 입력해 등록하세요. 생활·업무·건강·배움·기타 분류와 높음·보통·낮음 우선순위를 버튼으로 고를 수 있습니다. 새 일정은 생활·보통으로 시작합니다. 목록에서 오른쪽으로 밀어 완료하고, 완료된 일은 왼쪽으로 밀어 완료를 해제할 수 있습니다.
@@ -258,7 +260,7 @@ Apple에는 아래 본문과 Apple 전용 공개 안내 링크를 사용한다. 
 10분·30분·1시간 뒤로 미루거나 오늘 나중에 다시 할 수 있어요. 여러 번 미루는 날에는 작은 첫걸음을 정해 5분만 시작해 보세요. 시작·진행 중·보류·완료 상태로 일이 어디까지 왔는지 확인할 수 있습니다.
 
 내가 해낸 일을 돌아보기 — Pro
-최근 30일의 완료율, 미룬 횟수와 시간, 자주 완료하는 시간대를 확인하세요. 90일 완료 기록과 분류별 분석으로 자신의 흐름을 살펴볼 수 있습니다.
+최근 30일을 기본으로 원하는 조회 기간을 정하세요. 우선순위별 완료율은 원형 차트로, 분류별 완료 비중은 도넛 차트로 확인할 수 있습니다. 등록한 일, 미룬 횟수와 시간, 자주 완료한 시간대도 함께 살펴보세요.
 
 홈 화면에서 다음 일정 확인
 위젯에서 가까운 일정과 우선순위를 확인할 수 있습니다. 중요한 일을 보기 위해 매번 앱을 찾을 필요가 줄어듭니다.
@@ -350,7 +352,7 @@ Todoniq stores your tasks and notes on your device and does not send them to a d
 From a daily walk to a weekend bedroom clean-up, Todoniq helps you plan what needs doing and take action.
 
 See today and what comes next
-Use the month or week calendar and daily task lists to organize your plans. Unfinished tasks stay visible so you can choose what to do next by time and priority.
+Use the month or week calendar and daily task lists to organize your plans. Unfinished tasks stay visible. Upcoming and Done group tasks by date with a separate time column, and offer newest- or oldest-first sorting.
 
 Add tasks with fewer steps
 Quick Add suggests a time one hour from now; check the time, then enter your task. Choose Personal, Work, Health, Learning or Other, and High, Normal or Low priority with buttons. New tasks start with Personal and Normal. Swipe a task right to complete it, or swipe a completed task left to undo completion.
@@ -365,7 +367,7 @@ Make starting easier — Pro
 Snooze for 10 minutes, 30 minutes, an hour or later today. After repeated postponements, try a smaller first step for just five minutes. Keep track of tasks that are started, in progress, postponed or completed.
 
 Look back at your progress — Pro
-See your completion rate, snooze count and duration, and the times you most often finish tasks over the last 30 days. Explore 90-day completion history and category insights.
+Start with the last 30 days or choose a date range. See completion rates by priority in rings and completed tasks by category in a donut chart. Review task counts, snoozes and the times you most often finish tasks.
 
 See upcoming tasks from your home screen
 The widget shows nearby tasks and priorities, helping you check your plans without finding the app each time.
@@ -449,8 +451,8 @@ Tasks and history are stored on your device. Deleting the app or changing device
 | 2 | 끝내지 못한 일도 잊지 않게 | 상단 미완료 목록과 ‘에어컨 필터 청소’의 재알림 설정 | Pro 알림 |
 | 3 | 어렵다면, 5분만 시작해요 | ‘안방 대청소’의 작은 첫걸음·5분 시작·미루기 선택 | Pro 실행 보조 |
 | 4 | 반복 일정은 내 생활에 맞게 | 특정 요일·주 횟수·종료일이 설정된 편집 화면 | 기본 기능 |
-| 5 — 모든 기기 | 나의 실행 패턴을 알아봐요 | 실제 30일 통계 상세 화면 `05-stats-detail.png` | Pro 통계 |
-| 6 | 내가 해낸 일을 돌아보기 | 예시 데이터로 계산한 30일 통계·90일 완료 기록 | Pro 통계 |
+| 5 — 모든 기기 | 나의 실행 패턴을 알아봐요 | 분류별 완료 비중 도넛 차트와 기간 조회 `05-stats-detail.png` (1.0.2 준비) | Pro 통계 |
+| 6 | 내가 해낸 일을 돌아보기 | 우선순위별 완료율 원형 차트와 기간 조회 (1.0.2 준비) | Pro 통계 |
 | 7 | 내 일정은 내 기기에 | 앱의 개인정보 안내 또는 캘린더, 회원가입 없는 사용 | 로컬 저장 |
 
 화면을 크게 보여주고 이미지마다 해당 언어의 주 문구 하나만 사용한다. 흰색·짙은 회색과 실제 앱의 분류 색·중요한 일의 다크 레드를 사용한다. 가상의 생활 일정은 가능하지만 실제 사용자 개인정보나 개발자 계정 정보를 넣지 않는다. Apple 소개 이미지에는 금액·무료·할인·체험 기간 홍보를 넣지 않으며 원본 앱 화면에 보이는 가격 홍보도 확인한다. Pro 기능은 읽기 쉬운 ‘Pro 구독 필요 / Requires Pro’로 구분한다. 체험 기간과 자동 결제 여부는 Apple 상세 설명과 실제 구매 안내에 정확히 적는다. Google 소개 자료와 실제 앱의 결제·체험 안내는 별도 정책과 용도에 따라 관리한다. 기존 네이티브 위젯 이미지는 최신 투두닉 / Todoniq 빌드·언어로 재캡처하고 검증하기 전까지 소개에서 제외한다.
@@ -471,7 +473,7 @@ Tasks and history are stored on your device. Deleting the app or changing device
 
 현재 iOS 프로젝트는 `TARGETED_DEVICE_FAMILY = "1,2"`로 **iPhone과 iPad 모두 지원**한다. 따라서 iPad 자료도 필요하다. iPad 지원을 빼려면 지원 기기를 변경하고 별도 검증해야 한다.
 
-이미지는 `http://127.0.0.1:5174/store-images.html`에서 **이미지 언어 → 한국어 / English**를 선택하고 **iPhone 중형·iPhone 대형·iPad·Android** 탭의 큰 보기·개별 다운로드·해당 언어 ZIP으로 검토한다. 투두닉 / Todoniq의 같은 프로덕션 Flutter 컴포넌트로 언어별 원본 화면 8종을 세 기기 크기로 다시 캡처했다. 원본은 총 48장, 최종 소개 PNG는 언어별 28장씩 총 56장이다. 원본은 `store/captures/{device}/`, `store/captures/en/{device}/`에 저장한다. 대형 iPhone 소개는 중형 원본을 비율 유지로 배치한 1320×2868 캔버스로, 별도 네이티브 기기 캡처가 아니다. 모든 기기의 다섯 번째 이미지는 30일 통계 상세 화면이다. 이전 네이티브 위젯 캡처는 갤러리와 ZIP에서 제외하며 앱의 위젯 기능은 계속 제공한다. 네이티브 OS 홈 화면 캡처로 설명하지 않는다. [이미지 구성·출처·한국어/영어 재현 방법](store/README.md)을 따른다. 새 브랜드 PNG 56장·등록 자산 4개 규격·브랜드·언어 검사와 ZIP 4개 수량·내부 SHA-256 대조 결과는 `store/assets/image-verification.json`, `store/assets/package-verification.json`에 기록했다. Apple 기존 첫칸 28장 업로드는 이전 브랜드 이력이며 새 투두닉 / Todoniq 28장으로 교체·저장했다. 이미지 검증 완료는 앱 서명·결제 검증·스토어 제출 완료를 의미하지 않는다.
+이미지는 `http://127.0.0.1:5174/store-images.html`에서 **이미지 언어 → 한국어 / English**를 선택하고 **iPhone 중형·iPhone 대형·iPad·Android** 탭의 큰 보기·개별 다운로드·해당 언어 ZIP으로 검토한다. 투두닉 / Todoniq의 같은 프로덕션 Flutter 컴포넌트로 언어별 원본 화면 8종을 세 기기 크기로 다시 캡처했다. 원본은 총 48장, 최종 소개 PNG는 언어별 28장씩 총 56장이다. 원본은 `store/captures/{device}/`, `store/captures/en/{device}/`에 저장한다. 대형 iPhone 소개는 중형 원본을 비율 유지로 배치한 1320×2868 캔버스로, 별도 네이티브 기기 캡처가 아니다. 1.0.2 Apple 이미지의 다섯 번째 장면은 분류별 도넛 통계이며 여섯 번째는 우선순위별 원형 통계다. Android는 사용자 요청으로 보류하여 기존 자료를 유지한다. 이전 네이티브 위젯 캡처는 갤러리와 ZIP에서 제외하며 앱의 위젯 기능은 계속 제공한다. 네이티브 OS 홈 화면 캡처로 설명하지 않는다. [이미지 구성·출처·한국어/영어 재현 방법](store/README.md)을 따른다. 새 브랜드 PNG 56장·등록 자산 4개 규격·브랜드·언어 검사와 ZIP 4개 수량·내부 SHA-256 대조 결과는 `store/assets/image-verification.json`, `store/assets/package-verification.json`에 기록했다. Apple 기존 첫칸 28장 업로드는 이전 브랜드 이력이며 새 투두닉 / Todoniq 28장으로 교체·저장했다. 이미지 검증 완료는 앱 서명·결제 검증·스토어 제출 완료를 의미하지 않는다.
 
 Apple은 기기 규격별 1~10장, 투명도 없는 PNG/JPEG를 지원한다. 공식 표의 Dynamic Island 중형 1179×2556·대형 1320×2868과 iPad 지원 시 필요한 13인치 2064×2752 규격을 준비했다. 실제 App Store Connect의 기기 슬롯·업로드 결과는 제출 전에 별도로 확인한다. Play는 최소 2장, JPEG 또는 알파 없는 24비트 PNG, 각 변 320~3840px, 긴 변이 짧은 변의 2배 이내를 요구한다. Android 제작 목표는 추천용 권장 조건인 9:16·1080×1920 이상·최소 4장에도 맞는다.
 
@@ -517,6 +519,8 @@ Apple의 저장된 시작 가격은 미국 US$0.69/년·대한민국 ₩900/년�
 안내 페이지는 GitHub Pages의 정적 호스팅으로 제공한다. 앱 설정·Pro 화면에 공개 링크를 연결했으며, 사이트는 사용자의 할 일을 저장하거나 앱의 알림을 처리하지 않는다. 운영 주체와 문의 보관 기준 등 남은 확인 항목은 [SITE_REVIEW.md](store/SITE_REVIEW.md)를 따른다.
 
 ## 심사자 메모 초안
+
+아래 한국어·영어 메모는 1.0.1 (1203) 제출 당시 기록이다. 1.0.2 업데이트용 메모와 새로운 기능 문안은 [2026-10-22 업데이트 등록 자료](store/review/update-2026-10-22.json)의 `reviewNotes`·`whatsNew`를 사용한다.
 
 아래는 Apple 1.0.1 (1203) 재제출용 문안이다. 실제 저장 여부는 재제출 결과와 구분한다. 두 언어 문안은 동일한 동작을 설명하며, 서명·업로드된 1203과 기존 구독 상품을 사용한다. 심사 연락처의 개인 이름·전화번호는 기존 콘솔 값을 유지한다. 아래 자동 검증 안내는 실제 기기의 구매·복원 성공 증빙을 뜻하지 않는다.
 

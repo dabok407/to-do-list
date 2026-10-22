@@ -46,22 +46,22 @@ const stories = [
   { out: '03-start', source: '03-small-start', title: '어렵다면,\n5분만 시작해요', sub: '미루던 일도 작은 첫걸음부터', access: 'Pro · 구독 필요 · 처음 7일 체험', pro: true },
   { out: '04-repeat', source: '04-repeat', title: '반복 일정은\n내 생활에 맞게', sub: '요일과 주기, 시작일과 종료일까지', access: '반복 일정 · 기본 기능' },
   { out: '05-widget', source: 'widget', title: '다음 할 일은\n홈 화면에서', sub: '가까운 일정과 우선순위를 바로 확인해요', access: '위젯 보기 무료 · 시작·미루기는 Pro', widget: true },
-  { out: '06-stats', source: '06-statistics', title: '내가 해낸 일을\n돌아보기', sub: '완료한 일과 미룬 기록을 한눈에', access: 'Pro · 구독 필요 · 처음 7일 체험', pro: true },
+  { out: '06-stats', source: '06-statistics', title: '내가 해낸 일을\n돌아보기', sub: '우선순위별 완료율과 실행 기록을 한눈에', access: 'Pro · 구독 필요 · 처음 7일 체험', pro: true },
   { out: '07-privacy', source: '07-privacy', title: '내 일정은\n내 기기에', sub: '회원가입 없이, 할 일과 메모를 로컬에 저장', access: '할 일·메모를 개발자 서버로 보내지 않아요' },
 ];
 // Android OS capture is unavailable on this PC (unsupported HAXM). Use the
 // actual 30-day statistics screen for its fifth slide, never an iOS widget.
-const androidDetails = { out: '05-stats-detail', source: '06-statistics-detail', title: '나의 실행 패턴을\n알아봐요', sub: '최근 30일의 완료율과 미룬 시간을 확인해요', access: 'Pro · 구독 필요 · 처음 7일 체험', pro: true };
+const androidDetails = { out: '05-stats-detail', source: '06-statistics-detail', title: '나의 실행 패턴을\n알아봐요', sub: '기간을 골라 분류별 완료 비중을 확인해요', access: 'Pro · 구독 필요 · 처음 7일 체험', pro: true };
 const englishStories = [
   { out: '01-calendar', source: '01-calendar', title: 'Your tasks. Your way.', sub: 'No account. Your plans stay on your device.', access: 'Calendar · Included for free' },
   { out: '02-overdue', source: '02-overdue', title: 'Keep unfinished tasks\nin sight', sub: 'See what is left, with reminders on your schedule', access: 'Pro · Annual subscription · First 7 days free', pro: true },
   { out: '03-start', source: '03-small-start', title: 'Start small.\nTry five minutes.', sub: 'Make the first step easier', access: 'Pro · Annual subscription · First 7 days free', pro: true },
   { out: '04-repeat', source: '04-repeat', title: 'Routines that fit\nyour life', sub: 'Choose days, intervals, and an end date', access: 'Repeating tasks · Included for free' },
   { out: '05-widget', source: 'widget', title: 'Your next task,\non your home screen', sub: 'Upcoming tasks and priorities at a glance', access: 'Widget viewing is free · Start and snooze with Pro', widget: true },
-  { out: '06-stats', source: '06-statistics', title: 'See what you\nhave accomplished', sub: 'Review completions and snooze history', access: 'Pro · Annual subscription · First 7 days free', pro: true },
+  { out: '06-stats', source: '06-statistics', title: 'See what you\nhave accomplished', sub: 'Completion rates by priority and activity records', access: 'Pro · Annual subscription · First 7 days free', pro: true },
   { out: '07-privacy', source: '07-privacy', title: 'Your plans stay\non your device', sub: 'No account. Tasks and notes are saved locally.', access: 'Tasks and notes are not sent to a developer server' },
 ];
-const englishDetails = { out: '05-stats-detail', source: '06-statistics-detail', title: 'Find your\nexecution patterns', sub: 'Review completion and snooze statistics over 30 days', access: 'Pro · Annual subscription · First 7 days free', pro: true };
+const englishDetails = { out: '05-stats-detail', source: '06-statistics-detail', title: 'Find your\nexecution patterns', sub: 'Choose a period to compare completed categories', access: 'Pro · Annual subscription · First 7 days free', pro: true };
 const storyFor = (device, index) => {
   const story = index === 4 && (device === 'android' || !nativeWidgets)
     ? (english ? englishDetails : androidDetails)

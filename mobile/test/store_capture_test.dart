@@ -412,7 +412,7 @@ void main() {
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
 
-      // Extra source-only audit captures show 1203's direct category buttons
+      // Extra source-only audit captures show the direct category buttons
       // and Normal default. Public artwork still uses its seven declared
       // scenes; these files are never automatically included in that set.
       final quickHeader = find.byKey(const Key('quick-add'));
@@ -506,7 +506,10 @@ void main() {
 
       await tester.tap(_navigation('통계'));
       await _capture(tester, key, d.name, '06-statistics', d.ratio);
-      await tester.ensureVisible(find.text(_strings.t('자주 완료한 시간대')));
+      // Capture both production chart tabs. These are the actual responsive
+      // rings/donut, not the retired completion-calendar design.
+      await tester.tap(find.byKey(const Key('statistics-tab-category')));
+      await tester.pumpAndSettle();
       await _capture(tester, key, d.name, '06-statistics-detail', d.ratio);
 
       await tester.tap(_navigation('설정'));
@@ -545,8 +548,8 @@ void main() {
                 '02-overdue': _sample('아직 남은 일', 'Overdue tasks'),
                 '03-small-start': _sample('5분부터 시작', 'Start with 5 minutes'),
                 '04-repeat': _sample('반복 일정', 'Repeating tasks'),
-                '06-statistics': _sample('나의 흐름', 'My progress'),
-                '06-statistics-detail': _sample('30일 통계', '30-day insights'),
+                '06-statistics': _sample('우선순위별 통계', 'Insights by priority'),
+                '06-statistics-detail': _sample('분류별 통계', 'Insights by category'),
                 '07-privacy': _sample(
                   '개인정보와 언어 설정',
                   'Privacy and language settings',

@@ -9,6 +9,7 @@ import 'app/task_controller.dart';
 import 'data/task_repository.dart';
 import 'domain/task.dart';
 import 'domain/recurrence.dart';
+import 'domain/statistics_breakdown.dart';
 import 'main.dart' show HangeoreumApp;
 import 'services/reminder_scheduler.dart';
 import 'services/subscription_service.dart';
@@ -25,7 +26,23 @@ Future<void> main() async {
     await controller.localeController.load();
   }
   runApp(
-    HangeoreumApp(controller: controller, subscription: PreviewSubscription()),
+    HangeoreumApp(
+      controller: controller,
+      subscription: PreviewSubscription(),
+      calendarHorizontalInset:
+          switch (Uri.base.queryParameters['calendarWidth']) {
+            'standard' => 16,
+            'wide' => 0,
+            _ => 8,
+          },
+      initialPage: switch (Uri.base.queryParameters['section']) {
+        'upcoming' => 1,
+        'completed' => 2,
+        'statistics' => 3,
+        'settings' => 4,
+        _ => 0,
+      },
+    ),
   );
 }
 
@@ -116,7 +133,7 @@ class _PreviewRepository extends TaskRepository {
 class PreviewController extends TaskController {
   final List<Task> _tasks = [];
   final Map<String, Occurrence> _states = {};
-  final Map<String, List<int>> _snoozeMinutes = {};
+  final _snoozeEvents = <({String id, DateTime at, int minutes})>[];
   final Set<String> _hidden = {};
   PreviewController({String sampleLanguage = 'ko'})
     : super(_PreviewRepository(), ReminderScheduler()) {
@@ -210,24 +227,64 @@ class PreviewController extends TaskController {
       }
     }
     items.sort((a, b) => a.originalDue.compareTo(b.originalDue));
-    final done = items.where((o) => o.status == TaskStatus.completed).length;
-    statistics = {
-      'registered': _tasks.length,
-      'total': items.where((o) => !o.originalDue.isAfter(now)).length,
-      'completed': done,
-      'snoozes': items.fold<int>(0, (n, o) => n + o.snoozes),
-      'average':
-          items.fold<int>(
-            0,
-            (sum, o) =>
-                sum +
-                (_snoozeMinutes[o.id] ?? []).fold<int>(0, (a, b) => a + b),
-          ) /
-          (items.fold<int>(0, (sum, o) => sum + o.snoozes).clamp(1, 1000000)),
-      'hour': '21시',
-    };
+    statistics = _periodStatistics(
+      now.subtract(const Duration(days: 30)),
+      now,
+      now,
+    );
     (repository as _PreviewRepository).sample = items;
     notifyListeners();
+  }
+
+  @override
+  Future<Map<String, Object>> statisticsForPeriod(
+    DateTime from,
+    DateTime until,
+  ) async => _periodStatistics(from, until, DateTime.now());
+
+  Map<String, Object> _periodStatistics(
+    DateTime from,
+    DateTime until,
+    DateTime now,
+  ) {
+    final breakdown = StatisticsBreakdown.fromOccurrences(
+      items,
+      now: now,
+      from: from,
+      until: until,
+    );
+    bool within(DateTime date) =>
+        !date.isBefore(from) && !date.isAfter(until) && !date.isAfter(now);
+    final itemIds = items.map((item) => item.id).toSet();
+    final delays = _snoozeEvents
+        .where((event) => itemIds.contains(event.id) && within(event.at))
+        .toList();
+    final hours = <int, int>{};
+    for (final item in items) {
+      final completed = item.completed;
+      if (item.status != TaskStatus.completed ||
+          completed == null ||
+          !within(completed)) {
+        continue;
+      }
+      hours.update(completed.toLocal().hour, (n) => n + 1, ifAbsent: () => 1);
+    }
+    final rankedHours = hours.entries.toList()
+      ..sort((a, b) {
+        final byCount = b.value.compareTo(a.value);
+        return byCount == 0 ? a.key.compareTo(b.key) : byCount;
+      });
+    return {
+      'registered': _tasks.where((t) => !t.derived && within(t.created)).length,
+      'total': breakdown.total,
+      'completed': breakdown.completed,
+      'snoozes': delays.length,
+      'average': delays.isEmpty
+          ? 0.0
+          : delays.fold<int>(0, (sum, event) => sum + event.minutes) /
+                delays.length,
+      'hour': rankedHours.isEmpty ? '기록 없음' : '${rankedHours.first.key}시',
+    };
   }
 
   @override
@@ -309,7 +366,9 @@ class PreviewController extends TaskController {
     int minutes = 10,
   }) async {
     final o = occurrence;
-    if (action == 'snooze') (_snoozeMinutes[o.id] ??= []).add(minutes);
+    if (action == 'snooze') {
+      _snoozeEvents.add((id: o.id, at: DateTime.now(), minutes: minutes));
+    }
     final state = switch (action) {
       'complete' => TaskStatus.completed,
       'uncomplete' => o.beforeComplete ?? TaskStatus.pending,

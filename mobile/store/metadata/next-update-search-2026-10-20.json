@@ -11,10 +11,12 @@
     "stateCheckedAtUtc": "2026-10-20T09:31:20.879165+00:00",
     "actionTaken": "none"
   },
-  "changeScope": ["keywords"],
+  "changeScope": [
+    "subtitle",
+    "keywords"
+  ],
   "unchanged": [
     "appName",
-    "subtitle",
     "promotionalText",
     "description",
     "screenshots",
@@ -27,19 +29,23 @@
       "appName": "투두닉 - 할 일과 캘린더",
       "subtitle": "투두와 일정, 미루지 않는 작은 시작",
       "currentlySubmittedKeywords": "투두리스트,todo,to-do,to-do-list,스케줄,스케쥴,스케줄러,스케쥴러,리마인더",
-      "nextKeywords": "투두리스트,리마인더,리마인드,스케줄러,스케쥴러,스케줄,스케쥴,todo,memo",
+      "nextKeywords": "투두리스트,리마인드,스케쥴러,스케줄,스케쥴,todo,to-do,미루기,오프라인",
       "characterCount": 43,
-      "utf8ByteCount": 97,
-      "rationale": "요청한 한국어 리마인드·리마인더 및 스케줄/스케쥴/스케줄러/스케쥴러 표기를 모두 포함한다. 영어 하이픈 변형의 중복 공간을 줄이고 실제 메모 기능을 나타내는 memo를 담는다."
+      "utf8ByteCount": 95,
+      "rationale": "제목은 유지하고 부제에 리마인더·스케줄러·메모·반복 알림을 명확히 표시한다. 부제의 단어를 숨은 키워드에 반복하지 않아 요청한 스케줄/스케쥴 표기와 todo/to-do를 유지하면서 미루기·오프라인을 담는다. 각 표기의 검색량이나 자동 통합 여부는 측정하지 않았으므로 노출을 보장하지 않는다.",
+      "nextSubtitle": "리마인더·스케줄러, 메모와 반복 알림",
+      "nextSubtitleCharacterCount": 20
     },
     "en-US": {
       "appName": "Todoniq - Tasks & Calendar",
       "subtitle": "Plan your day. Start small.",
       "currentlySubmittedKeywords": "todo,to-do,todolist,to-do-list,schedule,scheduler,agenda,reminder,routine,snooze,offline,private",
-      "nextKeywords": "todo,reminder,remind,schedule,scheduler,planner,agenda,checklist,routine,snooze,offline,private",
-      "characterCount": 95,
-      "utf8ByteCount": 95,
-      "rationale": "todo 하이픈·붙여쓰기 변형의 중복 공간을 줄이고 remind, planner, checklist를 추가한다. 제목·부제에 이미 있는 Tasks, Calendar, Plan 등은 반복하지 않는다."
+      "nextKeywords": "todo,to-do,list,schedule,scheduler,checklist,routine,snooze,offline,agenda,notes,recurring,organizer",
+      "characterCount": 100,
+      "utf8ByteCount": 100,
+      "rationale": "기존 감성형 부제 대신 실제 개인 할 일 관리·리마인더 기능을 표시한다. 부제와 중복되는 private/planner/reminder 및 근거가 없는 remind 병기를 제외하고 핵심 list와 notes·recurring·organizer 등 실제 용도를 추가한다. todo/to-do는 의도한 표기 변형이며 두 표기의 검색 수요 차이는 미측정이다.",
+      "nextSubtitle": "Private Planner & Reminders",
+      "nextSubtitleCharacterCount": 27
     }
   },
   "validation": {
@@ -55,7 +61,41 @@
     "keywordVolumeMeasured": false,
     "storeSaved": false,
     "submissionWithdrawn": false,
-    "reviewSubmitted": false
+    "reviewSubmitted": false,
+    "maximumSubtitleCharacters": 30,
+    "duplicateTermNormalization": "Unicode NFKC, lowercase, trim; preserve hyphens for the intentional todo/to-do spelling variants",
+    "intentionalSpellingVariants": {
+      "ko": [
+        [
+          "todo",
+          "to-do"
+        ],
+        [
+          "스케줄",
+          "스케쥴"
+        ],
+        [
+          "스케줄러",
+          "스케쥴러"
+        ],
+        [
+          "리마인더",
+          "리마인드"
+        ]
+      ],
+      "en-US": [
+        [
+          "todo",
+          "to-do"
+        ],
+        [
+          "schedule",
+          "scheduler"
+        ]
+      ]
+    },
+    "keywordVariantIndexingAssumed": false,
+    "nextSubtitleSaved": false
   },
   "measurementAfterRelease": [
     "App Store search impressions",
@@ -71,6 +111,99 @@
     "등록한 검색어는 노출 순위·모든 변형 검색어의 노출·검색 수요를 보장하지 않는다.",
     "한영 현지화별로 관련 검색어를 준비하며 각 국가에서 모든 현지화가 동일하게 검색된다고 가정하지 않는다.",
     "Apple 안내의 100자와 등록정보 참조의 100바이트를 모두 만족한다.",
-    "기존 1203은 READY_FOR_SALE 상태로 확인했으며 이번 검색어는 다음 업데이트에 적용할 자료다."
-  ]
+    "기존 1203은 READY_FOR_SALE 상태로 확인했으며 이번 검색어는 다음 업데이트에 적용할 자료다.",
+    "2차 검토 추천은 기존 제목을 유지하고 다음 업데이트의 부제와 키워드를 함께 개선하는 안이다. subtitle은 현재 등록값이며 nextSubtitle만 제안값이다.",
+    "1차 제안은 previousProposal에 보존했다. 현재 등록 제목·부제·키워드와 기존 심사 이력·가격·브랜드는 수정하지 않았다.",
+    "영문 remind/reminder 병기를 줄이고 핵심 list를 추가했다. 국문은 부제에 기능어를 배치해 표기 변형 외 미루기·오프라인을 담았다.",
+    "todo와 to-do는 의도한 표기 변형으로 보존했다. 하이픈 제거 정규화 시 같은 단어로 분류되며, 두 표기가 각각 추가 노출을 만든다고 보장하지 않는다.",
+    "실제 검색량·경쟁도 데이터가 없으므로 최선·특정 순위·한국어와 영어 현지화의 국가별 동시 검색을 보장하지 않는다."
+  ],
+  "revision": 2,
+  "previousProposal": {
+    "revision": 1,
+    "preparedAt": "2026-10-20",
+    "status": "prepared_not_submitted",
+    "changeScope": [
+      "keywords"
+    ],
+    "unchanged": [
+      "appName",
+      "subtitle",
+      "promotionalText",
+      "description",
+      "screenshots",
+      "pricing",
+      "availability",
+      "subscriptionProducts"
+    ],
+    "localizations": {
+      "ko": {
+        "appName": "투두닉 - 할 일과 캘린더",
+        "subtitle": "투두와 일정, 미루지 않는 작은 시작",
+        "currentlySubmittedKeywords": "투두리스트,todo,to-do,to-do-list,스케줄,스케쥴,스케줄러,스케쥴러,리마인더",
+        "nextKeywords": "투두리스트,리마인더,리마인드,스케줄러,스케쥴러,스케줄,스케쥴,todo,memo",
+        "characterCount": 43,
+        "utf8ByteCount": 97,
+        "rationale": "요청한 한국어 리마인드·리마인더 및 스케줄/스케쥴/스케줄러/스케쥴러 표기를 모두 포함한다. 영어 하이픈 변형의 중복 공간을 줄이고 실제 메모 기능을 나타내는 memo를 담는다."
+      },
+      "en-US": {
+        "appName": "Todoniq - Tasks & Calendar",
+        "subtitle": "Plan your day. Start small.",
+        "currentlySubmittedKeywords": "todo,to-do,todolist,to-do-list,schedule,scheduler,agenda,reminder,routine,snooze,offline,private",
+        "nextKeywords": "todo,reminder,remind,schedule,scheduler,planner,agenda,checklist,routine,snooze,offline,private",
+        "characterCount": 95,
+        "utf8ByteCount": 95,
+        "rationale": "todo 하이픈·붙여쓰기 변형의 중복 공간을 줄이고 remind, planner, checklist를 추가한다. 제목·부제에 이미 있는 Tasks, Calendar, Plan 등은 반복하지 않는다."
+      }
+    },
+    "validation": {
+      "maximumCharacters": 100,
+      "maximumUtf8Bytes": 100,
+      "minimumCharactersPerTerm": 3,
+      "commaDelimitedWithoutPaddingSpaces": true,
+      "duplicateTerms": false,
+      "competitorNames": false,
+      "priceOrFreePromotion": false,
+      "medicalClaims": false,
+      "rankingGuarantee": false,
+      "keywordVolumeMeasured": false,
+      "storeSaved": false,
+      "submissionWithdrawn": false,
+      "reviewSubmitted": false
+    },
+    "notes": [
+      "등록한 검색어는 노출 순위·모든 변형 검색어의 노출·검색 수요를 보장하지 않는다.",
+      "한영 현지화별로 관련 검색어를 준비하며 각 국가에서 모든 현지화가 동일하게 검색된다고 가정하지 않는다.",
+      "Apple 안내의 100자와 등록정보 참조의 100바이트를 모두 만족한다.",
+      "기존 1203은 READY_FOR_SALE 상태로 확인했으며 이번 검색어는 다음 업데이트에 적용할 자료다."
+    ]
+  },
+  "alternatives": {
+    "keepCurrentNameAndSubtitle": {
+      "status": "alternative_not_selected_not_submitted",
+      "changeScope": [
+        "keywords"
+      ],
+      "localizations": {
+        "ko": {
+          "appName": "투두닉 - 할 일과 캘린더",
+          "subtitle": "투두와 일정, 미루지 않는 작은 시작",
+          "keywords": "투두리스트,리마인더,리마인드,스케줄러,스케쥴러,todo,to-do,미루기,메모장",
+          "tradeoff": "제목과 부제를 유지한다. 스케줄·스케쥴 짧은 표기를 빼고 미루기·메모장을 담는다. 긴 표기만으로 짧은 표기 검색 노출이 보장된다고 가정하지 않는다.",
+          "subtitleCharacterCount": 20,
+          "characterCount": 44,
+          "utf8ByteCount": 98
+        },
+        "en-US": {
+          "appName": "Todoniq - Tasks & Calendar",
+          "subtitle": "Plan your day. Start small.",
+          "keywords": "todo,to-do,list,reminder,schedule,scheduler,planner,checklist,routine,snooze,offline,private,notes",
+          "tradeoff": "제목과 부제를 유지한다. remind를 제거하고 list·notes를 추가하며 todo/to-do 표기는 유지한다. 부제의 검색 의도·기능 전달 개선은 이 안에 포함하지 않는다.",
+          "subtitleCharacterCount": 27,
+          "characterCount": 98,
+          "utf8ByteCount": 98
+        }
+      }
+    }
+  }
 }

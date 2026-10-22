@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-22",
+  "version": "1.0.2",
+  "build": "1301",
+  "status": "LOCAL_VERIFIED_NATIVE_BUILD_PENDING",
+  "scope": [
+    "8px calendar side margins; existing calendar colors preserved",
+    "Date-grouped upcoming and completed lists with a separate time column",
+    "Latest and oldest ordering using scheduled time or actual completion time",
+    "Shared category icons and colors across calendar, lists and statistics",
+    "Priority and category statistics tabs with selectable reporting dates",
+    "Centered statistic values and compact bottom spacing",
+    "Hide the add button while quick-add text input is focused",
+    "Dismiss completion and undo feedback after three seconds"
+  ],
+  "localChecks": {
+    "flutterAnalyze": "PASS: no issues found",
+    "flutterUnitAndWidgetTests": {
+      "passed": 561,
+      "skippedOptInCaptureTests": 3,
+      "failed": 0
+    },
+    "signingAndArtifactVerifierPythonTests": {
+      "passed": 19,
+      "failed": 0
+    },
+    "storeArtworkPolicyTests": {
+      "passed": 5,
+      "failed": 0
+    },
+    "prototypeRecurrenceRegression": "PASS",
+    "calendarWidths": "KO/EN, 320/375/402 logical px, 16/8/0px insets, month/week touch targets and safe areas",
+    "statisticsEdgeCases": "Reversed/future periods, late query results, leaving the tab while loading, 320px with 3x text",
+    "publicChangeSecurityReview": "No private key, token, personal phone, home address, identity number, task database or signing file found in source changes"
+  },
+  "pending": [
+    "Exact-source native lifecycle and notification CI",
+    "App Store signed IPA and provenance verification",
+    "Apple upload and processing",
+    "TestFlight group connection",
+    "App Store update metadata, screenshots and review submission"
+  ],
+  "limitations": [
+    "Simulated purchase states and automated tests do not constitute a physical iPhone StoreKit purchase or refund verification.",
+    "Store screenshot fixtures use fictional data and do not read a personal task database."
+  ],
+  "unchanged": [
+    "Bundle identifiers and widget app group",
+    "Subscription products, price and existing customer entitlements",
+    "Local data storage and reminder scheduling policy",
+    "Google account registration remains paused by the user"
+  ]
+}

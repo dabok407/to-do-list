@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hangeoreum/app/task_controller.dart';
 import 'package:hangeoreum/data/task_repository.dart';
 import 'package:hangeoreum/domain/task.dart';
+import 'package:hangeoreum/features/visual_tokens.dart';
 import 'package:hangeoreum/l10n/app_strings.dart';
 import 'package:hangeoreum/main.dart';
 import 'package:hangeoreum/services/reminder_scheduler.dart';
@@ -144,6 +145,34 @@ void _phone(WidgetTester tester, double scale) {
   addTearDown(() => AppStrings.current = const AppStrings('ko'));
 }
 
+void _expectCategoryIdentity(
+  WidgetTester tester,
+  Finder finder,
+  String category,
+  AppStrings strings,
+) {
+  expect(finder, findsWidgets);
+  for (final element in finder.evaluate()) {
+    final badge = find.byElementPredicate((candidate) => candidate == element);
+    final identity = tester.widget<CategoryLabel>(badge);
+    expect(identity.category, category);
+    expect(identity.label, strings.category(category));
+    final icon = find.descendant(of: badge, matching: find.byType(Icon));
+    final text = find.descendant(of: badge, matching: find.byType(Text));
+    expect(tester.widget<Icon>(icon).icon, TaskVisuals.categoryIcon(category));
+    expect(tester.widget<Icon>(icon).color, TaskVisuals.categoryInk(category));
+    expect(tester.widget<Icon>(icon).size, 16);
+    final label = tester.widget<Text>(text);
+    expect(label.style?.fontSize, 13);
+    expect(label.style?.fontWeight, FontWeight.w500);
+    expect(label.style?.color, TaskVisuals.ink);
+    expect(
+      tester.getRect(text).left - tester.getRect(icon).right,
+      closeTo(6, .1),
+    );
+  }
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   final messenger =
@@ -168,6 +197,95 @@ void main() {
       'Pretendard',
     )..addFont(rootBundle.load('assets/fonts/PretendardVariable.ttf'))).load();
   });
+
+  for (final language in ['ko', 'en']) {
+    for (final width in [320.0, 375.0, 402.0]) {
+      testWidgets(
+        'category identity stays consistent across screens at ${width}px, $language, 2x',
+        (tester) async {
+          _phone(tester, 2);
+          tester.view.physicalSize = Size(width, 812);
+          final c = _Controller();
+          final subscription = _Subscription(true);
+          addTearDown(c.dispose);
+          addTearDown(subscription.dispose);
+          await c.localeController.setPreference(language);
+          final current = c.items.first;
+          c.items = [
+            current,
+            Occurrence(
+              id: 'completed-identity',
+              task: current.task,
+              originalDue: current.originalDue,
+              reminder: current.reminder,
+              status: TaskStatus.completed,
+              completed: DateTime.now(),
+            ),
+          ];
+          final strings = AppStrings(language);
+          await tester.pumpWidget(
+            HangeoreumApp(controller: c, subscription: subscription),
+          );
+          await tester.pumpAndSettle();
+          await tester.tap(find.text(strings.t('주 보기')));
+          await tester.pumpAndSettle();
+          final calendarRow = find.byKey(const ValueKey('task-row-current'));
+          await tester.ensureVisible(calendarRow);
+          await tester.pumpAndSettle();
+          final calendarIdentity = find.descendant(
+            of: calendarRow,
+            matching: find.byType(CategoryLabel),
+          );
+          _expectCategoryIdentity(tester, calendarIdentity, '배움', strings);
+          // The calendar group heading and both task rows use the same badge.
+          final calendarLabels = find.byWidgetPredicate(
+            (widget) => widget is CategoryLabel && widget.category == '배움',
+          );
+          expect(calendarLabels.evaluate().length, greaterThanOrEqualTo(3));
+          _expectCategoryIdentity(tester, calendarLabels, '배움', strings);
+          for (final destination in ['예정', '완료']) {
+            await tester.tap(_nav(strings.t(destination)));
+            await tester.pumpAndSettle();
+            final row = find.byKey(
+              ValueKey(
+                destination == '예정'
+                    ? 'task-row-current'
+                    : 'task-row-completed-identity',
+              ),
+            );
+            await tester.ensureVisible(row);
+            await tester.pumpAndSettle();
+            _expectCategoryIdentity(
+              tester,
+              find.descendant(of: row, matching: find.byType(CategoryLabel)),
+              '배움',
+              strings,
+            );
+            expect(tester.takeException(), isNull, reason: destination);
+          }
+          await tester.tap(_nav(strings.t('통계')));
+          await tester.pumpAndSettle();
+          final categoryTab = find.byKey(const Key('statistics-tab-category'));
+          await tester.ensureVisible(categoryTab);
+          await tester.tap(categoryTab);
+          await tester.pumpAndSettle();
+          for (final category in taskCategories) {
+            final row = find.byKey(Key('stats-category-$category'));
+            await tester.ensureVisible(row);
+            await tester.pumpAndSettle();
+            _expectCategoryIdentity(
+              tester,
+              find.descendant(of: row, matching: find.byType(CategoryLabel)),
+              category,
+              strings,
+            );
+            expect(tester.takeException(), isNull, reason: category);
+          }
+          await tester.pumpWidget(const SizedBox.shrink());
+        },
+      );
+    }
+  }
 
   testWidgets(
     'English calendar month and year stay readable at 320px and 1.5x',
@@ -226,7 +344,13 @@ void main() {
         expect(tester.takeException(), isNull);
         await tester.tap(find.text('Week view'));
         await tester.pumpAndSettle();
-        expect(find.text('Learning'), findsOneWidget);
+        expect(
+          find.descendant(
+            of: find.byKey(const ValueKey('task-row-current')),
+            matching: find.text('Learning'),
+          ),
+          findsOneWidget,
+        );
         expect(find.text('Month view'), findsOneWidget);
         expect(tester.takeException(), isNull);
         for (final page in ['Upcoming', 'Done', 'Insights', 'Settings']) {
@@ -310,7 +434,10 @@ void main() {
       await tester.tap(_nav('Upcoming'));
       await tester.pumpAndSettle();
       await tester.tap(
-        find.widgetWithText(ListTile, c.items.first.task.title).first,
+        find.descendant(
+          of: find.byKey(const ValueKey('task-row-current')),
+          matching: find.text(c.items.first.task.title),
+        ),
       );
       await tester.pumpAndSettle();
       expect(find.text('Start now'), findsOneWidget);

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../app/task_controller.dart';
 import '../domain/task.dart';
+import '../domain/task_list_sections.dart';
 import 'task_editor.dart';
 import 'pro_screen.dart';
 import 'privacy_card.dart';
@@ -12,18 +13,16 @@ import 'store_policy_links.dart';
 import 'persistent_time_picker.dart';
 import 'equal_choice_row.dart';
 import 'feedback_snackbar.dart';
+import 'visual_tokens.dart';
+import 'statistics_panel.dart';
+import 'task_timeline_row.dart';
+import 'task_list_sort_control.dart';
 import '../services/subscription_service.dart';
 import '../l10n/app_strings.dart';
 
 const mutedText = Color(0xff626873);
 const priorityRed = Color(0xff8f303a);
-const categoryColors = {
-  '생활': Color(0xffad5618),
-  '업무': Color(0xff315dca),
-  '건강': Color(0xff267447),
-  '배움': Color(0xff7546ba),
-  '기타': Color(0xff59636f),
-};
+const categoryColors = TaskVisuals.categoryColors;
 const stateNames = ['예정', '진행 중', '보류', '완료', '건너뜀'];
 String timeLabel(DateTime d) =>
     '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
@@ -51,7 +50,16 @@ int calendarMonthCellCount(DateTime month, int firstDayOfWeekIndex) {
 class HomeScreen extends StatefulWidget {
   final TaskController controller;
   final SubscriptionService? subscription;
-  const HomeScreen({super.key, required this.controller, this.subscription});
+  final int initialPage;
+  // Only the date grid uses this inset; task content keeps its 16px margin.
+  final double calendarHorizontalInset;
+  const HomeScreen({
+    super.key,
+    required this.controller,
+    this.subscription,
+    this.initialPage = 0,
+    this.calendarHorizontalInset = 8,
+  }) : assert(calendarHorizontalInset >= 0 && calendarHorizontalInset <= 16);
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -64,6 +72,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   bool detailVisible = false;
   bool quickExpanded = false;
   bool quickTimeEdited = false;
+  TaskListOrder upcomingOrder = TaskListOrder.latest;
+  TaskListOrder completedOrder = TaskListOrder.latest;
   String? quickTitleError;
   late TimeOfDay quickTime;
   late DateTime quickDate;
@@ -79,6 +89,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    page = widget.initialPage.clamp(0, 4);
     resetQuickTime();
     WidgetsBinding.instance.addObserver(this);
     quickTitleFocus.addListener(quickTitleFocusChanged);
@@ -584,7 +595,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       );
   }
 
-  Widget row(Occurrence o) => Dismissible(
+  Widget row(Occurrence o, {bool timeline = false}) => Dismissible(
     key: ValueKey('task-swipe-${o.id}'),
     direction: busy || o.status == TaskStatus.skipped
         ? DismissDirection.none
@@ -635,94 +646,220 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         ],
       ),
     ),
-    child: Material(
-      color: Theme.of(context).scaffoldBackgroundColor,
-      child: ListTile(
-        key: ValueKey('task-row-${o.id}'),
-        contentPadding: const EdgeInsets.symmetric(vertical: 5),
-        leading: IconButton(
-          tooltip: o.status == TaskStatus.completed
-              ? strings.t('완료 해제')
-              : strings.t('완료 처리'),
-          onPressed: busy || o.status == TaskStatus.skipped
-              ? null
-              : () => toggleCompletion(o),
-          icon: Icon(
-            o.status == TaskStatus.completed
-                ? Icons.check_circle
-                : Icons.radio_button_unchecked,
-            color: o.status == TaskStatus.completed
-                ? mutedText
-                : o.task.priority == 2
-                ? priorityRed
-                : categoryColors[o.task.category],
-          ),
-        ),
-        title: Text(
-          o.task.title,
-          style: TextStyle(
-            fontWeight: FontWeight.w500,
-            color: o.status == TaskStatus.completed ? mutedText : null,
-            decoration: o.status == TaskStatus.completed
-                ? TextDecoration.lineThrough
-                : null,
-          ),
-        ),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 6),
-          child: Wrap(
-            spacing: 6,
-            children: [
-              if (o.task.priority == 2)
-                Text(strings.t('● 높음'), style: TextStyle(color: priorityRed)),
-              Text(
-                o.quotaSkipped
-                    ? strings.t('이번 주 목표 달성')
-                    : strings.t(stateNames[o.status.index]),
+    child: timeline
+        ? TaskTimelineRow(
+            occurrence: o,
+            busy: busy,
+            hasProAccess: subscription.hasAccess,
+            showScheduleDate: o.status == TaskStatus.progressing,
+            onTap: () => detail(o),
+            onToggle: () => toggleCompletion(o),
+            onStart: () => taskAction(o, 'start'),
+          )
+        : Material(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            shape: const Border(
+              bottom: BorderSide(color: TaskVisuals.line, width: .7),
+            ),
+            child: ListTile(
+              key: ValueKey('task-row-${o.id}'),
+              contentPadding: const EdgeInsets.symmetric(vertical: 9),
+              minLeadingWidth: 40,
+              horizontalTitleGap: 8,
+              leading: IconButton(
+                tooltip: o.status == TaskStatus.completed
+                    ? strings.t('완료 해제')
+                    : strings.t('완료 처리'),
+                onPressed: busy || o.status == TaskStatus.skipped
+                    ? null
+                    : () => toggleCompletion(o),
+                icon: Icon(
+                  o.status == TaskStatus.completed
+                      ? Icons.check_circle
+                      : Icons.radio_button_unchecked,
+                  color: o.status == TaskStatus.completed
+                      ? mutedText
+                      : TaskVisuals.ink,
+                ),
               ),
-              if (page != 0) Text('· ${strings.date(o.originalDue)}'),
-              if (o.task.repeat != RepeatUnit.none) Text(strings.t('· 반복')),
-              if (o.status == TaskStatus.paused)
-                Text(
-                  strings.t(
-                    '· {time} 재알림',
-                    args: {'time': strings.time(o.reminder)},
+              title: Text(
+                o.task.title,
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 16,
+                  height: 1.4,
+                  color: o.status == TaskStatus.completed
+                      ? mutedText
+                      : TaskVisuals.ink,
+                  decoration: o.status == TaskStatus.completed
+                      ? TextDecoration.lineThrough
+                      : null,
+                ),
+              ),
+              subtitle: Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: DefaultTextStyle.merge(
+                  style: const TextStyle(
+                    fontSize: 12,
+                    height: 1.45,
+                    color: mutedText,
+                  ),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) => Wrap(
+                      spacing: 10,
+                      runSpacing: 5,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        Text(
+                          strings.time(o.originalDue),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: mutedText,
+                          ),
+                        ),
+                        ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: constraints.maxWidth,
+                          ),
+                          child: CategoryLabel(
+                            category: o.task.category,
+                            label: strings.category(o.task.category),
+                          ),
+                        ),
+                        if (o.task.priority == 2)
+                          Text(
+                            strings.t('● 높음'),
+                            style: const TextStyle(color: priorityRed),
+                          ),
+                        if (o.status != TaskStatus.pending)
+                          Text(
+                            o.quotaSkipped
+                                ? strings.t('이번 주 목표 달성')
+                                : strings.t(stateNames[o.status.index]),
+                          ),
+                        if (page != 0)
+                          Text(
+                            o.originalDue.year == DateTime.now().year
+                                ? strings.dateShort(o.originalDue)
+                                : strings.date(o.originalDue),
+                          ),
+                        if (o.task.repeat != RepeatUnit.none)
+                          Tooltip(
+                            message: strings.t('반복'),
+                            child: Icon(
+                              Icons.repeat_rounded,
+                              size: 14,
+                              color: mutedText,
+                              semanticLabel: strings.t('반복'),
+                            ),
+                          ),
+                        if (o.status == TaskStatus.paused)
+                          Text(
+                            strings.t(
+                              '· {time} 재알림',
+                              args: {'time': strings.time(o.reminder)},
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
-            ],
+              ),
+              trailing: o.active && o.status != TaskStatus.progressing
+                  ? IconButton(
+                      key: ValueKey('start-${o.id}'),
+                      tooltip: strings.t(
+                        '{title} 지금 시작{pro}',
+                        args: {
+                          'title': o.task.title,
+                          'pro': subscription.hasAccess ? '' : ' · Pro',
+                        },
+                      ),
+                      onPressed: busy ? null : () => taskAction(o, 'start'),
+                      icon: Icon(
+                        subscription.hasAccess
+                            ? Icons.play_arrow_rounded
+                            : Icons.lock_outline,
+                        size: 23,
+                        color: TaskVisuals.ink,
+                      ),
+                    )
+                  : null,
+              onTap: () => detail(o),
+            ),
+          ),
+  );
+
+  List<Widget> timelineList({required bool completed}) {
+    final now = DateTime.now();
+    final order = completed ? completedOrder : upcomingOrder;
+    final sections = taskListSections(
+      completed ? c.items : c.queue,
+      now: now,
+      completed: completed,
+      order: order,
+    );
+    String heading(TaskListSection section) {
+      if (section.kind == TaskListSectionKind.progressing) {
+        return strings.t('진행 중');
+      }
+      if (section.kind == TaskListSectionKind.unknownCompletion) {
+        return strings.t('완료 시각 기록 없음');
+      }
+      final date = section.day!;
+      final day = dayOf(now) == date
+          ? strings.t('오늘')
+          : dayOf(DateTime(now.year, now.month, now.day + 1)) == date
+          ? strings.t('내일')
+          : date.year == now.year
+          ? strings.dateShort(date)
+          : strings.date(date);
+      final dated = '$day · ${strings.weekday(date.weekday)}';
+      return section.kind == TaskListSectionKind.overdue
+          ? '${strings.t('기한 지난 일')} · $dated'
+          : dated;
+    }
+
+    return [
+      TaskListSortControl(
+        completed: completed,
+        order: order,
+        onChanged: (value) {
+          setState(() {
+            if (completed) {
+              completedOrder = value;
+            } else {
+              upcomingOrder = value;
+            }
+          });
+          if (bodyScroll.hasClients) bodyScroll.jumpTo(0);
+        },
+      ),
+      for (final section in sections) ...[
+        Semantics(
+          header: true,
+          child: Padding(
+            key: Key('task-section-${section.id}'),
+            padding: const EdgeInsets.fromLTRB(0, 22, 0, 7),
+            child: Text(
+              heading(section),
+              style: TextStyle(
+                fontFamily: 'Pretendard',
+                fontSize: 14,
+                height: 1.5,
+                fontWeight: FontWeight.w600,
+                color: section.kind == TaskListSectionKind.overdue
+                    ? priorityRed
+                    : TaskVisuals.muted,
+              ),
+            ),
           ),
         ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              strings.time(o.originalDue),
-              style: const TextStyle(fontSize: 12, color: Color(0xff626873)),
-            ),
-            if (o.active && o.status != TaskStatus.progressing)
-              IconButton(
-                key: ValueKey('start-${o.id}'),
-                tooltip: strings.t(
-                  '{title} 지금 시작{pro}',
-                  args: {
-                    'title': o.task.title,
-                    'pro': subscription.hasAccess ? '' : ' · Pro',
-                  },
-                ),
-                onPressed: busy ? null : () => taskAction(o, 'start'),
-                icon: Icon(
-                  subscription.hasAccess
-                      ? Icons.play_arrow_rounded
-                      : Icons.lock_outline,
-                  size: 23,
-                ),
-              ),
-          ],
-        ),
-        onTap: () => detail(o),
-      ),
-    ),
-  );
+        for (final occurrence in section.items) row(occurrence, timeline: true),
+      ],
+    ];
+  }
+
   Widget calendar() {
     final daySize =
         26.0 *
@@ -743,6 +880,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             .clamp(60.0, 86.0);
     final previewCount = cellHeight < 82 ? 1 : 2;
     return GestureDetector(
+      key: const Key('calendar-area'),
       onHorizontalDragEnd: (details) {
         final velocity = details.primaryVelocity ?? 0;
         if (velocity.abs() > 250) move(velocity < 0 ? 1 : -1);
@@ -776,6 +914,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               }),
             ),
             GridView.builder(
+              key: const Key('calendar-grid'),
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -1068,186 +1207,191 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         .toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  selectCalendarDate(today);
-                });
-              },
-              child: Text(strings.t('오늘로')),
-            ),
-            const Spacer(),
-            TextButton(
-              onPressed: () => setState(() => week = !week),
-              child: Text(week ? strings.t('월 보기') : strings.t('주 보기')),
-            ),
-          ],
-        ),
-        calendar(),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Wrap(
-            crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: 12,
-            children: [
-              PopupMenuButton<int>(
-                tooltip: strings.t('요약 기간'),
-                initialValue: summary,
-                onSelected: (value) => setState(() => summary = value),
-                itemBuilder: (_) => List.generate(
-                  3,
-                  (i) => PopupMenuItem(
-                    value: i,
-                    child: Text(
-                      [
-                        strings.t('오늘'),
-                        strings.t('이번 주'),
-                        strings.t('이번 달'),
-                      ][i],
-                    ),
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        [
-                          strings.t('오늘'),
-                          strings.t('이번 주'),
-                          strings.t('이번 달'),
-                        ][summary],
-                      ),
-                      const Icon(Icons.expand_more, size: 18),
-                    ],
-                  ),
-                ),
-              ),
-              Text(
-                strings.t(
-                  '{left}개 남음  ·  {done}개 완료',
-                  args: {
-                    'left': summarized.where((o) => o.active).length,
-                    'done': summarized
-                        .where((o) => o.status == TaskStatus.completed)
-                        .length,
+      children:
+          <Widget>[
+            Row(
+              children: [
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      selectCalendarDate(today);
+                    });
                   },
+                  child: Text(strings.t('오늘로')),
                 ),
-                style: const TextStyle(fontSize: 13, color: Color(0xff626873)),
-              ),
-            ],
-          ),
-        ),
-        if (!week)
-          Padding(
-            padding: EdgeInsets.only(bottom: 16),
-            child: Text(
-              strings.t('날짜를 누르면 그날의 할 일이 바로 펼쳐져요.'),
-              style: TextStyle(fontSize: 12, color: Color(0xff626873)),
+                const Spacer(),
+                TextButton(
+                  onPressed: () => setState(() => week = !week),
+                  child: Text(week ? strings.t('월 보기') : strings.t('주 보기')),
+                ),
+              ],
             ),
-          ),
-        const SizedBox(height: 8),
-        Text(
-          strings.dateShort(selected),
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        const SizedBox(height: 12),
-        if (todays.isEmpty)
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 32),
-            child: Text(strings.t('예정된 할 일이 없어요. 새로운 할 일을 추가해보세요.')),
-          ),
-        ...categoryColors.entries.expand((entry) {
-          final items = todays
-              .where((o) => o.task.category == entry.key)
-              .toList();
-          if (items.isEmpty) return <Widget>[];
-          return <Widget>[
+            calendar(),
             Padding(
-              padding: const EdgeInsets.only(top: 14, bottom: 2),
-              child: Row(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 12,
                 children: [
-                  Container(
-                    width: 4,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: entry.value,
-                      borderRadius: BorderRadius.circular(3),
+                  PopupMenuButton<int>(
+                    tooltip: strings.t('요약 기간'),
+                    initialValue: summary,
+                    onSelected: (value) => setState(() => summary = value),
+                    itemBuilder: (_) => List.generate(
+                      3,
+                      (i) => PopupMenuItem(
+                        value: i,
+                        child: Text(
+                          [
+                            strings.t('오늘'),
+                            strings.t('이번 주'),
+                            strings.t('이번 달'),
+                          ][i],
+                        ),
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            [
+                              strings.t('오늘'),
+                              strings.t('이번 주'),
+                              strings.t('이번 달'),
+                            ][summary],
+                          ),
+                          const Icon(Icons.expand_more, size: 18),
+                        ],
+                      ),
                     ),
                   ),
-                  const SizedBox(width: 8),
                   Text(
-                    strings.category(entry.key),
-                    style: TextStyle(
-                      color: entry.value,
-                      fontWeight: FontWeight.w600,
+                    strings.t(
+                      '{left}개 남음  ·  {done}개 완료',
+                      args: {
+                        'left': summarized.where((o) => o.active).length,
+                        'done': summarized
+                            .where((o) => o.status == TaskStatus.completed)
+                            .length,
+                      },
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '${items.where((o) => o.status == TaskStatus.completed).length}/${items.length}',
-                    style: const TextStyle(fontSize: 12, color: mutedText),
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Color(0xff626873),
+                    ),
                   ),
                 ],
               ),
             ),
-            ...items.map(row),
-          ];
-        }),
-        const SizedBox(height: 20),
-        Material(
-          key: const Key('quick-add-card'),
-          color: Colors.white,
-          clipBehavior: Clip.antiAlias,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: const BorderSide(color: Color(0xffe4e6ea)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Semantics(
-                button: true,
-                expanded: quickExpanded,
-                child: InkWell(
-                  key: const Key('quick-add'),
-                  borderRadius: BorderRadius.circular(12),
-                  onTap: () => setState(() {
-                    quickExpanded = !quickExpanded;
-                    if (quickExpanded && !quickTimeEdited) resetQuickTime();
-                  }),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    title: Text(
-                      strings.t('간단히 추가'),
-                      style: const TextStyle(fontSize: 14),
-                    ),
-                    trailing: Icon(
-                      quickExpanded ? Icons.expand_less : Icons.expand_more,
-                    ),
-                  ),
+            if (!week)
+              Padding(
+                padding: EdgeInsets.only(bottom: 16),
+                child: Text(
+                  strings.t('날짜를 누르면 그날의 할 일이 바로 펼쳐져요.'),
+                  style: TextStyle(fontSize: 12, color: Color(0xff626873)),
                 ),
               ),
-              if (quickExpanded)
+            const SizedBox(height: 8),
+            Text(
+              strings.dateShort(selected),
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 12),
+            if (todays.isEmpty)
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 32),
+                child: Text(strings.t('예정된 할 일이 없어요. 새로운 할 일을 추가해보세요.')),
+              ),
+            ...categoryColors.entries.expand((entry) {
+              final items = todays
+                  .where((o) => o.task.category == entry.key)
+                  .toList();
+              if (items.isEmpty) return <Widget>[];
+              return <Widget>[
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                  child: quickAdd(),
+                  padding: const EdgeInsets.only(top: 14, bottom: 2),
+                  child: Row(
+                    children: [
+                      Flexible(
+                        child: CategoryLabel(
+                          category: entry.key,
+                          label: strings.category(entry.key),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '${items.where((o) => o.status == TaskStatus.completed).length}/${items.length}',
+                        style: const TextStyle(fontSize: 12, color: mutedText),
+                      ),
+                    ],
+                  ),
                 ),
+                ...items.map(row),
+              ];
+            }),
+            const SizedBox(height: 20),
+            Material(
+              key: const Key('quick-add-card'),
+              color: Colors.white,
+              clipBehavior: Clip.antiAlias,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: const BorderSide(color: Color(0xffe4e6ea)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Semantics(
+                    button: true,
+                    expanded: quickExpanded,
+                    child: InkWell(
+                      key: const Key('quick-add'),
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () => setState(() {
+                        quickExpanded = !quickExpanded;
+                        if (quickExpanded && !quickTimeEdited) resetQuickTime();
+                      }),
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        title: Text(
+                          strings.t('간단히 추가'),
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                        trailing: Icon(
+                          quickExpanded ? Icons.expand_less : Icons.expand_more,
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (quickExpanded)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                      child: quickAdd(),
+                    ),
+                ],
+              ),
+            ),
+            if (!subscription.paidAccess) ...[
+              const SizedBox(height: 16),
+              accessNotice(),
             ],
-          ),
-        ),
-        if (!subscription.paidAccess) ...[
-          const SizedBox(height: 16),
-          accessNotice(),
-        ],
-      ],
+          ].map((child) {
+            if (widget.calendarHorizontalInset == 16 ||
+                child.key == const Key('calendar-area')) {
+              return child;
+            }
+            return Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: 16 - widget.calendarHorizontalInset,
+              ),
+              child: child,
+            );
+          }).toList(),
     );
   }
 
@@ -1445,146 +1589,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         ),
       );
     }
-    final today = dayOf(DateTime.now());
-    final start = today.subtract(const Duration(days: 89));
-    final completed = c.items
-        .where(
-          (o) =>
-              o.completed != null &&
-              !dayOf(o.completed!).isBefore(start) &&
-              !dayOf(o.completed!).isAfter(today) &&
-              o.status == TaskStatus.completed,
-        )
-        .toList();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          strings.t('지난 90일, {n}번의 작은 시작', args: {'n': completed.length}),
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          strings.t('진한 칸일수록 더 많이 완료한 날이에요.'),
-          style: TextStyle(color: mutedText, fontSize: 12),
-        ),
-        const SizedBox(height: 16),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 15,
-            crossAxisSpacing: 4,
-            mainAxisSpacing: 4,
-          ),
-          itemCount: 90,
-          itemBuilder: (_, i) {
-            final date = DateTime(start.year, start.month, start.day + i);
-            final count = completed
-                .where((o) => dayOf(o.completed!) == date)
-                .length;
-            return Tooltip(
-              message: strings.t(
-                '{date} · {n}개 완료',
-                args: {'date': strings.date(date), 'n': count},
-              ),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(3),
-                  color: count == 0
-                      ? const Color(0xffedf0ea)
-                      : count < 3
-                      ? const Color(0xffb2c4a5)
-                      : const Color(0xff4d6b45),
-                ),
-              ),
-            );
-          },
-        ),
-        const SizedBox(height: 22),
-        ...categoryColors.entries.map((entry) {
-          final count = completed
-              .where((o) => o.task.category == entry.key)
-              .length;
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Row(
-              children: [
-                SizedBox(
-                  width: strings.languageCode == 'en' ? 96 : 48,
-                  child: Text(strings.category(entry.key)),
-                ),
-                Expanded(
-                  child: LinearProgressIndicator(
-                    value: completed.isEmpty ? 0 : count / completed.length,
-                    color: entry.value,
-                    backgroundColor: const Color(0xfff0efed),
-                    minHeight: 6,
-                    borderRadius: BorderRadius.circular(3),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Text(strings.t('{n}개', args: {'n': count})),
-              ],
-            ),
-          );
-        }),
-      ],
+    return StatisticsPanel(
+      items: c.items,
+      statistics: c.statistics,
+      loadStatistics: c.statisticsForPeriod,
     );
   }
 
-  Widget statsPage() {
-    if (!subscription.hasAccess) return insightPanel();
-    final s = c.statistics;
-    final total = s['total'] as int? ?? 0, done = s['completed'] as int? ?? 0;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        insightPanel(),
-        const SizedBox(height: 28),
-        Text(strings.t('최근 30일'), style: TextStyle(color: mutedText)),
-        const SizedBox(height: 20),
-        ...{
-          strings.t('등록한 할 일'): strings.t(
-            '{n}개',
-            args: {'n': s['registered'] ?? 0},
-          ),
-          strings.t('완료한 회차'): strings.t('{n}개', args: {'n': done}),
-          strings.t('완료율'): total == 0
-              ? strings.t('기록 없음')
-              : '${(done / total * 100).round()}%',
-          strings.t('미룬 횟수'): strings.t('{n}회', args: {'n': s['snoozes'] ?? 0}),
-          strings.t('평균 미룬 시간'): strings.t(
-            '{n}분',
-            args: {'n': ((s['average'] as num?) ?? 0).round()},
-          ),
-          strings.t('자주 완료한 시간대'): statisticsHour(s['hour']),
-        }.entries.map(
-          (e) => ListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text(e.key),
-            trailing: Text(
-              e.value,
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          strings.t(
-            '완료율은 최근 30일 예정 시간이 지난 회차와 미리 완료한 회차를 기준으로 계산합니다. 반복 일정은 각 회차를 별도로 집계합니다.',
-          ),
-        ),
-      ],
-    );
-  }
-
-  String statisticsHour(Object? value) {
-    if (value == null || value == '기록 없음') return strings.t('기록 없음');
-    final hour = int.tryParse(value.toString().replaceAll('시', ''));
-    if (!strings.isEnglish || hour == null) return value.toString();
-    return strings.time(DateTime(2000, 1, 1, hour));
-  }
+  Widget statsPage() => insightPanel();
 
   Widget settingsPage() => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1768,24 +1780,29 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               onRefresh: c.reconcile,
               child: ListView(
                 controller: bodyScroll,
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
+                padding: EdgeInsets.fromLTRB(
+                  page == 0 ? widget.calendarHorizontalInset : 16,
+                  0,
+                  page == 0 ? widget.calendarHorizontalInset : 16,
+                  page == 3 ? 20 : 96,
+                ),
                 children: [
                   if (c.warning != null)
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
+                      padding: EdgeInsets.fromLTRB(
+                        page == 0 ? 16 - widget.calendarHorizontalInset : 0,
+                        0,
+                        page == 0 ? 16 - widget.calendarHorizontalInset : 0,
+                        16,
+                      ),
                       child: Text(
                         c.warning!,
                         style: const TextStyle(color: priorityRed),
                       ),
                     ),
                   if (page == 0) ...[calendarPage()],
-                  if (page == 1) ...c.queue.map(row),
-                  if (page == 2)
-                    ...c.items
-                        .where((o) => o.status == TaskStatus.completed)
-                        .toList()
-                        .reversed
-                        .map(row),
+                  if (page == 1) ...timelineList(completed: false),
+                  if (page == 2) ...timelineList(completed: true),
                   if (page == 3) statsPage(),
                   if (page == 4) settingsPage(),
                 ],

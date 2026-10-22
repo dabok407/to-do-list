@@ -126,7 +126,15 @@ Future<void> nativeBackgroundProbe() async {
 class HangeoreumApp extends StatefulWidget {
   final TaskController controller;
   final SubscriptionService? subscription;
-  const HangeoreumApp({super.key, required this.controller, this.subscription});
+  final int initialPage;
+  final double calendarHorizontalInset;
+  const HangeoreumApp({
+    super.key,
+    required this.controller,
+    this.subscription,
+    this.initialPage = 0,
+    this.calendarHorizontalInset = 8,
+  }) : assert(calendarHorizontalInset >= 0 && calendarHorizontalInset <= 16);
   @override
   State<HangeoreumApp> createState() => _HangeoreumAppState();
 }
@@ -346,7 +354,12 @@ class _HangeoreumAppState extends State<HangeoreumApp>
           height: 68,
         ),
       ),
-      home: HomeScreen(controller: controller, subscription: subscription),
+      home: HomeScreen(
+        controller: controller,
+        subscription: subscription,
+        initialPage: widget.initialPage,
+        calendarHorizontalInset: widget.calendarHorizontalInset,
+      ),
     ),
   );
 }

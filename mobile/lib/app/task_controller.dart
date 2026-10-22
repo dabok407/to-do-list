@@ -54,6 +54,11 @@ class TaskController extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<Map<String, Object>> statisticsForPeriod(
+    DateTime from,
+    DateTime until,
+  ) => repository.statsForPeriod(from: from, until: until);
+
   Future<void> reconcile() => _serial(_reconcile);
   Future<void> testReminder() => _serial(() async {
     // Ask before taking the lease: a permission dialog may remain open longer
