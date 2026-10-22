@@ -2,7 +2,7 @@
   "date": "2026-10-22",
   "version": "1.0.2",
   "build": "1301",
-  "status": "LOCAL_VERIFIED_NATIVE_BUILD_PENDING",
+  "status": "VERIFIED_UPLOADED_CONSOLE_AUTH_REQUIRED",
   "scope": [
     "8px calendar side margins; existing calendar colors preserved",
     "Date-grouped upcoming and completed lists with a separate time column",
@@ -34,11 +34,10 @@
     "publicChangeSecurityReview": "No private key, token, personal phone, home address, identity number, task database or signing file found in source changes"
   },
   "pending": [
-    "Exact-source native lifecycle and notification CI",
-    "App Store signed IPA and provenance verification",
-    "Apple upload and processing",
-    "TestFlight group connection",
-    "App Store update metadata, screenshots and review submission"
+    "Save existing export-compliance answer through an authorized App Store Connect session",
+    "Connect 1301 to the existing owner TestFlight group",
+    "Create 1.0.2 App Store version, save prepared localized metadata and replace screenshots",
+    "Select 1301 and submit the update for App Review"
   ],
   "limitations": [
     "Simulated purchase states and automated tests do not constitute a physical iPhone StoreKit purchase or refund verification.",
@@ -49,5 +48,98 @@
     "Subscription products, price and existing customer entitlements",
     "Local data storage and reminder scheduling policy",
     "Google account registration remains paused by the user"
+  ],
+  "sourceCommit": "125818d60b3ce49b0a246cba9946363e0ac30fd9",
+  "remoteValidation": {
+    "unitAndWidgetTestsPassed": 561,
+    "optInCaptureTestsSkipped": 3,
+    "largeTextScenariosPassed": 41,
+    "nativeWidgetKitTestsPassed": 14,
+    "androidNativeQa": "PASS",
+    "iosNativeQa": "PASS",
+    "workflows": [
+      {
+        "runId": 39729256524,
+        "workflow": "mobile.yml",
+        "url": "https://github.com/dabok407/to-do-list/actions/runs/39729256524",
+        "conclusion": "success"
+      },
+      {
+        "runId": 39729276760,
+        "workflow": "ios-testflight.yml",
+        "url": "https://github.com/dabok407/to-do-list/actions/runs/39729276760",
+        "conclusion": "success"
+      },
+      {
+        "runId": 39732784290,
+        "workflow": "ios-testflight-upload.yml",
+        "url": "https://github.com/dabok407/to-do-list/actions/runs/39732784290",
+        "conclusion": "success"
+      }
+    ],
+    "verifiedNativeMarkers": [
+      "NATIVE_SAME_TIME_REMINDERS_ISOLATED_OK",
+      "NATIVE_QUICK_DEFAULT_OTHER_SWIPE_OK",
+      "IOS_COLD_WIDGET_DEEP_LINK_OK",
+      "IOS_TERMINATED_NOTIFICATION_OK",
+      "BACKGROUND_NOTIFICATION_OK",
+      "REBOOT_NOTIFICATION_OK",
+      "WIDGET_SNOOZE_BUTTON_OK",
+      "COLD_WIDGET_DEEP_LINK_OK"
+    ],
+    "notificationPermissionDeniedScenarios": "PASS on both platforms"
+  },
+  "signedBuild": {
+    "version": "1.0.2",
+    "build": "1301",
+    "source": "125818d60b3ce49b0a246cba9946363e0ac30fd9",
+    "runId": 39729276760,
+    "artifactId": 12404802774,
+    "artifactDigest": "sha256:3b951572a7ff4233c87a57ad6fd7a57ff830240e7d01ca59cfe4787653095864",
+    "artifactDigestVerified": true,
+    "ipaSha256": "6cc4df97e917fdd25169acde0ae203c4731ba760a9ae683f6f463355c16f623b",
+    "ipaBytes": 25225504,
+    "manifestVerified": true
+  },
+  "appleUpload": {
+    "uploaded": true,
+    "uploadRunId": 39732784290,
+    "rebuiltForUpload": false,
+    "checkedAtUtc": "2026-10-22T06:21:34.303090+00:00",
+    "version": "1.0.2",
+    "build": "1301",
+    "buildId": "3f9f969f-1d65-4952-905a-125ceafdfc68",
+    "processingState": "VALID",
+    "expired": false,
+    "usesNonExemptEncryption": null,
+    "uploadedDate": "2026-10-21T23:16:33-07:00",
+    "internalBuildState": "MISSING_EXPORT_COMPLIANCE",
+    "ownerGroupConnected": false,
+    "oldGroupBuildsRetained": true,
+    "actions": [],
+    "publicVersionChanged": false,
+    "readyForOwner": false
+  },
+  "appStore": {
+    "draftCreated": false,
+    "metadataSaved": false,
+    "screenshotsUploaded": false,
+    "reviewSubmitted": false,
+    "currentPublicVersion": "1.0.1",
+    "currentPublicBuild": "1203",
+    "currentPublicState": "READY_FOR_SALE"
+  },
+  "blockers": [
+    {
+      "operation": "Create 1.0.2 App Store version",
+      "httpStatus": 403,
+      "automaticRetry": false
+    },
+    {
+      "operation": "Set usesNonExemptEncryption=false on new build",
+      "httpStatus": 403,
+      "automaticRetry": false
+    },
+    "Connected development-PC browser is signed out; browser display/login is not currently connected to the remote user PC"
   ]
 }

@@ -1,6 +1,6 @@
 {
   "preparedOn": "2026-10-22",
-  "status": "LOCAL_MATERIALS_READY_NOT_SUBMITTED",
+  "status": "MATERIALS_READY_BINARY_UPLOADED_CONSOLE_AUTH_REQUIRED",
   "appId": "6821236391",
   "version": "1.0.2",
   "plannedBuildNumber": "1301",
@@ -154,7 +154,7 @@
     "screenshotRegenerationComplete": true,
     "sourceAndArtworkHashVerified": true,
     "appleMetadataSaved": false,
-    "appleBuildUploaded": false,
+    "appleBuildUploaded": true,
     "reviewSubmitted": false,
     "artworkPolicyTestsPassed": 5,
     "appleCaptureTestsPassed": 4,
@@ -174,5 +174,14 @@
     "subtitles"
   ],
   "googleAccountWorkRemainsOnHold": true,
-  "buildNumber": "1301"
+  "buildNumber": "1301",
+  "uploadEvidence": {
+    "sourceCommit": "125818d60b3ce49b0a246cba9946363e0ac30fd9",
+    "buildId": "3f9f969f-1d65-4952-905a-125ceafdfc68",
+    "processingState": "VALID",
+    "uploadRunId": 39732784290,
+    "ipaSha256": "6cc4df97e917fdd25169acde0ae203c4731ba760a9ae683f6f463355c16f623b",
+    "testflightReady": false,
+    "exportCompliancePending": true
+  }
 }
