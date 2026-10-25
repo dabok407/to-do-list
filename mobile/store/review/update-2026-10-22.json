@@ -1,6 +1,6 @@
 {
   "preparedOn": "2026-10-22",
-  "status": "MATERIALS_READY_BINARY_UPLOADED_CONSOLE_AUTH_REQUIRED",
+  "status": "WAITING_FOR_REVIEW",
   "appId": "6821236391",
   "version": "1.0.2",
   "plannedBuildNumber": "1301",
@@ -8,7 +8,8 @@
   "existingLiveVersion": {
     "version": "1.0.1",
     "build": "1203",
-    "preserve": true
+    "preserve": true,
+    "state": "READY_FOR_SALE"
   },
   "localizations": {
     "ko": {
@@ -22,7 +23,8 @@
       "whatsNew": "• 통계를 우선순위별·분류별 탭과 원형·도넛 차트로 새롭게 구성했습니다.\n• 최근 30일 외에도 원하는 기간의 통계를 조회할 수 있습니다.\n• 예정·완료 목록을 날짜별로 묶고 시간을 별도 칼럼에 표시했습니다. 최신순·오래된순 정렬도 추가했습니다.\n• 분류 아이콘과 색상을 화면 전반에 맞추고, 캘린더의 좌우 여백을 줄였습니다.\n• 간단히 추가에서 입력 중에는 추가 버튼을 숨기고, 완료·완료 해제 안내는 3초 뒤 사라지도록 다듬었습니다.",
       "reviewNotes": "투두닉 버전 1.0.2, 빌드 1301 업데이트입니다. 최종 제출 전 업로드된 바이너리와 대조합니다. 통계와 목록 UI를 개선하며 로그인, 개발자 서버, 광고 SDK 또는 새로운 구독 상품은 추가하지 않습니다.\n\n통계의 기본 최근 30일과 기간 선택·초기화, 우선순위별 원형 차트와 분류별 도넛 차트를 확인해주세요. 반복 일정은 회차별로 집계하고 자동으로 건너뛴 주간 목표 회차는 제외합니다. 예정·완료 목록은 날짜 그룹과 별도 시간 칼럼을 제공하며 최신순·오래된순을 선택할 수 있습니다. 예정은 예정일시, 완료는 실제 완료일시 기준입니다. 간단히 추가 입력 시 추가 버튼이 숨겨지고 완료·완료 해제 안내는 3초 뒤 사라집니다. 캘린더 좌우 여백은 8 논리 픽셀입니다.\n\n기존 일정과 구독 권한을 유지합니다. 첫 7일 앱 내부 체험은 자동 결제로 전환되지 않습니다. 체험 후 기본 캘린더·할 일·메모·반복 일정·완료·위젯 보기는 계속 제공하고 알림·미루기·실행 보조·통계는 기존 연간 자동 갱신 Pro(hangeoreum_pro_yearly)로 제공합니다. 로그인이나 별도 심사 계정이 필요하지 않습니다. 공개 이미지에는 가격·무료·체험 홍보를 넣지 않고 Pro 구독 필요 여부만 표시합니다.",
       "keywordCharacters": 44,
-      "keywordUtf8Bytes": 98
+      "keywordUtf8Bytes": 98,
+      "promotionalTextAction": "retained_existing_approved_value"
     },
     "en-US": {
       "appName": "Todoniq - Tasks & Calendar",
@@ -33,9 +35,12 @@
       "description": "Your tasks. Your way.\n\nTodoniq stores your tasks and notes on your device and does not send them to a developer server. No sign-up or advertising tracking. The basic calendar and notes work offline.\n\nFrom a daily walk to a weekend bedroom clean-up, Todoniq helps you plan what needs doing and take action.\n\nSee today and what comes next\nUse the month or week calendar and daily task lists to organize your plans. Unfinished tasks stay visible. Upcoming and Done group tasks by date with a separate time column, and offer newest- or oldest-first sorting.\n\nAdd tasks with fewer steps\nQuick Add suggests a time one hour from now; check the time, then enter your task. Choose Personal, Work, Health, Learning or Other, and High, Normal or Low priority with buttons. New tasks start with Personal and Normal. Swipe a task right to complete it, or swipe a completed task left to undo completion.\n\nRepeat on your terms\nCreate one-off tasks, daily, weekly or monthly repeats, selected weekdays and weekly targets. Set an end date and edit one occurrence or future occurrences.\n\nGet a reminder when you need it — Pro\nSchedule local reminders and follow-ups for overdue tasks. Overdue reminders default to once a day. Change their interval and time for each task, or turn them off. With notification permission, reminders already scheduled on your device can appear while the app is closed.\n\nMake starting easier — Pro\nSnooze for 10 minutes, 30 minutes, an hour or later today. After repeated postponements, try a smaller first step for just five minutes. Keep track of tasks that are started, in progress, postponed or completed.\n\nLook back at your progress — Pro\nStart with the last 30 days or choose a date range. See completion rates by priority in rings and completed tasks by category in a donut chart. Review task counts, snoozes and the times you most often finish tasks.\n\nSee upcoming tasks from your home screen\nThe widget shows nearby tasks and priorities, helping you check your plans without finding the app each time.\n\nYour plans stay on your device\nNo app account is required. Tasks, notes and activity history are stored locally and are not uploaded to a developer server. There are no ads, advertising or analytics SDKs, or cloud sync. The basic calendar and notes work offline.\n\nUse Korean or English\nFollow your device language or choose Korean or English in Settings. Your own task titles, notes and category names stay as you entered them when you change the interface language.\n\nFree features and Todoniq Pro\nAll features are available for 7 days from first launch. This in-app evaluation does not automatically start a subscription or charge you.\nAfterward, the calendar, creating, editing and deleting tasks and notes, repeating schedules, completing and undoing completion, and viewing the widget remain free.\nReminders, overdue follow-ups, snoozing, start assistance and statistics require the optional annual Pro subscription. A subscription you purchase renews yearly unless canceled. The store purchase confirmation shows your local price and billing terms. Manage subscriptions, cancellations and refunds through the store where you purchased.\n\nBefore you use the app\nPurchases, restoration and subscription checks may require internet access. Notifications and widget updates depend on OS permissions, Focus settings, battery restrictions, force-stop behavior and scheduling limits. Deleting the app or changing devices can erase your tasks and history; cloud recovery is not provided. Restoring a purchase does not restore task data.\n\nSupport: dabok407@gmail.com\n\nPrivacy Policy: https://dabok407.github.io/to-do-list/privacy-en.html\nSupport: https://dabok407.github.io/to-do-list/support-en.html\nTerms of Use (Apple Standard EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
       "descriptionCharacters": 3820,
       "whatsNew": "• Redesigned Insights with priority and category tabs, rings and a donut chart.\n• Choose a date range as well as the default last 30 days.\n• Upcoming and Done now group tasks by date with a separate time column and newest- or oldest-first sorting.\n• Unified category icons and colors and gave the calendar more room.\n• The add button hides while typing in Quick Add. Completion and undo notices dismiss after 3 seconds.",
-      "reviewNotes": "This is Todoniq version 1.0.2, build 1301. The uploaded binary will be checked before final submission. The update changes the statistics and task-list interface; it does not introduce a login, developer server, advertising SDK or new subscription product.\n\nReview steps for this update:\n1. Open Insights. The default period is the last 30 days. Use the date-range control to select another period and the Last 30 days button to reset.\n2. Switch between By priority (completion-rate rings) and By category (the distribution of completed occurrences in a donut). Both use the selected period. Recurring occurrences are counted separately and automatically skipped weekly-target slots are excluded. Category colors match the calendar.\n3. Open Upcoming or Done. Tasks are grouped by date with a separate time column. Select Newest first or Oldest first. Upcoming sorts by scheduled date/time; Done uses the actual completion date/time. In-progress and overdue sections retain their grouping.\n4. Open Quick Add and type a task. The floating add button hides during input and returns after focus leaves the field. Complete or undo a task to see the temporary notice.\n5. Check the month and week calendar. Its horizontal inset is now 8 logical pixels. Date selection, recurrence and notification scheduling remain available.\n\nExisting task records and purchase access are retained. New tasks still default to Personal category and Normal priority. The app supports Korean and English and requires no app account.\n\nThe existing access model is unchanged: the first 7 days provide an in-app evaluation that does not automatically start or charge a subscription. Afterward the calendar, task/notes editing, recurrence, completion/undo and widget viewing remain available without Pro. Reminders, overdue follow-ups, snoozing, start assistance and statistics require the annual auto-renewing Pro subscription hangeoreum_pro_yearly. Purchase, restore and management are in Settings / Todoniq Pro. StoreKit supplies the local price and confirmation terms.\n\nThe descriptions contain no references to competing mobile platforms. Public artwork uses the production interface and does not advertise prices, free offers or evaluation periods; Pro screenshots disclose that a subscription is required. No credentials or special reviewer account are required.",
+      "reviewNotes": "This is Todoniq version 1.0.2, build 1301. The uploaded binary is version 1.0.2, build 1301 and has completed Apple processing. The update changes the statistics and task-list interface; it does not introduce a login, developer server, advertising SDK or new subscription product.\n\nReview steps for this update:\n1. Open Insights. The default period is the last 30 days. Use the date-range control to select another period and the Last 30 days button to reset.\n2. Switch between By priority (completion-rate rings) and By category (the distribution of completed occurrences in a donut). Both use the selected period. Recurring occurrences are counted separately and automatically skipped weekly-target slots are excluded. Category colors match the calendar.\n3. Open Upcoming or Done. Tasks are grouped by date with a separate time column. Select Newest first or Oldest first. Upcoming sorts by scheduled date/time; Done uses the actual completion date/time. In-progress and overdue sections retain their grouping.\n4. Open Quick Add and type a task. The floating add button hides during input and returns after focus leaves the field. Complete or undo a task to see the temporary notice.\n5. Check the month and week calendar. Its horizontal inset is now 8 logical pixels. Date selection, recurrence and notification scheduling remain available.\n\nExisting task records and purchase access are retained. New tasks still default to Personal category and Normal priority. The app supports Korean and English and requires no app account.\n\nThe existing access model is unchanged: the first 7 days provide an in-app evaluation that does not automatically start or charge a subscription. Afterward the calendar, task/notes editing, recurrence, completion/undo and widget viewing remain available without Pro. Reminders, overdue follow-ups, snoozing, start assistance and statistics require the annual auto-renewing Pro subscription hangeoreum_pro_yearly. Purchase, restore and management are in Settings / Todoniq Pro. StoreKit supplies the local price and confirmation terms.\n\nThe descriptions contain no references to competing mobile platforms. Public artwork uses the production interface and does not advertise prices, free offers or evaluation periods; Pro screenshots disclose that a subscription is required. No credentials or special reviewer account are required.",
       "keywordCharacters": 98,
-      "keywordUtf8Bytes": 98
+      "keywordUtf8Bytes": 98,
+      "promotionalText": "Your tasks. Your way. Keep tasks and notes on your device, without a developer server or ad tracking. Plan your day and start small with Pro reminders.",
+      "promotionalTextCharacters": 151,
+      "promotionalTextAction": "saved_in_console"
     }
   },
   "descriptionChanges": [
@@ -44,7 +49,7 @@
     "Preserve local-storage privacy, subscription terms and Apple-specific policy/support/EULA links."
   ],
   "screenshotAudit": {
-    "status": "REGENERATED_VERIFIED_LOCALLY_NOT_UPLOADED",
+    "status": "UPLOADED_COMPLETE_API_VERIFIED",
     "locales": [
       "ko",
       "en-US"
@@ -135,7 +140,10 @@
         "store/screenshots/ipad/05-stats-detail.png"
       ],
       "findings": "Both localized contact sheets and representative full-size priority/category screenshots show the new production charts, period controls, aligned values, category colors/icons and subscription disclosure. No artwork header overlap, free/price/trial advertising or other-platform references were found. Bottom content scrolls naturally within the actual viewport."
-    }
+    },
+    "appleUploadedImageCount": 42,
+    "appleUploadedSetCount": 6,
+    "consoleVerifiedAtUtc": "2026-10-25T09:11:19.259568+00:00"
   },
   "reviewRisksChecked": [
     "2.3.10: No Android references in Apple descriptions or public artwork.",
@@ -153,14 +161,17 @@
     "appleDescriptionsHaveNoOtherMobilePlatformReferences": true,
     "screenshotRegenerationComplete": true,
     "sourceAndArtworkHashVerified": true,
-    "appleMetadataSaved": false,
+    "appleMetadataSaved": true,
     "appleBuildUploaded": true,
-    "reviewSubmitted": false,
+    "reviewSubmitted": true,
     "artworkPolicyTestsPassed": 5,
     "appleCaptureTestsPassed": 4,
     "appleImagePackagesVerified": 2,
     "entriesPerApplePackage": 22,
-    "googleAssetsRegenerated": false
+    "googleAssetsRegenerated": false,
+    "appleScreenshotsUploaded": true,
+    "appleMetadataExactMatchVerified": true,
+    "appleScreenshotDeliveryComplete": true
   },
   "unchanged": [
     "subscriptionProduct",
@@ -169,7 +180,6 @@
     "developerIdentity",
     "privacyCollectionAnswers",
     "supportAndPrivacyUrls",
-    "promotionalText",
     "appNames",
     "subtitles"
   ],
@@ -181,7 +191,205 @@
     "processingState": "VALID",
     "uploadRunId": 39732784290,
     "ipaSha256": "6cc4df97e917fdd25169acde0ae203c4731ba760a9ae683f6f463355c16f623b",
-    "testflightReady": false,
-    "exportCompliancePending": true
+    "testflightReady": true,
+    "exportCompliancePending": false,
+    "usesNonExemptEncryption": false,
+    "internalBuildState": "IN_BETA_TESTING",
+    "ownerGroupConnected": true
+  },
+  "lastVerifiedOn": "2026-10-25",
+  "appReviewNotes": "This is Todoniq version 1.0.2, build 1301. The uploaded binary is version 1.0.2, build 1301 and has completed Apple processing. The update changes the statistics and task-list interface; it does not introduce a login, developer server, advertising SDK or new subscription product.\n\nReview steps for this update:\n1. Open Insights. The default period is the last 30 days. Use the date-range control to select another period and the Last 30 days button to reset.\n2. Switch between By priority (completion-rate rings) and By category (the distribution of completed occurrences in a donut). Both use the selected period. Recurring occurrences are counted separately and automatically skipped weekly-target slots are excluded. Category colors match the calendar.\n3. Open Upcoming or Done. Tasks are grouped by date with a separate time column. Select Newest first or Oldest first. Upcoming sorts by scheduled date/time; Done uses the actual completion date/time. In-progress and overdue sections retain their grouping.\n4. Open Quick Add and type a task. The floating add button hides during input and returns after focus leaves the field. Complete or undo a task to see the temporary notice.\n5. Check the month and week calendar. Its horizontal inset is now 8 logical pixels. Date selection, recurrence and notification scheduling remain available.\n\nExisting task records and purchase access are retained. New tasks still default to Personal category and Normal priority. The app supports Korean and English and requires no app account.\n\nThe existing access model is unchanged: the first 7 days provide an in-app evaluation that does not automatically start or charge a subscription. Afterward the calendar, task/notes editing, recurrence, completion/undo and widget viewing remain available without Pro. Reminders, overdue follow-ups, snoozing, start assistance and statistics require the annual auto-renewing Pro subscription hangeoreum_pro_yearly. Purchase, restore and management are in Settings / Todoniq Pro. StoreKit supplies the local price and confirmation terms.\n\nThe descriptions contain no references to competing mobile platforms. Public artwork uses the production interface and does not advertise prices, free offers or evaluation periods; Pro screenshots disclose that a subscription is required. No credentials or special reviewer account are required.",
+  "appReviewNotesLanguage": "en-US",
+  "koreanReviewNotesUse": "reference translation; App Store Connect uses the common English appReviewNotes",
+  "consoleVerification": {
+    "metadataCheckedAtUtc": "2026-10-25T09:11:19.259568+00:00",
+    "postSubmissionStateCheckedAtUtc": "2026-10-25T09:12:30.360496+00:00",
+    "localeCount": 2,
+    "metadataFieldsExactMatch": [
+      "description",
+      "whatsNew",
+      "keywords"
+    ],
+    "allMetadataExactMatches": true,
+    "appleScreenshotCount": 42,
+    "allScreenshotDeliveryStates": "COMPLETE",
+    "screenshotSets": [
+      {
+        "locale": "en-US",
+        "sets": [
+          {
+            "displayType": "APP_IPHONE_61",
+            "count": 7,
+            "fileNames": [
+              "01-calendar.png",
+              "02-overdue.png",
+              "03-start.png",
+              "04-repeat.png",
+              "05-stats-detail.png",
+              "06-stats.png",
+              "07-privacy.png"
+            ],
+            "deliveryStates": [
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE"
+            ]
+          },
+          {
+            "displayType": "APP_IPAD_PRO_3GEN_129",
+            "count": 7,
+            "fileNames": [
+              "01-calendar.png",
+              "02-overdue.png",
+              "03-start.png",
+              "04-repeat.png",
+              "05-stats-detail.png",
+              "06-stats.png",
+              "07-privacy.png"
+            ],
+            "deliveryStates": [
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE"
+            ]
+          },
+          {
+            "displayType": "APP_IPHONE_67",
+            "count": 7,
+            "fileNames": [
+              "01-calendar.png",
+              "02-overdue.png",
+              "03-start.png",
+              "04-repeat.png",
+              "05-stats-detail.png",
+              "06-stats.png",
+              "07-privacy.png"
+            ],
+            "deliveryStates": [
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE"
+            ]
+          }
+        ]
+      },
+      {
+        "locale": "ko",
+        "sets": [
+          {
+            "displayType": "APP_IPHONE_61",
+            "count": 7,
+            "fileNames": [
+              "01-calendar.png",
+              "02-overdue.png",
+              "03-start.png",
+              "04-repeat.png",
+              "05-stats-detail.png",
+              "06-stats.png",
+              "07-privacy.png"
+            ],
+            "deliveryStates": [
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE"
+            ]
+          },
+          {
+            "displayType": "APP_IPAD_PRO_3GEN_129",
+            "count": 7,
+            "fileNames": [
+              "01-calendar.png",
+              "02-overdue.png",
+              "03-start.png",
+              "04-repeat.png",
+              "05-stats-detail.png",
+              "06-stats.png",
+              "07-privacy.png"
+            ],
+            "deliveryStates": [
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE"
+            ]
+          },
+          {
+            "displayType": "APP_IPHONE_67",
+            "count": 7,
+            "fileNames": [
+              "01-calendar.png",
+              "02-overdue.png",
+              "03-start.png",
+              "04-repeat.png",
+              "05-stats-detail.png",
+              "06-stats.png",
+              "07-privacy.png"
+            ],
+            "deliveryStates": [
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE"
+            ]
+          }
+        ]
+      }
+    ],
+    "remoteSourceChecksumAlgorithmNotAssumed": true
+  },
+  "submission": {
+    "submittedAtKst": "2026-10-25T18:11:00+09:00",
+    "submissionId": "c31ce4ac-0366-498f-b308-e54b4c32aa6f",
+    "versionId": "5539a065-10c3-4dbc-8eaf-8f20834912fb",
+    "version": "1.0.2",
+    "build": "1301",
+    "state": "WAITING_FOR_REVIEW",
+    "releaseType": "AFTER_APPROVAL",
+    "submittedItemCount": 1,
+    "submittedItem": "iOS app version 1.0.2 (1301)",
+    "verifiedInConsole": true,
+    "verifiedByReadOnlyApi": true,
+    "approved": false,
+    "publicReleaseComplete": false
+  },
+  "resolvedBlockersHistory": {
+    "recordedOn": "2026-10-22",
+    "resolvedOn": "2026-10-25",
+    "items": [
+      {
+        "operation": "Create 1.0.2 App Store version",
+        "httpStatus": 403,
+        "automaticRetry": false
+      },
+      {
+        "operation": "Set usesNonExemptEncryption=false on new build",
+        "httpStatus": 403,
+        "automaticRetry": false
+      },
+      "Connected development-PC browser is signed out; browser display/login is not currently connected to the remote user PC"
+    ],
+    "resolution": "Authenticated App Store Connect console completed export compliance, internal group connection, localized metadata, screenshots and review submission; existing API permissions were not expanded."
   }
 }

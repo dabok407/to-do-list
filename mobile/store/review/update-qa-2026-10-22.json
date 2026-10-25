@@ -2,7 +2,7 @@
   "date": "2026-10-22",
   "version": "1.0.2",
   "build": "1301",
-  "status": "VERIFIED_UPLOADED_CONSOLE_AUTH_REQUIRED",
+  "status": "WAITING_FOR_REVIEW",
   "scope": [
     "8px calendar side margins; existing calendar colors preserved",
     "Date-grouped upcoming and completed lists with a separate time column",
@@ -34,10 +34,9 @@
     "publicChangeSecurityReview": "No private key, token, personal phone, home address, identity number, task database or signing file found in source changes"
   },
   "pending": [
-    "Save existing export-compliance answer through an authorized App Store Connect session",
-    "Connect 1301 to the existing owner TestFlight group",
-    "Create 1.0.2 App Store version, save prepared localized metadata and replace screenshots",
-    "Select 1301 and submit the update for App Review"
+    "Apple App Review result for submitted 1.0.2 (1301); release remains AFTER_APPROVAL",
+    "Physical iPhone installation and StoreKit purchase/refund verification remain unconfirmed",
+    "Google account registration remains paused until the user asks to resume"
   ],
   "limitations": [
     "Simulated purchase states and automated tests do not constitute a physical iPhone StoreKit purchase or refund verification.",
@@ -102,6 +101,57 @@
     "manifestVerified": true
   },
   "appleUpload": {
+    "checkedAtUtc": "2026-10-25T09:10:42.256445+00:00",
+    "version": "1.0.2",
+    "build": "1301",
+    "buildId": "3f9f969f-1d65-4952-905a-125ceafdfc68",
+    "processingState": "VALID",
+    "expired": false,
+    "usesNonExemptEncryption": false,
+    "uploadedDate": "2026-10-21T23:16:33-07:00",
+    "internalBuildState": "IN_BETA_TESTING",
+    "ownerGroupConnected": true,
+    "oldGroupBuildsRetained": true,
+    "actions": [],
+    "publicVersionChanged": false,
+    "readyForOwner": true,
+    "uploaded": true,
+    "uploadRunId": 39732784290,
+    "rebuiltForUpload": false
+  },
+  "appStore": {
+    "draftCreated": true,
+    "metadataSaved": true,
+    "screenshotsUploaded": true,
+    "reviewSubmitted": true,
+    "reviewState": "WAITING_FOR_REVIEW",
+    "versionId": "5539a065-10c3-4dbc-8eaf-8f20834912fb",
+    "submissionId": "c31ce4ac-0366-498f-b308-e54b4c32aa6f",
+    "currentPublicVersion": "1.0.1",
+    "currentPublicBuild": "1203",
+    "currentPublicState": "READY_FOR_SALE"
+  },
+  "lastVerifiedOn": "2026-10-25",
+  "resolvedBlockersHistory": {
+    "recordedOn": "2026-10-22",
+    "resolvedOn": "2026-10-25",
+    "items": [
+      {
+        "operation": "Create 1.0.2 App Store version",
+        "httpStatus": 403,
+        "automaticRetry": false
+      },
+      {
+        "operation": "Set usesNonExemptEncryption=false on new build",
+        "httpStatus": 403,
+        "automaticRetry": false
+      },
+      "Connected development-PC browser is signed out; browser display/login is not currently connected to the remote user PC"
+    ],
+    "resolution": "Authenticated App Store Connect console completed export compliance, internal group connection, localized metadata, screenshots and review submission; existing API permissions were not expanded."
+  },
+  "blockers": [],
+  "appleUploadHistory": {
     "uploaded": true,
     "uploadRunId": 39732784290,
     "rebuiltForUpload": false,
@@ -120,26 +170,182 @@
     "publicVersionChanged": false,
     "readyForOwner": false
   },
-  "appStore": {
-    "draftCreated": false,
-    "metadataSaved": false,
-    "screenshotsUploaded": false,
-    "reviewSubmitted": false,
-    "currentPublicVersion": "1.0.1",
-    "currentPublicBuild": "1203",
-    "currentPublicState": "READY_FOR_SALE"
+  "submission": {
+    "submittedAtKst": "2026-10-25T18:11:00+09:00",
+    "submissionId": "c31ce4ac-0366-498f-b308-e54b4c32aa6f",
+    "versionId": "5539a065-10c3-4dbc-8eaf-8f20834912fb",
+    "version": "1.0.2",
+    "build": "1301",
+    "state": "WAITING_FOR_REVIEW",
+    "releaseType": "AFTER_APPROVAL",
+    "submittedItemCount": 1,
+    "submittedItem": "iOS app version 1.0.2 (1301)",
+    "verifiedInConsole": true,
+    "verifiedByReadOnlyApi": true,
+    "approved": false,
+    "publicReleaseComplete": false
   },
-  "blockers": [
-    {
-      "operation": "Create 1.0.2 App Store version",
-      "httpStatus": 403,
-      "automaticRetry": false
-    },
-    {
-      "operation": "Set usesNonExemptEncryption=false on new build",
-      "httpStatus": 403,
-      "automaticRetry": false
-    },
-    "Connected development-PC browser is signed out; browser display/login is not currently connected to the remote user PC"
-  ]
+  "consoleVerification": {
+    "metadataCheckedAtUtc": "2026-10-25T09:11:19.259568+00:00",
+    "postSubmissionStateCheckedAtUtc": "2026-10-25T09:12:30.360496+00:00",
+    "localeCount": 2,
+    "metadataFieldsExactMatch": [
+      "description",
+      "whatsNew",
+      "keywords"
+    ],
+    "allMetadataExactMatches": true,
+    "appleScreenshotCount": 42,
+    "allScreenshotDeliveryStates": "COMPLETE",
+    "screenshotSets": [
+      {
+        "locale": "en-US",
+        "sets": [
+          {
+            "displayType": "APP_IPHONE_61",
+            "count": 7,
+            "fileNames": [
+              "01-calendar.png",
+              "02-overdue.png",
+              "03-start.png",
+              "04-repeat.png",
+              "05-stats-detail.png",
+              "06-stats.png",
+              "07-privacy.png"
+            ],
+            "deliveryStates": [
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE"
+            ]
+          },
+          {
+            "displayType": "APP_IPAD_PRO_3GEN_129",
+            "count": 7,
+            "fileNames": [
+              "01-calendar.png",
+              "02-overdue.png",
+              "03-start.png",
+              "04-repeat.png",
+              "05-stats-detail.png",
+              "06-stats.png",
+              "07-privacy.png"
+            ],
+            "deliveryStates": [
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE"
+            ]
+          },
+          {
+            "displayType": "APP_IPHONE_67",
+            "count": 7,
+            "fileNames": [
+              "01-calendar.png",
+              "02-overdue.png",
+              "03-start.png",
+              "04-repeat.png",
+              "05-stats-detail.png",
+              "06-stats.png",
+              "07-privacy.png"
+            ],
+            "deliveryStates": [
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE"
+            ]
+          }
+        ]
+      },
+      {
+        "locale": "ko",
+        "sets": [
+          {
+            "displayType": "APP_IPHONE_61",
+            "count": 7,
+            "fileNames": [
+              "01-calendar.png",
+              "02-overdue.png",
+              "03-start.png",
+              "04-repeat.png",
+              "05-stats-detail.png",
+              "06-stats.png",
+              "07-privacy.png"
+            ],
+            "deliveryStates": [
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE"
+            ]
+          },
+          {
+            "displayType": "APP_IPAD_PRO_3GEN_129",
+            "count": 7,
+            "fileNames": [
+              "01-calendar.png",
+              "02-overdue.png",
+              "03-start.png",
+              "04-repeat.png",
+              "05-stats-detail.png",
+              "06-stats.png",
+              "07-privacy.png"
+            ],
+            "deliveryStates": [
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE"
+            ]
+          },
+          {
+            "displayType": "APP_IPHONE_67",
+            "count": 7,
+            "fileNames": [
+              "01-calendar.png",
+              "02-overdue.png",
+              "03-start.png",
+              "04-repeat.png",
+              "05-stats-detail.png",
+              "06-stats.png",
+              "07-privacy.png"
+            ],
+            "deliveryStates": [
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE",
+              "COMPLETE"
+            ]
+          }
+        ]
+      }
+    ],
+    "remoteSourceChecksumAlgorithmNotAssumed": true
+  },
+  "developerProgramAgreement": {
+    "acceptedOn": "2026-10-25",
+    "explicitUserApprovalReceived": true,
+    "consolePendingBannerRemoved": true
+  }
 }
