@@ -12,7 +12,7 @@ appId: com.dabok407.hangeoreum
 # A cold widget link can leave task details open above the tab bar. Its
 # dismissible barrier may consume a Settings tap, so close the visible sheet
 # first and retry actual tab navigation at most three times. Require a field
-# unique to Settings before looking for the reminder button.
+# unique to Settings before opening the notification settings sheet.
 - repeat:
     times: 3
     while:
@@ -29,6 +29,9 @@ appId: com.dabok407.hangeoreum
 - extendedWaitUntil:
     visible: "${SETTINGS_CONTENT}(\\n.*)?"
     timeout: 30000
+# The grouped Settings screen keeps the real reminder controls in this sheet.
+# Follow the same path as a user; still require actual delivery below.
+- tapOn: "${SETTINGS_CONTENT}(\\n.*)?"
 - scrollUntilVisible:
     element:
       text: "${TEST_BUTTON}"

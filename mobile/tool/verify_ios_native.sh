@@ -54,7 +54,7 @@ PY
 if [[ "$language" == en ]]; then
   progressing_label='In progress'
   settings_label='Settings'
-  settings_content='(Language|Your plans stay on your device)'
+  settings_content='Notification settings & test'
   close_label='Close'
   test_button='Test reminder in 10 seconds'
   test_title='Todoniq reminder test'
@@ -62,7 +62,7 @@ if [[ "$language" == en ]]; then
 else
   progressing_label='진행 중'
   settings_label='설정'
-  settings_content='(언어|나의 일정은, 나의 기기에만)'
+  settings_content='알림 설정·테스트'
   close_label='닫기'
   test_button='10초 뒤 테스트 알림'
   test_title='투두닉 테스트'
