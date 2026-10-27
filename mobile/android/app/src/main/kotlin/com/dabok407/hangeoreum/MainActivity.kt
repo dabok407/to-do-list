@@ -12,12 +12,14 @@ import java.util.Locale
 
 class MainActivity : FlutterActivity() {
     private var subscriptions: SubscriptionBridge? = null
+    private var backupFiles: BackupDocumentBridge? = null
     private var widgetChannel: MethodChannel? = null
     private var widgetBridgeReady = false
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         subscriptions = SubscriptionBridge(this, flutterEngine.dartExecutor.binaryMessenger)
+        backupFiles = BackupDocumentBridge(this, flutterEngine.dartExecutor.binaryMessenger)
         widgetChannel = MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
             "com.dabok407.hangeoreum/widget",
@@ -51,7 +53,15 @@ class MainActivity : FlutterActivity() {
     override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {
         subscriptions?.close()
         subscriptions = null
+        backupFiles?.close()
+        backupFiles = null
         super.cleanUpFlutterEngine(flutterEngine)
+    }
+
+    @Deprecated("Required by the document picker activity result API")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (backupFiles?.onActivityResult(requestCode, resultCode, data) == true) return
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
     override fun onNewIntent(intent: Intent) {

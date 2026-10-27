@@ -1,15 +1,13 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../app/task_controller.dart';
 import '../domain/task.dart';
 import '../domain/task_list_sections.dart';
+import '../domain/snooze_target.dart';
 import 'task_editor.dart';
 import 'pro_screen.dart';
-import 'privacy_card.dart';
-import 'store_policy_links.dart';
 import 'persistent_time_picker.dart';
 import 'equal_choice_row.dart';
 import 'feedback_snackbar.dart';
@@ -17,6 +15,9 @@ import 'visual_tokens.dart';
 import 'statistics_panel.dart';
 import 'task_timeline_row.dart';
 import 'task_list_sort_control.dart';
+import 'task_completion_checkbox.dart';
+import 'task_detail_metadata.dart';
+import 'settings_panel.dart';
 import '../services/subscription_service.dart';
 import '../l10n/app_strings.dart';
 
@@ -312,10 +313,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     style: Theme.of(ctx).textTheme.headlineSmall,
                   ),
                   const SizedBox(height: 12),
-                  Text(
-                    '${strings.date(o.originalDue)} · ${strings.time(o.originalDue)} · ${strings.t(stateNames[o.status.index])}',
-                    style: Theme.of(ctx).textTheme.bodyMedium,
-                  ),
+                  TaskDetailMetadata(occurrence: o),
                   if (o.task.note.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(top: 16),
@@ -393,35 +391,60 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           .toList(),
                     ),
                     const SizedBox(height: 8),
-                    OutlinedButton(
-                      onPressed: busy
-                          ? null
-                          : () {
-                              final now = DateTime.now();
-                              final remaining = DateTime(
-                                now.year,
-                                now.month,
-                                now.day,
-                                23,
-                                59,
-                              ).difference(now).inMinutes;
-                              if (remaining < 1) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  feedbackSnackBar(
-                                    content: Text(
-                                      strings.t('오늘 남은 시간이 없어요. 날짜를 변경해주세요.'),
-                                    ),
-                                  ),
-                                );
-                                return;
-                              }
-                              taskAction(
-                                o,
-                                'snooze',
-                                minutes: remaining < 120 ? remaining : 120,
-                              );
-                            },
-                      child: Text(strings.t('오늘 나중에')),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        OutlinedButton(
+                          onPressed: busy
+                              ? null
+                              : () {
+                                  final now = DateTime.now();
+                                  final remaining = DateTime(
+                                    now.year,
+                                    now.month,
+                                    now.day,
+                                    23,
+                                    59,
+                                  ).difference(now).inMinutes;
+                                  if (remaining < 1) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      feedbackSnackBar(
+                                        content: Text(
+                                          strings.t(
+                                            '오늘 남은 시간이 없어요. 날짜를 변경해주세요.',
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                    return;
+                                  }
+                                  taskAction(
+                                    o,
+                                    'snooze',
+                                    minutes: remaining < 120 ? remaining : 120,
+                                  );
+                                },
+                          child: Text(strings.t('오늘 나중에')),
+                        ),
+                        OutlinedButton(
+                          key: const Key('snooze-tomorrow'),
+                          onPressed: busy
+                              ? null
+                              : () async {
+                                  if (!subscription.hasAccess) {
+                                    openPro();
+                                    return;
+                                  }
+                                  final target = tomorrowAtScheduledTime(
+                                    o.originalDue,
+                                    DateTime.now(),
+                                  );
+                                  await run(() => c.snoozeUntil(o, target));
+                                },
+                          child: Text(strings.t('내일 같은 시간')),
+                        ),
+                      ],
                     ),
                     FutureBuilder<int>(
                       future: c.repository.todaySnoozes(o.id),
@@ -666,21 +689,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               contentPadding: const EdgeInsets.symmetric(vertical: 9),
               minLeadingWidth: 40,
               horizontalTitleGap: 8,
-              leading: IconButton(
-                tooltip: o.status == TaskStatus.completed
-                    ? strings.t('완료 해제')
-                    : strings.t('완료 처리'),
-                onPressed: busy || o.status == TaskStatus.skipped
-                    ? null
-                    : () => toggleCompletion(o),
-                icon: Icon(
-                  o.status == TaskStatus.completed
-                      ? Icons.check_circle
-                      : Icons.radio_button_unchecked,
-                  color: o.status == TaskStatus.completed
-                      ? mutedText
-                      : TaskVisuals.ink,
-                ),
+              leading: TaskCompletionCheckbox(
+                completed: o.status == TaskStatus.completed,
+                enabled: !busy && o.status != TaskStatus.skipped,
+                onToggle: () => toggleCompletion(o),
               ),
               title: Text(
                 o.task.title,
@@ -754,12 +766,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                             ),
                           ),
                         if (o.status == TaskStatus.paused)
-                          Text(
-                            strings.t(
-                              '· {time} 재알림',
-                              args: {'time': strings.time(o.reminder)},
-                            ),
-                          ),
+                          Text(taskReminderLabel(o, strings)),
                       ],
                     ),
                   ),
@@ -835,6 +842,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           if (bodyScroll.hasClients) bodyScroll.jumpTo(0);
         },
       ),
+      if (sections.isEmpty) emptyTaskList(completed: completed),
       for (final section in sections) ...[
         Semantics(
           header: true,
@@ -845,12 +853,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               heading(section),
               style: TextStyle(
                 fontFamily: 'Pretendard',
-                fontSize: 14,
+                fontSize: 19,
                 height: 1.5,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w700,
                 color: section.kind == TaskListSectionKind.overdue
                     ? priorityRed
-                    : TaskVisuals.muted,
+                    : TaskVisuals.ink,
               ),
             ),
           ),
@@ -859,6 +867,42 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       ],
     ];
   }
+
+  Widget emptyTaskList({required bool completed}) => Padding(
+    key: Key(completed ? 'completed-empty-state' : 'upcoming-empty-state'),
+    padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 8),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          strings.t(completed ? '아직 완료한 일이 없어요' : '아직 예정된 할 일이 없어요'),
+          style: const TextStyle(
+            fontSize: 20,
+            height: 1.5,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          strings.t(
+            completed ? '할 일을 완료하면 이곳에 차곡차곡 모여요.' : '생각난 일 하나를 날짜와 함께 적어보세요.',
+          ),
+          style: const TextStyle(color: TaskVisuals.muted, height: 1.6),
+        ),
+        const SizedBox(height: 20),
+        OutlinedButton.icon(
+          onPressed: completed
+              ? () {
+                  setState(() => page = 1);
+                  if (bodyScroll.hasClients) bodyScroll.jumpTo(0);
+                }
+              : () => edit(),
+          icon: Icon(completed ? Icons.list_alt_outlined : Icons.add, size: 20),
+          label: Text(strings.t(completed ? '예정된 할 일 보기' : '첫 할 일 추가')),
+        ),
+      ],
+    ),
+  );
 
   Widget calendar() {
     final daySize =
@@ -1598,93 +1642,26 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   Widget statsPage() => insightPanel();
 
-  Widget settingsPage() => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        leading: const Icon(Icons.auto_graph),
-        title: Text(
-          subscription.paidAccess
-              ? strings.t('투두닉 Pro 이용 중')
-              : subscription.trialActive
-              ? strings.t('전체 기능 7일 체험 중')
-              : strings.t('무료 캘린더 이용 중'),
-        ),
-        subtitle: Text(strings.t('연간 구독 · 구매 복원 · 구독 관리')),
-        trailing: const Icon(Icons.chevron_right),
-        onTap: openPro,
-      ),
-      const Divider(height: 32),
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: DropdownButtonFormField<String>(
-          key: const Key('language-setting'),
-          initialValue: c.localeController.preference,
-          isExpanded: true,
-          decoration: InputDecoration(
-            labelText: strings.t('언어'),
-            prefixIcon: const Icon(Icons.language),
-          ),
-          items: [
-            DropdownMenuItem(
-              value: 'system',
-              child: Text(strings.t('기기 설정 사용')),
-            ),
-            const DropdownMenuItem(value: 'ko', child: Text('한국어')),
-            const DropdownMenuItem(value: 'en', child: Text('English')),
-          ],
-          onChanged: busy
-              ? null
-              : (value) {
-                  if (value != null) run(() => c.setLanguage(value));
-                },
-        ),
-      ),
-      const Divider(height: 32),
-      const PrivacyCard(),
-      const SizedBox(height: 12),
-      const StorePolicyLinks(),
-      const SizedBox(height: 24),
-      FilledButton.icon(
-        onPressed: () async {
-          if (!subscription.hasAccess) {
-            openPro();
-            return;
-          }
-          await run(() async {
-            await c.reminders.requestPermissions();
-            await c.reconcile();
-          });
-        },
-        icon: const Icon(Icons.notifications_outlined),
-        label: Text(strings.t('알림 권한 설정')),
-      ),
-      const SizedBox(height: 12),
-      OutlinedButton(
-        onPressed: () => run(c.reminders.openSettings),
-        child: Text(strings.t('기기 알림 설정 열기')),
-      ),
-      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) ...[
-        const SizedBox(height: 12),
-        OutlinedButton(
-          onPressed: () => run(c.reminders.requestExactPermission),
-          child: Text(strings.t('Android 정확한 알림 설정')),
-        ),
-      ],
-      const SizedBox(height: 12),
-      OutlinedButton(
-        onPressed: () =>
-            subscription.hasAccess ? run(c.testReminder) : openPro(),
-        child: Text(strings.t('10초 뒤 테스트 알림')),
-      ),
-      const SizedBox(height: 20),
-      Text(
-        strings.t(
-          '미완료 재알림은 기본 매일 한 번, 예정 시간과 같은 시각입니다. 각 할 일의 수정 화면에서 간격·시각을 바꾸거나 끌 수 있어요. 미루기는 선택한 시간까지 기다립니다. 진행 중 확인은 30분 뒤, 작은 시작 확인은 5분 뒤입니다. 배너 표시 여부는 기기 알림 권한·집중 모드·배터리 설정을 따릅니다.',
-        ),
-      ),
-    ],
+  Widget settingsPage() => SettingsPanel(
+    controller: c,
+    subscription: subscription,
+    busy: busy,
+    openPro: openPro,
+    setLanguage: (value) => run(() => c.setLanguage(value)),
+    requestPermission: () async {
+      if (!subscription.hasAccess) {
+        openPro();
+        return;
+      }
+      await run(() async {
+        await c.reminders.requestPermissions();
+        await c.reconcile();
+      });
+    },
+    openDeviceSettings: () => run(c.reminders.openSettings),
+    requestExactPermission: () => run(c.reminders.requestExactPermission),
+    testReminder: () =>
+        subscription.hasAccess ? run(c.testReminder) : openPro(),
   );
   Widget accessNotice() => Padding(
     key: const Key('access-notice'),

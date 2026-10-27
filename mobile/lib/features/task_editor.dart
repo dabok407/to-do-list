@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'feedback_snackbar.dart';
 
 import '../domain/task.dart';
+import '../domain/recurrence_preview.dart';
 import '../l10n/app_strings.dart';
 import 'persistent_time_picker.dart';
 import 'equal_choice_row.dart';
@@ -356,6 +357,155 @@ class _TaskEditorState extends State<TaskEditor> {
     );
   }
 
+  Widget weekdayChoices() => LayoutBuilder(
+    builder: (context, constraints) {
+      const gap = 2.0;
+      final textStyle = Theme.of(context).textTheme.bodyMedium!
+          .copyWith(fontWeight: FontWeight.w600);
+      final scaler = MediaQuery.textScalerOf(context);
+      var requiredWidth = 44.0;
+      var requiredHeight = 48.0;
+      for (var day = 1; day <= 7; day++) {
+        final painter = TextPainter(
+          text: TextSpan(text: strings.weekday(day), style: textStyle),
+          textDirection: Directionality.of(context),
+          textScaler: scaler,
+        )..layout();
+        final labelWidth = painter.width + 12;
+        if (labelWidth > requiredWidth) requiredWidth = labelWidth;
+        final labelHeight = painter.height + 16;
+        if (labelHeight > requiredHeight) requiredHeight = labelHeight;
+        painter.dispose();
+      }
+      Widget choice(int day) => SizedBox(
+        height: requiredHeight,
+        child: FilterChip(
+          key: Key('repeat-weekday-$day'),
+          tooltip: strings.weekday(day, short: false),
+          label: Center(child: Text(strings.weekday(day), style: textStyle)),
+          labelPadding: EdgeInsets.zero,
+          padding: EdgeInsets.zero,
+          showCheckmark: false,
+          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          selected: weekdays.contains(day),
+          onSelected: (selected) => setState(() {
+            if (repeat == RepeatUnit.monthlyWeekday) weekdays.clear();
+            if (selected) {
+              weekdays.add(day);
+            } else {
+              weekdays.remove(day);
+            }
+          }),
+        ),
+      );
+      if ((constraints.maxWidth - gap * 6) / 7 >= requiredWidth) {
+        return Row(
+          key: const Key('repeat-weekdays-single-row'),
+          children: [
+            for (var day = 1; day <= 7; day++) ...[
+              if (day > 1) const SizedBox(width: gap),
+              Expanded(child: choice(day)),
+            ],
+          ],
+        );
+      }
+      // Honor large accessibility text instead of shrinking labels to fit.
+      return Wrap(
+        spacing: 6,
+        runSpacing: 6,
+        children: [
+          for (var day = 1; day <= 7; day++)
+            SizedBox(width: requiredWidth, child: choice(day)),
+        ],
+      );
+    },
+  );
+
+  Widget recurrencePreview() {
+    final now = DateTime.now();
+    final preview = RecurrencePreview.build(
+      Task(
+        id: 'editor-preview',
+        title: '',
+        due: due,
+        created: due,
+        repeat: repeat,
+        interval: int.tryParse(interval.text) ?? 0,
+        weekdays: weekdays.toList()..sort(),
+        end: end,
+        monthWeek: monthWeek,
+        countPerWeek: countPerWeek,
+      ),
+      now: now,
+    );
+    final heading = repeat == RepeatUnit.weeklyGoal
+        ? strings.t('다음 참여 가능일')
+        : preview.dates.isEmpty
+        ? strings.t('예정된 회차가 없어요.')
+        : strings.t('다음 {count}회', args: {'count': preview.dates.length});
+    final issueText = switch (preview.issue) {
+      RecurrencePreviewIssue.interval => '1~365를 입력해주세요',
+      RecurrencePreviewIssue.weekdays => '반복할 요일을 선택해주세요',
+      RecurrencePreviewIssue.monthlyWeek => '몇 번째 주를 선택해주세요.',
+      RecurrencePreviewIssue.weeklyGoal => '일주일 목표를 1~7회로 선택해주세요.',
+      null => null,
+    };
+    return Container(
+      key: const Key('recurrence-preview'),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border.all(color: Theme.of(context).dividerColor),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            heading,
+            style: Theme.of(context).textTheme.titleSmall!
+                .copyWith(fontWeight: FontWeight.w700),
+          ),
+          if (issueText != null)
+            explanation(strings.t(issueText))
+          else if (preview.dates.isEmpty)
+            explanation(strings.t('시작 날짜와 종료 날짜를 확인해주세요.'))
+          else ...[
+            for (var index = 0; index < preview.dates.length; index++)
+              Padding(
+                key: Key('recurrence-preview-date-$index'),
+                padding: const EdgeInsets.only(top: 12),
+                child: Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 12,
+                  runSpacing: 4,
+                  children: [
+                    Text(
+                      strings.isEnglish
+                          ? '${strings.weekday(preview.dates[index].weekday)}, ${strings.dateShort(preview.dates[index])}, ${preview.dates[index].year}'
+                          : '${preview.dates[index].year}년 ${strings.dateShort(preview.dates[index])} (${strings.weekday(preview.dates[index].weekday)})',
+                      style: Theme.of(context).textTheme.bodyMedium!
+                          .copyWith(fontWeight: FontWeight.w600),
+                    ),
+                    Text(strings.time(preview.dates[index])),
+                  ],
+                ),
+              ),
+            const SizedBox(height: 8),
+            explanation(
+              repeat == RepeatUnit.weeklyGoal
+                  ? strings.t(
+                      '주 {count}회 목표의 참여 가능일이에요. 목표를 채우면 그 주의 남은 알림은 쉬어요.',
+                      args: {'count': countPerWeek},
+                    )
+                  : strings.t('선택한 패턴으로 예정된 회차예요.'),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
@@ -625,27 +775,7 @@ class _TaskEditorState extends State<TaskEditor> {
               if (repeat == RepeatUnit.weekly ||
                   repeat == RepeatUnit.monthlyWeekday) ...[
                 const SizedBox(height: 16),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: List.generate(
-                    7,
-                    (i) => FilterChip(
-                      label: Text(strings.weekday(i + 1)),
-                      selected: weekdays.contains(i + 1),
-                      onSelected: (selected) => setState(() {
-                        if (repeat == RepeatUnit.monthlyWeekday) {
-                          weekdays.clear();
-                        }
-                        if (selected) {
-                          weekdays.add(i + 1);
-                        } else {
-                          weekdays.remove(i + 1);
-                        }
-                      }),
-                    ),
-                  ),
-                ),
+                weekdayChoices(),
               ],
               if (repeat == RepeatUnit.monthlyWeekday) ...[
                 const SizedBox(height: 16),
@@ -699,6 +829,8 @@ class _TaskEditorState extends State<TaskEditor> {
                   onPressed: () => setState(() => end = null),
                   child: Text(strings.t('종료 날짜 해제')),
                 ),
+              const SizedBox(height: 16),
+              recurrencePreview(),
             ],
             if (widget.task != null && widget.task!.repeat != RepeatUnit.none)
               Padding(

@@ -13,6 +13,7 @@ import 'services/widget_service.dart';
 import 'services/background_refresh.dart';
 import 'services/subscription_service.dart';
 import 'services/feature_access.dart';
+import 'services/backup_service.dart';
 import 'l10n/app_strings.dart';
 import 'l10n/device_calendar_localizations.dart';
 
@@ -28,13 +29,14 @@ Future<void> main() async {
     final access = FeatureAccess(repository);
     await access.load(startTrial: true);
     final subscription = SubscriptionService(access: access);
-    final reminders = ReminderScheduler();
+    final reminders = ReminderScheduler(repository: repository);
     final widgets = WidgetService();
     final controller = TaskController(
       repository,
       reminders,
       widgets: widgets,
       access: access,
+      backups: BackupService(repository),
     );
     await controller.localeController.load();
     try {

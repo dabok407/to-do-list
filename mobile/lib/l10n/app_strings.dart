@@ -5,6 +5,8 @@ import 'core_catalog.dart';
 import 'home_catalog.dart';
 import 'editor_catalog.dart';
 import 'statistics_catalog.dart';
+import 'recurrence_preview_catalog.dart';
+import 'data_settings_catalog.dart';
 
 /// UI copy only. Task titles, notes and stored category identifiers are never
 /// changed when the user switches the display language.
@@ -22,6 +24,8 @@ class AppStrings {
     ...homeEnglish,
     ...editorEnglish,
     ...statisticsEnglish,
+    ...recurrencePreviewEnglish,
+    ...dataSettingsEnglish,
     '기한 지난 일': 'Overdue',
     '완료 시각 기록 없음': 'Completion time not recorded',
     '원래 예정 {date} {time}': 'Originally due {date} {time}',
@@ -32,6 +36,13 @@ class AppStrings {
     '최신순': 'Newest first',
     '오래된순': 'Oldest first',
     '정렬 방식 선택': 'Choose sort order',
+    '내일 같은 시간': 'Same time tomorrow',
+    '아직 완료한 일이 없어요': 'No completed tasks yet',
+    '아직 예정된 할 일이 없어요': 'No upcoming tasks yet',
+    '할 일을 완료하면 이곳에 차곡차곡 모여요.': 'Your completed tasks will appear here.',
+    '생각난 일 하나를 날짜와 함께 적어보세요.': 'Add a task and choose when to do it.',
+    '예정된 할 일 보기': 'View upcoming tasks',
+    '첫 할 일 추가': 'Add your first task',
   };
 
   static AppStrings of(BuildContext context) {

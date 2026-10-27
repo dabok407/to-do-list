@@ -143,6 +143,13 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+      final notificationSettings = find.byKey(
+        const Key('notification-settings'),
+      );
+      await tester.ensureVisible(notificationSettings);
+      await tester.pumpAndSettle();
+      await tester.tap(notificationSettings);
+      await tester.pumpAndSettle();
       expect(find.text('알림 권한 설정'), findsOneWidget);
       expect(find.text('기기 알림 설정 열기'), findsOneWidget);
       expect(
@@ -582,7 +589,10 @@ void main() {
           find.text(premium ? '투두닉 Pro 이용 중' : '무료 캘린더 이용 중'),
           findsOneWidget,
         );
-        await tester.tap(find.byIcon(Icons.auto_graph));
+        final proEntry = find.text(premium ? '투두닉 Pro 이용 중' : '무료 캘린더 이용 중');
+        await tester.ensureVisible(proEntry);
+        await tester.pumpAndSettle();
+        await tester.tap(proEntry);
         await tester.pumpAndSettle();
         if (premium) {
           expect(find.text('무료로 계속'), findsNothing);

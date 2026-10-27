@@ -7,6 +7,7 @@ import '../data/task_repository.dart';
 import 'reminder_scheduler.dart';
 import 'widget_service.dart';
 import 'feature_access.dart';
+import 'backup_service.dart';
 import '../l10n/locale_controller.dart';
 
 const refreshTask = 'com.dabok407.hangeoreum.refresh';
@@ -47,7 +48,7 @@ class BackgroundRefresh {
       if (!leased) return true;
       await repository.materialize();
       final items = await repository.occurrences();
-      final reminders = ReminderScheduler();
+      final reminders = ReminderScheduler(repository: repository);
       await reminders.initialize();
       final access = FeatureAccess(repository);
       await access.load();
@@ -67,6 +68,14 @@ class BackgroundRefresh {
     } finally {
       if (repository != null) {
         if (leased) await repository.releaseReminderLease(owner);
+        // Backups have their own lease and must never hold up or mark a
+        // successful reminder refresh as failed. The OS may defer this work;
+        // the foreground startup/resume path makes up overdue weekly backups.
+        try {
+          await BackupService(repository).maybeAutomaticBackup();
+        } catch (_) {
+          // Retry at a later permitted refresh or when the user opens the app.
+        }
         await repository.db.close();
       }
     }

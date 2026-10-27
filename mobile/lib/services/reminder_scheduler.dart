@@ -5,11 +5,15 @@ import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
 import '../domain/task.dart';
+import '../data/task_repository.dart';
 import 'notification_plan.dart';
+import 'notification_privacy.dart';
 import '../l10n/app_strings.dart';
 
 class ReminderScheduler {
-  ReminderScheduler({DateTime Function()? now}) : _now = now ?? DateTime.now;
+  ReminderScheduler({DateTime Function()? now, TaskRepository? repository})
+    : _now = now ?? DateTime.now,
+      _privacy = repository == null ? null : NotificationPrivacy(repository);
 
   static const testNotificationId = 100000;
   static const _testPayloadPrefix = 'todoniq:test:v1:';
@@ -21,6 +25,7 @@ class ReminderScheduler {
       : tz.getLocation(identifier);
   final plugin = FlutterLocalNotificationsPlugin();
   final DateTime Function() _now;
+  final NotificationPrivacy? _privacy;
   Future<void> _queuedWork = Future<void>.value();
   Future<void> Function(String id, String action)? onAction;
   NotificationPlan? lastPlan;
@@ -184,7 +189,24 @@ class ReminderScheduler {
   Future<void> sync(
     List<Occurrence> items, {
     Map<String, List<DateTime>> exceptions = const {},
-  }) => _serial(() => _sync(items, exceptions: exceptions));
+  }) => _serial(() async {
+    final showTitles = await _privacy?.load() ?? true;
+    try {
+      await _sync(items, exceptions: exceptions, showTitles: showTitles);
+    } catch (_) {
+      if (!showTitles) {
+        // If rebuilding private reminders fails (for example a time-zone
+        // lookup), do not leave earlier title-bearing requests behind. The
+        // caller reports the scheduling error and can retry reconciliation.
+        try {
+          await plugin.cancelAll();
+        } catch (_) {
+          // Preserve the original scheduling error for the caller.
+        }
+      }
+      rethrow;
+    }
+  });
 
   Future<void> _serial(Future<void> Function() operation) {
     final current = _queuedWork.then((_) => operation());
@@ -196,6 +218,7 @@ class ReminderScheduler {
   Future<void> _sync(
     List<Occurrence> items, {
     required Map<String, List<DateTime>> exceptions,
+    required bool showTitles,
   }) async {
     if (accessUntil != null && !accessUntil!.isAfter(_now())) {
       await plugin.cancelAll();
@@ -212,9 +235,32 @@ class ReminderScheduler {
       exceptions: exceptions,
       until: accessUntil,
     );
+    // Capture a future test before dismissing an older delivered test with the
+    // same ID: native cancel(id) can remove both the banner and pending request.
+    PendingNotificationRequest? pendingTest;
+    DateTime? testAt;
+    for (final request in await plugin.pendingNotificationRequests()) {
+      if (request.id != testNotificationId) continue;
+      final at = _testTime(request.payload);
+      if (at != null && _canScheduleTest(at)) {
+        pendingTest = request;
+        testAt = at;
+      }
+      break;
+    }
     // Deleted and completed reminders disappear, while active alerts survive refill.
     final activePayloads = <int, String>{};
     for (final notification in await plugin.getActiveNotifications()) {
+      // A preference change must also remove titles that were already delivered,
+      // including older untagged banners and test requests. Pending requests are
+      // rescheduled below with the same identity and delivery instant.
+      if (!showTitles &&
+          notification.id != null &&
+          (notification.title != NotificationPrivacy.hiddenContent.title ||
+              notification.body != NotificationPrivacy.hiddenContent.body)) {
+        await plugin.cancel(id: notification.id!, tag: notification.tag);
+        continue;
+      }
       // Keep an already delivered test banner; it is not an obsolete task.
       if (notification.id == testNotificationId) continue;
       // The current Android plugin omits payload from delivered notifications.
@@ -229,17 +275,6 @@ class ReminderScheduler {
         activePayloads[notification.id!] = payload;
       }
     }
-    PendingNotificationRequest? pendingTest;
-    DateTime? testAt;
-    for (final request in await plugin.pendingNotificationRequests()) {
-      if (request.id != testNotificationId) continue;
-      final at = _testTime(request.payload);
-      if (at != null && _canScheduleTest(at)) {
-        pendingTest = request;
-        testAt = at;
-      }
-      break;
-    }
     // Cancel delivered alerts by their real platform ID and payload above. A
     // recomputed hash alone could belong to another task after collision handling.
     await plugin.cancelAllPendingNotifications();
@@ -247,10 +282,15 @@ class ReminderScheduler {
     // Restore the original instant first, without extending the ten-second wait.
     // A request that fired or expired is absent or no longer in the future.
     if (pendingTest != null && testAt != null && _canScheduleTest(testAt)) {
-      await plugin.zonedSchedule(
-        id: testNotificationId,
+      final content = NotificationPrivacy.content(
+        showTitles: showTitles,
         title: pendingTest.title,
         body: pendingTest.body,
+      );
+      await plugin.zonedSchedule(
+        id: testNotificationId,
+        title: content.title,
+        body: content.body,
         scheduledDate: tz.TZDateTime.from(testAt, tz.local),
         notificationDetails: details(),
         androidScheduleMode: scheduleMode,
@@ -285,10 +325,15 @@ class ReminderScheduler {
         id = id == 0x7fffffff ? 1 : id + 1;
       }
       ids.add(id);
-      await plugin.zonedSchedule(
-        id: id,
+      final content = NotificationPrivacy.content(
+        showTitles: showTitles,
         title: job.title,
         body: job.body,
+      );
+      await plugin.zonedSchedule(
+        id: id,
+        title: content.title,
+        body: content.body,
         scheduledDate: tz.TZDateTime(
           tz.local,
           job.at.year,
@@ -342,10 +387,15 @@ class ReminderScheduler {
       isUtc: true,
     );
     if (!_canScheduleTest(at)) return;
-    await plugin.zonedSchedule(
-      id: testNotificationId,
+    final content = NotificationPrivacy.content(
+      showTitles: await _privacy?.load() ?? true,
       title: AppStrings.current.t('투두닉 테스트'),
       body: AppStrings.current.t('앱 밖에서도 알림이 도착하는지 확인해주세요.'),
+    );
+    await plugin.zonedSchedule(
+      id: testNotificationId,
+      title: content.title,
+      body: content.body,
       scheduledDate: tz.TZDateTime.from(at, tz.local),
       notificationDetails: details(),
       androidScheduleMode: scheduleMode,

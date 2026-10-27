@@ -131,6 +131,12 @@ class _PreviewRepository extends TaskRepository {
 }
 
 class PreviewController extends TaskController {
+  @override
+  Future<void> setNotificationTitles(bool show) async {
+    await repository.setSetting('notification_show_titles', show.toString());
+    notifyListeners();
+  }
+
   final List<Task> _tasks = [];
   final Map<String, Occurrence> _states = {};
   final _snoozeEvents = <({String id, DateTime at, int minutes})>[];
@@ -356,6 +362,35 @@ class PreviewController extends TaskController {
     } else {
       _hidden.add(o.id);
     }
+    await refresh();
+  }
+
+  @override
+  Future<void> snoozeUntil(Occurrence occurrence, DateTime target) async {
+    final now = DateTime.now();
+    if (!target.isAfter(now)) {
+      throw ArgumentError('Reminder is in the past');
+    }
+    final o = _states[occurrence.id] ?? occurrence;
+    if (!o.active) return;
+    if (o.status == TaskStatus.paused && o.reminder.isAtSameMomentAs(target)) {
+      return;
+    }
+    _snoozeEvents.add((
+      id: o.id,
+      at: now,
+      minutes: target.difference(now).inMinutes,
+    ));
+    _states[o.id] = Occurrence(
+      id: o.id,
+      task: o.task,
+      originalDue: o.originalDue,
+      reminder: target,
+      status: TaskStatus.paused,
+      started: o.started,
+      snoozes: o.snoozes + 1,
+      smallActive: o.smallActive,
+    );
     await refresh();
   }
 

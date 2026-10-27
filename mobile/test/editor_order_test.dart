@@ -179,7 +179,12 @@ void main() {
             strings.date(task.due),
             strings.time(task.due),
           ]) {
-            final text = tester.widget<Text>(find.text(value));
+            final text = tester.widget<Text>(
+              find.descendant(
+                of: find.byKey(const Key('editor-date-time')),
+                matching: find.text(value),
+              ),
+            );
             expect(text.maxLines, isNull, reason: '큰 글씨에서도 전체 값을 줄바꿈해 표시');
             expect(text.overflow, isNot(TextOverflow.ellipsis));
           }
@@ -318,8 +323,13 @@ void main() {
         await tester.pumpAndSettle();
         expect(input, findsNothing);
         expect(
-          find.text(
-            language == 'ko' ? '1~365를 입력해주세요' : 'Enter a number from 1 to 365',
+          find.descendant(
+            of: find.byKey(const Key('editor-interval-settings')),
+            matching: find.text(
+              language == 'ko'
+                  ? '1~365를 입력해주세요'
+                  : 'Enter a number from 1 to 365',
+            ),
           ),
           findsOneWidget,
           reason: '빈 간격이 정상 기본값처럼 보이지 않음',

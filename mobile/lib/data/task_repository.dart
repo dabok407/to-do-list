@@ -575,8 +575,24 @@ class TaskRepository {
     return resolveReminderPayload(await occurrences(), payload, now);
   }
 
-  Future<void> act(String id, String action, {int minutes = 10}) async {
+  Future<void> act(String id, String action, {int minutes = 10}) =>
+      _act(id, action, minutes: minutes);
+
+  Future<void> snoozeUntil(String id, DateTime target) =>
+      _act(id, 'snooze', snoozeAt: target);
+
+  Future<void> _act(
+    String id,
+    String action, {
+    int minutes = 10,
+    DateTime? snoozeAt,
+  }) async {
     final now = DateTime.now();
+    if (snoozeAt != null && !snoozeAt.isAfter(now)) {
+      throw ArgumentError('A reminder must be in the future');
+    }
+    final reminder = snoozeAt ?? now.add(Duration(minutes: minutes));
+    final delayMinutes = reminder.difference(now).inMinutes;
     await db.transaction((tx) async {
       final rows = await tx.query(
         'occurrences',
@@ -620,6 +636,14 @@ class TaskRepository {
         return;
       }
       if (status == 'completed' || status == 'skipped') return;
+      // Repeating an absolute snooze is a no-op only when the task is already
+      // paused there. Pending/progressing tasks still need the state change.
+      if (action == 'snooze' &&
+          snoozeAt != null &&
+          status == 'paused' &&
+          DateTime.parse(m['reminder'] as String).isAtSameMomentAs(reminder)) {
+        return;
+      }
       final values = <String, Object?>{};
       switch (action) {
         case 'complete':
@@ -641,7 +665,7 @@ class TaskRepository {
         case 'snooze':
           values.addAll({
             'state': 'paused',
-            'reminder': now.add(Duration(minutes: minutes)).toIso8601String(),
+            'reminder': reminder.toIso8601String(),
             'snoozes': (m['snoozes'] as int) + 1,
           });
         case 'skip':
@@ -654,7 +678,7 @@ class TaskRepository {
         'occurrence_id': id,
         'type': action,
         'at': now.toIso8601String(),
-        'minutes': action == 'snooze' ? minutes : 0,
+        'minutes': action == 'snooze' ? delayMinutes : 0,
       });
     });
     await reconcileWeeklyGoals();

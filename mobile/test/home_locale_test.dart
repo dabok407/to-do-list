@@ -363,11 +363,22 @@ void main() {
         await tester.pumpAndSettle();
         await tester.tap(find.byKey(const Key('language-setting')));
         await tester.pumpAndSettle();
-        expect(find.text('Device language').last.hitTestable(), findsOneWidget);
-        expect(find.text('한국어').last.hitTestable(), findsOneWidget);
-        expect(find.text('English').last.hitTestable(), findsOneWidget);
+        expect(
+          find
+              .widgetWithText(RadioListTile<String>, 'Device language')
+              .hitTestable(),
+          findsOneWidget,
+        );
+        expect(
+          find.widgetWithText(RadioListTile<String>, '한국어').hitTestable(),
+          findsOneWidget,
+        );
+        expect(
+          find.widgetWithText(RadioListTile<String>, 'English').hitTestable(),
+          findsOneWidget,
+        );
         expect(tester.takeException(), isNull, reason: 'Language menu');
-        await tester.tap(find.text('English').last);
+        await tester.tap(find.widgetWithText(RadioListTile<String>, 'English'));
         await tester.pumpAndSettle();
         await tester.pumpWidget(const SizedBox.shrink());
       });
@@ -394,7 +405,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(language);
       await tester.pumpAndSettle();
-      await tester.tap(find.text('English').last);
+      await tester.tap(find.widgetWithText(RadioListTile<String>, 'English'));
       await tester.pumpAndSettle();
       expect(_nav('Settings'), findsOneWidget);
       expect(c.localeController.preference, 'en');
@@ -433,12 +444,14 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(_nav('Upcoming'));
       await tester.pumpAndSettle();
-      await tester.tap(
-        find.descendant(
-          of: find.byKey(const ValueKey('task-row-current')),
-          matching: find.text(c.items.first.task.title),
-        ),
+      final currentTitle = find.descendant(
+        of: find.byKey(const ValueKey('task-row-current')),
+        matching: find.text(c.items.first.task.title),
       );
+      await tester.ensureVisible(currentTitle);
+      await tester.pumpAndSettle();
+      expect(currentTitle.hitTestable(), findsOneWidget);
+      await tester.tap(currentTitle);
       await tester.pumpAndSettle();
       expect(find.text('Start now'), findsOneWidget);
       expect(find.text('In 10 minutes'), findsOneWidget);

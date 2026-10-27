@@ -465,15 +465,10 @@ void main() {
       await tester.pump();
       final row = tester.widget<Dismissible>(_row(occurrence));
       expect(row.direction, DismissDirection.none);
-      final button = tester.widget<IconButton>(
-        find.descendant(
-          of: _row(occurrence),
-          matching: find.byWidgetPredicate(
-            (widget) => widget is IconButton && widget.tooltip == '완료 처리',
-          ),
-        ),
+      final button = tester.widget<Checkbox>(
+        find.descendant(of: _row(occurrence), matching: find.byType(Checkbox)),
       );
-      expect(button.onPressed, isNull);
+      expect(button.onChanged, isNull);
       final rect = tester.getRect(_row(occurrence));
       await tester.dragFrom(rect.center, Offset(rect.width * .7, 0));
       await tester.pump(const Duration(milliseconds: 350));

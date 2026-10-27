@@ -4,11 +4,13 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../l10n/app_strings.dart';
 import 'feedback_snackbar.dart';
+import 'settings_widgets.dart';
 
 /// Public documentation only. Opening these links never includes task data.
 class StorePolicyLinks extends StatelessWidget {
   final Future<bool> Function(Uri)? open;
-  const StorePolicyLinks({super.key, this.open});
+  final bool grouped;
+  const StorePolicyLinks({super.key, this.open, this.grouped = false});
 
   static const site = 'https://dabok407.github.io/to-do-list';
   static const appleTerms =
@@ -45,6 +47,32 @@ class StorePolicyLinks extends StatelessWidget {
           ? appleTerms
           : '$site/terms$suffix.html',
     };
+    if (grouped) {
+      const icons = [
+        Icons.help_outline_rounded,
+        Icons.policy_outlined,
+        Icons.description_outlined,
+      ];
+      return Column(
+        children: [
+          for (var i = 0; i < documents.length; i++) ...[
+            if (i > 0)
+              const Divider(
+                height: 1,
+                thickness: 1,
+                indent: 58,
+                color: Color(0xffecefec),
+              ),
+            SettingsMenuRow(
+              icon: icons[i],
+              title: strings.t(documents.keys.elementAt(i)),
+              onTap: () =>
+                  _open(context, Uri.parse(documents.values.elementAt(i))),
+            ),
+          ],
+        ],
+      );
+    }
     return Wrap(
       spacing: 8,
       runSpacing: 4,

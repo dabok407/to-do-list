@@ -28,6 +28,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<!-- Local plaintext backups use SHA-256 only for corruption detection. -->
+	<!-- No non-exempt encryption is added; matches existing ASC build answers. -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>FlutterDeepLinkingEnabled</key>
 	<false/>
 	<key>UIBackgroundModes</key>

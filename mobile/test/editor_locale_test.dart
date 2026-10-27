@@ -123,7 +123,13 @@ void main() {
       expect(tester.widget<FilterChip>(monday).selected, isFalse);
       await tester.tap(find.text('Save'));
       await tester.pumpAndSettle();
-      expect(find.text('Choose at least one repeat day'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(SnackBar),
+          matching: find.text('Choose at least one repeat day'),
+        ),
+        findsOneWidget,
+      );
       expect(tester.takeException(), isNull);
     },
   );
@@ -161,8 +167,12 @@ void main() {
     expect(find.text('Cancel'), findsOneWidget);
     await tester.tap(find.text('Cancel'));
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('7:00 PM'));
-    await tester.tap(find.text('7:00 PM'));
+    final timeField = find.descendant(
+      of: find.byKey(const Key('editor-time')),
+      matching: find.text('7:00 PM'),
+    );
+    await tester.ensureVisible(timeField);
+    await tester.tap(timeField);
     await tester.pumpAndSettle();
     expect(find.byType(TimePickerDialog), findsOneWidget);
     expect(find.text('Cancel'), findsOneWidget);

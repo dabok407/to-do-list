@@ -172,45 +172,13 @@ class _StatisticsPanelState extends State<StatisticsPanel> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: 8),
-        _PeriodHeader(
+        _PeriodControls(
           strings: strings,
+          from: from,
+          until: until,
+          onSelect: pickerOpen ? null : choosePeriod,
           canReset: selectedRange != null,
           onReset: () => query(null),
-        ),
-        const SizedBox(height: 8),
-        OutlinedButton(
-          key: const Key('statistics-period-select'),
-          onPressed: pickerOpen ? null : choosePeriod,
-          style: OutlinedButton.styleFrom(
-            alignment: Alignment.centerLeft,
-            minimumSize: const Size(0, 56),
-            padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
-            foregroundColor: _ink,
-            textStyle: const TextStyle(fontFamily: 'Pretendard', fontSize: 14),
-            side: const BorderSide(color: _line),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(11),
-            ),
-          ),
-          child: Row(
-            children: [
-              const Icon(Icons.date_range_outlined, size: 19),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  '${strings.date(from)} – ${strings.date(until)}',
-                  style: const TextStyle(
-                    fontFamily: 'Pretendard',
-                    color: _ink,
-                    fontSize: 13,
-                    height: 1.45,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              const Icon(Icons.expand_more, size: 19),
-            ],
-          ),
         ),
         const SizedBox(height: 16),
         if (loading)
@@ -363,49 +331,50 @@ class _StatisticsPanelState extends State<StatisticsPanel> {
   }
 }
 
-class _PeriodHeader extends StatelessWidget {
+class _PeriodControls extends StatelessWidget {
   final AppStrings strings;
+  final DateTime from, until;
+  final VoidCallback? onSelect;
   final bool canReset;
   final VoidCallback onReset;
-  const _PeriodHeader({
+  const _PeriodControls({
     required this.strings,
+    required this.from,
+    required this.until,
+    required this.onSelect,
     required this.canReset,
     required this.onReset,
   });
 
   @override
   Widget build(BuildContext context) {
-    const labelStyle = TextStyle(
-      fontFamily: 'Pretendard',
-      color: _ink,
-      fontSize: 14,
-      fontWeight: FontWeight.w600,
-      letterSpacing: 0,
-    );
     const buttonStyle = TextStyle(
       fontFamily: 'Pretendard',
       fontSize: 13,
       fontWeight: FontWeight.w500,
       letterSpacing: 0,
     );
-    final label = Text(strings.t('조회 기간'), style: labelStyle);
-    final button = OutlinedButton.icon(
-      key: const Key('statistics-period-reset'),
-      onPressed: canReset ? onReset : null,
-      icon: const Icon(Icons.refresh_rounded, size: 17),
-      label: Text(strings.t('최근 30일')),
-      style: OutlinedButton.styleFrom(
-        minimumSize: const Size(0, 40),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        foregroundColor: _ink,
-        backgroundColor: TaskVisuals.quietSurface,
-        disabledForegroundColor: const Color(0xff9198a0),
-        disabledBackgroundColor: Colors.white,
-        side: const BorderSide(color: Color(0xffcbd0d4)),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
-        textStyle: buttonStyle,
-      ),
+    const dateStyle = TextStyle(
+      fontFamily: 'Pretendard',
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+      color: _ink,
+      height: 1.4,
+      letterSpacing: 0,
+      fontFeatures: [FontFeature.tabularFigures()],
     );
+    final sameYear = from.year == until.year;
+    String shortDate(DateTime date) => strings.isEnglish
+        ? strings.dateShort(date)
+        : '${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}';
+    final separator = strings.isEnglish ? '–' : '~';
+    final start = strings.isEnglish
+        ? '${shortDate(from)}${sameYear ? '' : ', ${from.year}'}'
+        : '${from.year}.${shortDate(from)}';
+    final end = strings.isEnglish
+        ? '${shortDate(until)}, ${until.year}'
+        : '${sameYear ? '' : '${until.year}.'}${shortDate(until)}';
+    final range = '$start $separator $end';
     double textWidth(String value, TextStyle style) {
       final painter = TextPainter(
         text: TextSpan(text: value, style: style),
@@ -417,28 +386,101 @@ class _PeriodHeader extends StatelessWidget {
       return width;
     }
 
+    final dates = Semantics(
+      key: const Key('statistics-period-accessible-range'),
+      button: true,
+      enabled: onSelect != null,
+      label:
+          '${strings.t('조회 기간')}: ${strings.date(from)} – ${strings.date(until)}',
+      onTap: onSelect,
+      child: ExcludeSemantics(
+        child: OutlinedButton(
+          key: const Key('statistics-period-select'),
+          onPressed: onSelect,
+          style: OutlinedButton.styleFrom(
+            minimumSize: const Size(0, 48),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            foregroundColor: _ink,
+            side: const BorderSide(color: _line),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(11),
+            ),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.date_range_outlined, size: 16, color: _muted),
+              const SizedBox(width: 6),
+              Expanded(
+                child: LayoutBuilder(
+                  builder: (context, constraints) =>
+                      textWidth(range, dateStyle) <= constraints.maxWidth
+                      ? Text(
+                          range,
+                          key: const Key('statistics-period-range'),
+                          style: dateStyle,
+                        )
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              start,
+                              key: const Key('statistics-period-start'),
+                              style: dateStyle,
+                            ),
+                            Text(
+                              '$separator $end',
+                              key: const Key('statistics-period-end'),
+                              style: dateStyle,
+                            ),
+                          ],
+                        ),
+                ),
+              ),
+              const SizedBox(width: 6),
+              const Icon(Icons.expand_more_rounded, size: 16, color: _muted),
+            ],
+          ),
+        ),
+      ),
+    );
+    final button = OutlinedButton.icon(
+      key: const Key('statistics-period-reset'),
+      onPressed: canReset ? onReset : null,
+      icon: Icon(
+        canReset ? Icons.refresh_rounded : Icons.check_rounded,
+        size: 16,
+      ),
+      label: Text(strings.t('최근 30일')),
+      style: OutlinedButton.styleFrom(
+        minimumSize: const Size(0, 48),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        foregroundColor: _ink,
+        backgroundColor: TaskVisuals.quietSurface,
+        disabledForegroundColor: _ink,
+        disabledBackgroundColor: TaskVisuals.quietSurface,
+        side: const BorderSide(color: _line),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
+        textStyle: buttonStyle,
+      ),
+    );
+    final dateWidth = textWidth(range, dateStyle);
     final neededWidth =
-        textWidth(strings.t('조회 기간'), labelStyle) +
-        textWidth(strings.t('최근 30일'), buttonStyle) +
-        17 +
-        8 +
-        24 +
-        16;
+        dateWidth + 60 + textWidth(strings.t('최근 30일'), buttonStyle) + 40 + 8;
     return LayoutBuilder(
       builder: (context, constraints) => neededWidth <= constraints.maxWidth
           ? Row(
               children: [
-                Expanded(child: label),
-                const SizedBox(width: 16),
+                Expanded(child: dates),
+                const SizedBox(width: 8),
                 button,
               ],
             )
           : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                label,
-                const SizedBox(height: 7),
                 Align(alignment: Alignment.centerRight, child: button),
+                const SizedBox(height: 8),
+                dates,
               ],
             ),
     );

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui' show Tristate;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -118,6 +119,78 @@ void _expectSummary(
 OutlinedButton _resetButton(WidgetTester tester) => tester
     .widget<OutlinedButton>(find.byKey(const Key('statistics-period-reset')));
 
+void _expectPeriodDates(
+  WidgetTester tester,
+  DateTime from,
+  DateTime until, {
+  String language = 'ko',
+}) {
+  final selector = find.byKey(const Key('statistics-period-select'));
+  final strings = AppStrings(language);
+  final accessible = tester.widget<Semantics>(
+    find.byKey(const Key('statistics-period-accessible-range')),
+  );
+  expect(
+    accessible.properties.label,
+    '${strings.t('조회 기간')}: ${strings.date(from)} – ${strings.date(until)}',
+  );
+  expect(accessible.properties.button, isTrue);
+  final content = _texts(tester, selector);
+  expect(find.byKey(const Key('statistics-period-label')), findsNothing);
+  if (from.year == until.year) {
+    String monthDay(DateTime date) =>
+        '${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}';
+    final range = strings.isEnglish
+        ? '${strings.dateShort(from)} – ${strings.dateShort(until)}, ${from.year}'
+        : '${from.year}.${monthDay(from)} ~ ${monthDay(until)}';
+    expect(content, range);
+  } else {
+    String fullDate(DateTime date) => strings.isEnglish
+        ? '${strings.dateShort(date)}, ${date.year}'
+        : '${date.year}.${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}';
+    expect(content, contains(fullDate(from)));
+    expect(content, contains(fullDate(until)));
+    expect(
+      content.indexOf(fullDate(from)),
+      lessThan(content.indexOf(fullDate(until))),
+    );
+  }
+  for (final text
+      in find
+          .descendant(of: selector, matching: find.byType(Text))
+          .evaluate()) {
+    final paragraph = text.findRenderObject()! as RenderParagraph;
+    expect(
+      paragraph.didExceedMaxLines,
+      isFalse,
+      reason:
+          'The full start and end dates, including years, must remain readable',
+    );
+  }
+}
+
+void _expectSingleRenderedLine(WidgetTester tester, Finder text) {
+  expect(text, findsOneWidget);
+  final paragraph = tester.renderObject<RenderParagraph>(text);
+  final boxes = paragraph.getBoxesForSelection(
+    TextSelection(
+      baseOffset: 0,
+      extentOffset: paragraph.text.toPlainText().length,
+    ),
+  );
+  expect(boxes, isNotEmpty);
+  for (final box in boxes) {
+    expect(
+      box.top,
+      closeTo(boxes.first.top, .1),
+      reason: 'Each displayed date must stay on one rendered line',
+    );
+    expect(box.left, greaterThanOrEqualTo(-.1));
+    expect(box.right, lessThanOrEqualTo(paragraph.size.width + .1));
+  }
+  expect(paragraph.didExceedMaxLines, isFalse);
+}
+
 void _expectCategoryIdentity(
   WidgetTester tester,
   Finder scope,
@@ -180,6 +253,7 @@ Future<void> _show(
   String language = 'ko',
   double scale = 1,
   double width = 375,
+  DateTime? now,
   Future<Map<String, Object>> Function(DateTime, DateTime)? loadStatistics,
 }) async {
   tester.view.devicePixelRatio = 1;
@@ -215,7 +289,7 @@ Future<void> _show(
               'average': 15,
               'hour': '19시',
             },
-            now: _now,
+            now: now ?? _now,
             loadStatistics: loadStatistics,
           ),
         ),
@@ -277,6 +351,7 @@ Future<void> _choosePeriod(
 }) async {
   final selector = find.byKey(const Key('statistics-period-select'));
   await tester.ensureVisible(selector);
+  await tester.pump();
   await tester.tap(selector);
   await tester.pump(const Duration(milliseconds: 400));
   final dialog = find.byType(DateRangePickerDialog);
@@ -636,10 +711,37 @@ void main() {
               final tabsRect = tester.getRect(priority);
               final summaryRect = tester.getRect(summary);
               expect(resetRect.height, greaterThanOrEqualTo(40));
-              expect(resetRect.bottom, lessThanOrEqualTo(periodRect.top));
-              expect(resetRect.right, closeTo(periodRect.right, 1));
+              final sameRow =
+                  (resetRect.center.dy - periodRect.center.dy).abs() < 1;
+              if (scale == 1 &&
+                  (width >= 402 || (language == 'ko' && width >= 375))) {
+                expect(
+                  sameRow,
+                  isTrue,
+                  reason: 'The full-year range and reset fit together at standard type',
+                );
+              }
+              if (sameRow) {
+                expect(periodRect.right, lessThan(resetRect.left));
+                expect(periodRect.width, lessThan(width - 32));
+                expect(resetRect.right, closeTo(width - 16, 1));
+              } else {
+                expect(resetRect.bottom, lessThanOrEqualTo(periodRect.top));
+                expect(periodRect.width, closeTo(width - 32, 1));
+              }
+              expect(periodRect.left, greaterThanOrEqualTo(16));
+              expect(periodRect.right, lessThanOrEqualTo(width - 16));
+              expect(resetRect.left, greaterThanOrEqualTo(16));
+              expect(resetRect.right, lessThanOrEqualTo(width - 16));
               expect(periodRect.bottom, lessThanOrEqualTo(tabsRect.top));
+              expect(resetRect.bottom, lessThanOrEqualTo(tabsRect.top));
               expect(tabsRect.bottom, lessThanOrEqualTo(summaryRect.top));
+              _expectPeriodDates(
+                tester,
+                _now.subtract(const Duration(days: 30)),
+                _now,
+                language: language,
+              );
               _expectSummary(
                 tester,
                 total: empty ? 0 : 55,
@@ -878,6 +980,12 @@ void main() {
           DateTime(2026, 6, 11).subtract(const Duration(microseconds: 1)),
         );
         final strings = AppStrings(language);
+        _expectPeriodDates(
+          tester,
+          DateTime(2026, 6, 10),
+          DateTime(2026, 6, 10),
+          language: language,
+        );
         _expectSummary(tester, total: 2, completed: 1, language: language);
         expect(_resetButton(tester).onPressed, isNotNull);
         expect(
@@ -897,6 +1005,12 @@ void main() {
         expect(requests.last.start, _now.subtract(const Duration(days: 30)));
         expect(requests.last.end, _now);
         expect(_resetButton(tester).onPressed, isNull);
+        _expectPeriodDates(
+          tester,
+          _now.subtract(const Duration(days: 30)),
+          _now,
+          language: language,
+        );
         _expectSummary(tester, total: 55, completed: 40, language: language);
         expect(
           _texts(tester, find.byKey(const Key('statistics-category-summary'))),
@@ -905,6 +1019,81 @@ void main() {
         expect(tester.takeException(), isNull);
       },
     );
+
+    for (final layout in [
+      (width: 375.0, scale: 1.0),
+      (width: 402.0, scale: 1.0),
+      (width: 320.0, scale: 2.0),
+    ]) {
+      testWidgets('$language cross-year dates fit or wrap only between dates '
+          'at ${layout.width} and ${layout.scale}x', (tester) async {
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        final requests = <DateTimeRange>[];
+        await _show(
+          tester,
+          items: _periodItems(),
+          language: language,
+          width: layout.width,
+          scale: layout.scale,
+          now: DateTime(2027, 1, 6, 12),
+          loadStatistics: (from, until) async {
+            requests.add(DateTimeRange(start: from, end: until));
+            return _loadedDetails;
+          },
+        );
+        final from = DateTime(2026, 12, 25), until = DateTime(2027, 1, 5);
+        await _choosePeriod(tester, from, until);
+        expect(requests, hasLength(1));
+        expect(requests.single.start, from);
+        expect(
+          requests.single.end,
+          DateTime(2027, 1, 6).subtract(const Duration(microseconds: 1)),
+        );
+        _expectPeriodDates(tester, from, until, language: language);
+        final period = find.byKey(const Key('statistics-period-select'));
+        final range = find.byKey(const Key('statistics-period-range'));
+        final start = find.byKey(const Key('statistics-period-start'));
+        final end = find.byKey(const Key('statistics-period-end'));
+        if (layout.scale == 1) {
+          expect(start, findsNothing);
+          expect(end, findsNothing);
+          expect(
+            tester.widget<Text>(range).data,
+            language == 'ko'
+                ? '2026.12.25 ~ 2027.01.05'
+                : 'Dec 25, 2026 – Jan 5, 2027',
+          );
+          _expectSingleRenderedLine(tester, range);
+        } else {
+          expect(range, findsNothing);
+          expect(
+            tester.widget<Text>(start).data,
+            language == 'ko' ? '2026.12.25' : 'Dec 25, 2026',
+          );
+          expect(
+            tester.widget<Text>(end).data,
+            language == 'ko' ? '~ 2027.01.05' : '– Jan 5, 2027',
+          );
+          _expectSingleRenderedLine(tester, start);
+          _expectSingleRenderedLine(tester, end);
+          expect(
+            tester.getRect(start).bottom,
+            lessThanOrEqualTo(tester.getRect(end).top),
+          );
+          expect(
+            tester
+                .getRect(find.byKey(const Key('statistics-period-reset')))
+                .bottom,
+            lessThanOrEqualTo(tester.getRect(period).top),
+          );
+        }
+        final periodRect = tester.getRect(period);
+        expect(periodRect.left, greaterThanOrEqualTo(16));
+        expect(periodRect.right, lessThanOrEqualTo(layout.width - 16));
+        expect(tester.takeException(), isNull);
+      });
+    }
   }
 
   testWidgets(
@@ -1005,6 +1194,12 @@ void main() {
         language: language,
         width: 320,
         scale: 3,
+      );
+      _expectPeriodDates(
+        tester,
+        _now.subtract(const Duration(days: 30)),
+        _now,
+        language: language,
       );
       _expectSummary(tester, total: 55, completed: 40, language: language);
       for (final priority in [2, 1, 0]) {

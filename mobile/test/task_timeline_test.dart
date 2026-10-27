@@ -11,6 +11,7 @@ Occurrence _item({
   TaskStatus status = TaskStatus.pending,
   DateTime? due,
   DateTime? completed,
+  DateTime? reminder,
   String title =
       '긴 제목을 가진 에어컨 필터 청소 · A long task title that must remain readable',
 }) {
@@ -27,7 +28,7 @@ Occurrence _item({
       repeat: RepeatUnit.weekly,
     ),
     originalDue: scheduled,
-    reminder: DateTime(2026, 10, 22, 15, 10),
+    reminder: reminder ?? DateTime(2026, 10, 22, 15, 10),
     status: status,
     completed: completed,
   );
@@ -257,14 +258,7 @@ void main() {
       onToggle: () => toggles++,
       onStart: () => starts++,
     );
-    expect(
-      tester
-          .widget<IconButton>(
-            find.widgetWithIcon(IconButton, Icons.radio_button_unchecked),
-          )
-          .onPressed,
-      isNull,
-    );
+    expect(tester.widget<Checkbox>(find.byType(Checkbox)).onChanged, isNull);
     expect(
       tester
           .widget<IconButton>(find.byKey(const ValueKey('start-timeline')))
@@ -282,7 +276,10 @@ void main() {
         find.text(
           AppStrings.current.t(
             '· {time} 재알림',
-            args: {'time': AppStrings.current.time(paused.reminder.toLocal())},
+            args: {
+              'time':
+                  '${AppStrings.current.date(paused.reminder.toLocal())} ${AppStrings.current.time(paused.reminder.toLocal())}',
+            },
           ),
         ),
         findsOneWidget,
@@ -293,4 +290,45 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+
+  for (final language in ['ko', 'en']) {
+    testWidgets(
+      '$language reminder labels distinguish another day at large type',
+      (tester) async {
+        final strings = AppStrings(language);
+        final due = DateTime(2026, 12, 31, 12);
+        final tomorrow = DateTime(2027, 1, 1, 12);
+        final item = _item(
+          status: TaskStatus.paused,
+          due: due,
+          reminder: tomorrow,
+        );
+        await _render(tester, item, width: 320, scale: 2, language: language);
+        expect(
+          find.text(
+            strings.t(
+              '· {time} 재알림',
+              args: {
+                'time': '${strings.date(tomorrow)} ${strings.time(tomorrow)}',
+              },
+            ),
+          ),
+          findsOneWidget,
+        );
+        expect(tester.takeException(), isNull);
+        final sameDay = _item(
+          status: TaskStatus.paused,
+          due: due,
+          reminder: due.add(const Duration(hours: 1)),
+        );
+        expect(
+          taskReminderLabel(sameDay, strings),
+          strings.t(
+            '· {time} 재알림',
+            args: {'time': strings.time(sameDay.reminder)},
+          ),
+        );
+      },
+    );
+  }
 }

@@ -3,6 +3,18 @@ import 'package:flutter/material.dart';
 import '../domain/task.dart';
 import '../l10n/app_strings.dart';
 import 'visual_tokens.dart';
+import 'task_completion_checkbox.dart';
+
+/// Calendar and timeline rows must distinguish a next-day reminder from the
+/// original due time while keeping same-day reminder labels compact.
+String taskReminderLabel(Occurrence occurrence, AppStrings strings) {
+  final due = occurrence.originalDue.toLocal();
+  final reminder = occurrence.reminder.toLocal();
+  final time = dayOf(due) == dayOf(reminder)
+      ? strings.time(reminder)
+      : '${strings.date(reminder)} ${strings.time(reminder)}';
+  return strings.t('· {time} 재알림', args: {'time': time});
+}
 
 /// The timeline presentation shared by upcoming and completed lists.
 /// Calendar rows deliberately keep their existing compact presentation.
@@ -84,18 +96,10 @@ class TaskTimelineRow extends StatelessWidget {
         ],
       ),
     );
-    final toggle = SizedBox(
-      width: 44,
-      height: 44,
-      child: IconButton(
-        tooltip: strings.t(isCompleted ? '완료 해제' : '완료 처리'),
-        onPressed: busy || o.status == TaskStatus.skipped ? null : onToggle,
-        icon: Icon(
-          isCompleted ? Icons.check_circle : Icons.radio_button_unchecked,
-          color: isCompleted ? TaskVisuals.muted : TaskVisuals.ink,
-          size: 23,
-        ),
-      ),
+    final toggle = TaskCompletionCheckbox(
+      completed: isCompleted,
+      enabled: !busy && o.status != TaskStatus.skipped,
+      onToggle: onToggle,
     );
     final start = o.active && o.status != TaskStatus.progressing
         ? SizedBox(
@@ -178,12 +182,7 @@ class TaskTimelineRow extends StatelessWidget {
         ),
         if (o.status == TaskStatus.paused) ...[
           const SizedBox(height: 5),
-          _SupportingText(
-            strings.t(
-              '· {time} 재알림',
-              args: {'time': strings.time(o.reminder.toLocal())},
-            ),
-          ),
+          _SupportingText(taskReminderLabel(o, strings)),
         ],
         if (isCompleted && completedAt == null) ...[
           const SizedBox(height: 5),

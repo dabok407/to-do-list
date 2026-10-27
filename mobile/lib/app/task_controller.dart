@@ -7,6 +7,8 @@ import '../domain/task.dart';
 import '../services/reminder_scheduler.dart';
 import '../services/widget_service.dart';
 import '../services/feature_access.dart';
+import '../services/backup_service.dart';
+import '../services/notification_privacy.dart';
 import '../l10n/locale_controller.dart';
 import '../l10n/app_strings.dart';
 
@@ -15,6 +17,7 @@ class TaskController extends ChangeNotifier {
   final ReminderScheduler reminders;
   final WidgetService widgets;
   final FeatureAccess? access;
+  final BackupService? backups;
   final LocaleController localeController;
   List<Occurrence> items = [];
   Map<String, Object> statistics = {};
@@ -27,6 +30,7 @@ class TaskController extends ChangeNotifier {
     this.reminders, {
     WidgetService? widgets,
     this.access,
+    this.backups,
   }) : widgets = widgets ?? WidgetService(),
        localeController = LocaleController(repository);
 
@@ -40,6 +44,29 @@ class TaskController extends ChangeNotifier {
       // A language change is still saved if notifications are unavailable.
     }
     await _reconcile();
+  });
+
+  Future<void> setNotificationTitles(bool show) => _serial(
+    () => _reconcile(
+      changeUnderReminderLease: () =>
+          NotificationPrivacy(repository).setShowTitles(show),
+    ),
+  );
+
+  Future<void> restoreBackup(BackupSnapshot snapshot) => _serial(() async {
+    if (backups == null) throw UnsupportedError('Backups are unavailable');
+    await _reconcile(
+      changeUnderReminderLease: () async {
+        await backups!.restore(snapshot);
+        await localeController.load();
+        try {
+          // Restored language changes also affect registered iOS action titles.
+          await reminders.initialize();
+        } catch (_) {
+          // The data is already restored. Scheduling below reports any failure.
+        }
+      },
+    );
   });
   Future<void> _serial(Future<void> Function() action) {
     final current = _tail.then((_) => action());
@@ -88,52 +115,73 @@ class TaskController extends ChangeNotifier {
     }
   });
 
-  Future<void> _reconcile() async {
-    await refresh();
+  Future<void> _reconcile({
+    Future<void> Function()? changeUnderReminderLease,
+  }) async {
+    if (changeUnderReminderLease == null) await refresh();
     final owner = 'ui${DateTime.now().microsecondsSinceEpoch}';
     var leased = await repository.acquireReminderLease(owner);
     for (var attempt = 0; !leased && attempt < 15; attempt++) {
       await Future<void>.delayed(const Duration(milliseconds: 100));
       leased = await repository.acquireReminderLease(owner);
     }
+    if (!leased && changeUnderReminderLease != null) {
+      // Do not save privacy/restored data while another engine can still
+      // schedule from the previous snapshot. A deferred UI timer is not enough
+      // if the user closes the app immediately after this operation.
+      throw StateError(
+        AppStrings.current.t('알림 예약을 갱신하고 있어요. 잠시 후 다시 시도해주세요.'),
+      );
+    }
     try {
-      if (leased) {
-        _retryTimer?.cancel();
-        await refresh();
-        await access?.load();
-        reminders.accessUntil = access == null
-            ? null
-            : access!.enabled
-            ? access!.until
-            : DateTime(1970);
-        await reminders.sync(
-          items,
-          exceptions: await repository.notificationExceptions(),
+      // Mutation failures must reach the caller (for example a failed restore),
+      // while the existing scheduling warning still allows saved data to open.
+      await changeUnderReminderLease?.call();
+      try {
+        if (leased) {
+          _retryTimer?.cancel();
+          await refresh();
+          await access?.load();
+          reminders.accessUntil = access == null
+              ? null
+              : access!.enabled
+              ? access!.until
+              : DateTime(1970);
+          await reminders.sync(
+            items,
+            exceptions: await repository.notificationExceptions(),
+          );
+        }
+        if (!leased) {
+          _retryTimer?.cancel();
+          _retryTimer = Timer(const Duration(seconds: 2), () {
+            reconcile();
+          });
+        }
+        await widgets.sync(items);
+        final enabled = access?.enabled == false
+            ? true
+            : await reminders.enabled();
+        warning = enabled == false
+            ? AppStrings.current.t(
+                '알림이 꺼져 있어요. 설정에서 알림을 켜면 예정된 시간에 알려드릴 수 있어요.',
+              )
+            : null;
+      } catch (error, stack) {
+        if (kDebugMode) {
+          debugPrint('Reminder reconciliation failed: $error\n$stack');
+        }
+        warning = AppStrings.current.t(
+          '일정은 저장했지만 알림을 예약하지 못했습니다. 설정에서 알림 권한을 확인해주세요.',
         );
       }
-      if (!leased) {
-        _retryTimer?.cancel();
-        _retryTimer = Timer(const Duration(seconds: 2), () {
-          reconcile();
-        });
-      }
-      await widgets.sync(items);
-      final enabled = access?.enabled == false
-          ? true
-          : await reminders.enabled();
-      warning = enabled == false
-          ? AppStrings.current.t('알림이 꺼져 있어요. 설정에서 알림을 켜면 예정된 시간에 알려드릴 수 있어요.')
-          : null;
-    } catch (error, stack) {
-      if (kDebugMode) {
-        debugPrint('Reminder reconciliation failed: $error\n$stack');
-      }
-      warning = AppStrings.current.t(
-        '일정은 저장했지만 알림을 예약하지 못했습니다. 설정에서 알림 권한을 확인해주세요.',
-      );
     } finally {
       if (leased) await repository.releaseReminderLease(owner);
     }
+    // File maintenance follows reminder scheduling and must not block it.
+    try {
+      await backups?.maybeAutomaticBackup();
+    } catch (_) {}
     notifyListeners();
   }
 
@@ -174,6 +222,14 @@ class TaskController extends ChangeNotifier {
         await access?.load();
         if (access?.allows(action) == false) return;
         await repository.act(occurrence.id, action, minutes: minutes);
+        await _reconcile();
+      });
+
+  Future<void> snoozeUntil(Occurrence occurrence, DateTime target) =>
+      _serial(() async {
+        await access?.load();
+        if (access?.allows('snooze') == false) return;
+        await repository.snoozeUntil(occurrence.id, target);
         await _reconcile();
       });
 
