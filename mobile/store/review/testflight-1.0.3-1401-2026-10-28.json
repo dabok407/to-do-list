@@ -1,0 +1,235 @@
+{
+  "version": "1.0.3",
+  "build": "1401",
+  "sourceCommit": "c33c66448f0744abcdcaf0b0b63a71e3fd2d727e",
+  "scope": "Existing Owner internal TestFlight group only",
+  "apple": {
+    "checkedAtUtc": "2026-10-28T03:53:57.363586+00:00",
+    "sourceCommit": "c33c66448f0744abcdcaf0b0b63a71e3fd2d727e",
+    "appStoreId": "6821236391",
+    "version": "1.0.3",
+    "build": "1401",
+    "readOnly": false,
+    "mutationAttempted": true,
+    "actions": [
+      {
+        "action": "addExistingOwnerGroupBuild",
+        "httpStatus": 204
+      }
+    ],
+    "publicVersionChanged": false,
+    "externalGroupsChanged": false,
+    "automaticRetry": false,
+    "readyForOwner": true,
+    "buildFound": true,
+    "buildId": "b3012e6d-1381-46a0-a0bd-c112138c448b",
+    "ownerGroupConnected": true,
+    "oldGroupBuildCount": 8,
+    "processingState": "VALID",
+    "expired": false,
+    "usesNonExemptEncryption": false,
+    "uploadedDate": "2026-10-27T20:51:28-07:00",
+    "localEvidence": {
+      "signingRunId": 40508267997,
+      "artifactId": 12737116803,
+      "artifactSha256": "f58e4d0d8bfe08394858fb23f03edfdd68c082cf351672b2bc0723ed2afcae7e",
+      "ipaSha256": "87bb1b77bb47766994eaa61f5f96ac546a40395fa4cc18a2db1a892755c314f9",
+      "ipaBytes": 25376885,
+      "actualIpaEncryptionFlag": false
+    },
+    "ciRuns": [
+      {
+        "workflowPath": ".github/workflows/mobile.yml",
+        "runId": 40508127325,
+        "attempt": 1,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "workflowPath": ".github/workflows/ios-testflight.yml",
+        "runId": 40508267997,
+        "attempt": 1,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "workflowPath": ".github/workflows/ios-testflight-upload.yml",
+        "runId": 40628204168,
+        "attempt": 1,
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ],
+    "localAndCiVerified": true,
+    "oldGroupBuildsRetained": true,
+    "ownerGroupBuildCount": 9,
+    "internalBuildState": "IN_BETA_TESTING",
+    "status": "ready_for_owner"
+  },
+  "ciEvidence": {
+    "checked_at": "2026-10-28T03:37:22.487524+00:00",
+    "sha": "c33c66448f0744abcdcaf0b0b63a71e3fd2d727e",
+    "both_workflows_completed": true,
+    "all_workflows_successful": true,
+    "evidence_complete": true,
+    "summary_note": "Test totals are per suite, not a sum across workflows. No matching log summary means unknown, not zero tests.",
+    "runs": [
+      {
+        "workflow": "mobile.yml",
+        "run_id": 40508127325,
+        "run_attempt": 1,
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/dabok407/to-do-list/actions/runs/40508127325",
+        "jobs": [
+          {
+            "job_id": 122202637003,
+            "name": "ios",
+            "status": "completed",
+            "conclusion": "success",
+            "native_steps": [
+              {
+                "number": 3,
+                "name": "iOS notification OCR regression",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "number": 5,
+                "name": "Install native deep-link UI test runner",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "number": 12,
+                "name": "iPhone runtime integration",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "number": 13,
+                "name": "Restore production Flutter entry point before native XCTest",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "number": 14,
+                "name": "Native WidgetKit tests and view rendering",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "number": 15,
+                "name": "Export native widget render attachments",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "number": 16,
+                "name": "Restore normal app and verify native deep link",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "number": 17,
+                "name": "iPhone notification permission denial",
+                "status": "completed",
+                "conclusion": "success"
+              }
+            ],
+            "test_summaries": [],
+            "log_evidence": "available"
+          },
+          {
+            "job_id": 122202637323,
+            "name": "android",
+            "status": "completed",
+            "conclusion": "success",
+            "native_steps": [
+              {
+                "number": 10,
+                "name": "Preserve normal app for native lifecycle checks",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "number": 13,
+                "name": "Android device integration and native lifecycle",
+                "status": "completed",
+                "conclusion": "success"
+              }
+            ],
+            "test_summaries": [],
+            "log_evidence": "available"
+          }
+        ]
+      },
+      {
+        "workflow": "ios-testflight.yml",
+        "run_id": 40508267997,
+        "run_attempt": 1,
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/dabok407/to-do-list/actions/runs/40508267997",
+        "jobs": [
+          {
+            "job_id": 122203136120,
+            "name": "signed-build",
+            "status": "completed",
+            "conclusion": "success",
+            "native_steps": [
+              {
+                "number": 3,
+                "name": "iOS notification OCR regression",
+                "status": "completed",
+                "conclusion": "success"
+              },
+              {
+                "number": 10,
+                "name": "Native WidgetKit tests and Korean/English rendering",
+                "status": "completed",
+                "conclusion": "success"
+              }
+            ],
+            "test_summaries": [],
+            "log_evidence": "available"
+          }
+        ]
+      }
+    ]
+  },
+  "localValidation": {
+    "initialFullSuite": {
+      "passed": 650,
+      "skippedOptionalCaptures": 3
+    },
+    "finalAuditRegressionSuite": {
+      "passed": 82
+    },
+    "finalStaticAnalysis": "No issues found",
+    "releaseToolUnitTests": {
+      "passed": 19
+    },
+    "changedSourceSecretScan": {
+      "files": 59,
+      "findings": 0
+    },
+    "crossYearDateRange": "2026.12.25 ~ 2027.01.05 remains one line when it fits; date-boundary wrapping only when needed"
+  },
+  "validationHistory": "Updated native notification automation for the grouped Settings menu, then passed all required workflows on the final commit.",
+  "physicalIphoneInstallationClaimed": false,
+  "physicalFilesProviderTestClaimed": false,
+  "realStoreKitTransactionTestClaimed": false,
+  "publicAppReviewSubmitted": false,
+  "externalTestGroupsChanged": false,
+  "publicReleaseReadOnlyVerification": {
+    "checkedAtUtc": "2026-10-28T03:55:16.960603+00:00",
+    "readOnly": true,
+    "appStoreId": "6821236391",
+    "publicVersionChanged": null,
+    "expectedPublicVersion": "1.0.2",
+    "expectedPublicBuild": "1301",
+    "status": "read_failed",
+    "reason": "No external state changed; credentials and raw responses omitted."
+  }
+}
