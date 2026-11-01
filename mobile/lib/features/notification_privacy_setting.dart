@@ -83,58 +83,70 @@ class _NotificationPrivacySettingState
     final s = AppStrings.of(context);
     return FutureBuilder<bool>(
       future: preference,
-      builder: (context, state) => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SwitchListTile.adaptive(
-            key: const Key('notification-title-toggle'),
-            secondary: widget.compact
-                ? const SettingsIcon(Icons.visibility_outlined)
-                : null,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 4,
-            ),
-            title: Text(
-              s.t('알림에 할 일 제목 표시'),
-              style: widget.compact
-                  ? const TextStyle(fontSize: 15, fontWeight: FontWeight.w500)
+      builder: (context, state) {
+        final enabled =
+            !busy &&
+            state.connectionState == ConnectionState.done &&
+            state.hasData;
+        final disabledColor = Theme.of(context).disabledColor;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SwitchListTile.adaptive(
+              key: const Key('notification-title-toggle'),
+              secondary: widget.compact
+                  ? SettingsIcon(Icons.visibility_outlined, enabled: enabled)
                   : null,
-            ),
-            subtitle: Text(
-              s.t(
-                state.data == false ? '제목 숨김 · 앱에서 내용을 확인해요' : '제목 표시 · 기본 설정',
+              horizontalTitleGap: widget.compact ? settingsLeadingGap : null,
+              minLeadingWidth: widget.compact ? settingsLeadingSize : null,
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: widget.compact ? settingsHorizontalInset : 16,
+                vertical: 4,
               ),
-              style: widget.compact
-                  ? const TextStyle(
-                      fontSize: 12,
-                      height: 1.4,
-                      color: settingsMuted,
-                    )
-                  : null,
-            ),
-            value: state.data ?? true,
-            onChanged:
-                busy ||
-                    state.connectionState != ConnectionState.done ||
-                    !state.hasData
-                ? null
-                : change,
-          ),
-          if (!widget.compact || state.hasError)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
+              title: Text(
+                s.t('알림에 할 일 제목 표시'),
+                style: widget.compact
+                    ? TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        color: enabled ? settingsInk : disabledColor,
+                      )
+                    : null,
+              ),
+              subtitle: Text(
                 s.t(
-                  state.hasError
-                      ? '설정을 불러오지 못했어요. 설정 화면을 다시 열어주세요.'
-                      : '끄면 알림에 앱 이름과 안내 문구만 표시해요. 알림 시각과 소리 설정은 유지돼요.',
+                  state.data == false
+                      ? '제목 숨김 · 앱에서 내용을 확인해요'
+                      : '제목 표시 · 기본 설정',
                 ),
-                style: Theme.of(context).textTheme.bodySmall,
+                style: widget.compact
+                    ? TextStyle(
+                        fontSize: 12,
+                        height: 1.4,
+                        color: enabled ? settingsMuted : disabledColor,
+                      )
+                    : null,
               ),
+              value: state.data ?? true,
+              onChanged: enabled ? change : null,
             ),
-        ],
-      ),
+            if (!widget.compact || state.hasError)
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: widget.compact ? settingsHorizontalInset : 16,
+                ),
+                child: Text(
+                  s.t(
+                    state.hasError
+                        ? '설정을 불러오지 못했어요. 설정 화면을 다시 열어주세요.'
+                        : '끄면 알림에 앱 이름과 안내 문구만 표시해요. 알림 시각과 소리 설정은 유지돼요.',
+                  ),
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 }

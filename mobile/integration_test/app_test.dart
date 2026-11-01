@@ -15,6 +15,7 @@ import 'package:hangeoreum/services/feature_access.dart';
 import 'package:hangeoreum/services/subscription_service.dart';
 import 'package:hangeoreum/l10n/app_strings.dart';
 import 'package:hangeoreum/features/home_screen.dart';
+import 'package:hangeoreum/features/task_completion_checkbox.dart';
 import 'package:hangeoreum/services/widget_service.dart';
 
 import 'bootstrap.dart';
@@ -209,7 +210,100 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    Future<void> swipeTask(String id, {required bool right}) async {
+    Future<void> savedCompletionFeedback(
+      String id, {
+      required bool completed,
+    }) async {
+      final row = find.byKey(ValueKey('task-swipe-$id'));
+      final fade = find.descendant(
+        of: row,
+        matching: find.byType(AnimatedOpacity),
+      );
+      // Native SQLite/notification work finishes asynchronously. Wait for the
+      // saved feedback frame, not pumpAndSettle: a hold timer is intentionally
+      // idle between the saved frame and its later collapse.
+      for (var attempt = 0; attempt < 500; attempt++) {
+        await tester.pump(const Duration(milliseconds: 20));
+        if (fade.evaluate().isNotEmpty &&
+            tester.widget<AnimatedOpacity>(fade).opacity == .65) {
+          break;
+        }
+      }
+      expect(row, findsOneWidget, reason: '저장 직후에는 처리된 행을 유지한다');
+      expect(tester.widget<AnimatedOpacity>(fade).opacity, .65);
+      final checkbox = tester.widget<TaskCompletionCheckbox>(
+        find.byKey(ValueKey('task-completion-$id')),
+      );
+      expect(checkbox.completed, completed);
+      expect(checkbox.enabled, isFalse, reason: '피드백 중에는 중복 처리를 막는다');
+      expect(
+        tester
+            .widget<Text>(find.byKey(Key('task-title-$id')))
+            .style
+            ?.decoration,
+        completed ? TextDecoration.lineThrough : isNull,
+      );
+      expect(
+        controller.items.singleWhere((item) => item.id == id).status,
+        completed ? TaskStatus.completed : TaskStatus.pending,
+        reason: '행을 유지하는 동안에도 실제 저장 상태는 이미 변경되어야 한다',
+      );
+      final message = strings.t(completed ? '할 일을 완료했어요.' : '완료를 해제했어요.');
+      expect(find.text(message), findsOneWidget);
+      final snackbar = tester.widget<SnackBar>(find.byType(SnackBar));
+      expect(snackbar.duration, const Duration(seconds: 3));
+      expect(snackbar.action?.label, strings.t('되돌리기'));
+      // Keep this native check brief: real simulator time also consumes the
+      // three-second Undo window. Exact hold boundaries are widget-tested.
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(row, findsOneWidget, reason: '성공 표시를 즉시 없애지 않는다');
+    }
+
+    Future<void> finishCompletionRemoval(String id) async {
+      // Native pump waits in real time. Observe removal as soon as it happens
+      // instead of adding a full hold after the earlier feedback check. Avoid
+      // pumpAndSettle here so an immediately following Undo keeps its window.
+      final row = find.byKey(ValueKey('task-swipe-$id'));
+      for (var attempt = 0; attempt < 500; attempt++) {
+        if (row.evaluate().isEmpty) break;
+        await tester.pump(const Duration(milliseconds: 20));
+      }
+      expect(row, findsNothing);
+    }
+
+    Future<void> undoCompletionFeedback(String id) async {
+      final undo = find.descendant(
+        of: find.byType(SnackBar),
+        matching: find.text(strings.t('되돌리기')),
+      );
+      expect(undo, findsOneWidget);
+      await tester.tap(undo);
+      final row = find.byKey(ValueKey('task-swipe-$id'));
+      for (var attempt = 0; attempt < 500; attempt++) {
+        await tester.pump(const Duration(milliseconds: 20));
+        final checkbox = find.byKey(ValueKey('task-completion-$id'));
+        if (checkbox.evaluate().isNotEmpty &&
+            tester.widget<TaskCompletionCheckbox>(checkbox).enabled) {
+          break;
+        }
+      }
+      expect(row, findsOneWidget, reason: '되돌리기는 원래 목록으로 복구한다');
+      expect(
+        tester
+            .widget<TaskCompletionCheckbox>(
+              find.byKey(ValueKey('task-completion-$id')),
+            )
+            .enabled,
+        isTrue,
+      );
+      await tester.pumpAndSettle();
+    }
+
+    Future<void> swipeTask(
+      String id, {
+      required bool right,
+      required bool completed,
+    }) async {
       final row = find.byKey(ValueKey('task-swipe-$id'));
       await tester.ensureVisible(row);
       await tester.pumpAndSettle();
@@ -221,7 +315,7 @@ void main() {
         ),
         Offset(bounds.width * (right ? .75 : -.75), 0),
       );
-      await tester.pumpAndSettle();
+      await savedCompletionFeedback(id, completed: completed);
     }
 
     try {
@@ -301,7 +395,7 @@ void main() {
         isTrue,
       );
       await selectTab('예정');
-      await swipeTask(quickOccurrence.id, right: true);
+      await swipeTask(quickOccurrence.id, right: true, completed: true);
       final completed = controller.items.singleWhere(
         (item) => item.id == quickOccurrence.id,
       );
@@ -309,18 +403,47 @@ void main() {
       expect(completed.task.id, quickTask.id);
       expect(completed.beforeComplete, TaskStatus.pending);
       expect(completed.completed, isNotNull);
+      // Do not await a native channel call before Undo: slow simulator replies
+      // could exhaust its three-second window. Check cancellation in the next
+      // terminal completion, which intentionally does not undo the action.
+      await finishCompletionRemoval(quickOccurrence.id);
+      await undoCompletionFeedback(quickOccurrence.id);
+      final undoneQuick = controller.items.singleWhere(
+        (item) => item.id == quickOccurrence.id,
+      );
+      expect(undoneQuick.status, quickOccurrence.status);
+      expect(undoneQuick.task.toMap(), quickTask.toMap());
+      expect(undoneQuick.originalDue, quickOccurrence.originalDue);
+      expect(undoneQuick.reminder, quickOccurrence.reminder);
+      expect(undoneQuick.started, quickOccurrence.started);
+      expect(undoneQuick.completed, quickOccurrence.completed);
+      expect(undoneQuick.snoozes, quickOccurrence.snoozes);
+      expect(undoneQuick.beforeComplete, quickOccurrence.beforeComplete);
+      expect(
+        (await controller.reminders.plugin.pendingNotificationRequests()).any(
+          (request) => request.payload == quickOccurrence.id,
+        ),
+        isTrue,
+        reason: '완료 되돌리기는 네이티브 알림도 복구한다',
+      );
+      // The checkbox and bilateral swipe must share the same feedback path.
+      await tester.tap(
+        find.byKey(ValueKey('task-completion-${quickOccurrence.id}')),
+      );
+      await savedCompletionFeedback(quickOccurrence.id, completed: true);
+      final completedAgain = controller.items.singleWhere(
+        (item) => item.id == quickOccurrence.id,
+      );
+      await finishCompletionRemoval(quickOccurrence.id);
       expect(
         (await controller.reminders.plugin.pendingNotificationRequests()).any(
           (request) => request.payload == quickOccurrence.id,
         ),
         isFalse,
-      );
-      expect(
-        find.byKey(ValueKey('task-swipe-${quickOccurrence.id}')),
-        findsNothing,
+        reason: '완료는 네이티브 알림을 취소한다',
       );
       await selectTab('완료');
-      await swipeTask(quickOccurrence.id, right: false);
+      await swipeTask(quickOccurrence.id, right: false, completed: false);
       final restoredQuick = controller.items.singleWhere(
         (item) => item.id == quickOccurrence.id,
       );
@@ -332,12 +455,36 @@ void main() {
       expect(restoredQuick.completed, isNull);
       expect(restoredQuick.snoozes, quickOccurrence.snoozes);
       expect(restoredQuick.beforeComplete, isNull);
+      await finishCompletionRemoval(quickOccurrence.id);
+      await undoCompletionFeedback(quickOccurrence.id);
+      final restoredCompleted = controller.items.singleWhere(
+        (item) => item.id == quickOccurrence.id,
+      );
+      expect(restoredCompleted.status, TaskStatus.completed);
+      expect(restoredCompleted.completed, completedAgain.completed);
+      expect(restoredCompleted.beforeComplete, completedAgain.beforeComplete);
+      expect(restoredCompleted.reminder, completedAgain.reminder);
+      expect(restoredCompleted.started, completedAgain.started);
+      expect(restoredCompleted.snoozes, completedAgain.snoozes);
+      expect(
+        (await controller.reminders.plugin.pendingNotificationRequests()).any(
+          (request) => request.payload == quickOccurrence.id,
+        ),
+        isFalse,
+        reason: '완료 해제의 되돌리기는 기존 완료 시각과 알림 취소를 복구한다',
+      );
+      // Verify the reverse native scheduling transition without an Undo
+      // deadline, preserving coverage even when the platform channel is slow.
+      await swipeTask(quickOccurrence.id, right: false, completed: false);
+      await finishCompletionRemoval(quickOccurrence.id);
       expect(
         (await controller.reminders.plugin.pendingNotificationRequests()).any(
           (request) => request.payload == quickOccurrence.id,
         ),
         isTrue,
+        reason: '완료 해제는 네이티브 알림을 복구한다',
       );
+      debugPrintSynchronously('NATIVE_COMPLETION_HOLD_UNDO_REMINDERS_OK');
       debugPrintSynchronously('NATIVE_QUICK_DEFAULT_OTHER_SWIPE_OK');
     } finally {
       for (final task in (await controller.repository.tasks()).where(

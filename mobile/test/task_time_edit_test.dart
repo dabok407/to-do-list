@@ -1,20 +1,118 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hangeoreum/data/task_repository.dart';
 import 'package:hangeoreum/domain/task.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
-class _ConcurrentReadRepository extends TaskRepository {
+/// Pause the real query while its surrounding SQLite transaction is open.
+class _ReadHookDatabase implements Database {
+  final Database delegate;
   Future<void> Function()? onSnapshot;
-  _ConcurrentReadRepository(super.db);
+  _ReadHookDatabase(this.delegate);
+
+  Future<List<Map<String, Object?>>> queried(
+    String table,
+    Future<List<Map<String, Object?>>> query,
+  ) async {
+    final rows = await query;
+    if (table == 'tasks') {
+      final action = onSnapshot;
+      onSnapshot = null;
+      await action?.call();
+    }
+    return rows;
+  }
 
   @override
-  Future<List<Task>> tasks() async {
-    final snapshot = await super.tasks();
-    final action = onSnapshot;
-    onSnapshot = null;
-    await action?.call();
-    return snapshot;
-  }
+  Future<T> transaction<T>(
+    Future<T> Function(Transaction txn) action, {
+    bool? exclusive,
+  }) => delegate.transaction(
+    (tx) => action(_ReadHookTransaction(tx, this)),
+    exclusive: exclusive,
+  );
+
+  @override
+  Future<List<Map<String, Object?>>> query(
+    String table, {
+    bool? distinct,
+    List<String>? columns,
+    String? where,
+    List<Object?>? whereArgs,
+    String? groupBy,
+    String? having,
+    String? orderBy,
+    int? limit,
+    int? offset,
+  }) => queried(
+    table,
+    delegate.query(
+      table,
+      distinct: distinct,
+      columns: columns,
+      where: where,
+      whereArgs: whereArgs,
+      groupBy: groupBy,
+      having: having,
+      orderBy: orderBy,
+      limit: limit,
+      offset: offset,
+    ),
+  );
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _ReadHookTransaction implements Transaction {
+  final Transaction delegate;
+  final _ReadHookDatabase hook;
+  _ReadHookTransaction(this.delegate, this.hook);
+
+  @override
+  Future<List<Map<String, Object?>>> query(
+    String table, {
+    bool? distinct,
+    List<String>? columns,
+    String? where,
+    List<Object?>? whereArgs,
+    String? groupBy,
+    String? having,
+    String? orderBy,
+    int? limit,
+    int? offset,
+  }) => hook.queried(
+    table,
+    delegate.query(
+      table,
+      distinct: distinct,
+      columns: columns,
+      where: where,
+      whereArgs: whereArgs,
+      groupBy: groupBy,
+      having: having,
+      orderBy: orderBy,
+      limit: limit,
+      offset: offset,
+    ),
+  );
+
+  @override
+  Future<int> insert(
+    String table,
+    Map<String, Object?> values, {
+    String? nullColumnHack,
+    ConflictAlgorithm? conflictAlgorithm,
+  }) => delegate.insert(
+    table,
+    values,
+    nullColumnHack: nullColumnHack,
+    conflictAlgorithm: conflictAlgorithm,
+  );
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 void main() {
@@ -251,19 +349,35 @@ void main() {
       }),
     );
     final latestDue = due.add(const Duration(hours: 4));
-    final background = _ConcurrentReadRepository(repository.db);
-    var edited = false;
-    background.onSnapshot = () async {
-      edited = true;
-      await repository.saveTask(
-        Task.fromMap({
-          ...original.task.toMap(),
-          'due': latestDue.toIso8601String(),
-        }),
-      );
+    final database = _ReadHookDatabase(repository.db);
+    final background = TaskRepository(database);
+    final snapshotRead = Completer<void>();
+    final releaseSnapshot = Completer<void>();
+    addTearDown(() {
+      if (!releaseSnapshot.isCompleted) releaseSnapshot.complete();
+    });
+    database.onSnapshot = () async {
+      snapshotRead.complete();
+      await releaseSnapshot.future;
     };
-    await background.materialize();
-    expect(edited, true);
+    final materializing = background.materialize();
+    await snapshotRead.future;
+    var editFinished = false;
+    final editing = repository
+        .saveTask(
+          Task.fromMap({
+            ...original.task.toMap(),
+            'due': latestDue.toIso8601String(),
+          }),
+        )
+        .then((_) => editFinished = true);
+    // The foreground edit must wait for the transaction that read the old due
+    // time; it cannot commit between that read and insertion of occurrences.
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+    expect(editFinished, isFalse);
+    releaseSnapshot.complete();
+    await Future.wait([materializing, editing]);
+    expect(editFinished, isTrue);
     await repository.materialize();
     final updated = (await repository.occurrences()).single;
     expect(updated.id, original.id);

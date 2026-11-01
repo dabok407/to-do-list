@@ -282,7 +282,7 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
-  testWidgets('월 보기 날짜 선택 후 목록에서 상세 진입 없이 시작·완료·해제 가능', (tester) async {
+  testWidgets('날짜 목록에서 완료·해제하고 상세에서 지금 시작 가능', (tester) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(390, 844);
     addTearDown(tester.view.resetPhysicalSize);
@@ -296,12 +296,8 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    final day = find
-        .descendant(
-          of: find.byType(GridView),
-          matching: find.text('${DateTime.now().day}'),
-        )
-        .first;
+    // Adjacent months can contain the same day number (for example the 30th).
+    final day = find.byKey(Key('calendar-date-${dayKey(DateTime.now())}'));
     expect(
       day.hitTestable(),
       findsOneWidget,
@@ -310,22 +306,41 @@ void main() {
     await tester.tap(day);
     await tester.pumpAndSettle();
     expect(find.text('월 보기'), findsOneWidget);
-    final start = find.byTooltip('${controller.items.single.task.title} 지금 시작');
+    final row = find.byKey(ValueKey('task-row-${controller.items.single.id}'));
+    await tester.scrollUntilVisible(
+      row,
+      100,
+      scrollable: find
+          .descendant(
+            of: find.byType(ListView),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+    await tester.tap(row);
+    await tester.pumpAndSettle();
+    final start = find.widgetWithText(FilledButton, '지금 시작');
     await tester.ensureVisible(start);
     await tester.pumpAndSettle();
     expect(
       start.hitTestable(),
       findsOneWidget,
-      reason: '날짜 선택 후 주 보기로 접혀 아래 목록에서 바로 시작할 수 있어야 한다',
+      reason: '간결한 목록에서 제거한 시작 바로가기는 상세에서 계속 제공한다',
     );
     expect(tester.getSize(start).width, greaterThanOrEqualTo(48));
     expect(tester.getSize(start).height, greaterThanOrEqualTo(48));
     await tester.tap(start);
     await tester.pumpAndSettle();
     expect(controller.actions, ['start']);
+    await tester.ensureVisible(find.byTooltip('닫기'));
+    await tester.tap(find.byTooltip('닫기'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(row);
     await tester.tap(find.byTooltip('완료 처리'));
     await tester.pumpAndSettle();
     expect(find.byTooltip('완료 해제').hitTestable(), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 1100));
+    await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('완료 해제'));
     await tester.pumpAndSettle();
     expect(controller.actions, ['start', 'complete', 'uncomplete']);
@@ -362,6 +377,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byTooltip('완료 처리').hitTestable(), findsOneWidget);
     await tester.tap(find.byTooltip('완료 처리'));
+    await tester.pumpAndSettle();
+    expect(controller.overdue, isEmpty);
+    expect(find.text('남은 일을 모두 마쳤어요.'), findsNothing);
+    await tester.pump(const Duration(milliseconds: 1300));
+    await tester.pump(const Duration(milliseconds: 250));
     await tester.pumpAndSettle();
     expect(find.text('남은 일을 모두 마쳤어요.'), findsOneWidget);
     expect(controller.overdue, isEmpty);
@@ -530,9 +550,9 @@ void main() {
         HangeoreumApp(controller: controller, subscription: subscription),
       );
       await tester.pumpAndSettle();
-      final item = find
-          .widgetWithText(ListTile, controller.items.single.task.title)
-          .first;
+      final item = find.byKey(
+        ValueKey('task-row-${controller.items.single.id}'),
+      );
       await tester.scrollUntilVisible(
         item,
         200,

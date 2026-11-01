@@ -341,10 +341,7 @@ void main() {
           .estimatedChildCount,
       7,
     );
-    final row = find.widgetWithText(
-      ListTile,
-      controller.items.single.task.title,
-    );
+    final row = find.byKey(ValueKey('task-row-${controller.items.single.id}'));
     await tester.ensureVisible(row);
     expect(row, findsOneWidget);
     await tester.ensureVisible(find.text('월 보기'));
@@ -368,10 +365,12 @@ void main() {
   testWidgets('manually selected week view remains week after a date tap', (
     tester,
   ) async {
-    await _home(tester);
+    final controller = await _home(tester);
     await tester.tap(find.text('주 보기'));
     await tester.pumpAndSettle();
-    final chosen = weekOf(DateTime.now()).add(const Duration(days: 1));
+    final chosen = calendarWeekStart(
+      DateTime.now(), controller.localeController.firstDayOfWeekIndex,
+    ).add(const Duration(days: 1));
     await tester.tap(find.byKey(Key('calendar-date-${dayKey(chosen)}')));
     await tester.pumpAndSettle();
     expect(find.text('월 보기'), findsOneWidget);

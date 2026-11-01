@@ -16,11 +16,17 @@ String taskReminderLabel(Occurrence occurrence, AppStrings strings) {
   return strings.t('· {time} 재알림', args: {'time': time});
 }
 
-/// The timeline presentation shared by upcoming and completed lists.
-/// Calendar rows deliberately keep their existing compact presentation.
+/// Shared calendar, upcoming and completed rows. List completion is the primary
+/// action; starting a task remains available in its detail sheet.
 class TaskTimelineRow extends StatelessWidget {
   final Occurrence occurrence;
   final bool busy, hasProAccess, showScheduleDate;
+
+  /// Calendar dates and pending-to-completed feedback keep the scheduled clock.
+  /// The completed timeline otherwise shows the actual completion timestamp.
+  final bool useScheduledTime;
+  // Retained for caller compatibility; the inline start shortcut was removed
+  // from the approved compact row, not from the task detail screen.
   final VoidCallback onTap, onToggle, onStart;
 
   const TaskTimelineRow({
@@ -32,174 +38,236 @@ class TaskTimelineRow extends StatelessWidget {
     required this.onToggle,
     required this.onStart,
     this.showScheduleDate = false,
+    this.useScheduledTime = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final strings = AppStrings.of(context);
     final o = occurrence;
+    final task = o.task;
     final isCompleted = o.status == TaskStatus.completed;
     final due = o.originalDue.toLocal();
     final completedAt = o.completed?.toLocal();
-    final displayTime = isCompleted ? completedAt ?? due : due;
+    final displayTime = isCompleted && !useScheduledTime
+        ? completedAt ?? due
+        : due;
+    DateTime minute(DateTime value) =>
+        DateTime(value.year, value.month, value.day, value.hour, value.minute);
     final showOriginal =
         isCompleted &&
-        (completedAt == null ||
-            DateTime(
-                  completedAt.year,
-                  completedAt.month,
-                  completedAt.day,
-                  completedAt.hour,
-                  completedAt.minute,
-                ) !=
-                DateTime(due.year, due.month, due.day, due.hour, due.minute));
-    final priority = switch (o.task.priority) {
-      2 => strings.t('높음'),
-      0 => strings.t('낮음'),
-      _ => strings.t('보통'),
-    };
+        !useScheduledTime &&
+        (completedAt == null || minute(completedAt) != minute(due));
+    final priority = strings.t(switch (task.priority) {
+      2 => '높음',
+      0 => '낮음',
+      _ => '보통',
+    });
+    final category = strings.category(task.category);
+    final clock = strings.time(displayTime);
+    final scaler = MediaQuery.textScalerOf(context);
+    final timeStyle = TextStyle(
+      fontFamily: 'Pretendard',
+      fontSize: 18,
+      height: 1.2,
+      fontWeight: FontWeight.w600,
+      color: isCompleted ? TaskVisuals.muted : TaskVisuals.ink,
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
+    final titleStyle = TextStyle(
+      fontFamily: 'Pretendard',
+      fontSize: 16,
+      height: 1.45,
+      fontWeight: FontWeight.w500,
+      color: isCompleted ? TaskVisuals.muted : TaskVisuals.ink,
+      decoration: isCompleted ? TextDecoration.lineThrough : null,
+    );
+    const categoryStyle = TextStyle(
+      fontFamily: 'Pretendard',
+      fontSize: 13,
+      height: 1.45,
+      fontWeight: FontWeight.w500,
+    );
+    final priorityStyle = TextStyle(
+      fontFamily: 'Pretendard',
+      fontSize: 12,
+      height: 1.5,
+      fontWeight: FontWeight.w500,
+      color: TaskVisuals.priorityInk(task.priority),
+    );
+    double width(String value, TextStyle style) {
+      final painter = TextPainter(
+        text: TextSpan(
+          text: value,
+          style: DefaultTextStyle.of(context).style.merge(style),
+        ),
+        textDirection: Directionality.of(context),
+        textScaler: scaler,
+        maxLines: 1,
+      )..layout();
+      final result = painter.width;
+      painter.dispose();
+      return result;
+    }
+
+    final timeWidth = (width(clock, timeStyle).ceilToDouble() + 4).clamp(
+      56.0,
+      double.infinity,
+    );
+    final toggleSize = TaskCompletionCheckbox.labeledSize(context);
+    final metaWidth =
+        16 +
+        6 +
+        width(category, categoryStyle) +
+        6 +
+        width(priority, priorityStyle) +
+        (task.repeat == RepeatUnit.none ? 0 : 22);
+    final toggle = TaskCompletionCheckbox(
+      key: ValueKey('task-completion-${o.id}'),
+      completed: isCompleted,
+      enabled: !busy && o.status != TaskStatus.skipped,
+      showLabel: true,
+      semanticLabel:
+          '${task.title}, ${strings.t(isCompleted ? '완료 해제' : '완료 처리')}',
+      onToggle: onToggle,
+    );
     final time = Semantics(
-      label: isCompleted && completedAt != null
-          ? strings.t('완료 시각 {time}', args: {'time': strings.time(displayTime)})
+      label: isCompleted && completedAt != null && !useScheduledTime
+          ? strings.t('완료 시각 {time}', args: {'time': clock})
           : strings.t(
               '예정 시각 {time}',
               args: {
                 'time': showScheduleDate
-                    ? '${strings.date(due)} ${strings.time(displayTime)}'
-                    : strings.time(displayTime),
+                    ? '${strings.date(due)} $clock'
+                    : clock,
               },
             ),
       excludeSemantics: true,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            strings.time(displayTime),
-            key: Key('task-time-${o.id}'),
-            style: const TextStyle(
-              fontFamily: 'Pretendard',
-              fontSize: 14,
-              height: 1.5,
-              fontWeight: FontWeight.w600,
-              color: TaskVisuals.ink,
-              fontFeatures: [FontFeature.tabularFigures()],
-            ),
-          ),
-          if (showScheduleDate)
-            Text(
-              due.year == DateTime.now().year
-                  ? strings.dateShort(due)
-                  : strings.date(due),
-              style: const TextStyle(fontSize: 11, color: TaskVisuals.muted),
-            ),
-        ],
-      ),
-    );
-    final toggle = TaskCompletionCheckbox(
-      completed: isCompleted,
-      enabled: !busy && o.status != TaskStatus.skipped,
-      onToggle: onToggle,
-    );
-    final start = o.active && o.status != TaskStatus.progressing
-        ? SizedBox(
-            width: 44,
-            height: 44,
-            child: IconButton(
-              key: ValueKey('start-${o.id}'),
-              tooltip: strings.t(
-                '{title} 지금 시작{pro}',
-                args: {
-                  'title': o.task.title,
-                  'pro': hasProAccess ? '' : ' · Pro',
-                },
-              ),
-              onPressed: busy ? null : onStart,
-              icon: Icon(
-                hasProAccess ? Icons.play_arrow_rounded : Icons.lock_outline,
-                color: TaskVisuals.ink,
-                size: 23,
-              ),
-            ),
-          )
-        : null;
-
-    Widget content(double maxWidth) => Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 9),
-          child: Text(
-            o.task.title,
-            style: TextStyle(
-              fontFamily: 'Pretendard',
-              fontSize: 16,
-              height: 1.45,
-              fontWeight: FontWeight.w500,
-              color: isCompleted ? TaskVisuals.muted : TaskVisuals.ink,
-              decoration: isCompleted ? TextDecoration.lineThrough : null,
-            ),
-          ),
-        ),
-        const SizedBox(height: 6),
-        Wrap(
-          spacing: 10,
-          runSpacing: 5,
-          crossAxisAlignment: WrapCrossAlignment.center,
+      child: SizedBox(
+        width: timeWidth,
+        height: toggleSize.height,
+        child: Stack(
           children: [
-            ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: maxWidth),
-              child: CategoryLabel(
-                category: o.task.category,
-                label: strings.category(o.task.category),
-              ),
-            ),
-            Tooltip(
-              message: strings.t('우선순위'),
+            Center(
               child: Text(
-                priority,
-                style: TextStyle(
-                  fontFamily: 'Pretendard',
-                  fontSize: 12,
-                  height: 1.5,
-                  color: TaskVisuals.priorityInk(o.task.priority),
-                  fontWeight: FontWeight.w500,
-                ),
+                clock,
+                key: Key('task-time-${o.id}'),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                softWrap: false,
+                style: timeStyle,
               ),
             ),
-            if (o.task.repeat != RepeatUnit.none)
-              Tooltip(
-                message: strings.t('반복'),
-                child: Icon(
-                  Icons.repeat_rounded,
-                  size: 16,
-                  color: TaskVisuals.muted,
-                  semanticLabel: strings.t('반복'),
+            if (o.status != TaskStatus.skipped)
+              const Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: ExcludeSemantics(
+                  child: Icon(
+                    Icons.swap_horiz_rounded,
+                    size: 14,
+                    color: TaskVisuals.muted,
+                  ),
                 ),
               ),
           ],
         ),
-        if (o.status == TaskStatus.paused) ...[
-          const SizedBox(height: 5),
-          _SupportingText(taskReminderLabel(o, strings)),
-        ],
-        if (isCompleted && completedAt == null) ...[
-          const SizedBox(height: 5),
-          _SupportingText(strings.t('완료 시각 기록 없음')),
-        ],
-        if (showOriginal) ...[
-          const SizedBox(height: 5),
-          _SupportingText(
-            strings.t(
-              '원래 예정 {date} {time}',
-              args: {'date': strings.date(due), 'time': strings.time(due)},
-            ),
-            key: Key('task-original-schedule-${o.id}'),
-          ),
-        ],
-      ],
+      ),
     );
+
+    Widget title({required bool stacked}) => Text(
+      task.title,
+      key: Key('task-title-${o.id}'),
+      // Full text remains in semantics and in the detail opened by the row.
+      maxLines: stacked ? null : 1,
+      overflow: stacked ? TextOverflow.clip : TextOverflow.ellipsis,
+      softWrap: stacked,
+      style: titleStyle,
+    );
+    List<Widget> metadataChildren(double maxWidth) => [
+      ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: maxWidth),
+        child: CategoryLabel(category: task.category, label: category),
+      ),
+      Tooltip(
+        message: strings.t('우선순위'),
+        child: Text(priority, style: priorityStyle),
+      ),
+      if (task.repeat != RepeatUnit.none)
+        Tooltip(
+          message: strings.t('반복'),
+          child: Icon(
+            Icons.repeat_rounded,
+            size: 16,
+            color: TaskVisuals.muted,
+            semanticLabel: strings.t('반복'),
+          ),
+        ),
+    ];
+    Widget body(double maxWidth, {required bool stacked}) {
+      final children = metadataChildren(maxWidth);
+      final metadata = stacked
+          ? Wrap(
+              key: Key('task-metadata-${o.id}'),
+              spacing: 6,
+              runSpacing: 4,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: children,
+            )
+          : Row(
+              key: Key('task-metadata-${o.id}'),
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (var index = 0; index < children.length; index++) ...[
+                  if (index > 0) const SizedBox(width: 6),
+                  children[index],
+                ],
+              ],
+            );
+      return stacked
+          ? Column(
+              key: Key('task-content-${o.id}'),
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                title(stacked: true),
+                const SizedBox(height: 6),
+                metadata,
+              ],
+            )
+          : Row(
+              key: Key('task-content-${o.id}'),
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(child: title(stacked: false)),
+                const SizedBox(width: 6),
+                metadata,
+              ],
+            );
+    }
+
+    final supporting = <Widget>[
+      if (showScheduleDate)
+        _SupportingText(
+          due.year == DateTime.now().year
+              ? strings.dateShort(due)
+              : strings.date(due),
+          key: Key('task-schedule-date-${o.id}'),
+        ),
+      if (o.status == TaskStatus.paused)
+        _SupportingText(taskReminderLabel(o, strings)),
+      if (isCompleted && completedAt == null)
+        _SupportingText(strings.t('완료 시각 기록 없음')),
+      if (showOriginal)
+        _SupportingText(
+          strings.t(
+            '원래 예정 {date} {time}',
+            args: {'date': strings.date(due), 'time': strings.time(due)},
+          ),
+          key: Key('task-original-schedule-${o.id}'),
+        ),
+    ];
 
     return Material(
       color: Theme.of(context).scaffoldBackgroundColor,
@@ -208,56 +276,72 @@ class TaskTimelineRow extends StatelessWidget {
       ),
       child: InkWell(
         key: ValueKey('task-row-${o.id}'),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final scale = MediaQuery.textScalerOf(context).scale(14) / 14;
-              final stacked =
-                  scale > 1.35 || (constraints.maxWidth < 320 && scale > 1.1);
-              final timeWidth = strings.isEnglish ? 68.0 : 54.0;
-              final bodyWidth =
-                  constraints.maxWidth -
-                  44 -
-                  (start == null ? 0 : 44) -
-                  (stacked ? 0 : timeWidth + 8);
-              final body = Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  toggle,
-                  Expanded(child: content(bodyWidth)),
-                  ?start,
-                ],
-              );
-              if (stacked) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+        onTap: busy ? null : onTap,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final available =
+                constraints.maxWidth - timeWidth - 8 - toggleSize.width - 4;
+            // English AM/PM and large accessibility text can consume most of a
+            // narrow row. Keep the clock readable and move the body below it.
+            final stackedClock = available < 96 && scaler.scale(16) > 20;
+            final bodyWidth = stackedClock ? constraints.maxWidth : available;
+            final titleWidth = bodyWidth - metaWidth - 6;
+            final stackedMeta =
+                stackedClock ||
+                (titleWidth <= 72 &&
+                    (scaler.scale(16) > 16 || strings.isEnglish)) ||
+                titleWidth < 32;
+            final main = stackedClock
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(children: [time, const Spacer(), toggle]),
+                      const SizedBox(height: 6),
+                      body(bodyWidth, stacked: true),
+                    ],
+                  )
+                : Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      time,
+                      const SizedBox(width: 8),
+                      Expanded(child: body(bodyWidth, stacked: stackedMeta)),
+                      const SizedBox(width: 4),
+                      toggle,
+                    ],
+                  );
+            return ConstrainedBox(
+              key: Key('task-row-layout-${o.id}'),
+              constraints: BoxConstraints(minHeight: toggleSize.height + 8),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 44, bottom: 2),
-                      child: time,
-                    ),
-                    body,
+                    main,
+                    if (supporting.isNotEmpty)
+                      Padding(
+                        padding: EdgeInsets.only(
+                          left: stackedClock ? 0 : timeWidth + 8,
+                          top: 5,
+                          bottom: 4,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            for (var i = 0; i < supporting.length; i++) ...[
+                              if (i > 0) const SizedBox(height: 3),
+                              supporting[i],
+                            ],
+                          ],
+                        ),
+                      ),
                   ],
-                );
-              }
-              return Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    width: timeWidth,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 10),
-                      child: time,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(child: body),
-                ],
-              );
-            },
-          ),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );

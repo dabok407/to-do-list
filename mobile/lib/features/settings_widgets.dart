@@ -2,19 +2,31 @@ import 'package:flutter/material.dart';
 
 const settingsInk = Color(0xff292e2b);
 const settingsMuted = Color(0xff707773);
+const settingsHorizontalInset = 14.0;
+const settingsLeadingSize = 32.0;
+const settingsLeadingGap = 12.0;
+const settingsTextInset =
+    settingsHorizontalInset + settingsLeadingSize + settingsLeadingGap;
 
 class SettingsIcon extends StatelessWidget {
   final IconData icon;
-  const SettingsIcon(this.icon, {super.key});
+  final bool enabled;
+  const SettingsIcon(this.icon, {super.key, this.enabled = true});
   @override
   Widget build(BuildContext context) => Container(
-    width: 32,
-    height: 32,
+    width: settingsLeadingSize,
+    height: settingsLeadingSize,
     decoration: BoxDecoration(
       color: const Color(0xfff1f3f1),
       borderRadius: BorderRadius.circular(9),
     ),
-    child: Icon(icon, size: 19, color: const Color(0xff535e57)),
+    child: Icon(
+      icon,
+      size: 19,
+      color: enabled
+          ? const Color(0xff535e57)
+          : Theme.of(context).disabledColor,
+    ),
   );
 }
 
@@ -52,7 +64,7 @@ class SettingsGroup extends StatelessWidget {
                 const Divider(
                   height: 1,
                   thickness: 1,
-                  indent: 58,
+                  indent: settingsTextInset,
                   color: Color(0xffecefec),
                 ),
               children[i],
@@ -83,61 +95,74 @@ class SettingsMenuRow extends StatelessWidget {
       final stackedValue =
           constraints.maxWidth < 320 ||
           MediaQuery.textScalerOf(context).scale(14) > 19;
-      return InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-          child: Row(
-            children: [
-              SettingsIcon(icon),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        color: settingsInk,
-                      ),
-                    ),
-                    if (subtitle != null ||
-                        (value != null && stackedValue)) ...[
-                      const SizedBox(height: 3),
+      final enabled = onTap != null;
+      final disabledColor = Theme.of(context).disabledColor;
+      return Semantics(
+        container: true,
+        button: true,
+        enabled: enabled,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: settingsHorizontalInset,
+              vertical: 14,
+            ),
+            child: Row(
+              children: [
+                SettingsIcon(icon, enabled: enabled),
+                const SizedBox(width: settingsLeadingGap),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        subtitle ?? value!,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          height: 1.4,
-                          color: settingsMuted,
+                        title,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: enabled ? settingsInk : disabledColor,
                         ),
                       ),
+                      if (subtitle != null ||
+                          (value != null && stackedValue)) ...[
+                        const SizedBox(height: 3),
+                        Text(
+                          subtitle ?? value!,
+                          style: TextStyle(
+                            fontSize: 12,
+                            height: 1.4,
+                            color: enabled ? settingsMuted : disabledColor,
+                          ),
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
-              ),
-              if (value != null && !stackedValue) ...[
-                const SizedBox(width: 8),
-                ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxWidth: constraints.maxWidth * .42,
+                if (value != null && !stackedValue) ...[
+                  const SizedBox(width: 8),
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: constraints.maxWidth * .42,
+                    ),
+                    child: Text(
+                      value!,
+                      textAlign: TextAlign.end,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: enabled ? settingsMuted : disabledColor,
+                      ),
+                    ),
                   ),
-                  child: Text(
-                    value!,
-                    textAlign: TextAlign.end,
-                    style: const TextStyle(fontSize: 13, color: settingsMuted),
-                  ),
+                ],
+                const SizedBox(width: 6),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  size: 20,
+                  color: enabled ? const Color(0xff929a94) : disabledColor,
                 ),
               ],
-              const SizedBox(width: 6),
-              const Icon(
-                Icons.chevron_right_rounded,
-                size: 20,
-                color: Color(0xff929a94),
-              ),
-            ],
+            ),
           ),
         ),
       );

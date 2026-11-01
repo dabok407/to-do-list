@@ -444,15 +444,17 @@ class TaskRepository {
   }
 
   /// Only automatic quota skips are reversible; a deliberate skip stays skipped.
-  Future<void> reconcileWeeklyGoals() async {
-    final all = await tasks();
+  Future<void> reconcileWeeklyGoals() => db.transaction(_reconcileWeeklyGoals);
+
+  Future<void> _reconcileWeeklyGoals(DatabaseExecutor tx) async {
+    final all = (await tx.query('tasks')).map(Task.fromMap).toList();
     final goals = {
       for (final t in all.where((t) => t.repeat == RepeatUnit.weeklyGoal))
         t.id: t,
     };
     if (goals.isEmpty) return;
     final byId = {for (final t in all) t.id: t};
-    final rows = await db.query('occurrences');
+    final rows = await tx.query('occurrences');
     final completed = <String, int>{};
     for (final row in rows.where((r) => r['state'] == 'completed')) {
       final task = byId[row['task_id']];
@@ -462,30 +464,28 @@ class TaskRepository {
       completed[key] = (completed[key] ?? 0) + 1;
     }
     final today = dayOf(DateTime.now());
-    await db.transaction((tx) async {
-      for (final row in rows) {
-        final task = goals[row['task_id']];
-        if (task == null) continue;
-        final due = DateTime.parse(row['original_due'] as String);
-        if (dayOf(due).isBefore(today)) continue;
-        final count = completed['${task.seriesId}@${dayKey(weekOf(due))}'] ?? 0;
-        if (count >= task.countPerWeek && row['state'] == 'pending') {
-          await tx.update(
-            'occurrences',
-            {'state': 'skipped', 'quota_skipped': 1},
-            where: 'id=?',
-            whereArgs: [row['id']],
-          );
-        } else if (count < task.countPerWeek && row['quota_skipped'] == 1) {
-          await tx.update(
-            'occurrences',
-            {'state': 'pending', 'quota_skipped': 0},
-            where: 'id=?',
-            whereArgs: [row['id']],
-          );
-        }
+    for (final row in rows) {
+      final task = goals[row['task_id']];
+      if (task == null) continue;
+      final due = DateTime.parse(row['original_due'] as String);
+      if (dayOf(due).isBefore(today)) continue;
+      final count = completed['${task.seriesId}@${dayKey(weekOf(due))}'] ?? 0;
+      if (count >= task.countPerWeek && row['state'] == 'pending') {
+        await tx.update(
+          'occurrences',
+          {'state': 'skipped', 'quota_skipped': 1},
+          where: 'id=?',
+          whereArgs: [row['id']],
+        );
+      } else if (count < task.countPerWeek && row['quota_skipped'] == 1) {
+        await tx.update(
+          'occurrences',
+          {'state': 'pending', 'quota_skipped': 0},
+          where: 'id=?',
+          whereArgs: [row['id']],
+        );
       }
-    });
+    }
   }
 
   Future<String?> setting(String key) async {
@@ -578,6 +578,163 @@ class TaskRepository {
   Future<void> act(String id, String action, {int minutes = 10}) =>
       _act(id, action, minutes: minutes);
 
+  /// The UI may only claim (and offer Undo for) a transition it actually made.
+  /// A widget/background action or edit can invalidate its visible snapshot.
+  Future<bool> transitionCompletion(Occurrence expected, String action) async {
+    if (action != 'complete' && action != 'uncomplete') {
+      throw ArgumentError.value(action, 'action');
+    }
+    return db.transaction((tx) async {
+      final rows = await tx.query(
+        'occurrences',
+        where: 'id=? AND task_id=?',
+        whereArgs: [expected.id, expected.task.id],
+      );
+      final tasks = await tx.query(
+        'tasks',
+        where: 'id=?',
+        whereArgs: [expected.task.id],
+      );
+      if (rows.isEmpty || tasks.isEmpty) return false;
+      final current = Occurrence.fromMap(
+        rows.single,
+        Task.fromMap(tasks.single),
+      );
+      if (!_sameOccurrence(current, expected)) return false;
+      if (!await _applyCompletion(tx, rows.single, action, DateTime.now())) {
+        return false;
+      }
+      await _reconcileWeeklyGoals(tx);
+      return true;
+    });
+  }
+
+  Future<bool> _applyCompletion(
+    DatabaseExecutor tx,
+    Map<String, Object?> row,
+    String action,
+    DateTime now,
+  ) async {
+    final id = row['id'];
+    if (action == 'uncomplete') {
+      if (row['state'] != 'completed') return false;
+      await tx.update(
+        'occurrences',
+        {
+          'state': row['before_complete'] ?? 'pending',
+          'completed': null,
+          'before_complete': null,
+        },
+        where: 'id=?',
+        whereArgs: [id],
+      );
+      await tx.delete(
+        'events',
+        where: "occurrence_id=? AND type='complete'",
+        whereArgs: [id],
+      );
+      return true;
+    }
+    if (row['state'] == 'completed' || row['state'] == 'skipped') return false;
+    await tx.update(
+      'occurrences',
+      {
+        'state': 'completed',
+        'completed': now.toIso8601String(),
+        'before_complete': row['state'],
+      },
+      where: 'id=?',
+      whereArgs: [id],
+    );
+    await tx.insert('events', {
+      'occurrence_id': id,
+      'type': 'complete',
+      'at': now.toIso8601String(),
+      'minutes': 0,
+    });
+    return true;
+  }
+
+  /// Undo only this completion change, without replacing a newer edit/action.
+  /// In particular, undoing an uncomplete restores its original completion date.
+  Future<void> undoCompletion(Occurrence before, Occurrence after) async {
+    if (before.id != after.id ||
+        !_sameTask(before.task, after.task) ||
+        before.originalDue != after.originalDue ||
+        before.reminder != after.reminder ||
+        before.started != after.started ||
+        before.snoozes != after.snoozes ||
+        before.smallActive != after.smallActive ||
+        (before.status == TaskStatus.completed) ==
+            (after.status == TaskStatus.completed) ||
+        (before.status != TaskStatus.completed && !before.active)) {
+      return;
+    }
+    await db.transaction((tx) async {
+      final rows = await tx.query(
+        'occurrences',
+        where: 'id=? AND task_id=?',
+        whereArgs: [after.id, after.task.id],
+      );
+      final tasks = await tx.query(
+        'tasks',
+        where: 'id=?',
+        whereArgs: [after.task.id],
+      );
+      if (rows.isEmpty || tasks.isEmpty) return;
+      final current = Occurrence.fromMap(
+        rows.single,
+        Task.fromMap(tasks.single),
+      );
+      if (!_sameOccurrence(current, after)) return;
+
+      await tx.update(
+        'occurrences',
+        {
+          'state': before.status.name,
+          'completed': before.completed?.toIso8601String(),
+          'before_complete': before.beforeComplete?.name,
+          'quota_skipped': before.quotaSkipped ? 1 : 0,
+        },
+        where: 'id=?',
+        whereArgs: [before.id],
+      );
+      await tx.delete(
+        'events',
+        where: "occurrence_id=? AND type='complete'",
+        whereArgs: [before.id],
+      );
+      if (before.status == TaskStatus.completed && before.completed != null) {
+        await tx.insert('events', {
+          'occurrence_id': before.id,
+          'type': 'complete',
+          'at': before.completed!.toIso8601String(),
+          'minutes': 0,
+        });
+      }
+      // Completion and its quota changes must commit or roll back together.
+      await _reconcileWeeklyGoals(tx);
+    });
+  }
+
+  bool _sameTask(Task a, Task b) {
+    final values = b.toMap();
+    return a.toMap().entries.every((entry) => values[entry.key] == entry.value);
+  }
+
+  bool _sameOccurrence(Occurrence a, Occurrence b) =>
+      a.id == b.id &&
+      _sameTask(a.task, b.task) &&
+      a.originalDue == b.originalDue &&
+      a.reminder == b.reminder &&
+      a.status == b.status &&
+      a.started == b.started &&
+      a.completed == b.completed &&
+      a.snoozes == b.snoozes &&
+      a.smallActive == b.smallActive &&
+      a.quotaSkipped == b.quotaSkipped &&
+      a.beforeComplete == b.beforeComplete;
+
   Future<void> snoozeUntil(String id, DateTime target) =>
       _act(id, 'snooze', snoozeAt: target);
 
@@ -616,23 +773,8 @@ class TaskRepository {
         );
         return;
       }
-      if (action == 'uncomplete') {
-        if (status != 'completed') return;
-        await tx.update(
-          'occurrences',
-          {
-            'state': m['before_complete'] ?? 'pending',
-            'completed': null,
-            'before_complete': null,
-          },
-          where: 'id=?',
-          whereArgs: [id],
-        );
-        await tx.delete(
-          'events',
-          where: "occurrence_id=? AND type='complete'",
-          whereArgs: [id],
-        );
+      if (action == 'complete' || action == 'uncomplete') {
+        await _applyCompletion(tx, m, action, now);
         return;
       }
       if (status == 'completed' || status == 'skipped') return;
@@ -646,12 +788,6 @@ class TaskRepository {
       }
       final values = <String, Object?>{};
       switch (action) {
-        case 'complete':
-          values.addAll({
-            'state': 'completed',
-            'completed': now.toIso8601String(),
-            'before_complete': status,
-          });
         case 'start':
         case 'small':
           values.addAll({

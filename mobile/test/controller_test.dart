@@ -79,10 +79,8 @@ void main() {
   test('연속 완료·완료 해제는 마지막 상태로 알림과 위젯을 유지', () async {
     await controller.save(make());
     final occurrence = controller.items.single;
-    await Future.wait([
-      controller.act(occurrence, 'complete'),
-      controller.act(occurrence, 'uncomplete'),
-    ]);
+    await controller.act(occurrence, 'complete');
+    await controller.act(controller.items.single, 'uncomplete');
     expect(controller.items.single.status, TaskStatus.pending);
     expect(reminders.scheduled.single.status, TaskStatus.pending);
     expect(widgets.snapshot.single.status, TaskStatus.pending);

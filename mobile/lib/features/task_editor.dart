@@ -38,6 +38,16 @@ class TaskEditor extends StatefulWidget {
 }
 
 class _TaskEditorState extends State<TaskEditor> {
+  static const _contentInset = 24.0;
+
+  EdgeInsets get horizontalContentPadding {
+    final safe = MediaQuery.paddingOf(context);
+    return EdgeInsets.only(
+      left: safe.left > _contentInset ? safe.left : _contentInset,
+      right: safe.right > _contentInset ? safe.right : _contentInset,
+    );
+  }
+
   final form = GlobalKey<FormState>();
   final titleFocus = FocusNode();
   final intervalFocus = FocusNode();
@@ -177,12 +187,16 @@ class _TaskEditorState extends State<TaskEditor> {
     return parsed != null && parsed >= 1 && parsed <= 365;
   }
 
+  InputBorder get fieldBorder =>
+      Theme.of(context).inputDecorationTheme.border ??
+      const OutlineInputBorder();
+
   InputDecoration fieldDecoration(String label, {String? hint}) =>
       InputDecoration(
         labelText: strings.t(label),
         hintText: hint == null ? null : strings.t(hint),
         floatingLabelBehavior: FloatingLabelBehavior.always,
-        border: const OutlineInputBorder(),
+        border: fieldBorder,
       );
 
   Widget explanation(String text) => Padding(
@@ -304,7 +318,7 @@ class _TaskEditorState extends State<TaskEditor> {
         button: true,
         expanded: expanded,
         child: InkWell(
-          borderRadius: BorderRadius.circular(4),
+          customBorder: fieldBorder,
           onTap: onTap,
           child: InputDecorator(
             decoration: fieldDecoration(label),
@@ -516,14 +530,17 @@ class _TaskEditorState extends State<TaskEditor> {
       padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
       child: SafeArea(
         top: false,
-        minimum: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+        minimum:
+            horizontalContentPadding + const EdgeInsets.symmetric(vertical: 12),
         child: saveButton(),
       ),
     ),
     body: Form(
       key: form,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding:
+            horizontalContentPadding +
+            const EdgeInsets.symmetric(vertical: _contentInset),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -633,6 +650,7 @@ class _TaskEditorState extends State<TaskEditor> {
                     if (overdueMinute != null)
                       InkWell(
                         key: const Key('overdue-time'),
+                        customBorder: fieldBorder,
                         onTap: () async {
                           FocusScope.of(context).unfocus();
                           final picked = await showPersistentTimePicker(
@@ -800,6 +818,7 @@ class _TaskEditorState extends State<TaskEditor> {
               const SizedBox(height: 16),
               InkWell(
                 key: const Key('editor-end-date'),
+                customBorder: fieldBorder,
                 onTap: () => pickDate(true),
                 child: InputDecorator(
                   decoration: fieldDecoration('종료 날짜 (선택)'),

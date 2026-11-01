@@ -395,6 +395,15 @@ class PreviewController extends TaskController {
   }
 
   @override
+  Future<void> undoCompletion(Occurrence before, Occurrence after) async {
+    // Preview state is in memory. Mirror the production command boundary
+    // without ever calling the deliberately unavailable SQLite database.
+    if (!identical(_states[after.id], after)) return;
+    _states[before.id] = before;
+    await refresh();
+  }
+
+  @override
   Future<void> act(
     Occurrence occurrence,
     String action, {
@@ -416,14 +425,19 @@ class PreviewController extends TaskController {
       id: o.id,
       task: o.task,
       originalDue: o.originalDue,
-      reminder: DateTime.now().add(
-        Duration(minutes: action == 'small' ? 5 : minutes),
-      ),
+      reminder: {'complete', 'uncomplete', 'skip'}.contains(action)
+          ? o.reminder
+          : DateTime.now().add(
+              Duration(minutes: action == 'small' ? 5 : minutes),
+            ),
       status: state,
       completed: state == TaskStatus.completed ? DateTime.now() : null,
+      started: action == 'start' || action == 'small'
+          ? DateTime.now()
+          : o.started,
       beforeComplete: action == 'complete' ? o.status : null,
       snoozes: o.snoozes + (action == 'snooze' ? 1 : 0),
-      smallActive: action == 'small',
+      smallActive: action == 'small' || (action != 'start' && o.smallActive),
     );
     await refresh();
   }

@@ -15,7 +15,6 @@ import 'visual_tokens.dart';
 import 'statistics_panel.dart';
 import 'task_timeline_row.dart';
 import 'task_list_sort_control.dart';
-import 'task_completion_checkbox.dart';
 import 'task_detail_metadata.dart';
 import 'settings_panel.dart';
 import '../services/subscription_service.dart';
@@ -65,6 +64,23 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
+/// Retains only the acted-on row in its source list while its saved state is
+/// visible. Persistence and reminder cancellation never wait for this timer.
+class _CompletionFeedback {
+  final Occurrence before;
+  final Object source;
+  final int generation;
+  Occurrence? after;
+  bool collapsing = false;
+  Timer? holdTimer, removeTimer;
+  _CompletionFeedback(this.before, this.source, this.generation);
+
+  void cancelTimers() {
+    holdTimer?.cancel();
+    removeTimer?.cancel();
+  }
+}
+
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   DateTime selected = dayOf(DateTime.now()),
       month = DateTime(DateTime.now().year, DateTime.now().month);
@@ -84,9 +100,33 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   final quickTimeAnchor = GlobalKey();
   final bodyScroll = ScrollController();
   Timer? clockRefresh;
+  Completer<void>? busyFinished;
+  final completionFeedback = <String, _CompletionFeedback>{};
+  final completionGeneration = <String, int>{};
+  final sheetChanges = ValueNotifier<int>(0);
+  final sheetFeedback = <SheetFeedbackController>[];
   String quickCategory = '생활';
   TaskController get c => widget.controller;
   AppStrings get strings => AppStrings.of(context);
+
+  void updateUi(VoidCallback update) {
+    if (!mounted) return;
+    setState(update);
+    sheetChanges.value++;
+  }
+
+  void showFeedback(SnackBar message) {
+    if (!mounted) return;
+    final sheet = sheetFeedback.where((s) => !s.closed).lastOrNull;
+    if (sheet != null) {
+      sheet.show(message);
+    } else {
+      ScaffoldMessenger.of(context)
+        ..removeCurrentSnackBar()
+        ..showSnackBar(message);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -98,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     subscription.addListener(subscriptionChanged);
     clockRefresh = Timer.periodic(const Duration(minutes: 1), (_) {
       if (mounted) {
-        setState(() {});
+        updateUi(() {});
         if (c.access != null) run(c.reconcile);
       }
     });
@@ -129,14 +169,40 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   void changed() {
-    if (mounted) setState(() {});
+    // A notification action, refresh, or edit can supersede the local feedback.
+    // Never collapse a newer state or keep it under the old date heading.
+    for (final feedback in completionFeedback.values.toList()) {
+      final after = feedback.after;
+      if (after == null) continue;
+      final current = c.items.where((o) => o.id == after.id).firstOrNull;
+      if (current == null || !sameCompletionSnapshot(current, after)) {
+        feedback.cancelTimers();
+        completionFeedback.remove(after.id);
+        completionGeneration[after.id] = feedback.generation + 1;
+      }
+    }
+    if (mounted) updateUi(() {});
     if (mounted && c.pendingOpenId != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) => openRequestedTask());
     }
   }
 
+  bool sameCompletionSnapshot(Occurrence a, Occurrence b) {
+    final task = b.task.toMap();
+    return a.status == b.status &&
+        a.originalDue == b.originalDue &&
+        a.reminder == b.reminder &&
+        a.completed == b.completed &&
+        a.started == b.started &&
+        a.beforeComplete == b.beforeComplete &&
+        a.snoozes == b.snoozes &&
+        a.smallActive == b.smallActive &&
+        a.quotaSkipped == b.quotaSkipped &&
+        a.task.toMap().entries.every((entry) => task[entry.key] == entry.value);
+  }
+
   void quickTitleFocusChanged() {
-    if (mounted) setState(() {});
+    if (mounted) updateUi(() {});
   }
 
   void openRequestedTask() {
@@ -145,7 +211,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     c.pendingOpenId = null;
     final occurrence = c.items.where((o) => o.id == id).firstOrNull;
     if (occurrence == null) return;
-    setState(() {
+    updateUi(() {
       page = 0;
       selectCalendarDate(dayOf(occurrence.originalDue));
     });
@@ -162,6 +228,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     quickTitleFocus.dispose();
     bodyScroll.dispose();
     clockRefresh?.cancel();
+    for (final feedback in completionFeedback.values) {
+      feedback.cancelTimers();
+    }
+    sheetChanges.dispose();
+    for (final feedback in sheetFeedback) {
+      feedback.dispose();
+    }
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -175,18 +248,22 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   Future<void> run(Future<void> Function() action) async {
-    if (busy) return;
-    setState(() => busy = true);
+    if (!mounted || busy) return;
+    final finished = Completer<void>();
+    busyFinished = finished;
+    updateUi(() => busy = true);
     try {
       await action();
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        showFeedback(
           feedbackSnackBar(content: Text(strings.t('처리하지 못했습니다. 다시 시도해주세요.'))),
         );
       }
     } finally {
-      if (mounted) setState(() => busy = false);
+      if (mounted) updateUi(() => busy = false);
+      finished.complete();
+      if (identical(busyFinished, finished)) busyFinished = null;
     }
   }
 
@@ -216,24 +293,24 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           return StatefulBuilder(
             builder: (ctx, setChoice) => AlertDialog(
               title: Text(strings.t('어떤 일정을 수정할까요?')),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CheckboxListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(strings.t('이번 일정만')),
-                    value: choice == true,
-                    onChanged: (v) =>
-                        setChoice(() => choice = v == true ? true : null),
-                  ),
-                  CheckboxListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(strings.t('이번부터 앞으로')),
-                    value: choice == false,
-                    onChanged: (v) =>
-                        setChoice(() => choice = v == true ? false : null),
-                  ),
-                ],
+              content: RadioGroup<bool>(
+                groupValue: choice,
+                onChanged: (value) => setChoice(() => choice = value),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    RadioListTile<bool>(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(strings.t('이번 일정만')),
+                      value: true,
+                    ),
+                    RadioListTile<bool>(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(strings.t('이번부터 앞으로')),
+                      value: false,
+                    ),
+                  ],
+                ),
               ),
               actions: [
                 TextButton(
@@ -282,526 +359,573 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Future<void> detail(Occurrence original) async {
     if (detailVisible) return;
     detailVisible = true;
+    final feedbackHost = SheetFeedbackController();
+    final source = Object();
+    sheetFeedback.add(feedbackHost);
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      builder: (ctx) => ListenableBuilder(
-        listenable: Listenable.merge([c, subscription]),
-        builder: (ctx, _) {
-          final o = c.items.where((x) => x.id == original.id).firstOrNull;
-          if (o == null) return const SizedBox.shrink();
-          return ConstrainedBox(
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.sizeOf(ctx).height * .86,
-            ),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: IconButton(
-                      onPressed: () => Navigator.pop(ctx),
-                      icon: const Icon(Icons.close),
-                      tooltip: strings.t('닫기'),
-                    ),
-                  ),
-                  Text(
-                    o.task.title,
-                    style: Theme.of(ctx).textTheme.headlineSmall,
-                  ),
-                  const SizedBox(height: 12),
-                  TaskDetailMetadata(occurrence: o),
-                  if (o.task.note.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 16),
-                      child: Text(o.task.note),
-                    ),
-                  if (o.status == TaskStatus.paused ||
-                      o.status == TaskStatus.progressing)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 16),
-                      child: Text(
-                        strings.t(
-                          '다시 확인할 시간: {date} {time}',
-                          args: {
-                            'date': strings.date(o.reminder),
-                            'time': strings.time(o.reminder),
-                          },
-                        ),
+      builder: (ctx) => SheetFeedbackHost(
+        controller: feedbackHost,
+        child: ListenableBuilder(
+          listenable: Listenable.merge([c, subscription, sheetChanges]),
+          builder: (ctx, _) {
+            final o = c.items.where((x) => x.id == original.id).firstOrNull;
+            if (o == null) return const SizedBox.shrink();
+            return ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.sizeOf(ctx).height * .86,
+              ),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: IconButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        icon: const Icon(Icons.close),
+                        tooltip: strings.t('닫기'),
                       ),
                     ),
-                  const SizedBox(height: 24),
-                  if (o.active) ...[
-                    Row(
-                      children: [
-                        Expanded(
-                          child: FilledButton(
-                            onPressed: busy
-                                ? null
-                                : () => taskAction(o, 'start'),
-                            child: Text(strings.t('지금 시작')),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: OutlinedButton(
-                            onPressed: busy
-                                ? null
-                                : () => run(() => c.act(o, 'complete')),
-                            child: Text(strings.t('완료했어요')),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 30),
-                    const Divider(),
-                    const SizedBox(height: 16),
-                    if (!subscription.hasAccess) ...[
-                      Text(
-                        strings.t(
-                          '알림·미루기·실행 보조는 Pro 기능이에요. 완료와 일정 수정은 계속 사용할 수 있어요.',
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                    ],
                     Text(
-                      strings.t('지금 어렵다면'),
-                      style: Theme.of(ctx).textTheme.titleMedium,
+                      o.task.title,
+                      style: Theme.of(ctx).textTheme.headlineSmall,
                     ),
-                    const SizedBox(height: 14),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [10, 30, 60]
-                          .map(
-                            (m) => OutlinedButton(
+                    const SizedBox(height: 12),
+                    TaskDetailMetadata(occurrence: o),
+                    if (o.task.note.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16),
+                        child: Text(o.task.note),
+                      ),
+                    if (o.status == TaskStatus.paused ||
+                        o.status == TaskStatus.progressing)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16),
+                        child: Text(
+                          strings.t(
+                            '다시 확인할 시간: {date} {time}',
+                            args: {
+                              'date': strings.date(o.reminder),
+                              'time': strings.time(o.reminder),
+                            },
+                          ),
+                        ),
+                      ),
+                    const SizedBox(height: 24),
+                    if (o.active) ...[
+                      Row(
+                        children: [
+                          Expanded(
+                            child: FilledButton(
                               onPressed: busy
                                   ? null
-                                  : () => taskAction(o, 'snooze', minutes: m),
-                              child: Text(
-                                m == 60
-                                    ? strings.t('1시간 뒤')
-                                    : strings.t('{n}분 뒤', args: {'n': m}),
-                              ),
+                                  : () => taskAction(o, 'start'),
+                              child: Text(strings.t('지금 시작')),
                             ),
-                          )
-                          .toList(),
-                    ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        OutlinedButton(
-                          onPressed: busy
-                              ? null
-                              : () {
-                                  final now = DateTime.now();
-                                  final remaining = DateTime(
-                                    now.year,
-                                    now.month,
-                                    now.day,
-                                    23,
-                                    59,
-                                  ).difference(now).inMinutes;
-                                  if (remaining < 1) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      feedbackSnackBar(
-                                        content: Text(
-                                          strings.t(
-                                            '오늘 남은 시간이 없어요. 날짜를 변경해주세요.',
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                    return;
-                                  }
-                                  taskAction(
-                                    o,
-                                    'snooze',
-                                    minutes: remaining < 120 ? remaining : 120,
-                                  );
-                                },
-                          child: Text(strings.t('오늘 나중에')),
-                        ),
-                        OutlinedButton(
-                          key: const Key('snooze-tomorrow'),
-                          onPressed: busy
-                              ? null
-                              : () async {
-                                  if (!subscription.hasAccess) {
-                                    openPro();
-                                    return;
-                                  }
-                                  final target = tomorrowAtScheduledTime(
-                                    o.originalDue,
-                                    DateTime.now(),
-                                  );
-                                  await run(() => c.snoozeUntil(o, target));
-                                },
-                          child: Text(strings.t('내일 같은 시간')),
-                        ),
-                      ],
-                    ),
-                    FutureBuilder<int>(
-                      future: c.repository.todaySnoozes(o.id),
-                      builder: (ctx, s) {
-                        if ((s.data ?? 0) < 3) return const SizedBox.shrink();
-                        return Container(
-                          margin: const EdgeInsets.only(top: 20),
-                          padding: const EdgeInsets.all(18),
-                          decoration: BoxDecoration(
-                            color: const Color(0xfff1f2f4),
-                            borderRadius: BorderRadius.circular(12),
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                strings.t(
-                                  '오늘 {n}번째 미루고 있어요.\n5분만 해볼까요?',
-                                  args: {'n': s.data ?? 0},
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed:
+                                  busy || completionFeedback.containsKey(o.id)
+                                  ? null
+                                  : () => toggleCompletion(o, source: source),
+                              child: Text(strings.t('완료했어요')),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 30),
+                      const Divider(),
+                      const SizedBox(height: 16),
+                      if (!subscription.hasAccess) ...[
+                        Text(
+                          strings.t(
+                            '알림·미루기·실행 보조는 Pro 기능이에요. 완료와 일정 수정은 계속 사용할 수 있어요.',
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                      Text(
+                        strings.t('지금 어렵다면'),
+                        style: Theme.of(ctx).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 14),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [10, 30, 60]
+                            .map(
+                              (m) => OutlinedButton(
+                                onPressed: busy
+                                    ? null
+                                    : () => taskAction(o, 'snooze', minutes: m),
+                                child: Text(
+                                  m == 60
+                                      ? strings.t('1시간 뒤')
+                                      : strings.t('{n}분 뒤', args: {'n': m}),
                                 ),
                               ),
-                              const SizedBox(height: 10),
-                              Text(
-                                o.task.smallStep.isEmpty
-                                    ? strings.t('준비물 하나 꺼내기부터 시작해요.')
-                                    : o.task.smallStep,
-                              ),
-                              const SizedBox(height: 12),
-                              FilledButton(
-                                onPressed: () => taskAction(o, 'small'),
-                                child: Text(strings.t('5분 시작')),
-                              ),
-                            ],
+                            )
+                            .toList(),
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          OutlinedButton(
+                            onPressed: busy
+                                ? null
+                                : () {
+                                    final now = DateTime.now();
+                                    final remaining = DateTime(
+                                      now.year,
+                                      now.month,
+                                      now.day,
+                                      23,
+                                      59,
+                                    ).difference(now).inMinutes;
+                                    if (remaining < 1) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                            feedbackSnackBar(
+                                              content: Text(
+                                                strings.t(
+                                                  '오늘 남은 시간이 없어요. 날짜를 변경해주세요.',
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                      return;
+                                    }
+                                    taskAction(
+                                      o,
+                                      'snooze',
+                                      minutes: remaining < 120
+                                          ? remaining
+                                          : 120,
+                                    );
+                                  },
+                            child: Text(strings.t('오늘 나중에')),
                           ),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextButton(
-                      onPressed: busy
-                          ? null
-                          : () => run(() => c.act(o, 'skip')),
-                      child: Text(strings.t('오늘 못함 · 이번 회차 건너뛰기')),
-                    ),
-                  ],
-                  if (o.status == TaskStatus.completed)
-                    OutlinedButton(
-                      onPressed: () => run(() => c.act(o, 'uncomplete')),
-                      child: Text(strings.t('완료 해제')),
-                    ),
-                  if (o.status == TaskStatus.skipped && !o.quotaSkipped)
-                    OutlinedButton(
-                      onPressed: () => run(() => c.act(o, 'unskip')),
-                      child: Text(strings.t('다시 할 일로')),
-                    ),
-                  if (o.task.repeat == RepeatUnit.weeklyGoal)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 16),
-                      child: Text(
-                        o.quotaSkipped
-                            ? strings.t('이번 주 목표를 채웠어요. 다음 주에 다시 시작해요.')
-                            : strings.t(
-                                '요일 자유 · 주 {n}회 목표',
-                                args: {'n': o.task.countPerWeek},
-                              ),
+                          OutlinedButton(
+                            key: const Key('snooze-tomorrow'),
+                            onPressed: busy
+                                ? null
+                                : () async {
+                                    if (!subscription.hasAccess) {
+                                      openPro();
+                                      return;
+                                    }
+                                    final target = tomorrowAtScheduledTime(
+                                      o.originalDue,
+                                      DateTime.now(),
+                                    );
+                                    await run(() => c.snoozeUntil(o, target));
+                                  },
+                            child: Text(strings.t('내일 같은 시간')),
+                          ),
+                        ],
                       ),
-                    ),
-                  const SizedBox(height: 24),
-                  const Divider(),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      TextButton.icon(
-                        onPressed: () {
-                          Navigator.pop(ctx);
-                          edit(o.task, o);
-                        },
-                        icon: const Icon(Icons.edit_outlined),
-                        label: Text(strings.t('수정')),
-                      ),
-                      const Spacer(),
-                      TextButton.icon(
-                        onPressed: () async {
-                          final scope = await showDialog<String>(
-                            context: ctx,
-                            builder: (d) => AlertDialog(
-                              title: Text(strings.t('할 일을 삭제할까요?')),
-                              content: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(strings.t('선택한 범위의 일정과 기록이 삭제됩니다.')),
-                                  const SizedBox(height: 12),
-                                  ListTile(
-                                    title: Text(strings.t('이번 일정만 삭제')),
-                                    onTap: () => Navigator.pop(d, 'this'),
+                      FutureBuilder<int>(
+                        future: c.repository.todaySnoozes(o.id),
+                        builder: (ctx, s) {
+                          if ((s.data ?? 0) < 3) return const SizedBox.shrink();
+                          return Container(
+                            margin: const EdgeInsets.only(top: 20),
+                            padding: const EdgeInsets.all(18),
+                            decoration: BoxDecoration(
+                              color: const Color(0xfff1f2f4),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  strings.t(
+                                    '오늘 {n}번째 미루고 있어요.\n5분만 해볼까요?',
+                                    args: {'n': s.data ?? 0},
                                   ),
-                                  if (o.task.repeat != RepeatUnit.none ||
-                                      o.task.derived) ...[
-                                    ListTile(
-                                      title: Text(strings.t('이번부터 앞으로 삭제')),
-                                      onTap: () => Navigator.pop(d, 'future'),
-                                    ),
-                                    ListTile(
-                                      title: Text(strings.t('전체 반복과 기록 삭제')),
-                                      onTap: () => Navigator.pop(d, 'series'),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(d),
-                                  child: Text(strings.t('취소')),
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  o.task.smallStep.isEmpty
+                                      ? strings.t('준비물 하나 꺼내기부터 시작해요.')
+                                      : o.task.smallStep,
+                                ),
+                                const SizedBox(height: 12),
+                                FilledButton(
+                                  onPressed: busy
+                                      ? null
+                                      : () => taskAction(o, 'small'),
+                                  child: Text(strings.t('5분 시작')),
                                 ),
                               ],
                             ),
                           );
-                          if (scope != null) {
-                            await run(
-                              () => c.deleteOccurrence(o, scope: scope),
-                            );
-                            if (ctx.mounted) Navigator.pop(ctx);
-                          }
                         },
-                        icon: const Icon(Icons.delete_outline),
-                        label: Text(strings.t('삭제')),
+                      ),
+                      const SizedBox(height: 16),
+                      TextButton(
+                        onPressed: busy
+                            ? null
+                            : () => run(() => c.act(o, 'skip')),
+                        child: Text(strings.t('오늘 못함 · 이번 회차 건너뛰기')),
                       ),
                     ],
-                  ),
-                ],
+                    if (o.status == TaskStatus.completed)
+                      OutlinedButton(
+                        onPressed: busy || completionFeedback.containsKey(o.id)
+                            ? null
+                            : () => toggleCompletion(o, source: source),
+                        child: Text(strings.t('완료 해제')),
+                      ),
+                    if (o.status == TaskStatus.skipped && !o.quotaSkipped)
+                      OutlinedButton(
+                        onPressed: busy
+                            ? null
+                            : () => run(() => c.act(o, 'unskip')),
+                        child: Text(strings.t('다시 할 일로')),
+                      ),
+                    if (o.task.repeat == RepeatUnit.weeklyGoal)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16),
+                        child: Text(
+                          o.quotaSkipped
+                              ? strings.t('이번 주 목표를 채웠어요. 다음 주에 다시 시작해요.')
+                              : strings.t(
+                                  '요일 자유 · 주 {n}회 목표',
+                                  args: {'n': o.task.countPerWeek},
+                                ),
+                        ),
+                      ),
+                    const SizedBox(height: 24),
+                    const Divider(),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        TextButton.icon(
+                          onPressed: busy
+                              ? null
+                              : () {
+                                  Navigator.pop(ctx);
+                                  edit(o.task, o);
+                                },
+                          icon: const Icon(Icons.edit_outlined),
+                          label: Text(strings.t('수정')),
+                        ),
+                        const Spacer(),
+                        TextButton.icon(
+                          onPressed: busy
+                              ? null
+                              : () async {
+                                  final scope = await showDialog<String>(
+                                    context: ctx,
+                                    builder: (d) => AlertDialog(
+                                      title: Text(strings.t('할 일을 삭제할까요?')),
+                                      content: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            strings.t('선택한 범위의 일정과 기록이 삭제됩니다.'),
+                                          ),
+                                          const SizedBox(height: 12),
+                                          ListTile(
+                                            title: Text(strings.t('이번 일정만 삭제')),
+                                            onTap: () =>
+                                                Navigator.pop(d, 'this'),
+                                          ),
+                                          if (o.task.repeat !=
+                                                  RepeatUnit.none ||
+                                              o.task.derived) ...[
+                                            ListTile(
+                                              title: Text(
+                                                strings.t('이번부터 앞으로 삭제'),
+                                              ),
+                                              onTap: () =>
+                                                  Navigator.pop(d, 'future'),
+                                            ),
+                                            ListTile(
+                                              title: Text(
+                                                strings.t('전체 반복과 기록 삭제'),
+                                              ),
+                                              onTap: () =>
+                                                  Navigator.pop(d, 'series'),
+                                            ),
+                                          ],
+                                        ],
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(d),
+                                          child: Text(strings.t('취소')),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                  if (scope != null) {
+                                    await run(
+                                      () => c.deleteOccurrence(o, scope: scope),
+                                    );
+                                    if (ctx.mounted) Navigator.pop(ctx);
+                                  }
+                                },
+                          icon: const Icon(Icons.delete_outline),
+                          label: Text(strings.t('삭제')),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
+    sheetFeedback.remove(feedbackHost);
+    feedbackHost.dispose();
     detailVisible = false;
     openRequestedTask();
   }
 
-  Future<void> toggleCompletion(Occurrence o, {bool fromSwipe = false}) async {
-    if (busy || o.status == TaskStatus.skipped) return;
-    final completing = o.status != TaskStatus.completed;
-    await run(() => c.act(o, completing ? 'complete' : 'uncomplete'));
-    if (!mounted || !fromSwipe) return;
-    final updated = c.items.where((item) => item.id == o.id).firstOrNull;
-    if (updated == null ||
-        (completing && updated.status != TaskStatus.completed) ||
-        (!completing && updated.status == TaskStatus.completed)) {
-      return;
+  void removeCompletionFeedback(_CompletionFeedback feedback) {
+    feedback.cancelTimers();
+    if (mounted &&
+        identical(completionFeedback[feedback.before.id], feedback)) {
+      updateUi(() => completionFeedback.remove(feedback.before.id));
     }
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        feedbackSnackBar(
-          content: Text(strings.t(completing ? '할 일을 완료했어요.' : '완료를 해제했어요.')),
-          action: SnackBarAction(
-            label: strings.t('되돌리기'),
-            onPressed: () {
-              final current = c.items
-                  .where((item) => item.id == o.id)
-                  .firstOrNull;
-              if (current != null && current.status == updated.status) {
-                run(
-                  () => c.act(current, completing ? 'uncomplete' : 'complete'),
-                );
-              }
-            },
-          ),
-        ),
-      );
   }
 
-  Widget row(Occurrence o, {bool timeline = false}) => Dismissible(
-    key: ValueKey('task-swipe-${o.id}'),
-    direction: busy || o.status == TaskStatus.skipped
-        ? DismissDirection.none
-        : o.status == TaskStatus.completed
-        ? DismissDirection.endToStart
-        : DismissDirection.startToEnd,
-    dismissThresholds: const {
-      DismissDirection.startToEnd: .35,
-      DismissDirection.endToStart: .35,
-    },
-    confirmDismiss: (_) async {
-      await toggleCompletion(o, fromSwipe: true);
-      // A swipe changes status; it never deletes the task or its history.
-      return false;
-    },
-    background: Container(
-      alignment: o.status == TaskStatus.completed
-          ? Alignment.centerRight
-          : Alignment.centerLeft,
+  Future<void> undoCompletion(_CompletionFeedback feedback) async {
+    final id = feedback.before.id;
+    final after = feedback.after;
+    if (after == null || completionGeneration[id] != feedback.generation) {
+      return;
+    }
+    feedback.cancelTimers();
+    // Undo remains actionable while a different task is saving. Dropping it
+    // through run's double-tap guard would dismiss the snackbar without undoing.
+    while (mounted && busy) {
+      final finished = busyFinished;
+      if (finished == null) return;
+      await finished.future;
+    }
+    if (!mounted || completionGeneration[id] != feedback.generation) return;
+    completionGeneration[id] = feedback.generation + 1;
+    await run(() => c.undoCompletion(feedback.before, after));
+    if (mounted) removeCompletionFeedback(feedback);
+  }
+
+  Future<void> toggleCompletion(Occurrence occurrence, {Object? source}) async {
+    if (busy || completionFeedback.containsKey(occurrence.id)) return;
+    final before = c.items
+        .where((item) => item.id == occurrence.id)
+        .firstOrNull;
+    if (before == null || before.status == TaskStatus.skipped) return;
+    final completing = before.status != TaskStatus.completed;
+    final generation = (completionGeneration[before.id] ?? 0) + 1;
+    completionGeneration[before.id] = generation;
+    final feedback = _CompletionFeedback(before, source ?? page, generation);
+    updateUi(() => completionFeedback[before.id] = feedback);
+    var saved = false;
+    await run(() async {
+      await c.act(before, completing ? 'complete' : 'uncomplete');
+      saved = true;
+    });
+    if (!mounted) return;
+    final updated = c.items.where((item) => item.id == before.id).firstOrNull;
+    // act may decline an invalid or stale transition without throwing.
+    if (!saved ||
+        updated == null ||
+        (completing && updated.status != TaskStatus.completed) ||
+        (!completing &&
+            !updated.active &&
+            !(updated.status == TaskStatus.skipped && updated.quotaSkipped))) {
+      removeCompletionFeedback(feedback);
+      return;
+    }
+    updateUi(() => feedback.after = updated);
+    feedback.holdTimer = Timer(const Duration(seconds: 1), () {
+      if (!mounted || !identical(completionFeedback[before.id], feedback)) {
+        return;
+      }
+      if (feedback.source == 0 || MediaQuery.disableAnimationsOf(context)) {
+        removeCompletionFeedback(feedback);
+        return;
+      }
+      updateUi(() => feedback.collapsing = true);
+      feedback.removeTimer = Timer(
+        const Duration(milliseconds: 180),
+        () => removeCompletionFeedback(feedback),
+      );
+    });
+    showFeedback(
+      feedbackSnackBar(
+        content: Text(strings.t(completing ? '할 일을 완료했어요.' : '완료를 해제했어요.')),
+        action: SnackBarAction(
+          label: strings.t('되돌리기'),
+          onPressed: () => undoCompletion(feedback),
+        ),
+      ),
+    );
+  }
+
+  Widget swipeBackground(Occurrence o, {required bool trailing}) {
+    final done = o.status == TaskStatus.completed;
+    final color = done ? mutedText : Colors.white;
+    final children = <Widget>[
+      Icon(done ? Icons.undo : Icons.check, color: color),
+      const SizedBox(width: 8),
+      Flexible(
+        child: Text(
+          strings.t(done ? '완료 해제' : '완료 처리'),
+          style: TextStyle(color: color, fontWeight: FontWeight.w600),
+        ),
+      ),
+    ];
+    return Container(
+      alignment: trailing ? Alignment.centerRight : Alignment.centerLeft,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: o.status == TaskStatus.completed
-            ? const Color(0xffeceeef)
-            : const Color(0xff252923),
+        color: done ? const Color(0xffeceeef) : const Color(0xff252923),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
-        mainAxisAlignment: o.status == TaskStatus.completed
+        mainAxisAlignment: trailing
             ? MainAxisAlignment.end
             : MainAxisAlignment.start,
+        children: children,
+      ),
+    );
+  }
+
+  Widget row(
+    Occurrence source, {
+    bool timeline = false,
+    Object? scope,
+    Widget? heading,
+  }) {
+    final feedback = completionFeedback[source.id];
+    final heldHere = feedback != null && feedback.source == (scope ?? page);
+    final o = heldHere
+        ? c.items.where((item) => item.id == source.id).firstOrNull ?? source
+        : source;
+    final swipeSource = heldHere ? feedback.before : o;
+    final savedHere = heldHere && feedback.after != null;
+    final disabled = busy || feedback != null || o.status == TaskStatus.skipped;
+    final reducedMotion = MediaQuery.disableAnimationsOf(context);
+    return TweenAnimationBuilder<double>(
+      key: ValueKey('task-feedback-${o.id}'),
+      tween: Tween(begin: 1, end: heldHere && feedback.collapsing ? 0 : 1),
+      duration: reducedMotion
+          ? Duration.zero
+          : const Duration(milliseconds: 180),
+      curve: Curves.easeInOut,
+      builder: (context, factor, child) => ClipRect(
+        child: Align(
+          alignment: Alignment.topCenter,
+          heightFactor: factor,
+          child: Opacity(opacity: factor, child: child),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            o.status == TaskStatus.completed ? Icons.undo : Icons.check,
-            color: o.status == TaskStatus.completed ? mutedText : Colors.white,
-          ),
-          const SizedBox(width: 8),
-          Flexible(
-            child: Text(
-              strings.t(o.status == TaskStatus.completed ? '완료 해제' : '완료 처리'),
-              style: TextStyle(
-                color: o.status == TaskStatus.completed
-                    ? mutedText
-                    : Colors.white,
-                fontWeight: FontWeight.w600,
+          ?heading,
+          Dismissible(
+            key: ValueKey('task-swipe-${o.id}'),
+            direction: disabled
+                ? DismissDirection.none
+                : DismissDirection.horizontal,
+            dismissThresholds: const {
+              DismissDirection.startToEnd: .35,
+              DismissDirection.endToStart: .35,
+            },
+            confirmDismiss: (_) async {
+              await toggleCompletion(o, source: scope);
+              // The row returns to its position to show the saved check/strike.
+              // Filtering happens only after the success hold and collapse.
+              return false;
+            },
+            background: swipeBackground(swipeSource, trailing: false),
+            secondaryBackground: swipeBackground(swipeSource, trailing: true),
+            child: AnimatedOpacity(
+              opacity: savedHere ? .65 : 1,
+              duration: reducedMotion
+                  ? Duration.zero
+                  : const Duration(milliseconds: 160),
+              child: TaskTimelineRow(
+                occurrence: o,
+                busy: disabled,
+                hasProAccess: subscription.hasAccess,
+                useScheduledTime:
+                    !timeline ||
+                    (heldHere &&
+                        feedback.before.status != TaskStatus.completed),
+                showScheduleDate: o.status == TaskStatus.progressing,
+                onTap: () => detail(o),
+                onToggle: () => toggleCompletion(o, source: scope),
+                onStart: () => taskAction(o, 'start'),
               ),
             ),
           ),
         ],
       ),
-    ),
-    child: timeline
-        ? TaskTimelineRow(
-            occurrence: o,
-            busy: busy,
-            hasProAccess: subscription.hasAccess,
-            showScheduleDate: o.status == TaskStatus.progressing,
-            onTap: () => detail(o),
-            onToggle: () => toggleCompletion(o),
-            onStart: () => taskAction(o, 'start'),
-          )
-        : Material(
-            color: Theme.of(context).scaffoldBackgroundColor,
-            shape: const Border(
-              bottom: BorderSide(color: TaskVisuals.line, width: .7),
+    );
+  }
+
+  Widget swipeHint({bool? completed}) => Padding(
+    padding: const EdgeInsets.only(top: 8),
+    child: Row(
+      children: [
+        const Icon(
+          Icons.swap_horiz_rounded,
+          size: 16,
+          color: TaskVisuals.muted,
+        ),
+        const SizedBox(width: 5),
+        Flexible(
+          child: Text(
+            strings.t(
+              completed == null
+                  ? '좌우로 밀어 완료·해제'
+                  : completed
+                  ? '좌우로 밀어 완료 해제'
+                  : '좌우로 밀어 완료',
             ),
-            child: ListTile(
-              key: ValueKey('task-row-${o.id}'),
-              contentPadding: const EdgeInsets.symmetric(vertical: 9),
-              minLeadingWidth: 40,
-              horizontalTitleGap: 8,
-              leading: TaskCompletionCheckbox(
-                completed: o.status == TaskStatus.completed,
-                enabled: !busy && o.status != TaskStatus.skipped,
-                onToggle: () => toggleCompletion(o),
-              ),
-              title: Text(
-                o.task.title,
-                style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 16,
-                  height: 1.4,
-                  color: o.status == TaskStatus.completed
-                      ? mutedText
-                      : TaskVisuals.ink,
-                  decoration: o.status == TaskStatus.completed
-                      ? TextDecoration.lineThrough
-                      : null,
-                ),
-              ),
-              subtitle: Padding(
-                padding: const EdgeInsets.only(top: 6),
-                child: DefaultTextStyle.merge(
-                  style: const TextStyle(
-                    fontSize: 12,
-                    height: 1.45,
-                    color: mutedText,
-                  ),
-                  child: LayoutBuilder(
-                    builder: (context, constraints) => Wrap(
-                      spacing: 10,
-                      runSpacing: 5,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        Text(
-                          strings.time(o.originalDue),
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: mutedText,
-                          ),
-                        ),
-                        ConstrainedBox(
-                          constraints: BoxConstraints(
-                            maxWidth: constraints.maxWidth,
-                          ),
-                          child: CategoryLabel(
-                            category: o.task.category,
-                            label: strings.category(o.task.category),
-                          ),
-                        ),
-                        if (o.task.priority == 2)
-                          Text(
-                            strings.t('● 높음'),
-                            style: const TextStyle(color: priorityRed),
-                          ),
-                        if (o.status != TaskStatus.pending)
-                          Text(
-                            o.quotaSkipped
-                                ? strings.t('이번 주 목표 달성')
-                                : strings.t(stateNames[o.status.index]),
-                          ),
-                        if (page != 0)
-                          Text(
-                            o.originalDue.year == DateTime.now().year
-                                ? strings.dateShort(o.originalDue)
-                                : strings.date(o.originalDue),
-                          ),
-                        if (o.task.repeat != RepeatUnit.none)
-                          Tooltip(
-                            message: strings.t('반복'),
-                            child: Icon(
-                              Icons.repeat_rounded,
-                              size: 14,
-                              color: mutedText,
-                              semanticLabel: strings.t('반복'),
-                            ),
-                          ),
-                        if (o.status == TaskStatus.paused)
-                          Text(taskReminderLabel(o, strings)),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              trailing: o.active && o.status != TaskStatus.progressing
-                  ? IconButton(
-                      key: ValueKey('start-${o.id}'),
-                      tooltip: strings.t(
-                        '{title} 지금 시작{pro}',
-                        args: {
-                          'title': o.task.title,
-                          'pro': subscription.hasAccess ? '' : ' · Pro',
-                        },
-                      ),
-                      onPressed: busy ? null : () => taskAction(o, 'start'),
-                      icon: Icon(
-                        subscription.hasAccess
-                            ? Icons.play_arrow_rounded
-                            : Icons.lock_outline,
-                        size: 23,
-                        color: TaskVisuals.ink,
-                      ),
-                    )
-                  : null,
-              onTap: () => detail(o),
-            ),
+            style: const TextStyle(fontSize: 12, color: TaskVisuals.muted),
           ),
+        ),
+      ],
+    ),
   );
 
   List<Widget> timelineList({required bool completed}) {
     final now = DateTime.now();
     final order = completed ? completedOrder : upcomingOrder;
+    final held = completionFeedback.values
+        .where(
+          (feedback) =>
+              feedback.source == page &&
+              c.items.any((item) => item.id == feedback.before.id),
+        )
+        .toList();
+    final heldIds = held.map((feedback) => feedback.before.id).toSet();
     final sections = taskListSections(
-      completed ? c.items : c.queue,
+      [
+        ...(completed ? c.items : c.queue).where(
+          (item) => !heldIds.contains(item.id),
+        ),
+        // The original snapshot determines only its source group/order. The
+        // row itself renders the freshly saved occurrence from the controller.
+        ...held.map((feedback) => feedback.before),
+      ],
       now: now,
       completed: completed,
       order: order,
@@ -832,7 +956,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         completed: completed,
         order: order,
         onChanged: (value) {
-          setState(() {
+          updateUi(() {
             if (completed) {
               completedOrder = value;
             } else {
@@ -842,6 +966,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           if (bodyScroll.hasClients) bodyScroll.jumpTo(0);
         },
       ),
+      if (sections.isNotEmpty) swipeHint(completed: completed),
       if (sections.isEmpty) emptyTaskList(completed: completed),
       for (final section in sections) ...[
         Semantics(
@@ -893,7 +1018,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         OutlinedButton.icon(
           onPressed: completed
               ? () {
-                  setState(() => page = 1);
+                  updateUi(() => page = 1);
                   if (bodyScroll.hasClients) bodyScroll.jumpTo(0);
                 }
               : () => edit(),
@@ -988,7 +1113,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   child: InkWell(
                     key: Key('calendar-date-${dayKey(d)}'),
                     onTap: () {
-                      setState(() {
+                      updateUi(() {
                         selectCalendarDate(d);
                         week = true;
                       });
@@ -1093,7 +1218,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   void move(int n) {
-    setState(() {
+    updateUi(() {
       if (week) {
         selectCalendarDate(
           DateTime(selected.year, selected.month, selected.day + n * 7),
@@ -1106,54 +1231,77 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     run(() => c.refresh(through: DateTime(month.year, month.month + 1, 0)));
   }
 
-  Future<void> showOverdue() => showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    builder: (ctx) => SafeArea(
-      child: SizedBox(
-        height: MediaQuery.sizeOf(ctx).height * .7,
-        child: ListenableBuilder(
-          listenable: c,
-          builder: (ctx, _) => ListView(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-            children: [
-              Text(
-                overdueTitle(c.overdue.length),
-                style: Theme.of(ctx).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 8),
-              Text(strings.t('예정 시간이 지났지만 아직 완료하지 않은 일이에요.')),
-              const SizedBox(height: 16),
-              if (c.overdue.isEmpty)
-                Padding(
-                  padding: EdgeInsets.all(24),
-                  child: Text(strings.t('남은 일을 모두 마쳤어요.')),
-                ),
-              ...c.overdue.map(
-                (o) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+  Future<void> showOverdue() async {
+    final scope = Object();
+    final feedbackHost = SheetFeedbackController();
+    sheetFeedback.add(feedbackHost);
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (ctx) => SafeArea(
+        child: SizedBox(
+          height: MediaQuery.sizeOf(ctx).height * .7,
+          child: SheetFeedbackHost(
+            controller: feedbackHost,
+            child: ListenableBuilder(
+              listenable: Listenable.merge([c, sheetChanges]),
+              builder: (ctx, _) {
+                final held = completionFeedback.values.where(
+                  (f) =>
+                      f.source == scope &&
+                      c.items.any((o) => o.id == f.before.id),
+                );
+                final heldIds = held.map((f) => f.before.id).toSet();
+                final visible = [
+                  ...c.overdue.where((o) => !heldIds.contains(o.id)),
+                  ...held.map((f) => f.before),
+                ]..sort((a, b) => a.reminder.compareTo(b.reminder));
+                return ListView(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 96),
                   children: [
                     Text(
-                      strings.t(
-                        '{date} 예정',
-                        args: {'date': strings.date(o.originalDue)},
-                      ),
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Color(0xff626873),
-                      ),
+                      overdueTitle(visible.length),
+                      style: Theme.of(ctx).textTheme.titleLarge,
                     ),
-                    row(o),
-                    const Divider(height: 20),
+                    const SizedBox(height: 8),
+                    Text(strings.t('예정 시간이 지났지만 아직 완료하지 않은 일이에요.')),
+                    if (visible.isNotEmpty) swipeHint(completed: false),
+                    const SizedBox(height: 16),
+                    if (visible.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Text(strings.t('남은 일을 모두 마쳤어요.')),
+                      ),
+                    for (final o in visible)
+                      row(
+                        o,
+                        scope: scope,
+                        heading: Padding(
+                          padding: const EdgeInsets.only(top: 12),
+                          child: Text(
+                            strings.t(
+                              '{date} 예정',
+                              args: {'date': strings.date(o.originalDue)},
+                            ),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: mutedText,
+                            ),
+                          ),
+                        ),
+                      ),
                   ],
-                ),
-              ),
-            ],
+                );
+              },
+            ),
           ),
         ),
       ),
-    ),
-  );
+    );
+    sheetFeedback.remove(feedbackHost);
+    feedbackHost.dispose();
+  }
 
   Widget overdueBanner() {
     final remaining = c.overdue;
@@ -1257,7 +1405,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               children: [
                 TextButton(
                   onPressed: () {
-                    setState(() {
+                    updateUi(() {
                       selectCalendarDate(today);
                     });
                   },
@@ -1265,7 +1413,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 ),
                 const Spacer(),
                 TextButton(
-                  onPressed: () => setState(() => week = !week),
+                  onPressed: () => updateUi(() => week = !week),
                   child: Text(week ? strings.t('월 보기') : strings.t('주 보기')),
                 ),
               ],
@@ -1280,7 +1428,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   PopupMenuButton<int>(
                     tooltip: strings.t('요약 기간'),
                     initialValue: summary,
-                    onSelected: (value) => setState(() => summary = value),
+                    onSelected: (value) => updateUi(() => summary = value),
                     itemBuilder: (_) => List.generate(
                       3,
                       (i) => PopupMenuItem(
@@ -1343,6 +1491,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 12),
+            if (todays.isNotEmpty) swipeHint(),
             if (todays.isEmpty)
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 32),
@@ -1393,7 +1542,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     child: InkWell(
                       key: const Key('quick-add'),
                       borderRadius: BorderRadius.circular(12),
-                      onTap: () => setState(() {
+                      onTap: () => updateUi(() {
                         quickExpanded = !quickExpanded;
                         if (quickExpanded && !quickTimeEdited) resetQuickTime();
                       }),
@@ -1448,7 +1597,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     final title = quickTitle.text.trim();
     if (busy) return;
     if (title.isEmpty) {
-      setState(() => quickTitleError = strings.t('할 일을 입력해주세요.'));
+      updateUi(() => quickTitleError = strings.t('할 일을 입력해주세요.'));
       quickTitleFocus.requestFocus();
       return;
     }
@@ -1461,7 +1610,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       quickTime.minute,
     );
     FocusScope.of(context).unfocus();
-    setState(() => quickTitleError = null);
+    updateUi(() => quickTitleError = null);
     await run(() async {
       String normalized(String value) =>
           value.trim().replaceAll(RegExp(r'\s+'), ' ').toLowerCase();
@@ -1498,7 +1647,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       );
       if (!mounted) return;
       quickTitle.clear();
-      setState(() {
+      updateUi(() {
         quickTimeEdited = false;
         resetQuickTime();
       });
@@ -1524,7 +1673,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     initialTime: quickTime,
                   );
                   if (value == null || !mounted) return;
-                  setState(() {
+                  updateUi(() {
                     quickTime = value;
                     quickTimeEdited = true;
                   });
@@ -1568,7 +1717,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             ? null
             : (name) {
                 FocusScope.of(context).unfocus();
-                setState(() => quickCategory = name);
+                updateUi(() => quickCategory = name);
               },
       ),
       const SizedBox(height: 12),
@@ -1581,7 +1730,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         textInputAction: TextInputAction.done,
         onSubmitted: (_) => addQuickTask(),
         onChanged: (_) {
-          if (quickTitleError != null) setState(() => quickTitleError = null);
+          if (quickTitleError != null) updateUi(() => quickTitleError = null);
         },
         decoration: InputDecoration(
           hintText: strings.t('생각났을 때, 할 일 하나'),
@@ -1800,7 +1949,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     bottomNavigationBar: NavigationBar(
       selectedIndex: page,
       onDestinationSelected: (i) {
-        setState(() => page = i);
+        updateUi(() => page = i);
         if (bodyScroll.hasClients) bodyScroll.jumpTo(0);
       },
       destinations: [

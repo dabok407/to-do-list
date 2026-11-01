@@ -166,6 +166,29 @@ void main() {
           final strings = AppStrings(language);
           expect(find.byType(DropdownButtonFormField<String>), findsNothing);
           expect(tester.takeException(), isNull, reason: 'Settings entry');
+          expect(
+            tester.getTopLeft(find.text(strings.t('알림에 할 일 제목 표시'))).dx,
+            closeTo(
+              tester.getTopLeft(find.text(strings.t('알림 설정·테스트'))).dx,
+              .1,
+            ),
+            reason: 'Switch and menu titles share the same leading edge',
+          );
+          expect(
+            tester.getTopLeft(find.byIcon(Icons.visibility_outlined)).dx,
+            closeTo(
+              tester
+                  .getTopLeft(
+                    find.descendant(
+                      of: find.byKey(const Key('notification-settings')),
+                      matching: find.byIcon(Icons.notifications_none_rounded),
+                    ),
+                  )
+                  .dx,
+              .1,
+            ),
+            reason: 'Switch and menu icons share the same leading edge',
+          );
 
           await _tapKey(tester, 'language-setting');
           for (final label in [strings.t('기기 설정 사용'), '한국어', 'English']) {
@@ -213,6 +236,63 @@ void main() {
       );
     }
   }
+
+  testWidgets('Busy settings menus are visibly disabled and cannot activate', (
+    tester,
+  ) async {
+    _phone(tester, width: 320, scale: 2);
+    final semantics = tester.ensureSemantics();
+    var calls = 0;
+    var enabled = true;
+    late StateSetter update;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: StatefulBuilder(
+            builder: (context, setState) {
+              update = setState;
+              return SettingsGroup(
+                children: [
+                  SettingsMenuRow(
+                    key: const Key('busy-menu'),
+                    icon: Icons.folder_outlined,
+                    title: '백업·복원',
+                    subtitle: '최신 백업 1개 보관',
+                    onTap: enabled ? () => calls++ : null,
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+    final menu = find.byKey(const Key('busy-menu'));
+    await tester.tap(menu);
+    expect(calls, 1);
+    update(() => enabled = false);
+    await tester.pumpAndSettle();
+    final disabledColor = Theme.of(tester.element(menu)).disabledColor;
+    for (final label in ['백업·복원', '최신 백업 1개 보관']) {
+      expect(tester.widget<Text>(find.text(label)).style!.color, disabledColor);
+    }
+    for (final icon in [Icons.folder_outlined, Icons.chevron_right_rounded]) {
+      expect(tester.widget<Icon>(find.byIcon(icon)).color, disabledColor);
+    }
+    expect(
+      tester.getSemantics(find.text('백업·복원')),
+      isSemantics(
+        label: '백업·복원\n최신 백업 1개 보관',
+        isButton: true,
+        hasEnabledState: true,
+      ),
+    );
+    await tester.tap(menu, warnIfMissed: false);
+    expect(calls, 1);
+    expect(tester.takeException(), isNull);
+    semantics.dispose();
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
 
   testWidgets(
     'Language chooser retains current choice, cancels safely, and updates the existing app',

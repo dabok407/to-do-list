@@ -448,6 +448,11 @@ void main() {
         of: find.byKey(const ValueKey('task-row-current')),
         matching: find.text(c.items.first.task.title),
       );
+      await tester.scrollUntilVisible(
+        currentTitle,
+        100,
+        scrollable: find.byType(Scrollable).first,
+      );
       await tester.ensureVisible(currentTitle);
       await tester.pumpAndSettle();
       expect(currentTitle.hitTestable(), findsOneWidget);

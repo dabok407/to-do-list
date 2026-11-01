@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hangeoreum/app/task_controller.dart';
 import 'package:hangeoreum/data/task_repository.dart';
 import 'package:hangeoreum/domain/task.dart';
+import 'package:hangeoreum/features/task_completion_checkbox.dart';
 import 'package:hangeoreum/l10n/app_strings.dart';
 import 'package:hangeoreum/main.dart';
 import 'package:hangeoreum/services/reminder_scheduler.dart';
@@ -75,6 +76,20 @@ class _SwipeController extends TaskController {
       smallActive: current.smallActive,
       beforeComplete: completing ? current.status : null,
     );
+    notifyListeners();
+  }
+
+  @override
+  Future<void> undoCompletion(Occurrence before, Occurrence after) async {
+    actions.add('${before.id}:undoCompletion');
+    if (actionGate != null) await actionGate!.future;
+    if (nextError != null) {
+      final error = nextError!;
+      nextError = null;
+      throw error;
+    }
+    final index = items.indexWhere((item) => item.id == before.id);
+    items[index] = before;
     notifyListeners();
   }
 
@@ -174,9 +189,16 @@ Future<void> _swipe(
   );
   if (settle) {
     await tester.pumpAndSettle();
+    await _finishFeedback(tester);
   } else {
     await tester.pump(const Duration(milliseconds: 350));
   }
+}
+
+Future<void> _finishFeedback(WidgetTester tester) async {
+  await tester.pump(const Duration(milliseconds: 1300));
+  await tester.pump(const Duration(milliseconds: 250));
+  await tester.pumpAndSettle();
 }
 
 void main() {
@@ -220,10 +242,10 @@ void main() {
           final undo = AppStrings(language).t('되돌리기');
           expect(find.text(message), findsOneWidget);
           expect(find.text(undo), findsOneWidget);
-          await tester.pump(const Duration(seconds: 2));
+          await tester.pump(const Duration(milliseconds: 300));
           expect(find.text(message), findsOneWidget);
           // Include the short exit animation after the three-second timeout.
-          await tester.pump(const Duration(seconds: 1));
+          await tester.pump(const Duration(seconds: 2));
           await tester.pumpAndSettle();
           expect(find.text(message), findsNothing);
           expect(find.text(undo), findsNothing);
@@ -255,7 +277,7 @@ void main() {
       expect(_row(occurrence), findsNothing);
       await tester.tap(find.text(AppStrings(language).t('되돌리기')));
       await tester.pumpAndSettle();
-      expect(controller.actions.last, '${occurrence.id}:uncomplete');
+      expect(controller.actions.last, '${occurrence.id}:undoCompletion');
       expect(controller.items.single.status, TaskStatus.pending);
       expect(_row(occurrence), findsOneWidget);
       expect(tester.takeException(), isNull);
@@ -363,50 +385,42 @@ void main() {
     );
   }
 
-  testWidgets(
-    'short drags, vertical drags and the wrong direction do not complete',
-    (tester) async {
-      final occurrence = _occurrence();
-      final controller = await _home(tester, occurrences: [occurrence]);
-      await _tab(tester, 'ko', '예정');
-      await tester.ensureVisible(_row(occurrence));
-      await tester.pumpAndSettle();
-      expect(_row(occurrence).hitTestable(), findsOneWidget);
-      // Cross touch slop so this is a drag rather than a tap, while remaining
-      // below the 35% distance and avoiding a velocity-triggered completion.
-      await tester.timedDrag(
-        _row(occurrence),
-        const Offset(60, 0),
-        const Duration(milliseconds: 600),
-      );
-      await tester.pumpAndSettle();
-      expect(find.byType(BottomSheet), findsNothing);
-      expect(find.byType(Dialog), findsNothing);
-      expect(controller.actions, isEmpty);
-      await tester.ensureVisible(_row(occurrence));
-      await tester.pumpAndSettle();
-      expect(_row(occurrence).hitTestable(), findsOneWidget);
-      await tester.timedDrag(
-        _row(occurrence),
-        const Offset(0, -100),
-        const Duration(milliseconds: 400),
-      );
-      await tester.pumpAndSettle();
-      expect(find.byType(BottomSheet), findsNothing);
-      expect(find.byType(Dialog), findsNothing);
-      expect(controller.actions, isEmpty);
-      await tester.ensureVisible(_row(occurrence));
-      await tester.pumpAndSettle();
-      expect(_row(occurrence).hitTestable(), findsOneWidget);
-      await _swipe(tester, occurrence, right: false);
-      expect(find.byType(BottomSheet), findsNothing);
-      expect(find.byType(Dialog), findsNothing);
-      expect(controller.actions, isEmpty);
-      expect(controller.items.single.status, TaskStatus.pending);
-      expect(tester.takeException(), isNull);
-      await tester.pumpWidget(const SizedBox.shrink());
-    },
-  );
+  testWidgets('short horizontal drags and vertical drags do not complete', (
+    tester,
+  ) async {
+    final occurrence = _occurrence();
+    final controller = await _home(tester, occurrences: [occurrence]);
+    await _tab(tester, 'ko', '예정');
+    await tester.ensureVisible(_row(occurrence));
+    await tester.pumpAndSettle();
+    expect(_row(occurrence).hitTestable(), findsOneWidget);
+    // Cross touch slop so this is a drag rather than a tap, while remaining
+    // below the 35% distance and avoiding a velocity-triggered completion.
+    await tester.timedDrag(
+      _row(occurrence),
+      const Offset(60, 0),
+      const Duration(milliseconds: 600),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byType(BottomSheet), findsNothing);
+    expect(find.byType(Dialog), findsNothing);
+    expect(controller.actions, isEmpty);
+    await tester.ensureVisible(_row(occurrence));
+    await tester.pumpAndSettle();
+    expect(_row(occurrence).hitTestable(), findsOneWidget);
+    await tester.timedDrag(
+      _row(occurrence),
+      const Offset(0, -100),
+      const Duration(milliseconds: 400),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byType(BottomSheet), findsNothing);
+    expect(find.byType(Dialog), findsNothing);
+    expect(controller.actions, isEmpty);
+    expect(controller.items.single.status, TaskStatus.pending);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
 
   testWidgets('skipped occurrences cannot be completed or reopened by swipe', (
     tester,
@@ -465,16 +479,20 @@ void main() {
       await tester.pump();
       final row = tester.widget<Dismissible>(_row(occurrence));
       expect(row.direction, DismissDirection.none);
-      final button = tester.widget<Checkbox>(
-        find.descendant(of: _row(occurrence), matching: find.byType(Checkbox)),
+      final button = tester.widget<TaskCompletionCheckbox>(
+        find.descendant(
+          of: _row(occurrence),
+          matching: find.byType(TaskCompletionCheckbox),
+        ),
       );
-      expect(button.onChanged, isNull);
+      expect(button.enabled, false);
       final rect = tester.getRect(_row(occurrence));
       await tester.dragFrom(rect.center, Offset(rect.width * .7, 0));
       await tester.pump(const Duration(milliseconds: 350));
       expect(controller.actions, hasLength(1));
       gate.complete();
       await tester.pumpAndSettle();
+      await _finishFeedback(tester);
       expect(controller.items.single.status, TaskStatus.completed);
       expect(_row(occurrence), findsNothing);
       expect(tester.takeException(), isNull);

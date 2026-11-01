@@ -221,7 +221,21 @@ class TaskController extends ChangeNotifier {
       _serial(() async {
         await access?.load();
         if (access?.allows(action) == false) return;
-        await repository.act(occurrence.id, action, minutes: minutes);
+        var applied = true;
+        if (action == 'complete' || action == 'uncomplete') {
+          applied = await repository.transitionCompletion(occurrence, action);
+        } else {
+          await repository.act(occurrence.id, action, minutes: minutes);
+        }
+        await _reconcile();
+        if (!applied) {
+          throw StateError('The task changed before it could be updated');
+        }
+      });
+
+  Future<void> undoCompletion(Occurrence before, Occurrence after) =>
+      _serial(() async {
+        await repository.undoCompletion(before, after);
         await _reconcile();
       });
 
