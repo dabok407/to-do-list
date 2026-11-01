@@ -375,8 +375,21 @@ void main() {
     );
     await tester.tap(find.byKey(const Key('overdue-banner')));
     await tester.pumpAndSettle();
-    expect(find.byTooltip('완료 처리').hitTestable(), findsOneWidget);
-    await tester.tap(find.byTooltip('완료 처리'));
+    // At 2x text the sheet's heading, help and task date can place its action
+    // below the initial viewport. The banner must remain immediately visible;
+    // the scrollable sheet's completion control must remain reachable.
+    final completion = find.byKey(const ValueKey('task-completion-old'));
+    await tester.scrollUntilVisible(
+      completion,
+      80,
+      scrollable: find.descendant(
+        of: find.byType(BottomSheet),
+        matching: find.byType(Scrollable),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(completion.hitTestable(), findsOneWidget);
+    await tester.tap(completion);
     await tester.pumpAndSettle();
     expect(controller.overdue, isEmpty);
     expect(find.text('남은 일을 모두 마쳤어요.'), findsNothing);
