@@ -1,0 +1,79 @@
+{
+  "checkedAtUtc": "2026-11-02T13:25:00.560902+09:00",
+  "sourceCommit": "6b2f31b50b83eb2cba03f6e01021dbff0c5da8af",
+  "sourceRun": 41385991795,
+  "appStoreId": "6821236391",
+  "version": "1.0.3",
+  "build": "1402",
+  "validationScope": "ios_internal_only",
+  "readOnly": false,
+  "mutationAttempted": true,
+  "actions": [
+    {
+      "action": "addExistingOwnerGroupBuild",
+      "httpStatus": 204
+    }
+  ],
+  "publicVersionChanged": false,
+  "externalGroupsChanged": false,
+  "automaticRetry": false,
+  "readyForOwner": true,
+  "localEvidence": {
+    "signingRunId": 41385991795,
+    "signingRunAttempt": 1,
+    "artifactId": 13115569485,
+    "artifactSha256": "3f62563ab4f62c20b80c5dfa364a1e194c42848dc4a6fb7bd9d0d760d6b3f21a",
+    "ipaSha256": "ec321d42c0c2a6f48bc2e1465268902f6a471350e06d3ae04c6d76d77bf45e8d",
+    "ipaBytes": 25378268,
+    "actualIpaEncryptionFlag": false
+  },
+  "ciRuns": [
+    {
+      "workflowPath": ".github/workflows/mobile.yml",
+      "runId": 41326628072,
+      "attempt": 1,
+      "status": "completed",
+      "conclusion": "failure",
+      "iosJobPassed": true,
+      "androidVerification": {
+        "status": "incomplete",
+        "jobId": 124908151731,
+        "jobConclusion": "failure",
+        "failedStep": "Android device integration and native lifecycle",
+        "analyzeUnitLargeTextPassed": true,
+        "allowedScope": "ios_internal_testflight_only",
+        "reason": "Android native integration remains unresolved; it is not marked passed."
+      }
+    },
+    {
+      "workflowPath": ".github/workflows/ios-testflight.yml",
+      "runId": 41385991795,
+      "attempt": 1,
+      "status": "completed",
+      "conclusion": "success",
+      "signedUploadJobId": 125086851794,
+      "uploadStepSucceeded": true
+    }
+  ],
+  "localAndCiVerified": true,
+  "androidValidationIncomplete": true,
+  "allPlatformQaPassed": false,
+  "buildFound": true,
+  "buildId": "1967acb0-b4d2-4e90-8cd2-396e2a9085b7",
+  "ownerGroupConnected": true,
+  "oldGroupBuildCount": 9,
+  "processingState": "VALID",
+  "expired": false,
+  "usesNonExemptEncryption": false,
+  "uploadedDate": "2026-11-02T13:21:30+09:00",
+  "oldGroupBuildsRetained": true,
+  "ownerGroupBuildCount": 10,
+  "internalBuildState": "IN_BETA_TESTING",
+  "status": "ready_for_owner",
+  "unitWidgetTests": 723,
+  "optionalCaptureTestsSkipped": 3,
+  "largeTextAndLocaleTests": 41,
+  "deviceInstallVerified": false,
+  "storeKitPurchaseVerified": false,
+  "followUp": "Android native test notification delivery failed after a fixed 12-second wait. OS alarm rate limiting is suspected but unconfirmed. Android verification is incomplete; this release is iOS internal TestFlight only."
+}
