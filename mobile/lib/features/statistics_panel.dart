@@ -363,6 +363,11 @@ class _PeriodControls extends StatelessWidget {
       letterSpacing: 0,
       fontFeatures: [FontFeature.tabularFigures()],
     );
+    const datePadding = EdgeInsets.symmetric(horizontal: 8, vertical: 8);
+    const dateIconSize = 16.0, dateIconGap = 6.0;
+    const resetPadding = EdgeInsetsDirectional.fromSTEB(12, 8, 16, 8);
+    const resetIconSize = 16.0, resetIconGap = 8.0;
+    const controlsGap = 8.0;
     final sameYear = from.year == until.year;
     String shortDate(DateTime date) => strings.isEnglish
         ? strings.dateShort(date)
@@ -399,7 +404,7 @@ class _PeriodControls extends StatelessWidget {
           onPressed: onSelect,
           style: OutlinedButton.styleFrom(
             minimumSize: const Size(0, 48),
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            padding: datePadding,
             foregroundColor: _ink,
             side: const BorderSide(color: _line),
             shape: RoundedRectangleBorder(
@@ -408,8 +413,12 @@ class _PeriodControls extends StatelessWidget {
           ),
           child: Row(
             children: [
-              const Icon(Icons.date_range_outlined, size: 16, color: _muted),
-              const SizedBox(width: 6),
+              const Icon(
+                Icons.date_range_outlined,
+                size: dateIconSize,
+                color: _muted,
+              ),
+              const SizedBox(width: dateIconGap),
               Expanded(
                 child: LayoutBuilder(
                   builder: (context, constraints) =>
@@ -436,24 +445,23 @@ class _PeriodControls extends StatelessWidget {
                         ),
                 ),
               ),
-              const SizedBox(width: 6),
-              const Icon(Icons.expand_more_rounded, size: 16, color: _muted),
+              const SizedBox(width: dateIconGap),
+              const Icon(
+                Icons.expand_more_rounded,
+                size: dateIconSize,
+                color: _muted,
+              ),
             ],
           ),
         ),
       ),
     );
-    final button = OutlinedButton.icon(
+    final button = OutlinedButton(
       key: const Key('statistics-period-reset'),
       onPressed: canReset ? onReset : null,
-      icon: Icon(
-        canReset ? Icons.refresh_rounded : Icons.check_rounded,
-        size: 16,
-      ),
-      label: Text(strings.t('최근 30일')),
       style: OutlinedButton.styleFrom(
         minimumSize: const Size(0, 48),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        padding: resetPadding,
         foregroundColor: _ink,
         backgroundColor: TaskVisuals.quietSurface,
         disabledForegroundColor: _ink,
@@ -462,16 +470,37 @@ class _PeriodControls extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
         textStyle: buttonStyle,
       ),
+      // Keep a real 16 px inset after the label, including large text. Explicit
+      // content spacing also lets the date/reset layout reserve the same width
+      // instead of depending on OutlinedButton.icon's text-scaled icon gap.
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            canReset ? Icons.refresh_rounded : Icons.check_rounded,
+            size: resetIconSize,
+          ),
+          const SizedBox(width: resetIconGap),
+          Flexible(child: Text(strings.t('최근 30일'))),
+        ],
+      ),
     );
     final dateWidth = textWidth(range, dateStyle);
     final neededWidth =
-        dateWidth + 60 + textWidth(strings.t('최근 30일'), buttonStyle) + 40 + 8;
+        dateWidth +
+        datePadding.horizontal +
+        2 * (dateIconSize + dateIconGap) +
+        textWidth(strings.t('최근 30일'), buttonStyle) +
+        resetPadding.horizontal +
+        resetIconSize +
+        resetIconGap +
+        controlsGap;
     return LayoutBuilder(
       builder: (context, constraints) => neededWidth <= constraints.maxWidth
           ? Row(
               children: [
                 Expanded(child: dates),
-                const SizedBox(width: 8),
+                const SizedBox(width: controlsGap),
                 button,
               ],
             )
@@ -479,7 +508,7 @@ class _PeriodControls extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Align(alignment: Alignment.centerRight, child: button),
-                const SizedBox(height: 8),
+                const SizedBox(height: controlsGap),
                 dates,
               ],
             ),

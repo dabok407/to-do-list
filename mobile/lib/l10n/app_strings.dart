@@ -31,6 +31,11 @@ class AppStrings {
     '좌우로 밀어 완료 해제': 'Swipe either way to undo completion',
     '좌우로 밀어 완료·해제': 'Swipe either way to toggle completion',
     '기한 지난 일': 'Overdue',
+    '기한 지난 일만 보기': 'Show overdue tasks only',
+    '전체 예정 목록 보기': 'Show all upcoming tasks',
+    '기한 지난 일이 없어요': 'No overdue tasks',
+    '상단 버튼을 다시 누르면 전체 예정 목록을 볼 수 있어요.':
+        'Tap the filter again to see all upcoming tasks.',
     '완료 시각 기록 없음': 'Completion time not recorded',
     '원래 예정 {date} {time}': 'Originally due {date} {time}',
     '완료 시각 {time}': 'Completed at {time}',

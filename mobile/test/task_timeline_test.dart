@@ -200,12 +200,7 @@ void main() {
                 find.byKey(const ValueKey('start-timeline')),
                 findsNothing,
               );
-              final arrow = find.byIcon(Icons.swap_horiz_rounded);
-              expect(arrow, findsOneWidget);
-              expect(
-                tester.getRect(arrow).top,
-                greaterThanOrEqualTo(clockRect.bottom),
-              );
+              expect(find.byIcon(Icons.swap_horiz_rounded), findsNothing);
               expect(
                 tester.widget<Text>(caption).data,
                 strings.t(completed ? '완료됨' : '완료'),

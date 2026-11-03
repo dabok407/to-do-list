@@ -295,9 +295,23 @@ class _HangeoreumAppState extends State<HangeoreumApp>
         floatingActionButtonTheme: const FloatingActionButtonThemeData(
           backgroundColor: Color(0xff292c29),
           foregroundColor: Colors.white,
-          elevation: 1,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(16)),
+          elevation: .5,
+          hoverElevation: 1.5,
+          focusElevation: 1.5,
+          highlightElevation: 0,
+          disabledElevation: 0,
+          shape: StadiumBorder(),
+          iconSize: 24,
+          // Let larger text grow the pill instead of overflowing a fixed height.
+          extendedSizeConstraints: BoxConstraints(minWidth: 96, minHeight: 52),
+          extendedIconLabelSpacing: 8,
+          extendedPadding: EdgeInsetsDirectional.fromSTEB(18, 12, 22, 12),
+          extendedTextStyle: TextStyle(
+            fontFamily: 'Pretendard',
+            fontSize: 15,
+            height: 1.35,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0,
           ),
         ),
         bottomSheetTheme: const BottomSheetThemeData(

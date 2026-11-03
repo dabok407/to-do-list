@@ -15,6 +15,7 @@ import 'visual_tokens.dart';
 import 'statistics_panel.dart';
 import 'task_timeline_row.dart';
 import 'task_list_sort_control.dart';
+import 'task_list_section_header.dart';
 import 'task_detail_metadata.dart';
 import 'settings_panel.dart';
 import '../services/subscription_service.dart';
@@ -91,6 +92,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   bool quickTimeEdited = false;
   TaskListOrder upcomingOrder = TaskListOrder.latest;
   TaskListOrder completedOrder = TaskListOrder.latest;
+  bool upcomingOverdueOnly = false;
   String? quickTitleError;
   late TimeOfDay quickTime;
   late DateTime quickDate;
@@ -930,6 +932,32 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       completed: completed,
       order: order,
     );
+    final overdueSections = sections
+        .where((section) => section.kind == TaskListSectionKind.overdue)
+        .toList();
+    final overdueCount = overdueSections.fold<int>(
+      0,
+      (count, section) => count + section.items.length,
+    );
+    final overdueOnly = !completed && upcomingOverdueOnly;
+    final visibleSections = overdueOnly ? overdueSections : sections;
+    Widget overdueSummary() => Padding(
+      padding: const EdgeInsets.only(top: 20),
+      child: TaskListOverdueHeader(
+        key: const Key('upcoming-overdue-summary'),
+        label: strings.t('기한 지난 일'),
+        countLabel: strings.isEnglish ? '$overdueCount' : '$overdueCount개',
+        selected: overdueOnly,
+        actionLabel: strings.t(overdueOnly ? '전체 예정 목록 보기' : '기한 지난 일만 보기'),
+        onToggle: () {
+          updateUi(() => upcomingOverdueOnly = !upcomingOverdueOnly);
+          if (bodyScroll.hasClients) bodyScroll.jumpTo(0);
+        },
+      ),
+    );
+    final firstScheduled = sections.indexWhere(
+      (section) => section.kind == TaskListSectionKind.scheduled,
+    );
     String heading(TaskListSection section) {
       if (section.kind == TaskListSectionKind.progressing) {
         return strings.t('진행 중');
@@ -946,9 +974,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ? strings.dateShort(date)
           : strings.date(date);
       final dated = '$day · ${strings.weekday(date.weekday)}';
-      return section.kind == TaskListSectionKind.overdue
-          ? '${strings.t('기한 지난 일')} · $dated'
-          : dated;
+      return dated;
     }
 
     return [
@@ -966,27 +992,45 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           if (bodyScroll.hasClients) bodyScroll.jumpTo(0);
         },
       ),
-      if (sections.isNotEmpty) swipeHint(completed: completed),
-      if (sections.isEmpty) emptyTaskList(completed: completed),
-      for (final section in sections) ...[
-        Semantics(
-          header: true,
-          child: Padding(
-            key: Key('task-section-${section.id}'),
-            padding: const EdgeInsets.fromLTRB(0, 22, 0, 7),
-            child: Text(
-              heading(section),
-              style: TextStyle(
-                fontFamily: 'Pretendard',
-                fontSize: 19,
-                height: 1.5,
-                fontWeight: FontWeight.w700,
-                color: section.kind == TaskListSectionKind.overdue
-                    ? priorityRed
-                    : TaskVisuals.ink,
+      if (visibleSections.isNotEmpty) swipeHint(completed: completed),
+      // Keep the selected filter reachable after its final task is completed.
+      if (overdueOnly && overdueSections.isEmpty) ...[
+        overdueSummary(),
+        Padding(
+          key: const Key('upcoming-overdue-empty-state'),
+          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                strings.t('기한 지난 일이 없어요'),
+                style: const TextStyle(
+                  fontSize: 20,
+                  height: 1.5,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
+              const SizedBox(height: 8),
+              Text(
+                strings.t('상단 버튼을 다시 누르면 전체 예정 목록을 볼 수 있어요.'),
+                style: const TextStyle(color: TaskVisuals.muted, height: 1.6),
+              ),
+            ],
           ),
+        ),
+      ] else if (visibleSections.isEmpty)
+        emptyTaskList(completed: completed),
+      for (final section in visibleSections) ...[
+        if (overdueSections.isNotEmpty && section == overdueSections.first)
+          overdueSummary(),
+        if (overdueSections.isNotEmpty &&
+            firstScheduled >= 0 &&
+            section == sections[firstScheduled])
+          const SizedBox(key: Key('upcoming-overdue-boundary'), height: 12),
+        Padding(
+          key: Key('task-section-${section.id}'),
+          padding: const EdgeInsets.fromLTRB(0, 22, 0, 7),
+          child: TaskListSectionHeader(label: heading(section)),
         ),
         for (final occurrence in section.items) row(occurrence, timeline: true),
       ],
@@ -1942,7 +1986,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         ? FloatingActionButton.extended(
             onPressed: () => edit(),
             tooltip: strings.t('할 일 추가'),
-            icon: const Icon(Icons.add, size: 21),
+            icon: const Icon(Icons.add_rounded),
             label: Text(strings.t('할 일')),
           )
         : null,

@@ -7,6 +7,7 @@ import 'package:hangeoreum/app/task_controller.dart';
 import 'package:hangeoreum/data/task_repository.dart';
 import 'package:hangeoreum/domain/task.dart';
 import 'package:hangeoreum/features/task_completion_checkbox.dart';
+import 'package:hangeoreum/features/task_list_section_header.dart';
 import 'package:hangeoreum/l10n/app_strings.dart';
 import 'package:hangeoreum/main.dart';
 import 'package:hangeoreum/services/reminder_scheduler.dart';
@@ -683,6 +684,60 @@ void main() {
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
   });
+
+  testWidgets(
+    'Overdue filter keeps its zero-result exit after completion and restores the row with Undo',
+    (tester) async {
+      final overdue = _occurrence(id: 'overdue', daysFromToday: -1);
+      final future = _occurrence(id: 'future', daysFromToday: 1);
+      final controller = await _home(tester, occurrences: [overdue, future]);
+      final summary = find.byKey(const Key('upcoming-overdue-summary'));
+      Finder count(String value) =>
+          find.descendant(of: summary, matching: find.text(value));
+      await tester.tap(summary);
+      await tester.pumpAndSettle();
+      expect(tester.widget<TaskListOverdueHeader>(summary).selected, isTrue);
+      expect(_row(future), findsNothing);
+      await _tapCheck(tester, overdue);
+      expect(controller.items.first.status, TaskStatus.completed);
+      expect(_row(overdue), findsOneWidget);
+      expect(count('1개'), findsOneWidget);
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(_row(overdue), findsOneWidget);
+      await _finishRemoval(tester);
+      expect(_row(overdue), findsNothing);
+      expect(_row(future), findsNothing);
+      expect(tester.widget<TaskListOverdueHeader>(summary).selected, isTrue);
+      expect(count('0개'), findsOneWidget);
+      expect(find.text('기한 지난 일이 없어요'), findsOneWidget);
+
+      await tester.tap(find.text('되돌리기'));
+      await tester.pumpAndSettle();
+      expect(controller.items.first, same(overdue));
+      expect(_row(overdue), findsOneWidget);
+      expect(_row(future), findsNothing);
+      expect(count('1개'), findsOneWidget);
+      expect(find.text('기한 지난 일이 없어요'), findsNothing);
+      expect(tester.widget<TaskListOverdueHeader>(summary).selected, isTrue);
+
+      await _tapCheck(tester, overdue);
+      await _finishRemoval(tester);
+      expect(count('0개'), findsOneWidget);
+      await tester.tap(summary);
+      await tester.pumpAndSettle();
+      expect(_row(future), findsOneWidget);
+      expect(_row(overdue), findsNothing);
+      expect(summary, findsNothing);
+      expect(find.text('기한 지난 일이 없어요'), findsNothing);
+      expect(controller.actions, [
+        '${overdue.id}:complete',
+        '${overdue.id}:undoCompletion',
+        '${overdue.id}:complete',
+      ]);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
 
   testWidgets(
     'Undo during the hold prevents delayed removal of the restored row',

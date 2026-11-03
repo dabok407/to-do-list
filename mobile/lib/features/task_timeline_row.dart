@@ -146,32 +146,15 @@ class TaskTimelineRow extends StatelessWidget {
       child: SizedBox(
         width: timeWidth,
         height: toggleSize.height,
-        child: Stack(
-          children: [
-            Center(
-              child: Text(
-                clock,
-                key: Key('task-time-${o.id}'),
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                softWrap: false,
-                style: timeStyle,
-              ),
-            ),
-            if (o.status != TaskStatus.skipped)
-              const Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: ExcludeSemantics(
-                  child: Icon(
-                    Icons.swap_horiz_rounded,
-                    size: 14,
-                    color: TaskVisuals.muted,
-                  ),
-                ),
-              ),
-          ],
+        child: Center(
+          child: Text(
+            clock,
+            key: Key('task-time-${o.id}'),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            softWrap: false,
+            style: timeStyle,
+          ),
         ),
       ),
     );
