@@ -1,6 +1,16 @@
 # 투두닉(Todoniq): Windows에서 iPhone TestFlight 빌드 준비하기
 
-## 현재 — 1.0.3 (1402) 본인 TestFlight 업데이트 가능 (2026-11-02)
+## 현재 — 1.0.3 (1403) 본인 TestFlight 업데이트 가능 (2026-11-03)
+
+**2026-11-03 15:07 KST**, Apple의 **VALID / expired=false / usesNonExemptEncryption=false / IN_BETA_TESTING**과 기존 **Todoniq Owner** 그룹 연결을 확인했다. iPhone에서 **TestFlight → 투두닉 → 업데이트**를 누르고 **1.0.3 (1403)**을 확인한다. 기존 10개 빌드 연결을 유지하고 새 빌드만 추가했다. 공개 App Store 심사나 외부 그룹은 변경하지 않았다.
+
+1402의 개선을 포함하고, 예정 목록의 기한 지난 날짜를 중립색 제목으로 정리했다. 밝은 회색 ‘기한 지난 일’ 필터는 한 번 누르면 해당 일정만, 다시 누르면 전체 목록을 표시한다. 마지막 항목 완료·빈 목록·되돌리기·정렬·탭 이동도 검증했다. 기존 색상의 캡슐형 ‘+ 할 일’ 버튼, 통계 ‘최근 30일’ 버튼 오른쪽 여백, 공통 일정 행의 시간 아래 화살표 제거를 반영했다. 양방향 스와이프·오른쪽 체크박스·약 1초 완료 표시·3초 되돌리기·입력 중 추가 버튼 숨김을 유지한다.
+
+소스 **86af536067881cb3f1276dabdfa610fef7e96f58**의 [Android·iOS 통합 QA 41585057412](https://github.com/dabok407/to-do-list/actions/runs/41585057412)와 [서명·업로드 41585087185](https://github.com/dabok407/to-do-list/actions/runs/41585087185)가 모두 **SUCCESS**다. 정적 분석·전체 단위/위젯 테스트·큰 글자/한영·iPhone 및 Android 실행·알림·WidgetKit·앱 종료 알림·권한 거부 검증을 통과했다. 실제 Flutter 화면 5개 구성과 변경 부위 31개 회귀 테스트도 로컬에서 통과했다. 이번 Android 검증은 통과했으며 이전 1402 실패 기록은 당시 결과로 유지한다.
+
+원본 IPA SHA-256은 `6ce59affd29ba88315f2ade2ca11a6dfb2c310cea0f0ce12a9d2758b983de8c9`다. GitHub 아티팩트 digest·manifest·실제 앱/위젯 1.0.3 (1403) 및 로컬 원본과 대조했다. Apple 빌드 ID는 `22059f17-b9b9-490d-a5cf-ec554d3379fa`다. 개인 문서·서명 키·인증서는 커밋하지 않았다. 실제 사용자 iPhone 설치·실제 StoreKit 구매는 이 자동 검증과 구분한다. [1403 검증·배포 기록](store/review/update-1.0.3-1403.json)을 따른다.
+
+## 이전 — 1.0.3 (1402) 본인 TestFlight 업데이트 가능 (2026-11-02)
 
 **2026-11-02 13:25 KST**, Apple의 **VALID / expired=false / usesNonExemptEncryption=false / IN_BETA_TESTING**과 기존 **Todoniq Owner** 그룹 연결을 확인했다. iPhone에서 **TestFlight → 투두닉 → 업데이트**를 누르고 **1.0.3 (1402)**를 확인한다. 기존 9개 빌드 연결을 유지하고 새 빌드만 추가했다. 공개 App Store 버전·심사·외부 테스트 그룹은 변경하지 않았다.
 

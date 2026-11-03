@@ -1,0 +1,203 @@
+{
+  "checkedAtUtc": "2026-11-03T06:07:37.245294+00:00",
+  "sourceCommit": "86af536067881cb3f1276dabdfa610fef7e96f58",
+  "sourceRun": 41585087185,
+  "appStoreId": "6821236391",
+  "version": "1.0.3",
+  "build": "1403",
+  "validationScope": "all_platforms",
+  "readOnly": false,
+  "mutationAttempted": true,
+  "actions": [
+    {
+      "action": "addExistingOwnerGroupBuild",
+      "httpStatus": 204
+    }
+  ],
+  "publicVersionChanged": false,
+  "externalGroupsChanged": false,
+  "automaticRetry": false,
+  "readyForOwner": true,
+  "localEvidence": {
+    "signingRunId": 41585087185,
+    "signingRunAttempt": 1,
+    "artifactId": 13208721830,
+    "artifactSha256": "22369e9d90e814a73b9a5518637bcf3ccc43b663ccea38b33eb69a9660290887",
+    "ipaSha256": "6ce59affd29ba88315f2ade2ca11a6dfb2c310cea0f0ce12a9d2758b983de8c9",
+    "ipaBytes": 25381342,
+    "actualIpaEncryptionFlag": false
+  },
+  "ciRuns": [
+    {
+      "workflowPath": ".github/workflows/mobile.yml",
+      "runId": 41585057412,
+      "attempt": 1,
+      "status": "completed",
+      "conclusion": "success",
+      "iosJobPassed": true,
+      "androidVerification": {
+        "status": "passed",
+        "jobId": 125748488633,
+        "jobConclusion": "success"
+      }
+    },
+    {
+      "workflowPath": ".github/workflows/ios-testflight.yml",
+      "runId": 41585087185,
+      "attempt": 1,
+      "status": "completed",
+      "conclusion": "success",
+      "signedUploadJobId": 125748585272,
+      "uploadStepSucceeded": true
+    }
+  ],
+  "localAndCiVerified": true,
+  "androidValidationIncomplete": false,
+  "allPlatformQaPassed": true,
+  "buildFound": true,
+  "buildId": "22059f17-b9b9-490d-a5cf-ec554d3379fa",
+  "ownerGroupConnected": true,
+  "oldGroupBuildCount": 10,
+  "processingState": "VALID",
+  "expired": false,
+  "usesNonExemptEncryption": false,
+  "uploadedDate": "2026-11-02T22:06:15-08:00",
+  "oldGroupBuildsRetained": true,
+  "ownerGroupBuildCount": 11,
+  "internalBuildState": "IN_BETA_TESTING",
+  "status": "ready_for_owner",
+  "changes": [
+    "Neutral overdue date headings and accessible overdue-only toggle",
+    "Light selected filter with count badge; last-item empty state and undo preserved",
+    "Shared pill-shaped add-task button; hidden while quick-add title is focused",
+    "Remove repeated row swipe arrows; keep bidirectional actions and right checkbox",
+    "Statistics recent-30-days button trailing padding and responsive layout"
+  ],
+  "localValidation": {
+    "focusedTestsPassed": 31,
+    "actualFlutterCaptureConfigurationsPassed": 5,
+    "filterRegressionTestsPassed": 82,
+    "diffCheckPassed": true
+  },
+  "deviceInstallVerified": false,
+  "storeKitPurchaseVerified": false,
+  "ciTestEvidence": {
+    "checkedAtUtc": "2026-11-03T06:08:45.650282+00:00",
+    "testTotalsExtracted": false,
+    "runs": [
+      {
+        "runId": 41585057412,
+        "conclusion": "success",
+        "jobs": [
+          {
+            "name": "ios",
+            "conclusion": "success",
+            "checks": [
+              {
+                "check": "notification_ocr",
+                "conclusion": "success",
+                "markers": [
+                  "IOS_OCR_NOTIFICATION_FIXTURE_OK"
+                ]
+              },
+              {
+                "check": "iphone_integration",
+                "conclusion": "success",
+                "markers": []
+              },
+              {
+                "check": "native_widget",
+                "conclusion": "success",
+                "markers": []
+              },
+              {
+                "check": "ios_lifecycle",
+                "conclusion": "success",
+                "markers": [
+                  "IOS_LOCALIZED_BRAND_OK",
+                  "IOS_COLD_WIDGET_DEEP_LINK_OK",
+                  "IOS_TERMINATED_NOTIFICATION_OK"
+                ]
+              },
+              {
+                "check": "iphone_permission_denial",
+                "conclusion": "success",
+                "markers": []
+              }
+            ]
+          },
+          {
+            "name": "android",
+            "conclusion": "success",
+            "checks": [
+              {
+                "check": "analysis",
+                "conclusion": "success",
+                "markers": []
+              },
+              {
+                "check": "unit_widget",
+                "conclusion": "success",
+                "markers": []
+              },
+              {
+                "check": "large_text",
+                "conclusion": "success",
+                "markers": []
+              },
+              {
+                "check": "android_lifecycle",
+                "conclusion": "success",
+                "markers": [
+                  "REBOOT_NOTIFICATION_OK",
+                  "WIDGET_SNOOZE_BUTTON_OK",
+                  "COLD_WIDGET_DEEP_LINK_OK",
+                  "ANDROID_HEADLESS_REFRESH_OK"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "runId": 41585087185,
+        "conclusion": "success",
+        "jobs": [
+          {
+            "name": "signed-build",
+            "conclusion": "success",
+            "checks": [
+              {
+                "check": "notification_ocr",
+                "conclusion": "success",
+                "markers": [
+                  "IOS_OCR_NOTIFICATION_FIXTURE_OK"
+                ]
+              },
+              {
+                "check": "analysis",
+                "conclusion": "success",
+                "markers": []
+              },
+              {
+                "check": "unit_widget",
+                "conclusion": "success",
+                "markers": []
+              },
+              {
+                "check": "large_text",
+                "conclusion": "success",
+                "markers": []
+              },
+              {
+                "check": "native_widget",
+                "conclusion": "success",
+                "markers": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
