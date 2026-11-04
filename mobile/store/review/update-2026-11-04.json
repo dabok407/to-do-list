@@ -1,6 +1,6 @@
 {
   "preparedOn": "2026-11-04",
-  "status": "PREPARED_LOCAL_METADATA_PENDING_SCREENSHOTS_AND_APPLE_SAVE",
+  "status": "WAITING_FOR_REVIEW",
   "appId": "6821236391",
   "version": "1.0.3",
   "plannedBuildNumber": "1403",
@@ -59,7 +59,7 @@
     "Shorten repeated privacy copy so both descriptions remain below 4000 characters."
   ],
   "screenshotAudit": {
-    "status": "LOCAL_GENERATION_VERIFIED_APPLE_UPLOAD_IN_PROGRESS",
+    "status": "APPLE_COMPLETE_VERIFIED",
     "locales": [
       "ko",
       "en-US"
@@ -100,10 +100,14 @@
     "privatePurchaseReviewImageKeptSeparateFromPublicArtwork": true,
     "androidArtworkRegeneration": "on_hold_at_user_request",
     "pendingCaptureHarnessAdaptation": null,
-    "verificationSource": "Root agent must record newly rendered images, hashes, visual inspection and Apple delivery before marking complete.",
+    "verificationSource": "Final GET-only App Store Connect comparison and local PNG MD5/SHA-256 recheck.",
     "largeIphoneCapture": "Independent production widget capture at 440x956 logical pixels, 1320x2868 PNG",
     "localVisualReview": "All 42 public images reviewed; KO large iPhone start sheet recaptured to show full title. No production code change.",
-    "captureValidation": "KO/EN x 3 viewports passed; focused KO large start-sheet capture passed; 5 artwork-policy tests passed; 42 Apple PNG source/composed SHA-256 checks and both ZIP integrity checks passed."
+    "captureValidation": "KO/EN x 3 viewports passed; focused KO large start-sheet capture passed; 5 artwork-policy tests passed; 42 Apple PNG source/composed SHA-256 checks and both ZIP integrity checks passed.",
+    "verifiedAtUtc": "2026-11-04T12:08:53.060691+00:00",
+    "appleImagesComplete": 42,
+    "fileOrderSizesAndMd5Match": true,
+    "sourceRecord": "app-store-1.0.3-1403.json"
   },
   "reviewRisksChecked": [
     "Prepared Apple public descriptions, titles, subtitles, keywords and promotional text contain no other-mobile-platform references.",
@@ -124,12 +128,12 @@
     "sourceAndArtworkHashVerified": true,
     "appleMetadataSaved": true,
     "appleBuildUploaded": true,
-    "reviewSubmitted": false,
-    "appleScreenshotsUploaded": false,
+    "reviewSubmitted": true,
+    "appleScreenshotsUploaded": true,
     "appleMetadataExactMatchVerified": true,
-    "appleScreenshotDeliveryComplete": false,
+    "appleScreenshotDeliveryComplete": true,
     "googleAssetsRegenerated": false,
-    "validationScope": "1403 existing native/Flutter verification retained. New public captures and store metadata validated; Apple screenshot processing and final review submission pending."
+    "validationScope": "Existing 1403 native/Flutter verification retained. Prepared metadata, review notes and 42 screenshots match Apple; final API confirms review submission. Apple approval and public availability are pending."
   },
   "unchanged": [
     "subscriptionProduct",
@@ -151,7 +155,69 @@
     "status": "DEPLOYED_VERIFIED",
     "sourceCommit": "c73c829b7848f8f752d33ed4afcc8f9c1e229c39",
     "runId": 41822816644,
+    "runUrl": "https://github.com/dabok407/to-do-list/actions/runs/41822816644",
     "pagesVerified": 6,
-    "exactBytesAndSha256Match": true
+    "exactBytesAndSha256Match": true,
+    "remoteVerificationEvidence": "Prepared release record: prior root-agent HTTP and SHA-256 comparison; this recorder makes no network requests.",
+    "localFilesRecheckedAgainstDeploymentCommit": true,
+    "files": [
+      {
+        "file": "mobile/store/site/index.html",
+        "url": "https://dabok407.github.io/to-do-list/index.html",
+        "bytes": 10325,
+        "sha256": "b7dab3d553fb35c530ec2760fbf09e9ed943cf7f435f370f6e403cefc2cdea54",
+        "matchesDeploymentCommit": true
+      },
+      {
+        "file": "mobile/store/site/index-en.html",
+        "url": "https://dabok407.github.io/to-do-list/index-en.html",
+        "bytes": 9416,
+        "sha256": "88525c9480007144f7ec9d93b737d4a46473c043798943d5c2905fd6bc756a84",
+        "matchesDeploymentCommit": true
+      },
+      {
+        "file": "mobile/store/site/support.html",
+        "url": "https://dabok407.github.io/to-do-list/support.html",
+        "bytes": 10318,
+        "sha256": "3d6f78f66d31ee382ac9fea3dc69fa3b8937870a1918d9a12b64b0a8fe82854b",
+        "matchesDeploymentCommit": true
+      },
+      {
+        "file": "mobile/store/site/support-en.html",
+        "url": "https://dabok407.github.io/to-do-list/support-en.html",
+        "bytes": 9410,
+        "sha256": "48824cc7c2d94ee20927286da1f8f4224d2f77ae9146fb5207737ec87054ef26",
+        "matchesDeploymentCommit": true
+      },
+      {
+        "file": "mobile/store/site/privacy.html",
+        "url": "https://dabok407.github.io/to-do-list/privacy.html",
+        "bytes": 10376,
+        "sha256": "6848e9ee29f7a391db385ce44d6da5351e1fce1b5ee9654a3f735a62e78039b8",
+        "matchesDeploymentCommit": true
+      },
+      {
+        "file": "mobile/store/site/privacy-en.html",
+        "url": "https://dabok407.github.io/to-do-list/privacy-en.html",
+        "bytes": 9388,
+        "sha256": "88ed1af30b7a74c5d382548ca8fc5850b646e3ed080c237be0515ce314e215bd",
+        "matchesDeploymentCommit": true
+      }
+    ]
+  },
+  "submission": {
+    "submissionId": "3d2aee2b-f0cd-43a4-a30e-627ae745dc84",
+    "versionId": "bb77bde4-776b-443d-810e-894f7b256536",
+    "version": "1.0.3",
+    "build": "1403",
+    "submittedAtUtc": "2026-11-04T12:07:58+00:00",
+    "submittedAtKst": "2026-11-04T21:07:58+09:00",
+    "state": "WAITING_FOR_REVIEW",
+    "releaseType": "AFTER_APPROVAL",
+    "submittedItemCount": 1,
+    "submittedItem": "iOS app version 1.0.3 (1403)",
+    "appStoreApproved": false,
+    "publicReleaseComplete": false,
+    "record": "app-store-1.0.3-1403.json"
   }
 }

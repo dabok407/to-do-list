@@ -1,0 +1,530 @@
+{
+  "recordedAtUtc": "2026-11-04T12:09:17.436509+00:00",
+  "checkedAtUtc": "2026-11-04T12:08:53.060691+00:00",
+  "appId": "6821236391",
+  "version": "1.0.3",
+  "build": "1403",
+  "versionId": "bb77bde4-776b-443d-810e-894f7b256536",
+  "buildId": "22059f17-b9b9-490d-a5cf-ec554d3379fa",
+  "sourceCommit": "86af536067881cb3f1276dabdfa610fef7e96f58",
+  "submissionId": "3d2aee2b-f0cd-43a4-a30e-627ae745dc84",
+  "submissionIdSource": "Observed App Store Connect submission UI; explicit recorder argument",
+  "submittedAtUtc": "2026-11-04T12:07:58+00:00",
+  "submittedAtKst": "2026-11-04T21:07:58+09:00",
+  "state": "WAITING_FOR_REVIEW",
+  "stateSource": "Read-only App Store Connect API verification after submission",
+  "releaseType": "AFTER_APPROVAL",
+  "submittedItemCount": 1,
+  "submittedItem": "iOS app version 1.0.3 (1403)",
+  "appStoreApproved": false,
+  "publicReleaseComplete": false,
+  "liveVersionsAtVerification": [
+    {
+      "id": "5539a065-10c3-4dbc-8eaf-8f20834912fb",
+      "version": "1.0.2",
+      "platform": "IOS",
+      "state": "READY_FOR_SALE",
+      "appVersionState": "READY_FOR_DISTRIBUTION",
+      "releaseType": "AFTER_APPROVAL",
+      "selectedBuildId": "3f9f969f-1d65-4952-905a-125ceafdfc68",
+      "selectedBuildNumber": "1301"
+    },
+    {
+      "id": "5ef76c78-bf15-4ae0-851d-5cc1f080d61d",
+      "version": "1.0.1",
+      "platform": "IOS",
+      "state": "READY_FOR_SALE",
+      "appVersionState": "READY_FOR_DISTRIBUTION",
+      "releaseType": "AFTER_APPROVAL",
+      "selectedBuildId": "d49a0d17-346d-4d59-a5ce-2fdcec9bad0a",
+      "selectedBuildNumber": "1203"
+    }
+  ],
+  "metadataExactMatch": true,
+  "reviewNotesExactMatch": true,
+  "screenshotsComplete": 42,
+  "screenshotOrderSizesAndMd5Match": true,
+  "screenshots": [
+    {
+      "locale": "ko",
+      "displayType": "APP_IPHONE_67",
+      "file": "mobile/store/screenshots/iphone-large/01-calendar.png",
+      "bytes": 460037,
+      "md5": "27e103a5d32fa8531f99ed54928c4dd2",
+      "sha256": "418260162b1d5d1a2d50553bff4ccd6187f39a3e7e9539e8f4e1d973ec82b671",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "ko",
+      "displayType": "APP_IPHONE_67",
+      "file": "mobile/store/screenshots/iphone-large/02-overdue.png",
+      "bytes": 192706,
+      "md5": "110be8b34d5bf04ac607108d9776125b",
+      "sha256": "92b06f31fba2ac25172aa43b7cc1cf973a7c77d6800846270bb9aaed992977de",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "ko",
+      "displayType": "APP_IPHONE_67",
+      "file": "mobile/store/screenshots/iphone-large/03-start.png",
+      "bytes": 210574,
+      "md5": "0b6b4de5d0ae9f6f6800b34b2e74390f",
+      "sha256": "de351f0ff371b27e559423b80dccad0920eaeb058830548b2bcdce2654bc2a02",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "ko",
+      "displayType": "APP_IPHONE_67",
+      "file": "mobile/store/screenshots/iphone-large/04-repeat.png",
+      "bytes": 261204,
+      "md5": "f4487e1143a0f275d1fcb5f9c3194d3e",
+      "sha256": "4874b2ff3e1cc20070b9a093d9b4567ffcaf7b650b9fb717fc5b1e4eb01fd10a",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "ko",
+      "displayType": "APP_IPHONE_67",
+      "file": "mobile/store/screenshots/iphone-large/05-stats-detail.png",
+      "bytes": 211957,
+      "md5": "03c9c651056ca5fc73cca2a8964f70aa",
+      "sha256": "e2165c943d9bae91ebab5ad66ba7f9f53359e8553e0f7306f3d56f43f8f1450e",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "ko",
+      "displayType": "APP_IPHONE_67",
+      "file": "mobile/store/screenshots/iphone-large/06-stats.png",
+      "bytes": 270660,
+      "md5": "2f6006f7dbce072e918b1cc4d5d6c31d",
+      "sha256": "2b9a2ad8d63c54cffaf0ec80af91e36234e41a7f5aa97eadea8f184801e5c49d",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "ko",
+      "displayType": "APP_IPHONE_67",
+      "file": "mobile/store/screenshots/iphone-large/07-privacy.png",
+      "bytes": 252537,
+      "md5": "fc40e116525bc9c7c07e208a0b1793c6",
+      "sha256": "31943353f6a127a6ce54e939caa916bb73147d245d005e976393e1feb3bf6dae",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "ko",
+      "displayType": "APP_IPHONE_61",
+      "file": "mobile/store/screenshots/iphone/01-calendar.png",
+      "bytes": 385011,
+      "md5": "afe5b3916593d500610608dcd18d01de",
+      "sha256": "2c2d52a974f680f4da208f70352113e4b774667dd937485dcb35ef43218d7165",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "ko",
+      "displayType": "APP_IPHONE_61",
+      "file": "mobile/store/screenshots/iphone/02-overdue.png",
+      "bytes": 184814,
+      "md5": "885a8e02d4e82ac4e0906b121e505635",
+      "sha256": "aa77001aade20ddc8c09dc4588ccc085030da4e12f8423dd6a88b6e56802138c",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "ko",
+      "displayType": "APP_IPHONE_61",
+      "file": "mobile/store/screenshots/iphone/03-start.png",
+      "bytes": 169028,
+      "md5": "84a1fb561c131afe80e5f6955589ffbe",
+      "sha256": "c3e3d6f3b8a32479fb8598ecbc1d684000618dd59c42d55287204d3e61b0bdcd",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "ko",
+      "displayType": "APP_IPHONE_61",
+      "file": "mobile/store/screenshots/iphone/04-repeat.png",
+      "bytes": 217000,
+      "md5": "fa52e0b20f7369b587541d927c49d908",
+      "sha256": "21926b277731c1487cb279cf7a9fa02a62e32f6059313a07d77881c900b55446",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "ko",
+      "displayType": "APP_IPHONE_61",
+      "file": "mobile/store/screenshots/iphone/05-stats-detail.png",
+      "bytes": 198566,
+      "md5": "34c4afe471b6f092a92978d7af281e35",
+      "sha256": "b8f7a7288d56fdfd405b52b6f3b33ff2b867c06370271b7389ca67f0422673c7",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "ko",
+      "displayType": "APP_IPHONE_61",
+      "file": "mobile/store/screenshots/iphone/06-stats.png",
+      "bytes": 197073,
+      "md5": "23e7af3bd5ccef181a98ba44ce50685d",
+      "sha256": "78d1d997ff434a71db2a80c9e755dd3694e067f4d4cf3dc60cfe6157ba8311b1",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "ko",
+      "displayType": "APP_IPHONE_61",
+      "file": "mobile/store/screenshots/iphone/07-privacy.png",
+      "bytes": 219962,
+      "md5": "840661d10b86e2d95cee82b9b610b0a7",
+      "sha256": "75278de597953120a5c48a911d6123cac1ef82b3936f8aad4fcd423140dd8ad6",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "ko",
+      "displayType": "APP_IPAD_PRO_3GEN_129",
+      "file": "mobile/store/screenshots/ipad/01-calendar.png",
+      "bytes": 428648,
+      "md5": "abc68b669444669c2eac5d0713639ddf",
+      "sha256": "f0ff8d129b395c7fae1c9db5a4854cb0c41f88b0567b82b7f2f724eb23009afa",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "ko",
+      "displayType": "APP_IPAD_PRO_3GEN_129",
+      "file": "mobile/store/screenshots/ipad/02-overdue.png",
+      "bytes": 382104,
+      "md5": "0d272d66b176c1e28820ab3f262ed598",
+      "sha256": "49536b4c245d6dd9259610f26abe5cadd72f6ccf73ff1d2cac06b429a663e37b",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "ko",
+      "displayType": "APP_IPAD_PRO_3GEN_129",
+      "file": "mobile/store/screenshots/ipad/03-start.png",
+      "bytes": 307133,
+      "md5": "9fc7a2aaed4d44d86cf81a218767d4e5",
+      "sha256": "3e9041d6ec54b00b0ba1379531d5730446cc617aadec387258a42ee9c171da98",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "ko",
+      "displayType": "APP_IPAD_PRO_3GEN_129",
+      "file": "mobile/store/screenshots/ipad/04-repeat.png",
+      "bytes": 255472,
+      "md5": "ab818733f6512db68dd76e3a1f15cac0",
+      "sha256": "5611fa4f217465c3d3ad2b00a66320a96374b6d94199055b217a6c912685d924",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "ko",
+      "displayType": "APP_IPAD_PRO_3GEN_129",
+      "file": "mobile/store/screenshots/ipad/05-stats-detail.png",
+      "bytes": 221931,
+      "md5": "46bac1490049ed6b97f3c8172f2fe25a",
+      "sha256": "5299215f36839ee6acaae6598a4476c1292f31d04a596300d4cb50ad9cacc328",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "ko",
+      "displayType": "APP_IPAD_PRO_3GEN_129",
+      "file": "mobile/store/screenshots/ipad/06-stats.png",
+      "bytes": 239330,
+      "md5": "23a0f8c9119ee16cd65530f545bc1502",
+      "sha256": "0ed9ec9ddeb873f629140ba522dfbb163ceb0647c708e1f8de4d2d10f68ee702",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "ko",
+      "displayType": "APP_IPAD_PRO_3GEN_129",
+      "file": "mobile/store/screenshots/ipad/07-privacy.png",
+      "bytes": 232227,
+      "md5": "0d768c0d944d3cda82681914f544a525",
+      "sha256": "7b6e388258a83f921c5462f2526e3757c01d4ff5616d216989f538e168b107ad",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "en-US",
+      "displayType": "APP_IPAD_PRO_3GEN_129",
+      "file": "mobile/store/screenshots/en/ipad/01-calendar.png",
+      "bytes": 499710,
+      "md5": "d487ab50d01323b1673857c7df7c8dd2",
+      "sha256": "a2ff1c10e885326c90fc9d011bc828a58d8ac874157b1456f2320ae2672dc8b3",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "en-US",
+      "displayType": "APP_IPAD_PRO_3GEN_129",
+      "file": "mobile/store/screenshots/en/ipad/02-overdue.png",
+      "bytes": 440618,
+      "md5": "9bf4a5614e0324b40ec60da69395970c",
+      "sha256": "2541dee81aceb854aa7cbee9b2442904083a3539106a735735f7fad968e585f2",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "en-US",
+      "displayType": "APP_IPAD_PRO_3GEN_129",
+      "file": "mobile/store/screenshots/en/ipad/03-start.png",
+      "bytes": 362497,
+      "md5": "a339458d9a1b41f418f8fc1134875e38",
+      "sha256": "cb3f550090b29ea013365a3fd8585f4e391e577d5457a5dfa5ba6f2384f54253",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "en-US",
+      "displayType": "APP_IPAD_PRO_3GEN_129",
+      "file": "mobile/store/screenshots/en/ipad/04-repeat.png",
+      "bytes": 310125,
+      "md5": "c01ff3c1b2394bcfef2531e3529aafed",
+      "sha256": "d9af0e4cd43f91a8ab2631442800d6f678a1cf152df3844be7b58c38ca687cb0",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "en-US",
+      "displayType": "APP_IPAD_PRO_3GEN_129",
+      "file": "mobile/store/screenshots/en/ipad/05-stats-detail.png",
+      "bytes": 256638,
+      "md5": "5adfd7cdda493e625a5be4c7e510faa7",
+      "sha256": "2d6e7e11b04fa1a41e7039571c75659b6791df591537dbc5ebf3242a532d6c4f",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "en-US",
+      "displayType": "APP_IPAD_PRO_3GEN_129",
+      "file": "mobile/store/screenshots/en/ipad/06-stats.png",
+      "bytes": 273868,
+      "md5": "9bc5c22ecf47dbc18e795c3dcc21e61c",
+      "sha256": "14feee3946138701fda77d0d580a8c8d002aa0377dd0a24d37dadc030b985c95",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "en-US",
+      "displayType": "APP_IPAD_PRO_3GEN_129",
+      "file": "mobile/store/screenshots/en/ipad/07-privacy.png",
+      "bytes": 277936,
+      "md5": "14e6e620e7e459f738fbc51a7daf2cc8",
+      "sha256": "ccb6a4cbff6dbb9af9fb9ce4d286f75406dd698f69af18c1f6c13b726d747e42",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "en-US",
+      "displayType": "APP_IPHONE_61",
+      "file": "mobile/store/screenshots/en/iphone/01-calendar.png",
+      "bytes": 453558,
+      "md5": "056f6c7d9d578d4b38b3da4f9bc028b4",
+      "sha256": "1ea6bc69ff275c17144633e092908abc2060e05379d21189187cd838ea3531a7",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "en-US",
+      "displayType": "APP_IPHONE_61",
+      "file": "mobile/store/screenshots/en/iphone/02-overdue.png",
+      "bytes": 214838,
+      "md5": "554b4c1b639431001884404e2055eeee",
+      "sha256": "163e59ccaf4f8ce6ae1ab2d22ebf57fb9d1edbebe598d9fd6f50cd3a38ea7b23",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "en-US",
+      "displayType": "APP_IPHONE_61",
+      "file": "mobile/store/screenshots/en/iphone/03-start.png",
+      "bytes": 189676,
+      "md5": "15c59b72746dc71e46c364d39267fbd8",
+      "sha256": "23a089bcfb9551e167bdf8077d4b4f7190c47a48007fa4a1ca398aa0144f3298",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "en-US",
+      "displayType": "APP_IPHONE_61",
+      "file": "mobile/store/screenshots/en/iphone/04-repeat.png",
+      "bytes": 257927,
+      "md5": "35494a979a52e8b8cdf8cd01388d9e3f",
+      "sha256": "a98704d1100babb7e3f0c4987a46d507caa0cbff311d059d5210f40b3570b6a7",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "en-US",
+      "displayType": "APP_IPHONE_61",
+      "file": "mobile/store/screenshots/en/iphone/05-stats-detail.png",
+      "bytes": 231034,
+      "md5": "76033bbc9886c042fa3fc99a5dbc3fb5",
+      "sha256": "ca818cc57ca1c6d11c4de9009206ec242bc39e534730cb6fd79388ccb273d4d4",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "en-US",
+      "displayType": "APP_IPHONE_61",
+      "file": "mobile/store/screenshots/en/iphone/06-stats.png",
+      "bytes": 226610,
+      "md5": "0781eec91abf84230495504c2de1ee53",
+      "sha256": "06ae9a3ebea17f722ac3fb7d2e6568e6efe932953cf78b52093ff6cecbd04fca",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "en-US",
+      "displayType": "APP_IPHONE_61",
+      "file": "mobile/store/screenshots/en/iphone/07-privacy.png",
+      "bytes": 279972,
+      "md5": "339b284e6be25791d49fc8452c4e142c",
+      "sha256": "1d537baae05bce1437cd3f8f7fad501bd444bd58fe03457ad559845ad4911107",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "en-US",
+      "displayType": "APP_IPHONE_67",
+      "file": "mobile/store/screenshots/en/iphone-large/01-calendar.png",
+      "bytes": 492347,
+      "md5": "4408431289ef7d4b28f00ada30bb700b",
+      "sha256": "8163620316eca154d19d20734710228d88a1c7498d490f9a6dd3835ed99d2372",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "en-US",
+      "displayType": "APP_IPHONE_67",
+      "file": "mobile/store/screenshots/en/iphone-large/02-overdue.png",
+      "bytes": 228977,
+      "md5": "c8b00dfb30899c8b9893c25c9faa7c7a",
+      "sha256": "fbc7dd9a33ba5b715186dbc0a37c4da39d355f67944ed970ebc75476bc37a7a1",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "en-US",
+      "displayType": "APP_IPHONE_67",
+      "file": "mobile/store/screenshots/en/iphone-large/03-start.png",
+      "bytes": 265386,
+      "md5": "5fe896b73149fc437d592ce85b00e9d4",
+      "sha256": "794b8943e27519584aab4c841a7226642bd0c52c93922d9a9c2884850d3adc3a",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "en-US",
+      "displayType": "APP_IPHONE_67",
+      "file": "mobile/store/screenshots/en/iphone-large/04-repeat.png",
+      "bytes": 314371,
+      "md5": "bd5ebd126eed878e9dd0bc33ecdd411d",
+      "sha256": "b4bd6a8cc00616388d32763d2eec537d2c4f31533d699dccac4f4b2a5d4f498a",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "en-US",
+      "displayType": "APP_IPHONE_67",
+      "file": "mobile/store/screenshots/en/iphone-large/05-stats-detail.png",
+      "bytes": 248571,
+      "md5": "f4d16f3ce02b549f89bc2bf937bf9d32",
+      "sha256": "c8dff29123424a773f2096839dd68d503e71a39c2f1cf773a4a3e52b54a86ca8",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "en-US",
+      "displayType": "APP_IPHONE_67",
+      "file": "mobile/store/screenshots/en/iphone-large/06-stats.png",
+      "bytes": 311417,
+      "md5": "ae6b2e249d02d5beadfe5e4cd02ff207",
+      "sha256": "e178ef023e18a44173d0ea7caa34a4605e5a95b1ca6e490fbdabb1290e8e6c8a",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    },
+    {
+      "locale": "en-US",
+      "displayType": "APP_IPHONE_67",
+      "file": "mobile/store/screenshots/en/iphone-large/07-privacy.png",
+      "bytes": 320962,
+      "md5": "c01d5ca7de943e7a2685a143a799eac3",
+      "sha256": "44731058a835c7435af2c9f7442f8a3a92d21a2f346bf30b91237bc8d0b920c4",
+      "appleState": "COMPLETE",
+      "appleChecksumMatchesLocal": true
+    }
+  ],
+  "publicSite": {
+    "status": "DEPLOYED_VERIFIED",
+    "sourceCommit": "c73c829b7848f8f752d33ed4afcc8f9c1e229c39",
+    "runId": 41822816644,
+    "runUrl": "https://github.com/dabok407/to-do-list/actions/runs/41822816644",
+    "pagesVerified": 6,
+    "exactBytesAndSha256Match": true,
+    "remoteVerificationEvidence": "Prepared release record: prior root-agent HTTP and SHA-256 comparison; this recorder makes no network requests.",
+    "localFilesRecheckedAgainstDeploymentCommit": true,
+    "files": [
+      {
+        "file": "mobile/store/site/index.html",
+        "url": "https://dabok407.github.io/to-do-list/index.html",
+        "bytes": 10325,
+        "sha256": "b7dab3d553fb35c530ec2760fbf09e9ed943cf7f435f370f6e403cefc2cdea54",
+        "matchesDeploymentCommit": true
+      },
+      {
+        "file": "mobile/store/site/index-en.html",
+        "url": "https://dabok407.github.io/to-do-list/index-en.html",
+        "bytes": 9416,
+        "sha256": "88525c9480007144f7ec9d93b737d4a46473c043798943d5c2905fd6bc756a84",
+        "matchesDeploymentCommit": true
+      },
+      {
+        "file": "mobile/store/site/support.html",
+        "url": "https://dabok407.github.io/to-do-list/support.html",
+        "bytes": 10318,
+        "sha256": "3d6f78f66d31ee382ac9fea3dc69fa3b8937870a1918d9a12b64b0a8fe82854b",
+        "matchesDeploymentCommit": true
+      },
+      {
+        "file": "mobile/store/site/support-en.html",
+        "url": "https://dabok407.github.io/to-do-list/support-en.html",
+        "bytes": 9410,
+        "sha256": "48824cc7c2d94ee20927286da1f8f4224d2f77ae9146fb5207737ec87054ef26",
+        "matchesDeploymentCommit": true
+      },
+      {
+        "file": "mobile/store/site/privacy.html",
+        "url": "https://dabok407.github.io/to-do-list/privacy.html",
+        "bytes": 10376,
+        "sha256": "6848e9ee29f7a391db385ce44d6da5351e1fce1b5ee9654a3f735a62e78039b8",
+        "matchesDeploymentCommit": true
+      },
+      {
+        "file": "mobile/store/site/privacy-en.html",
+        "url": "https://dabok407.github.io/to-do-list/privacy-en.html",
+        "bytes": 9388,
+        "sha256": "88ed1af30b7a74c5d382548ca8fc5850b646e3ed080c237be0515ce314e215bd",
+        "matchesDeploymentCommit": true
+      }
+    ]
+  },
+  "testflightReadyForOwner": true,
+  "allPlatformQaPassed": true,
+  "ipaSha256": "6ce59affd29ba88315f2ade2ca11a6dfb2c310cea0f0ce12a9d2758b983de8c9",
+  "originalIpaRebuiltResignedOrReuploaded": false,
+  "storeKitPurchaseVerifiedByThisWork": false,
+  "googleAccountWorkRemainsOnHold": true,
+  "privateContactsOrDocumentsIncluded": false
+}

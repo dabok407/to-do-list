@@ -1,6 +1,17 @@
 # 투두닉(Todoniq): Windows에서 iPhone TestFlight 빌드 준비하기
 
-## 현재 — 1.0.3 (1403) 본인 TestFlight 업데이트 가능 (2026-11-03)
+<!-- app-store-1.0.3-1403-submission -->
+## 현재 — 1.0.3 (1403) App Store 업데이트 심사 접수 (2026-11-04)
+
+**2026-11-04 21:07 KST**, iOS **1.0.3 (1403)** 업데이트를 제출했다. 제출 후 Apple API에서 **WAITING_FOR_REVIEW / AFTER_APPROVAL**과 선택 빌드 **1403**을 확인했다. 제출 ID는 `3d2aee2b-f0cd-43a4-a30e-627ae745dc84`다. 심사 승인과 공개 출시 완료는 아직 확인되지 않았다.
+
+한국어·영어 소개글·새로운 기능·키워드와 공통 심사 메모를 준비 자료와 대조했다. 중형·대형 iPhone·iPad의 한영 **42장**은 모두 **COMPLETE**, 파일 순서·크기·MD5·로컬 SHA-256이 일치한다. 실제 1403 앱 위젯으로 화면을 다시 렌더했으며, 이는 물리 기기 스크린샷과 구분한다. 원본 1403 IPA는 재빌드·재서명·재업로드하지 않았다.
+
+백업·복원 안내를 포함한 공개 지원·개인정보 페이지 **6개**는 [사이트 배포 41822816644](https://github.com/dabok407/to-do-list/actions/runs/41822816644)의 배포 파일과 SHA-256 대조를 마쳤다. 본인 TestFlight 제공을 유지하며 Google 계정 작업은 보류한다. 실제 StoreKit 구매 성공을 이번 등록 검증의 결과로 주장하지 않는다. [공개 심사 접수 기록](store/review/app-store-1.0.3-1403.json), [등록 자료](store/review/update-2026-11-04.json)를 따른다.
+
+아래 내용은 각 날짜의 이전 이력이며, 현재 제출 상태는 위 1.0.3 기록을 우선한다.
+
+## 이전 — 1.0.3 (1403) 본인 TestFlight 업데이트 가능 (2026-11-03)
 
 **2026-11-03 15:07 KST**, Apple의 **VALID / expired=false / usesNonExemptEncryption=false / IN_BETA_TESTING**과 기존 **Todoniq Owner** 그룹 연결을 확인했다. iPhone에서 **TestFlight → 투두닉 → 업데이트**를 누르고 **1.0.3 (1403)**을 확인한다. 기존 10개 빌드 연결을 유지하고 새 빌드만 추가했다. 공개 App Store 심사나 외부 그룹은 변경하지 않았다.
 
