@@ -19,7 +19,7 @@
       "width": 1320,
       "height": 2868,
       "label": "아이폰 · 대형",
-      "sourceDevice": "iphone"
+      "sourceDevice": "iphone-large"
     },
     "ipad": {
       "width": 2064,
@@ -50,8 +50,8 @@
         "title": "나만의 할 일, 투두닉",
         "sub": "회원가입 없이, 일정은 내 기기에만",
         "access": "캘린더 · 기본 기능",
-        "sha256": "0104f44bd7cfa9e1d9c0b2cfdecae18e2bc1f974bec564d9ca49d26317e6e87e",
-        "capture_sha256": "70ebe7e23f3f7be724f982189edcda3a16609681c075656fca3c03c740ff35de"
+        "sha256": "2c2d52a974f680f4da208f70352113e4b774667dd937485dcb35ef43218d7165",
+        "capture_sha256": "95ac9387825b822be0db5b4e1a65f7029927ab07c899466fd4c6acd0b29aed66"
       },
       {
         "out": "02-overdue",
@@ -60,8 +60,8 @@
         "sub": "남은 일을 모아 보고, 원하는 주기로 다시 알림",
         "access": "Pro · 구독 필요",
         "pro": true,
-        "sha256": "3176c819beb7647ea8ad504b21c836814b75d0938a97f92f973fa3f4b319c60f",
-        "capture_sha256": "35f03d686d25a81bdd519baaf0f545b1faff656d9b4e275dd3c11c5b678f95ba"
+        "sha256": "aa77001aade20ddc8c09dc4588ccc085030da4e12f8423dd6a88b6e56802138c",
+        "capture_sha256": "8a3cb8dac473a7d5e559980c16a9d396863df636f9ff296688dcceee9aebe60d"
       },
       {
         "out": "03-start",
@@ -70,8 +70,8 @@
         "sub": "미루던 일도 작은 첫걸음부터",
         "access": "Pro · 구독 필요",
         "pro": true,
-        "sha256": "691792c0e0809b528dd417103c77e4691596ce8e6346520df032ed7ceb42d2f5",
-        "capture_sha256": "64d4df6bf37d201158f7ebf5a7ec6a4f2c0da199a70e9582bf78eb5ebfae7edc"
+        "sha256": "c3e3d6f3b8a32479fb8598ecbc1d684000618dd59c42d55287204d3e61b0bdcd",
+        "capture_sha256": "f94fa6860cf7d04126714be6c312d6ced967d67c6f0554382df0ec257ed14de9"
       },
       {
         "out": "04-repeat",
@@ -79,8 +79,8 @@
         "title": "반복 일정은\n내 생활에 맞게",
         "sub": "요일과 주기, 시작일과 종료일까지",
         "access": "반복 일정 · 기본 기능",
-        "sha256": "a1117682a6a935965ef6756f05d53302495c6b7d4de9ff3c7ce7bc543022eaf3",
-        "capture_sha256": "ab9f3676319c3cdef299bc36af3daca710645f8eb167d3e8fa001c8c44c73494"
+        "sha256": "21926b277731c1487cb279cf7a9fa02a62e32f6059313a07d77881c900b55446",
+        "capture_sha256": "016e3b1775a9ebb8bb01a004bf54be26aa1621534424cf3cb2a30394cb53e828"
       },
       {
         "out": "05-stats-detail",
@@ -89,8 +89,8 @@
         "sub": "기간을 골라 분류별 완료 비중을 확인해요",
         "access": "Pro · 구독 필요",
         "pro": true,
-        "sha256": "ccccc6c23d9901c3d16192d0a9e9dedcf9dd93263b7d04d28fec31120b0e8611",
-        "capture_sha256": "e530156426e10f55a022bf64e8c7199cd67d79ec6e910545b930732b33101bb9"
+        "sha256": "b8f7a7288d56fdfd405b52b6f3b33ff2b867c06370271b7389ca67f0422673c7",
+        "capture_sha256": "18405fe047075557d0eaffe812cfa378f5371ef184b0bc8a588dad4f125e7266"
       },
       {
         "out": "06-stats",
@@ -99,8 +99,8 @@
         "sub": "우선순위별 완료율과 실행 기록을 한눈에",
         "access": "Pro · 구독 필요",
         "pro": true,
-        "sha256": "c199a1a6584312ea3d5d22d4e824bfff63fc8cca08652ba7ce80cc9db30e4c35",
-        "capture_sha256": "e677c36d36ccca873ae4ddd33f5ef386bbab33387484a96c5afd041f84fc91b1"
+        "sha256": "78d1d997ff434a71db2a80c9e755dd3694e067f4d4cf3dc60cfe6157ba8311b1",
+        "capture_sha256": "d18b0740f412534568fc90a4005cb798deea55432ed7161a46d0c2c5f496397f"
       },
       {
         "out": "07-privacy",
@@ -108,8 +108,8 @@
         "title": "내 일정은\n내 기기에",
         "sub": "회원가입 없이, 할 일과 메모를 로컬에 저장",
         "access": "할 일·메모를 개발자 서버로 보내지 않아요",
-        "sha256": "3b56102d52664a490e3bfe325672e21fcefdc68230e0254c4f6abd52c440815e",
-        "capture_sha256": "7b5d4e854ff8a3fdcdfc96064fef65a83b82abaf66d6790a2b7ae837cb83a204"
+        "sha256": "75278de597953120a5c48a911d6123cac1ef82b3936f8aad4fcd423140dd8ad6",
+        "capture_sha256": "560c8784911790967416af0e2fc2a71ba5b29d81a0d9c358a429be82a026d1c5"
       }
     ],
     "iphone-large": [
@@ -119,8 +119,8 @@
         "title": "나만의 할 일, 투두닉",
         "sub": "회원가입 없이, 일정은 내 기기에만",
         "access": "캘린더 · 기본 기능",
-        "sha256": "1f8e88298747de9f1ccbb105a5f848bf845b36ea1fad768c7dcb9369d3fe1289",
-        "capture_sha256": "70ebe7e23f3f7be724f982189edcda3a16609681c075656fca3c03c740ff35de"
+        "sha256": "418260162b1d5d1a2d50553bff4ccd6187f39a3e7e9539e8f4e1d973ec82b671",
+        "capture_sha256": "cee60ad5fa9860d9bfca942d71f328e780423f73588d11e5d76dfd24afc04498"
       },
       {
         "out": "02-overdue",
@@ -129,8 +129,8 @@
         "sub": "남은 일을 모아 보고, 원하는 주기로 다시 알림",
         "access": "Pro · 구독 필요",
         "pro": true,
-        "sha256": "fb8f847fe68d5c670e8ca27a09a5b71d4741b22d046089a5c75b257a205c0243",
-        "capture_sha256": "35f03d686d25a81bdd519baaf0f545b1faff656d9b4e275dd3c11c5b678f95ba"
+        "sha256": "92b06f31fba2ac25172aa43b7cc1cf973a7c77d6800846270bb9aaed992977de",
+        "capture_sha256": "fb4e2ba8c3630070a961907d71468cf6868baffc62c7f4ee79dba45b948a8d6d"
       },
       {
         "out": "03-start",
@@ -139,8 +139,8 @@
         "sub": "미루던 일도 작은 첫걸음부터",
         "access": "Pro · 구독 필요",
         "pro": true,
-        "sha256": "a6b8b1717fcaff4c49d27975491d9210aaaf0bf0a8ea55c6395d0bc888885cd8",
-        "capture_sha256": "64d4df6bf37d201158f7ebf5a7ec6a4f2c0da199a70e9582bf78eb5ebfae7edc"
+        "sha256": "de351f0ff371b27e559423b80dccad0920eaeb058830548b2bcdce2654bc2a02",
+        "capture_sha256": "9fa25274665a3bfad4b48304ff4b1d4f48972b8453be925d1f1e04caf9ac7c4c"
       },
       {
         "out": "04-repeat",
@@ -148,8 +148,8 @@
         "title": "반복 일정은\n내 생활에 맞게",
         "sub": "요일과 주기, 시작일과 종료일까지",
         "access": "반복 일정 · 기본 기능",
-        "sha256": "3649c1be403ca0e65e8c58b5e51e48165b6f8e43b1f9d8e77ee0371414b10527",
-        "capture_sha256": "ab9f3676319c3cdef299bc36af3daca710645f8eb167d3e8fa001c8c44c73494"
+        "sha256": "4874b2ff3e1cc20070b9a093d9b4567ffcaf7b650b9fb717fc5b1e4eb01fd10a",
+        "capture_sha256": "4d7bf2e4b95a4d991ed846c3ecde9ab8c63a1afe6f1c11e430c911bd1677a71e"
       },
       {
         "out": "05-stats-detail",
@@ -158,8 +158,8 @@
         "sub": "기간을 골라 분류별 완료 비중을 확인해요",
         "access": "Pro · 구독 필요",
         "pro": true,
-        "sha256": "e8bb58c7f88c885b172e403e2b25fc56dc3d1042564d23f11107c8313d840c53",
-        "capture_sha256": "e530156426e10f55a022bf64e8c7199cd67d79ec6e910545b930732b33101bb9"
+        "sha256": "e2165c943d9bae91ebab5ad66ba7f9f53359e8553e0f7306f3d56f43f8f1450e",
+        "capture_sha256": "0d31026edc7b67edf0446135d08326615bbb2b8423e0e6816d44708508dd8a88"
       },
       {
         "out": "06-stats",
@@ -168,8 +168,8 @@
         "sub": "우선순위별 완료율과 실행 기록을 한눈에",
         "access": "Pro · 구독 필요",
         "pro": true,
-        "sha256": "beb84cdd23abccfa184bdc5c83571f0cb7d56204455838b42ad3c310c45de7db",
-        "capture_sha256": "e677c36d36ccca873ae4ddd33f5ef386bbab33387484a96c5afd041f84fc91b1"
+        "sha256": "2b9a2ad8d63c54cffaf0ec80af91e36234e41a7f5aa97eadea8f184801e5c49d",
+        "capture_sha256": "48641a4455ba83c7b33a266ebe7e1aeefa070dec340650514ef476390172244b"
       },
       {
         "out": "07-privacy",
@@ -177,8 +177,8 @@
         "title": "내 일정은\n내 기기에",
         "sub": "회원가입 없이, 할 일과 메모를 로컬에 저장",
         "access": "할 일·메모를 개발자 서버로 보내지 않아요",
-        "sha256": "458f365cd814d38b9ccaf59ae4eba1eb01f27b746377145b3fa7acf30d6d644a",
-        "capture_sha256": "7b5d4e854ff8a3fdcdfc96064fef65a83b82abaf66d6790a2b7ae837cb83a204"
+        "sha256": "31943353f6a127a6ce54e939caa916bb73147d245d005e976393e1feb3bf6dae",
+        "capture_sha256": "0c0bba41e77a4d48724b5ea508bf88c2d7b8011b8c02c3684cde7e91d35451fd"
       }
     ],
     "ipad": [
@@ -188,8 +188,8 @@
         "title": "나만의 할 일, 투두닉",
         "sub": "회원가입 없이, 일정은 내 기기에만",
         "access": "캘린더 · 기본 기능",
-        "sha256": "8522d39dd7030dca44829fff1853f4c1e6da5183998941669cd0a7ffbe7e8dda",
-        "capture_sha256": "d95ed618805b7e1ae4918322200cc2de1b87c89ecf02915ea6ddb9118ae43502"
+        "sha256": "f0ff8d129b395c7fae1c9db5a4854cb0c41f88b0567b82b7f2f724eb23009afa",
+        "capture_sha256": "ba2d7361782dd0cedef9b68f4f0f736e853ccf10666ea449d02f50b0a03cfa43"
       },
       {
         "out": "02-overdue",
@@ -198,8 +198,8 @@
         "sub": "남은 일을 모아 보고, 원하는 주기로 다시 알림",
         "access": "Pro · 구독 필요",
         "pro": true,
-        "sha256": "8476f7cec86ad42c2952c83e732c884f9d7f1e000441737011421a015c2569c8",
-        "capture_sha256": "9304edd1b79cc623b7ee6940c6c6c31fac8c458602672a8b7001e037a5fff09a"
+        "sha256": "49536b4c245d6dd9259610f26abe5cadd72f6ccf73ff1d2cac06b429a663e37b",
+        "capture_sha256": "6d4d34ef8eee820c8cddf73d1988acd35d3ec60bdfa006dbf7155f63fb36ae03"
       },
       {
         "out": "03-start",
@@ -208,8 +208,8 @@
         "sub": "미루던 일도 작은 첫걸음부터",
         "access": "Pro · 구독 필요",
         "pro": true,
-        "sha256": "15b914f39b97543e460b01c57c105ae235854089765aafb528aa3dcd80120cad",
-        "capture_sha256": "5e9d6e9dfe49b798d81e01565aff90d7a6ffabe417f73102dafeff0e98b5142a"
+        "sha256": "3e9041d6ec54b00b0ba1379531d5730446cc617aadec387258a42ee9c171da98",
+        "capture_sha256": "6cf4602f60aedb82813909d4687e62db2108416dd362315a8536c15aaefafecd"
       },
       {
         "out": "04-repeat",
@@ -217,8 +217,8 @@
         "title": "반복 일정은\n내 생활에 맞게",
         "sub": "요일과 주기, 시작일과 종료일까지",
         "access": "반복 일정 · 기본 기능",
-        "sha256": "16ce767024c83e6d4093c1898d860c7b4eb7d8c43ba117291daec5754548df2d",
-        "capture_sha256": "0130d5a2bd113ad10661a5796049188824376e664ad689c3f7d9d95dddd1eb93"
+        "sha256": "5611fa4f217465c3d3ad2b00a66320a96374b6d94199055b217a6c912685d924",
+        "capture_sha256": "dd0c2c1ad1c1629e05cc210f78d9db6b2f15a5ed4dcc272454cf2da49ff8345b"
       },
       {
         "out": "05-stats-detail",
@@ -227,8 +227,8 @@
         "sub": "기간을 골라 분류별 완료 비중을 확인해요",
         "access": "Pro · 구독 필요",
         "pro": true,
-        "sha256": "0838963ed142ac155f51690ae31aa7fcd3803f70f2e3c43244e7a26da6fc43c0",
-        "capture_sha256": "bc0f018c47e34d919950a737a9f01cde36a584c504858d8ac9610db7ddb6aea9"
+        "sha256": "5299215f36839ee6acaae6598a4476c1292f31d04a596300d4cb50ad9cacc328",
+        "capture_sha256": "eeabb600f492640d2aec599f78df0e78f8de735b192ec0ecda20bb372f8eee97"
       },
       {
         "out": "06-stats",
@@ -237,8 +237,8 @@
         "sub": "우선순위별 완료율과 실행 기록을 한눈에",
         "access": "Pro · 구독 필요",
         "pro": true,
-        "sha256": "5c6dd1505070bfeb9e0b4a6630d8e548d28acd8e231f0c49e91cad767c7cba08",
-        "capture_sha256": "be0f50ba541fb0f768042beddc30233f949ddc611705750c29cc2733111866bd"
+        "sha256": "0ed9ec9ddeb873f629140ba522dfbb163ceb0647c708e1f8de4d2d10f68ee702",
+        "capture_sha256": "1b0da5e73fef43d3d00104eeeb2258458a92d9c59d8d9fc5ee200296391be991"
       },
       {
         "out": "07-privacy",
@@ -246,8 +246,8 @@
         "title": "내 일정은\n내 기기에",
         "sub": "회원가입 없이, 할 일과 메모를 로컬에 저장",
         "access": "할 일·메모를 개발자 서버로 보내지 않아요",
-        "sha256": "6cb6b561db9f9f62ba6f55e9fbf537c080f5469ff0c932f7c815ee0d4fa41b2d",
-        "capture_sha256": "f1ceb8c2e86063e63b476c53c29a8273a61ad6cb43794b11d483a7e2426d1b30"
+        "sha256": "7b6e388258a83f921c5462f2526e3757c01d4ff5616d216989f538e168b107ad",
+        "capture_sha256": "56bdd638449bf9056e5ffcec4b81640fc783d4be6e6d3b624ecb84f10e4b2fb6"
       }
     ]
   }

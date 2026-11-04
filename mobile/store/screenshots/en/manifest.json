@@ -19,7 +19,7 @@
       "width": 1320,
       "height": 2868,
       "label": "iPhone · large",
-      "sourceDevice": "iphone"
+      "sourceDevice": "iphone-large"
     },
     "ipad": {
       "width": 2064,
@@ -50,8 +50,8 @@
         "title": "Your tasks. Your way.",
         "sub": "No account. Your plans stay on your device.",
         "access": "Calendar · Basic features",
-        "sha256": "197f144dc963d8501da48f1975d236f76b8fb8f2bb693d5bd6fecbb7d05ec33d",
-        "capture_sha256": "63972cb3e5ca3623e247c85c45b2587fb610b43ead6e5240c0fa9ac2b93e4aae"
+        "sha256": "1ea6bc69ff275c17144633e092908abc2060e05379d21189187cd838ea3531a7",
+        "capture_sha256": "1729a22062d8e2a660cc190b4e28a6d699c498318a26069feb9b976b98bc64b3"
       },
       {
         "out": "02-overdue",
@@ -60,8 +60,8 @@
         "sub": "See what is left, with reminders on your schedule",
         "access": "Pro · Subscription required",
         "pro": true,
-        "sha256": "0df29857bab2aff3f7bd3bed4634280a00bebf32ca29b3f76c7db518ef31c53d",
-        "capture_sha256": "af2ab425042cfc9d4705bfa90dafd6275877c25d5501701e9ea59df10f750156"
+        "sha256": "163e59ccaf4f8ce6ae1ab2d22ebf57fb9d1edbebe598d9fd6f50cd3a38ea7b23",
+        "capture_sha256": "8fb095bc6f09533b8af9e7795ffbf600207632a194468948287c8751eb4a0aa3"
       },
       {
         "out": "03-start",
@@ -70,8 +70,8 @@
         "sub": "Make the first step easier",
         "access": "Pro · Subscription required",
         "pro": true,
-        "sha256": "be4357e38ca1bf0707cc6abfd845872b2933ed6c284ccb41c93ab742014e1ae1",
-        "capture_sha256": "ef4edb43218a8f73731dfdc1827881acc79e0635c817276d527c94a8b50d43e8"
+        "sha256": "23a089bcfb9551e167bdf8077d4b4f7190c47a48007fa4a1ca398aa0144f3298",
+        "capture_sha256": "3b873aa7138e62c02b9c85ff842f55ef78072d42eb75f81b1fd535cc274ca2b9"
       },
       {
         "out": "04-repeat",
@@ -79,8 +79,8 @@
         "title": "Routines that fit\nyour life",
         "sub": "Choose days, intervals, and an end date",
         "access": "Repeating tasks · Basic features",
-        "sha256": "3becd83635d5913e3d8a7f0736e2c5a09b486990ca2b66408bd972e376d95c86",
-        "capture_sha256": "65dfdde52e87ba1696f3f22c4c0eea4fab2469071d18d13c7d8dfa922da667c9"
+        "sha256": "a98704d1100babb7e3f0c4987a46d507caa0cbff311d059d5210f40b3570b6a7",
+        "capture_sha256": "0d077ed3a1d6561e375b237eb832ee10e8771cf595483e5ef7d7e68c40625172"
       },
       {
         "out": "05-stats-detail",
@@ -89,8 +89,8 @@
         "sub": "Choose a period to compare completed categories",
         "access": "Pro · Subscription required",
         "pro": true,
-        "sha256": "f13b0a8bcf5d19f08314894f723c498294e4c0282342b64e60600ab91f9366d6",
-        "capture_sha256": "9b943a595a41acecdf4c4b401c6f92c28e3d38679e93216a484c22628a51e76e"
+        "sha256": "ca818cc57ca1c6d11c4de9009206ec242bc39e534730cb6fd79388ccb273d4d4",
+        "capture_sha256": "3ae4980d6abf915d3d930a87c3c09296ab27fe5744a348c3e30a92ec5dd41748"
       },
       {
         "out": "06-stats",
@@ -99,8 +99,8 @@
         "sub": "Completion rates by priority and activity records",
         "access": "Pro · Subscription required",
         "pro": true,
-        "sha256": "6824945d30bd14a364a2f04802cc65b1972629601b3e8b2d6cec61ffa329afd0",
-        "capture_sha256": "334de04640835c07ae497440c0ec1b17eb320c367237779aaf4324b8c5d75cb1"
+        "sha256": "06ae9a3ebea17f722ac3fb7d2e6568e6efe932953cf78b52093ff6cecbd04fca",
+        "capture_sha256": "ba95537caa4b5d366ac808cef80ab210de92284cb00a24fd72499c39d67dc9e0"
       },
       {
         "out": "07-privacy",
@@ -108,8 +108,8 @@
         "title": "Your plans stay\non your device",
         "sub": "No account. Tasks and notes are saved locally.",
         "access": "Tasks and notes are not sent to a developer server",
-        "sha256": "f37285deda79be80819fbdfd1934a359602eb1cb8c68dcdadb0d2792495d2e58",
-        "capture_sha256": "ae9099095f96f1abd4ceca3bde3812f4050739e254736ec37db7b61d7cb47012"
+        "sha256": "1d537baae05bce1437cd3f8f7fad501bd444bd58fe03457ad559845ad4911107",
+        "capture_sha256": "0eaddfe3970e0c29e3137197a1fedfc87f2a0f7c5073b3e13f699f0fe476759e"
       }
     ],
     "iphone-large": [
@@ -119,8 +119,8 @@
         "title": "Your tasks. Your way.",
         "sub": "No account. Your plans stay on your device.",
         "access": "Calendar · Basic features",
-        "sha256": "3124e06cc131c525470a6f8bfe82f4ec2325aa2c5b60384c14746a4773cd446e",
-        "capture_sha256": "63972cb3e5ca3623e247c85c45b2587fb610b43ead6e5240c0fa9ac2b93e4aae"
+        "sha256": "8163620316eca154d19d20734710228d88a1c7498d490f9a6dd3835ed99d2372",
+        "capture_sha256": "a3c24c5774e2d052d56f8ef2587bbf8ffff901dc1407031169d592989c064d5b"
       },
       {
         "out": "02-overdue",
@@ -129,8 +129,8 @@
         "sub": "See what is left, with reminders on your schedule",
         "access": "Pro · Subscription required",
         "pro": true,
-        "sha256": "727d238caceaa1ff37cde6e432ed3049c1b94a35501c3bbfa70c810082a93218",
-        "capture_sha256": "af2ab425042cfc9d4705bfa90dafd6275877c25d5501701e9ea59df10f750156"
+        "sha256": "fbc7dd9a33ba5b715186dbc0a37c4da39d355f67944ed970ebc75476bc37a7a1",
+        "capture_sha256": "b2710899980e882260acdf3962e0fb7bc12b4ccb27f6125597b5b1abdc376828"
       },
       {
         "out": "03-start",
@@ -139,8 +139,8 @@
         "sub": "Make the first step easier",
         "access": "Pro · Subscription required",
         "pro": true,
-        "sha256": "686e39734a26caf26e12c9aea2bf3afdd3994e3885434ee8c467e8a3861d9e8e",
-        "capture_sha256": "ef4edb43218a8f73731dfdc1827881acc79e0635c817276d527c94a8b50d43e8"
+        "sha256": "794b8943e27519584aab4c841a7226642bd0c52c93922d9a9c2884850d3adc3a",
+        "capture_sha256": "3127781325cfd456f7730c39bb3f80e827893c2d859e2f96d7cf9c445ef13676"
       },
       {
         "out": "04-repeat",
@@ -148,8 +148,8 @@
         "title": "Routines that fit\nyour life",
         "sub": "Choose days, intervals, and an end date",
         "access": "Repeating tasks · Basic features",
-        "sha256": "0df6f9e21168308b7b75467445a0153d40c24f02749ba43ed6d90a79c378a729",
-        "capture_sha256": "65dfdde52e87ba1696f3f22c4c0eea4fab2469071d18d13c7d8dfa922da667c9"
+        "sha256": "b4bd6a8cc00616388d32763d2eec537d2c4f31533d699dccac4f4b2a5d4f498a",
+        "capture_sha256": "4a6afc7f82521a914a51587bff5182dc09d279531797bb575df26a73b5229dcf"
       },
       {
         "out": "05-stats-detail",
@@ -158,8 +158,8 @@
         "sub": "Choose a period to compare completed categories",
         "access": "Pro · Subscription required",
         "pro": true,
-        "sha256": "9493574c2c79588939c91249afc80d42e7b6bb13037145eb3e858116c6e8fcd1",
-        "capture_sha256": "9b943a595a41acecdf4c4b401c6f92c28e3d38679e93216a484c22628a51e76e"
+        "sha256": "c8dff29123424a773f2096839dd68d503e71a39c2f1cf773a4a3e52b54a86ca8",
+        "capture_sha256": "13a4bafb974243d1a9538b1fd44da5c40bf76f7e2561e0d931afe5cc88aca43c"
       },
       {
         "out": "06-stats",
@@ -168,8 +168,8 @@
         "sub": "Completion rates by priority and activity records",
         "access": "Pro · Subscription required",
         "pro": true,
-        "sha256": "5e1b47f998d81c1369d2c11343a35e446d213aca94b02e27d3d5e0e53cde8c16",
-        "capture_sha256": "334de04640835c07ae497440c0ec1b17eb320c367237779aaf4324b8c5d75cb1"
+        "sha256": "e178ef023e18a44173d0ea7caa34a4605e5a95b1ca6e490fbdabb1290e8e6c8a",
+        "capture_sha256": "12464f4ca5a1e3bf28f033efbe28374c1f09a94612d02d36288a02297d39d64b"
       },
       {
         "out": "07-privacy",
@@ -177,8 +177,8 @@
         "title": "Your plans stay\non your device",
         "sub": "No account. Tasks and notes are saved locally.",
         "access": "Tasks and notes are not sent to a developer server",
-        "sha256": "2d241906feb679f968e20f10f6aa75556d8bee75e5e8492bad0cc73f520c0cc0",
-        "capture_sha256": "ae9099095f96f1abd4ceca3bde3812f4050739e254736ec37db7b61d7cb47012"
+        "sha256": "44731058a835c7435af2c9f7442f8a3a92d21a2f346bf30b91237bc8d0b920c4",
+        "capture_sha256": "73dbab29ffcc904ffb829a9975d6a5dfe6afd3121c55c9146b11f8f9682f4e62"
       }
     ],
     "ipad": [
@@ -188,8 +188,8 @@
         "title": "Your tasks. Your way.",
         "sub": "No account. Your plans stay on your device.",
         "access": "Calendar · Basic features",
-        "sha256": "1d0697cc3d4050b5a8fb197072a63972da1fe06884fee6ef1cfbf0669e6dd5f3",
-        "capture_sha256": "dcdf2f5d07eb815e7134b1255abb40b73c1572add07035f95b33e6ad5d2a69a8"
+        "sha256": "a2ff1c10e885326c90fc9d011bc828a58d8ac874157b1456f2320ae2672dc8b3",
+        "capture_sha256": "d5496c9bf65abcf0a2b2cc40c3718a677a83f087dcfe34627e0119c9a68fb5b3"
       },
       {
         "out": "02-overdue",
@@ -198,8 +198,8 @@
         "sub": "See what is left, with reminders on your schedule",
         "access": "Pro · Subscription required",
         "pro": true,
-        "sha256": "820f97b6ade9eb6f5733e71a6d0b18432237bf8a2ca60cbb06d3a02782ebb6b6",
-        "capture_sha256": "5a9a98397d5cd830e6a2f8fd884e5fcd517ba9bdaa38c406f10cf76f302c7c1b"
+        "sha256": "2541dee81aceb854aa7cbee9b2442904083a3539106a735735f7fad968e585f2",
+        "capture_sha256": "31348e600cba18034dee14384b62229bfe53b49478188ee7c678c38bdab1e448"
       },
       {
         "out": "03-start",
@@ -208,8 +208,8 @@
         "sub": "Make the first step easier",
         "access": "Pro · Subscription required",
         "pro": true,
-        "sha256": "b73ef4de962543bfd210a976050c09cdbcbf4921cc0ed63c6968457d9330c81c",
-        "capture_sha256": "9ac8f6afa568791d6769285cec28c043ad465e339bcca2c24f935d049dbbab36"
+        "sha256": "cb3f550090b29ea013365a3fd8585f4e391e577d5457a5dfa5ba6f2384f54253",
+        "capture_sha256": "46050720a264fcb9a77d571ad15af5083901b7060a0ea24a7cc7dfb587ed9d01"
       },
       {
         "out": "04-repeat",
@@ -217,8 +217,8 @@
         "title": "Routines that fit\nyour life",
         "sub": "Choose days, intervals, and an end date",
         "access": "Repeating tasks · Basic features",
-        "sha256": "a423968cde602d77d00809a9357d089d9ca782b7bc31eea6cc975717c38c0ca8",
-        "capture_sha256": "9e0835730a4441ce8c27d9bbdc28bac688b0c577fddd509cb545122070c294b8"
+        "sha256": "d9af0e4cd43f91a8ab2631442800d6f678a1cf152df3844be7b58c38ca687cb0",
+        "capture_sha256": "a80c39f4cd024e412b801f2d49bc3e6fb71a0b49eedace6fdaaa49d5f019b32a"
       },
       {
         "out": "05-stats-detail",
@@ -227,8 +227,8 @@
         "sub": "Choose a period to compare completed categories",
         "access": "Pro · Subscription required",
         "pro": true,
-        "sha256": "b823740e1719e2fab34425c63f0789c76c763b398d66160cc3bf786e29830352",
-        "capture_sha256": "cf910a57eb0c973a0508e7e3c4a65629a9633d83389294249551f69fafe62949"
+        "sha256": "2d6e7e11b04fa1a41e7039571c75659b6791df591537dbc5ebf3242a532d6c4f",
+        "capture_sha256": "a0612fa192788d2aeba019183e924df643f7a03c60ffdaefcba2019983f9ab8d"
       },
       {
         "out": "06-stats",
@@ -237,8 +237,8 @@
         "sub": "Completion rates by priority and activity records",
         "access": "Pro · Subscription required",
         "pro": true,
-        "sha256": "ce222c59aba6cf74650c8032cff3e91c564848f8bb46f69a7f13cab2522fa318",
-        "capture_sha256": "90d2b99a42ab3fff55f1cfef9e4e4188fcb30d827fa231f5313592ffd9b4019d"
+        "sha256": "14feee3946138701fda77d0d580a8c8d002aa0377dd0a24d37dadc030b985c95",
+        "capture_sha256": "4c5693d662951832119e99d0463779b636f533a46ce70296295309267848fc89"
       },
       {
         "out": "07-privacy",
@@ -246,8 +246,8 @@
         "title": "Your plans stay\non your device",
         "sub": "No account. Tasks and notes are saved locally.",
         "access": "Tasks and notes are not sent to a developer server",
-        "sha256": "a027a9c6729ffe6771de8e571382bd0cf382282300a66fe6c196360e4ae9952f",
-        "capture_sha256": "ecc2c33dc9161df8b9e2fc48d8cda18fd8a03d0595840ae6a5c3961524c40bde"
+        "sha256": "ccb6a4cbff6dbb9af9fb9ce4d286f75406dd698f69af18c1f6c13b726d747e42",
+        "capture_sha256": "253ba754780de14a8ee6a9b8278cec6c315c52848010e8c9b3bbb1e6e0004d7a"
       }
     ]
   }

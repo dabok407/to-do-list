@@ -29,7 +29,7 @@ const nativeWidgets = process.argv.includes('--native-widgets');
 const ink = '#292c29', muted = '#616875', red = '#8f303a';
 const devices = {
   iphone: { width: 1179, height: 2556, label: english ? 'iPhone · medium' : '아이폰 · 중형' },
-  'iphone-large': { width: 1320, height: 2868, label: english ? 'iPhone · large' : '아이폰 · 대형', sourceDevice: 'iphone' },
+  'iphone-large': { width: 1320, height: 2868, label: english ? 'iPhone · large' : '아이폰 · 대형', sourceDevice: 'iphone-large' },
   ipad: { width: 2064, height: 2752, label: english ? 'iPad' : '아이패드' },
   android: { width: 1080, height: 1920, label: english ? 'Android' : '안드로이드' },
 };
@@ -96,8 +96,8 @@ async function writeAtomically(file, bytes) {
   await fs.rename(temporary, file);
 }
 async function exportScreen(device, d, s) {
-  // Keep the approved production pixels; export an additional Apple display
-  // canvas without pretending it is a separate native-device screenshot.
+  // Use each display size's actual production-widget layout. These Flutter
+  // captures are not represented as native-device screenshots.
   const sourceDevice = d.sourceDevice || device;
   const sourceRecord = JSON.parse(await fs.readFile(path.join(captureRoot, sourceDevice, 'source.json'), 'utf8'));
   if (sourceRecord.language !== language || sourceRecord.display_name !== brand) {
@@ -110,7 +110,7 @@ async function exportScreen(device, d, s) {
   }
   const { width: w, height: h } = d;
   const isTablet = device === 'ipad';
-  const isPhone = sourceDevice === 'iphone';
+  const isPhone = sourceDevice === 'iphone' || sourceDevice === 'iphone-large';
   const unit = w / 1080;
   const left = Math.round(w * .066), maxWidth = w - left * 2;
   const header = Math.round(h * .185);

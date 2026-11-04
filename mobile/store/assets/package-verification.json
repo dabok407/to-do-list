@@ -1,20 +1,17 @@
 {
-  "brands": {
-    "ko": "투두닉",
-    "en": "Todoniq"
-  },
+  "verified_at": "2026-11-04T11:40:31.3227478Z",
   "packages": [
     {
-      "language": "ko",
-      "sha256": "b6136dd520586212c2f9c69d192b8a8f9ef2abaf269e6e4686ba06698c22f6a6",
       "file": "app-store-images.zip",
-      "entries": 22
+      "entries": 22,
+      "sha256": "33623935d34bc4c587205c717f5562ac583082e4f10dd57623844e9a84b3c50d",
+      "language": "ko"
     },
     {
-      "language": "en",
-      "sha256": "84062c848ec5bfa75713c80ec526ee71bd61865c93540a9b79927f6c8004868f",
       "file": "app-store-images-en.zip",
-      "entries": 22
+      "entries": 22,
+      "sha256": "deee98bb0059e46ca04d6a10310c2b2adab9ebeeab7472c7baf2da8c072a922d",
+      "language": "en"
     },
     {
       "language": "ko",
@@ -29,5 +26,8 @@
       "file": "play-store-images-en.zip"
     }
   ],
-  "verified_at": "2026-10-22T05:35:41.2254921Z"
+  "brands": {
+    "ko": "투두닉",
+    "en": "Todoniq"
+  }
 }

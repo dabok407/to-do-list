@@ -17,9 +17,10 @@ const specs = { iphone: [1179,2556], 'iphone-large': [1320,2868], ipad: [2064,27
    const manifest = JSON.parse(await fs.readFile(path.join(store, 'screenshots', ...relativeRoot, 'manifest.json'), 'utf8'));
    if (manifest.language !== language || manifest.brand !== expectedBrand || manifest.nativeWidgets !== false) throw new Error(`Wrong artwork manifest: ${language}`);
    if (manifest.apple_artwork_policy !== APPLE_ARTWORK_POLICY_VERSION) throw new Error(`Regenerate Apple artwork under the current text policy: ${language}`);
-   for (const device of ['iphone', 'ipad', 'android']) {
+   for (const device of ['iphone', 'iphone-large', 'ipad', 'android']) {
     const source = JSON.parse(await fs.readFile(path.join(store, 'captures', ...relativeRoot, device, 'source.json'), 'utf8'));
     if (source.language !== language || source.display_name !== expectedBrand || source.native_device_capture !== false) throw new Error(`Stale source capture: ${language}/${device}`);
+    if (appleDevices.includes(device) && (source.png_width !== specs[device][0] || source.png_height !== specs[device][1])) throw new Error(`Wrong production capture viewport: ${language}/${device}`);
    }
    for (const [device, [width,height]] of Object.entries(specs)) {
     const folder = path.join('screenshots', ...(language === 'en' ? ['en'] : []), device);
@@ -35,8 +36,10 @@ const specs = { iphone: [1179,2556], 'iphone-large': [1320,2868], ipad: [2064,27
         assertAppleArtworkText(artwork, language);
         const actual = crypto.createHash('sha256').update(data).digest('hex');
         if (artwork.sha256 !== actual) throw new Error(`Apple image changed since composition: ${file}`);
-        const sourceDevice = device === 'iphone-large' ? 'iphone' : device;
+        const sourceDevice = device;
         const capture = await fs.readFile(path.join(store, 'captures', ...relativeRoot, sourceDevice, `${artwork.source}.png`));
+        const captureMetadata = await sharp(capture).metadata();
+        if (captureMetadata.width !== width || captureMetadata.height !== height) throw new Error(`Wrong production capture dimensions: ${language}/${device}/${name}`);
         if (artwork.capture_sha256 !== crypto.createHash('sha256').update(capture).digest('hex')) throw new Error(`Apple source changed since composition: ${language}/${device}/${name}`);
       }
       results.push({ file: `${folder.replaceAll('\\', '/')}/${name}.png`, language, width, height, channels: m.channels, bytes: data.length, sha256: crypto.createHash('sha256').update(data).digest('hex') });

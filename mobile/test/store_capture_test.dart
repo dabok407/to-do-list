@@ -5,6 +5,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'dart:ui' as ui;
 
+import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -13,6 +14,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hangeoreum/domain/task.dart';
 import 'package:hangeoreum/features/task_editor.dart';
 import 'package:hangeoreum/features/privacy_card.dart';
+import 'package:hangeoreum/features/pro_screen.dart';
+import 'package:hangeoreum/features/settings_widgets.dart';
 import 'package:hangeoreum/main.dart';
 import 'package:hangeoreum/preview.dart';
 import 'package:hangeoreum/l10n/app_strings.dart';
@@ -25,6 +28,7 @@ const _platform = String.fromEnvironment(
   defaultValue: 'all',
 );
 const _sourceCommit = String.fromEnvironment('STORE_CAPTURE_SOURCE_COMMIT');
+const _captureScene = String.fromEnvironment('STORE_CAPTURE_SCENE');
 const _language = String.fromEnvironment(
   'STORE_CAPTURE_LANGUAGE',
   defaultValue: 'ko',
@@ -32,6 +36,10 @@ const _language = String.fromEnvironment(
 const _strings = AppStrings(_language);
 const _outputRoot = _language == 'en' ? 'store/captures/en' : 'store/captures';
 final _sceneProvenance = <String, Map<String, Object?>>{};
+const _captureFixturePath = 'test/store_capture_test.dart';
+final _captureFixtureSha256 = sha256
+    .convert(File(_captureFixturePath).readAsBytesSync())
+    .toString();
 final _forbiddenAppleArtworkText = RegExp(
   r'\b(free|discount(ed)?|price|pricing|sale|trial|USD|EUR|KRW|Android|Google\s*Play|Play\s*Store)\b|무료|할인|체험|가격|요금|안드로이드|구글\s*플레이|[$€£¥₩]|\d[\d,.]*\s*(원|달러)',
   caseSensitive: false,
@@ -55,6 +63,30 @@ Finder _navigation(String korean) => find.descendant(
   matching: find.text(_strings.t(korean)),
 );
 
+Future<void> _openPrivacySheet(WidgetTester tester) async {
+  await tester.tap(_navigation('설정'));
+  await tester.pumpAndSettle();
+  final privacyMenu = find.byKey(const Key('privacy-details'));
+  await tester.ensureVisible(privacyMenu);
+  await tester.pumpAndSettle();
+  await tester.tap(privacyMenu);
+  await tester.pumpAndSettle();
+  expect(find.byType(BottomSheet), findsOneWidget);
+  expect(find.byType(PrivacyCard), findsOneWidget);
+}
+
+Future<void> _openPro(WidgetTester tester) async {
+  final proMenu = find.widgetWithIcon(
+    SettingsMenuRow,
+    Icons.workspace_premium_outlined,
+  );
+  await tester.ensureVisible(proMenu);
+  await tester.pumpAndSettle();
+  await tester.tap(proMenu);
+  await tester.pumpAndSettle();
+  expect(find.byType(ProScreen), findsOneWidget);
+}
+
 class _CaptureSubscription extends PreviewSubscription {
   _CaptureSubscription() {
     active = true;
@@ -68,6 +100,7 @@ class _CaptureSubscription extends PreviewSubscription {
 
 const _devices = [
   (name: 'iphone', size: Size(393, 852), ratio: 3.0, ios: true),
+  (name: 'iphone-large', size: Size(440, 956), ratio: 3.0, ios: true),
   (name: 'ipad', size: Size(1032, 1376), ratio: 2.0, ios: true),
   (name: 'android', size: Size(360, 640), ratio: 3.0, ios: false),
 ];
@@ -263,6 +296,7 @@ Future<void> _capture(
 ) async {
   await tester.pumpAndSettle();
   expect(tester.takeException(), isNull);
+  if (_captureScene.isNotEmpty && _captureScene != name) return;
   final renderedText = find
       .byType(Text)
       .evaluate()
@@ -296,6 +330,9 @@ Future<void> _capture(
   _sceneProvenance['$name.png'] = {
     'captured_at': DateTime.now().toUtc().toIso8601String(),
     if (_sourceCommit.isNotEmpty) 'source_git_commit': _sourceCommit,
+    'source_git_commit_scope': 'production_app_code',
+    'capture_fixture': _captureFixturePath,
+    'capture_fixture_sha256': _captureFixtureSha256,
     'sample_day': dayKey(DateTime.now()),
     'native_device_capture': false,
     'rendered_text': renderedText,
@@ -325,6 +362,26 @@ void main() {
   if (_sourceCommit.isNotEmpty &&
       !RegExp(r'^[a-f0-9]{40}$').hasMatch(_sourceCommit)) {
     throw ArgumentError.value(_sourceCommit, 'STORE_CAPTURE_SOURCE_COMMIT');
+  }
+  if (_captureScene.isNotEmpty &&
+      !{
+        '01-calendar',
+        '02-overdue',
+        '03-small-start',
+        '04-repeat',
+        '06-statistics',
+        '06-statistics-detail',
+        '07-privacy',
+        '08-pro',
+        '09-quick-add-audit',
+        '10-editor-audit',
+      }.contains(_captureScene)) {
+    throw ArgumentError.value(_captureScene, 'STORE_CAPTURE_SCENE');
+  }
+  if (_onlyPrivacy &&
+      _captureScene.isNotEmpty &&
+      _captureScene != '07-privacy') {
+    throw ArgumentError('Privacy-only capture cannot select another scene');
   }
   TestWidgetsFlutterBinding.ensureInitialized();
   final messenger =
@@ -358,18 +415,19 @@ void main() {
       tester,
     ) async {
       _sceneProvenance.clear();
+      final isIphone = d.ios && d.name != 'ipad';
       tester.view.devicePixelRatio = d.ratio;
       tester.view.physicalSize = d.size * d.ratio;
       tester.view.padding = FakeViewPadding(
         top:
-            (d.name == 'iphone'
+            (isIphone
                 ? 47
                 : d.ios
                 ? 24
                 : 24) *
             d.ratio,
         bottom:
-            (d.name == 'iphone'
+            (isIphone
                 ? 34
                 : d.ios
                 ? 20
@@ -397,10 +455,30 @@ void main() {
       );
       if (_onlyPrivacy) {
         await tester.pumpAndSettle();
-        await tester.tap(_navigation('설정'));
-        await tester.pumpAndSettle();
-        await tester.ensureVisible(find.byType(PrivacyCard));
+        await _openPrivacySheet(tester);
         await _capture(tester, key, d.name, '07-privacy', d.ratio);
+        // Preserve provenance of other existing scenes during a privacy-only
+        // refresh; only this newly rendered scene receives the new source SHA.
+        await tester.runAsync(() async {
+          final source = File('$_outputRoot/${d.name}/source.json');
+          final record = source.existsSync()
+              ? jsonDecode(await source.readAsString()) as Map<String, dynamic>
+              : <String, dynamic>{
+                  'language': _language,
+                  'display_name': AppStrings.appName,
+                  'native_device_capture': false,
+                  'capture_platform_filter': _platform,
+                  'screens': ['07-privacy.png'],
+                };
+          record['scene_provenance'] = {
+            ...?(record['scene_provenance'] as Map<String, dynamic>?),
+            ..._sceneProvenance,
+          };
+          await _writeAtomically(
+            source,
+            utf8.encode(const JsonEncoder.withIndent('  ').convert(record)),
+          );
+        });
         await tester.pumpWidget(const SizedBox.shrink());
         debugDefaultTargetPlatformOverride = null;
         return;
@@ -465,6 +543,29 @@ void main() {
       await tester.tap(cleaning);
       await tester.pumpAndSettle();
       await tester.ensureVisible(find.text(_strings.t('5분 시작')));
+      if (d.name == 'iphone-large') {
+        // The taller phone can show the title and small-start action together.
+        // Framing the action with ensureVisible otherwise crops the title at
+        // the top of the actual sheet; restore its natural top scroll position.
+        final detailTitle = find
+            .text(_sample('안방 대청소', 'Clean the bedroom'))
+            .last;
+        final position = Scrollable.of(tester.element(detailTitle)).position;
+        position.jumpTo(position.minScrollExtent);
+        await tester.pumpAndSettle();
+        final viewport = tester.getRect(
+          find
+              .ancestor(
+                of: detailTitle,
+                matching: find.byType(SingleChildScrollView),
+              )
+              .first,
+        );
+        final titleBounds = tester.getRect(detailTitle);
+        expect(titleBounds.top, greaterThanOrEqualTo(viewport.top));
+        expect(titleBounds.bottom, lessThanOrEqualTo(viewport.bottom));
+        expect(find.text(_strings.t('5분 시작')).hitTestable(), findsOneWidget);
+      }
       await _capture(tester, key, d.name, '03-small-start', d.ratio);
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
@@ -487,10 +588,10 @@ void main() {
       );
       await Scrollable.ensureVisible(
         repeatControl,
-        alignment: d.name == 'iphone' ? 0 : .12,
+        alignment: isIphone ? 0 : .12,
       );
       await tester.pumpAndSettle();
-      if (d.name == 'iphone') {
+      if (isIphone) {
         // Keep the repeat label clear of the app bar without exposing half of
         // the preceding reminder field in the promotional capture.
         final position = Scrollable.of(repeatControl).position;
@@ -512,17 +613,21 @@ void main() {
       await tester.pumpAndSettle();
       await _capture(tester, key, d.name, '06-statistics-detail', d.ratio);
 
-      await tester.tap(_navigation('설정'));
-      await tester.pumpAndSettle();
-      await tester.ensureVisible(find.byType(PrivacyCard));
+      await _openPrivacySheet(tester);
       await _capture(tester, key, d.name, '07-privacy', d.ratio);
-      await tester.ensureVisible(find.byIcon(Icons.auto_graph));
+      await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
-      await tester.tap(find.byIcon(Icons.auto_graph));
+      expect(find.byType(PrivacyCard), findsNothing);
+      await _openPro(tester);
       await _capture(tester, key, d.name, '08-pro', d.ratio);
       await tester.runAsync(() async {
+        final sourceFile = File('$_outputRoot/${d.name}/source.json');
+        final previous = _captureScene.isNotEmpty && sourceFile.existsSync()
+            ? jsonDecode(await sourceFile.readAsString())
+                  as Map<String, dynamic>
+            : <String, dynamic>{};
         await _writeAtomically(
-          File('$_outputRoot/${d.name}/source.json'),
+          sourceFile,
           utf8.encode(
             const JsonEncoder.withIndent('  ').convert({
               'source': 'Production HangeoreumApp widgets rendered by Flutter widget test',
@@ -534,7 +639,15 @@ void main() {
               'native_device_capture': false,
               'capture_platform_filter': _platform,
               if (_sourceCommit.isNotEmpty) 'source_git_commit': _sourceCommit,
-              'scene_provenance': Map.of(_sceneProvenance),
+              'source_git_commit_scope': 'production_app_code',
+              'capture_fixture': _captureFixturePath,
+              'capture_fixture_sha256': _captureFixtureSha256,
+              if (_captureScene.isNotEmpty)
+                'latest_capture_scene': _captureScene,
+              'scene_provenance': {
+                ...?(previous['scene_provenance'] as Map<String, dynamic>?),
+                ..._sceneProvenance,
+              },
               'fonts': ['PretendardVariable.ttf', 'MaterialIcons-Regular.otf'],
               'logical_width': d.size.width.toInt(),
               'logical_height': d.size.height.toInt(),
@@ -549,11 +662,11 @@ void main() {
                 '03-small-start': _sample('5분부터 시작', 'Start with 5 minutes'),
                 '04-repeat': _sample('반복 일정', 'Repeating tasks'),
                 '06-statistics': _sample('우선순위별 통계', 'Insights by priority'),
-                '06-statistics-detail': _sample('분류별 통계', 'Insights by category'),
-                '07-privacy': _sample(
-                  '개인정보와 언어 설정',
-                  'Privacy and language settings',
+                '06-statistics-detail': _sample(
+                  '분류별 통계',
+                  'Insights by category',
                 ),
+                '07-privacy': _sample('개인정보 보호 안내', 'Privacy details'),
                 '08-pro': _sample('투두닉 Pro', 'Todoniq Pro'),
               },
               'screens': [
