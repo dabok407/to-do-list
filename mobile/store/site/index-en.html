@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Todoniq. Your tasks. Your way. A calendar with tasks and notes stored on your device, no sign-up or advertising tracking, and help with reminders and subscriptions.">
+  <meta name="description" content="Todoniq. Your tasks. Your way. Help with completing tasks, reminders, local backup and restore, and subscriptions for your on-device calendar.">
   <title>Todoniq · Your tasks. Your way.</title>
   <link rel="stylesheet" href="style.css">
   <link rel="alternate" hreflang="ko" href="index.html">
@@ -29,8 +29,8 @@
     <p class="eyebrow">Help with Todoniq</p>
     <h1>Your tasks. Your way.</h1>
     <p class="lead">Your tasks and notes are stored on your device and are not sent to a developer server. Plan your day without signing up or advertising tracking.</p>
-    <p class="privacy-summary">Store purchases and subscription checks, emails you choose to send, and website connection information are handled separately. <a href="privacy-en.html">Read the privacy information</a></p>
-    <p class="revision">Last updated: <time datetime="2026-10-16">2026-10-16</time></p>
+    <p class="privacy-summary">Backup files you choose to export, store purchases and subscription checks, support emails, and website connection information are handled separately. <a href="privacy-en.html">Read the privacy information</a></p>
+    <p class="revision">Last updated: <time datetime="2026-11-04">2026-11-04</time></p>
 
     <section id="contact" aria-labelledby="contact-title">
       <h2 id="contact-title">Contact us by email</h2>
@@ -40,14 +40,22 @@
     <section id="features" aria-labelledby="features-title">
       <h2 id="features-title">Free features and Pro</h2>
       <p>All features are available for 7 days from your first app launch. This in-app trial does not automatically become a paid subscription.</p><div class="feature-grid">
-        <div class="feature-card"><h3>Always free</h3><ul><li>Calendar and upcoming tasks</li><li>Create, edit, and delete tasks and notes</li><li>Repeating tasks, completion, and undo completion</li><li>View tasks in your home screen widget</li></ul></div>
-        <div class="feature-card"><h3>Todoniq Pro</h3><ul><li>Scheduled and overdue reminders</li><li>Snooze and follow-up reminders</li><li>Start now and 5-minute starts</li><li>30-day and 90-day statistics and category insights</li></ul></div>
+        <div class="feature-card"><h3>Always free</h3><ul><li>Calendar and upcoming tasks</li><li>Create, edit, and delete tasks and notes</li><li>Repeating tasks, completion, and undo completion</li><li>View tasks in your home screen widget</li><li>Local backup, file export, and restore</li></ul></div>
+        <div class="feature-card"><h3>Todoniq Pro</h3><ul><li>Scheduled and overdue reminders</li><li>Snooze until later today or the same time tomorrow</li><li>Start now and 5-minute starts</li><li>Priority and category statistics for the last 30 days or a date range you choose</li></ul></div>
       </div><p>After the trial, Pro is available through an optional yearly subscription that renews automatically. Check the app and the store purchase confirmation for the actual price and payment terms. <a href="terms-en.html">Subscriptions &amp; use</a></p>
+    </section>
+
+    <section id="completion" aria-labelledby="completion-title">
+      <h2 id="completion-title">Complete a task or snooze until tomorrow</h2>
+      <p>In the calendar's task list and the Upcoming and Completed tabs, tap the checkbox on the right or swipe a task in either direction to change its completion status. Tap the title area to open task details.</p>
+      <p>The changed state stays visible briefly before the list updates to match its filter. A task completed in Upcoming can be found in Completed. Use <strong>Undo</strong> in the message at the bottom to reverse the action you just took.</p>
+      <p>In task details, <strong>Same time tomorrow</strong> snoozes the reminder until tomorrow at the task's original scheduled time. It does not create a new repeating task. Snoozing requires an active trial or Pro access.</p>
     </section>
 
     <section id="notifications" aria-labelledby="notifications-title">
       <h2 id="notifications-title">If a reminder does not arrive</h2>
-      <ol><li>Check that notifications for Todoniq are allowed in your device settings.</li><li>Check Focus or battery-saving settings.</li><li>Try <strong>Test reminder in 10 seconds</strong> in the app settings. Reminders require an active trial or Pro access.</li><li>Open the app and review the task time and overdue reminder settings.</li></ol><p>Reminders are scheduled on your device, so you do not need to open the app for every reminder. Device permissions, battery policies, a force stop, and the scheduling horizon can delay or limit delivery and widget updates. Open the app again after changing settings or leaving it unused for a long time to refresh scheduled reminders.</p>
+      <ol><li>Check that notifications for Todoniq are allowed in your device settings.</li><li>Check Focus or battery-saving settings. Banners, sound, and vibration follow your device's notification settings.</li><li>Open notification settings and testing in the app settings, then try <strong>Test reminder in 10 seconds</strong>. Reminders require an active trial or Pro access.</li><li>Open the app and review the task time and overdue reminder settings.</li></ol><p>Reminders are scheduled on your device, so you do not need to open the app for every reminder. Device permissions, battery policies, a force stop, and the scheduling horizon can delay or limit delivery and widget updates. Open the app again after changing settings or leaving it unused for a long time to refresh scheduled reminders.</p>
+      <p>You can turn off notification titles in Settings to show the app name and a general message instead of the task title. Titles are shown by default. This does not change reminder times or sound settings, or hide task titles in the app and widgets.</p>
     </section>
 
     <section id="language" aria-labelledby="language-title">
@@ -55,9 +63,18 @@
       <p>In the app settings, choose <strong>Language</strong>, then System, 한국어, or English. Interface and reminder text follow your choice. Titles and notes you enter are never translated or changed.</p>
     </section>
 
+    <section id="backup" aria-labelledby="backup-title">
+      <h2 id="backup-title">Back up and restore tasks and records</h2>
+      <p>Open backup and restore in Settings to back up tasks, notes, and completion history. Backup and restore do not require Pro.</p>
+      <ul><li><strong>Back up now</strong> creates the latest local backup from your current records.</li><li><strong>Weekly automatic backup</strong> creates a backup when enabled. After 7 days, it refreshes when you open the app or the operating system allows background work. An exact day or time is not guaranteed.</li><li><strong>Export backup file</strong> creates a file of your current records and saves it to a location you choose.</li><li><strong>Restore from file</strong> or restoring the latest local backup replaces current tasks and records with the backup after confirmation. Subscription and trial status do not change.</li></ul>
+      <p>The app replaces one latest local backup, so old automatic copies do not accumulate. That file's size can change as your records grow. Manage files you export separately.</p>
+      <p>Exported files contain tasks and notes and are not encrypted. Check where you save them and whom you share them with. If you choose a cloud storage destination, its provider may store the file. The app's automatic backup does not upload records to a developer server or cloud service.</p>
+      <p>Losing your device, uninstalling the app, or clearing its data can also remove the local backup. Export a file and keep it separately before changing devices or uninstalling. See the <a href="privacy-en.html#backup">backup privacy information</a> for details.</p>
+    </section>
+
     <section id="restore" aria-labelledby="restore-title">
       <h2 id="restore-title">Restore purchases and local records</h2>
-      <p>Use <strong>Restore purchases</strong> with the same Apple Account you used to purchase Pro to check a valid purchase. Purchases, restoration, and subscription checks require communication with the App Store.</p><p>Restoring a purchase does not restore tasks, notes, or activity history. Records are stored on your device. There is no app account, cloud sync, or separate data recovery service. Uninstalling the app, clearing device data, or changing devices may result in lost records.</p>
+      <p>Use <strong>Restore purchases</strong> with the same Apple Account you used to purchase Pro to check a valid purchase. Purchases, restoration, and subscription checks require communication with the App Store.</p><p>Restoring a purchase does not restore tasks, notes, or activity history. Use <a href="#backup">backup and restore</a> with a backup you saved earlier to restore records. The developer does not keep your records on a server or provide a separate data recovery service.</p>
     </section>
 
     <section id="billing" aria-labelledby="billing-title">

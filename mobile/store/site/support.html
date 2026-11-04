@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="나만의 할 일, 투두닉. 할 일과 메모를 기기에 저장하며 회원가입과 광고 추적 없이 사용하는 캘린더. 알림·구독·복원 도움말을 확인하세요.">
+  <meta name="description" content="나만의 할 일, 투두닉. 할 일과 메모를 기기에 저장하는 캘린더의 완료 처리, 알림, 백업·복원과 구독 도움말을 확인하세요.">
   <title>지원 안내 · 투두닉</title>
   <link rel="stylesheet" href="style.css">
   <link rel="alternate" hreflang="ko" href="support.html">
@@ -29,8 +29,8 @@
     <p class="eyebrow">투두닉 도움말</p>
     <h1>나만의 할 일, 투두닉</h1>
     <p class="lead">할 일과 메모는 내 기기에 저장하고, 개발자 서버로 보내지 않습니다. 회원가입과 광고 추적 없이 내 일정을 정리하세요.</p>
-    <p class="privacy-summary">구매·구독 확인, 직접 보내는 이메일 문의와 이 사이트의 접속 정보는 별도로 처리됩니다. <a href="privacy.html">개인정보 안내 보기</a></p>
-    <p class="revision">마지막 수정: <time datetime="2026-10-16">2026-10-16</time></p>
+    <p class="privacy-summary">직접 선택하는 백업 파일 내보내기, 구매·구독 확인, 이메일 문의와 이 사이트의 접속 정보는 별도로 처리됩니다. <a href="privacy.html">개인정보 안내 보기</a></p>
+    <p class="revision">마지막 수정: <time datetime="2026-11-04">2026-11-04</time></p>
 
     <section id="contact" aria-labelledby="contact-title">
       <h2 id="contact-title">이메일로 문의하기</h2>
@@ -40,14 +40,22 @@
     <section id="features" aria-labelledby="features-title">
       <h2 id="features-title">무료 기능과 Pro</h2>
       <p>최초 앱 실행부터 7일 동안 전체 기능을 체험할 수 있습니다. 이 앱 내부 체험은 자동 결제로 전환되지 않습니다.</p><div class="feature-grid">
-        <div class="feature-card"><h3>무료로 계속 사용</h3><ul><li>캘린더와 예정 일정 보기</li><li>할 일·메모 작성, 수정과 삭제</li><li>반복 일정, 완료와 완료 해제</li><li>위젯에서 일정 보기</li></ul></div>
-        <div class="feature-card"><h3>투두닉 Pro</h3><ul><li>예정 알림과 미완료 재알림</li><li>미루기와 다시 상기시키기</li><li>지금 시작·5분 실행 보조</li><li>30일·90일 통계와 분류별 분석</li></ul></div>
+        <div class="feature-card"><h3>무료로 계속 사용</h3><ul><li>캘린더와 예정 일정 보기</li><li>할 일·메모 작성, 수정과 삭제</li><li>반복 일정, 완료와 완료 해제</li><li>위젯에서 일정 보기</li><li>기기 내 백업과 파일 내보내기·복원</li></ul></div>
+        <div class="feature-card"><h3>투두닉 Pro</h3><ul><li>예정 알림과 미완료 재알림</li><li>오늘 나중에·내일 같은 시간으로 미루기</li><li>지금 시작·5분 실행 보조</li><li>최근 30일 또는 직접 선택한 기간의 우선순위별·분류별 통계</li></ul></div>
       </div><p>체험 이후 Pro는 선택형 연간 자동 갱신 구독으로 이용할 수 있습니다. 실제 가격과 결제 조건은 앱과 스토어의 구매 확인 화면에서 확인하세요. <a href="terms.html">구독·이용 안내</a></p>
+    </section>
+
+    <section id="completion" aria-labelledby="completion-title">
+      <h2 id="completion-title">완료 처리와 내일로 미루기</h2>
+      <p>캘린더 아래 일정 목록과 예정·완료 탭에서 오른쪽 체크박스를 누르거나 일정을 왼쪽 또는 오른쪽으로 밀면 완료 상태를 바꿀 수 있습니다. 제목 영역을 누르면 일정 상세 화면이 열립니다.</p>
+      <p>처리한 상태를 잠시 표시한 뒤 현재 목록의 조건에 맞게 반영합니다. 예정 탭에서 완료한 일정은 완료 탭에서 확인할 수 있으며, 하단 안내의 <strong>되돌리기</strong>로 방금 처리를 취소할 수 있습니다.</p>
+      <p>일정 상세의 <strong>내일 같은 시간</strong>은 원래 예정 시각을 기준으로 내일 알림을 받도록 미룹니다. 새 반복 일정을 만드는 기능이 아닙니다. 미루기에는 체험 또는 Pro 권한이 필요합니다.</p>
     </section>
 
     <section id="notifications" aria-labelledby="notifications-title">
       <h2 id="notifications-title">알림이 오지 않을 때</h2>
-      <ol><li>기기 설정에서 투두닉의 알림 권한이 허용되어 있는지 확인하세요.</li><li>집중 모드·절전 설정을 확인하세요.</li><li>투두닉 설정의 <strong>10초 뒤 테스트 알림</strong>을 사용해보세요. 알림에는 체험 또는 Pro 이용 권한이 필요합니다.</li><li>앱을 열어 예정 일정과 미완료 재알림 설정을 확인하세요.</li></ol><p>알림은 기기에 예약하므로 매번 앱을 열 필요는 없습니다. 다만 운영체제의 권한·절전 정책·강제 중지와 예약 범위에 따라 전달이나 위젯 갱신이 지연되거나 제한될 수 있습니다. 설정을 변경하거나 오랫동안 앱을 열지 않았다면 앱을 다시 열어 예약 상태를 갱신해주세요.</p>
+      <ol><li>기기 설정에서 투두닉의 알림 권한이 허용되어 있는지 확인하세요.</li><li>집중 모드·절전 설정을 확인하세요. 배너·소리·진동은 기기의 알림 설정을 따릅니다.</li><li>투두닉 설정의 <strong>알림 설정·테스트 → 10초 뒤 테스트 알림</strong>을 사용해보세요. 알림에는 체험 또는 Pro 이용 권한이 필요합니다.</li><li>앱을 열어 예정 일정과 미완료 재알림 설정을 확인하세요.</li></ol><p>알림은 기기에 예약하므로 매번 앱을 열 필요는 없습니다. 다만 운영체제의 권한·절전 정책·강제 중지와 예약 범위에 따라 전달이나 위젯 갱신이 지연되거나 제한될 수 있습니다. 설정을 변경하거나 오랫동안 앱을 열지 않았다면 앱을 다시 열어 예약 상태를 갱신해주세요.</p>
+      <p>설정에서 <strong>알림 제목 표시</strong>를 끄면 할 일 제목 대신 앱 이름과 안내 문구를 표시합니다. 기본값은 제목 표시이며, 이 설정으로 알림 시각이나 소리 설정은 바뀌지 않습니다. 앱 화면과 위젯의 일정 제목을 숨기는 기능은 아닙니다.</p>
     </section>
 
     <section id="language" aria-labelledby="language-title">
@@ -55,9 +63,18 @@
       <p>앱 설정의 <strong>언어</strong>에서 기기 설정 따르기, 한국어, English를 선택할 수 있습니다. 화면과 알림 안내가 선택한 언어로 표시되며 직접 입력한 제목·메모는 번역하거나 변경하지 않습니다.</p>
     </section>
 
+    <section id="backup" aria-labelledby="backup-title">
+      <h2 id="backup-title">할 일과 기록 백업·복원</h2>
+      <p>설정의 <strong>백업·복원</strong>에서 할 일·메모·완료 기록을 백업할 수 있습니다. 백업·복원에는 Pro 구독이 필요하지 않습니다.</p>
+      <ul><li><strong>지금 백업하기</strong>: 현재 기록으로 기기 안의 최신 백업을 만듭니다.</li><li><strong>주 1회 자동 백업</strong>: 켤 때 먼저 백업하고, 이후 7일이 지나면 앱을 열거나 운영체제가 백그라운드 실행을 허용할 때 갱신합니다. 정확히 같은 요일·시각의 실행을 보장하지는 않습니다.</li><li><strong>백업 파일 내보내기</strong>: 현재 기록을 파일로 만들어 사용자가 선택한 위치에 저장합니다.</li><li><strong>파일에서 복원</strong> 또는 <strong>기기의 최신 백업으로 복원</strong>: 확인 후 현재 할 일과 기록을 백업 내용으로 교체합니다. 구독·체험 상태는 바뀌지 않습니다.</li></ul>
+      <p>기기 안에서는 최신 백업 1개를 교체하므로 백업본이 계속 쌓이지 않습니다. 기록량에 따라 파일 하나의 크기는 달라질 수 있습니다. 직접 내보낸 파일은 별도로 관리해주세요.</p>
+      <p>내보낸 파일에는 할 일과 메모가 들어 있으며 암호화되지 않습니다. 저장 위치와 공유 대상을 확인하세요. 클라우드 저장 위치를 직접 선택하면 해당 제공자의 서비스로 파일이 저장될 수 있습니다. 앱의 자동 백업은 개발자 서버나 클라우드로 전송하지 않습니다.</p>
+      <p>기기 분실·앱 삭제·데이터 초기화 시 앱 안의 백업도 사라질 수 있습니다. 기기를 바꾸거나 앱을 삭제하기 전에는 파일을 내보내 별도로 보관하세요. 자세한 범위는 <a href="privacy.html#backup">백업 개인정보 안내</a>에서 확인할 수 있습니다.</p>
+    </section>
+
     <section id="restore" aria-labelledby="restore-title">
       <h2 id="restore-title">구매 복원과 기록 복원</h2>
-      <p>구매할 때 사용한 같은 Apple 계정으로 <strong>구매 복원</strong>을 사용하면 유효한 Pro 구매 상태를 확인할 수 있습니다. 구매·복원·구독 확인에는 App Store와의 통신이 필요합니다.</p><p>구매 복원은 일정·메모·실행 기록을 복원하는 기능이 아닙니다. 기록은 기기에 저장하며 자체 계정·클라우드 동기화·별도 데이터 복구 서비스를 제공하지 않습니다. 앱 삭제, 데이터 초기화나 기기 변경 시 기록이 사라질 수 있습니다.</p>
+      <p>구매할 때 사용한 같은 Apple 계정으로 <strong>구매 복원</strong>을 사용하면 유효한 Pro 구매 상태를 확인할 수 있습니다. 구매·복원·구독 확인에는 App Store와의 통신이 필요합니다.</p><p>구매 복원은 일정·메모·실행 기록을 복원하는 기능이 아닙니다. 기록은 위의 <a href="#backup">백업·복원</a>에서 미리 보관한 백업으로 복원할 수 있습니다. 개발자가 기록을 보관하는 서버나 별도 복구 서비스는 없습니다.</p>
     </section>
 
     <section id="billing" aria-labelledby="billing-title">
