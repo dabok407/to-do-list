@@ -74,6 +74,7 @@ class _BackupScreenState extends State<BackupScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
+        scrollable: true,
         title: Text(s.t('이 백업으로 복원할까요?')),
         content: Text(
           s.t(

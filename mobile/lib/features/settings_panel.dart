@@ -7,6 +7,8 @@ import '../services/subscription_service.dart';
 import 'backup_screen.dart';
 import 'notification_privacy_setting.dart';
 import 'privacy_card.dart';
+import 'popup_choice_tile.dart';
+import 'popup_theme.dart';
 import 'settings_widgets.dart';
 import 'store_policy_links.dart';
 
@@ -39,7 +41,7 @@ class SettingsPanel extends StatelessWidget {
         isScrollControlled: true,
         useSafeArea: true,
         showDragHandle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: TodoniqPopupTheme.surface,
         builder: (sheetContext) => ConstrainedBox(
           constraints: BoxConstraints(
             maxHeight: MediaQuery.sizeOf(sheetContext).height * .82,
@@ -58,13 +60,7 @@ class SettingsPanel extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: Text(
-                        title,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                      child: Text(title, style: TodoniqPopupTheme.titleStyle),
                     ),
                     IconButton(
                       tooltip: AppStrings.of(sheetContext).t('닫기'),
@@ -95,20 +91,22 @@ class SettingsPanel extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              RadioListTile<String>(
+              PopupChoiceTile<String>(
                 value: 'system',
-                title: Text(s.t('기기 설정 사용')),
-                contentPadding: EdgeInsets.zero,
+                selected: controller.localeController.preference == 'system',
+                title: s.t('기기 설정 사용'),
               ),
-              const RadioListTile<String>(
+              const SizedBox(height: 8),
+              PopupChoiceTile<String>(
                 value: 'ko',
-                title: Text('한국어'),
-                contentPadding: EdgeInsets.zero,
+                selected: controller.localeController.preference == 'ko',
+                title: '한국어',
               ),
-              const RadioListTile<String>(
+              const SizedBox(height: 8),
+              PopupChoiceTile<String>(
                 value: 'en',
-                title: Text('English'),
-                contentPadding: EdgeInsets.zero,
+                selected: controller.localeController.preference == 'en',
+                title: 'English',
               ),
             ],
           ),

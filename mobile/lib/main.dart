@@ -8,6 +8,7 @@ import 'app/task_controller.dart';
 import 'app/keyboard_dismissal.dart';
 import 'data/task_repository.dart';
 import 'features/home_screen.dart';
+import 'features/popup_theme.dart';
 import 'services/reminder_scheduler.dart';
 import 'services/widget_service.dart';
 import 'services/background_refresh.dart';
@@ -216,11 +217,32 @@ class _HangeoreumAppState extends State<HangeoreumApp>
           secondaryContainer: const Color(0xfff1f2f4),
           onSecondaryContainer: const Color(0xff292c29),
           surface: const Color(0xffffffff),
+          // Keep elevated choices neutral too; fromSeed otherwise introduces
+          // green-tinted popup, dropdown and date-picker surfaces.
+          surfaceDim: TodoniqPopupTheme.border,
+          surfaceBright: TodoniqPopupTheme.surface,
+          surfaceContainerLowest: TodoniqPopupTheme.surface,
+          surfaceContainerLow: TodoniqPopupTheme.quietSurface,
+          surfaceContainer: TodoniqPopupTheme.mutedSurface,
+          surfaceContainerHigh: TodoniqPopupTheme.mutedSurface,
+          surfaceContainerHighest: TodoniqPopupTheme.border,
+          surfaceTint: Colors.transparent,
           onSurface: const Color(0xff292c29),
+          onSurfaceVariant: TodoniqPopupTheme.muted,
           outline: const Color(0xffc9cdd3),
           outlineVariant: const Color(0xffe4e6ea),
         ),
         scaffoldBackgroundColor: const Color(0xffffffff),
+        // Legacy DropdownButton popup routes inherit canvasColor.
+        canvasColor: TodoniqPopupTheme.surface,
+        dialogTheme: TodoniqPopupTheme.dialog,
+        datePickerTheme: TodoniqPopupTheme.datePicker,
+        popupMenuTheme: TodoniqPopupTheme.popupMenu,
+        menuTheme: const MenuThemeData(style: TodoniqPopupTheme.menuStyle),
+        dropdownMenuTheme: const DropdownMenuThemeData(
+          textStyle: TodoniqPopupTheme.menuTextStyle,
+          menuStyle: TodoniqPopupTheme.menuStyle,
+        ),
         switchTheme: SwitchThemeData(
           thumbColor: WidgetStateProperty.resolveWith(
             (states) => states.contains(WidgetState.disabled)
@@ -314,11 +336,7 @@ class _HangeoreumAppState extends State<HangeoreumApp>
             letterSpacing: 0,
           ),
         ),
-        bottomSheetTheme: const BottomSheetThemeData(
-          backgroundColor: Color(0xffffffff),
-          surfaceTintColor: Colors.transparent,
-          showDragHandle: true,
-        ),
+        bottomSheetTheme: TodoniqPopupTheme.bottomSheet,
         expansionTileTheme: ExpansionTileThemeData(
           tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           childrenPadding: const EdgeInsets.fromLTRB(16, 4, 16, 16),

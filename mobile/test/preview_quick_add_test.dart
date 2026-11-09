@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -38,11 +39,11 @@ Future<void> _add(WidgetTester tester, String title) async {
   await tester.enterText(field, title);
   await tester.pumpAndSettle();
   await Scrollable.ensureVisible(
-    tester.element(find.byTooltip('빠른 추가')),
+    tester.element(find.byKey(const Key('quick-add-submit'))),
     alignment: .5,
   );
   await tester.pumpAndSettle();
-  await tester.tap(find.byTooltip('빠른 추가'));
+  await tester.tap(find.byKey(const Key('quick-add-submit')));
   await tester.pump(const Duration(milliseconds: 300));
   if (find.byType(AlertDialog).evaluate().isEmpty) await tester.pumpAndSettle();
 }
@@ -55,7 +56,7 @@ Future<void> _chooseTime(WidgetTester tester) async {
   await tester.pumpAndSettle();
   await tester.tap(find.text('확인'));
   await tester.pumpAndSettle();
-  expect(find.byType(TimePickerDialog), findsNothing);
+  expect(find.byType(CupertinoDatePicker), findsNothing);
 }
 
 void main() {
@@ -103,10 +104,13 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(timeButton);
       await tester.pumpAndSettle();
-      final initial = tester
-          .widget<TimePickerDialog>(find.byType(TimePickerDialog))
-          .initialTime;
-      await tester.enterText(find.byType(TextFormField).at(1), '25');
+      final picker = tester.widget<CupertinoDatePicker>(
+        find.byKey(const Key('time-wheel-picker')),
+      );
+      final initial = picker.initialDateTime;
+      picker.onDateTimeChanged(
+        DateTime(initial.year, initial.month, initial.day, initial.hour, 25),
+      );
       await tester.tap(find.text('확인'));
       await tester.pumpAndSettle();
       await _add(tester, '미리보기에서 추가한 새 할 일');
@@ -190,7 +194,7 @@ void main() {
         ]),
       );
       expect(saved.priority, 1);
-      expect(find.byType(TimePickerDialog), findsNothing);
+      expect(find.byType(CupertinoDatePicker), findsNothing);
       expect(find.text('할 일을 등록했어요.'), findsOneWidget);
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox.shrink());

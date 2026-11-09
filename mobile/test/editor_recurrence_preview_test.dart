@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -191,7 +192,7 @@ void main() {
     await tester.tap(find.byIcon(Icons.edit_outlined));
     await tester.pumpAndSettle();
     final dateInput = find.descendant(
-      of: find.byType(DatePickerDialog),
+      of: find.byKey(const Key('date-picker-input')),
       matching: find.byType(TextFormField),
     );
     await tester.enterText(dateInput, '11/3/2090');
@@ -205,14 +206,10 @@ void main() {
     await tester.ensureVisible(timeField);
     await tester.tap(timeField);
     await tester.pumpAndSettle();
-    await tester.tap(find.byIcon(Icons.keyboard_outlined));
+    tester
+        .widget<CupertinoDatePicker>(find.byType(CupertinoDatePicker))
+        .onDateTimeChanged(DateTime(2000, 1, 1, 14, 45));
     await tester.pumpAndSettle();
-    final inputs = find.descendant(
-      of: find.byType(TimePickerDialog),
-      matching: find.byType(TextFormField),
-    );
-    await tester.enterText(inputs.at(0), '2');
-    await tester.enterText(inputs.at(1), '45');
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
     expect(_previewText('2:45 PM'), findsNWidgets(3));

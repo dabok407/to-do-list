@@ -541,9 +541,9 @@ void main() {
       await tester.ensureVisible(find.byType(TextField));
       await tester.enterText(find.byType(TextField), '빠르게 기록한 할 일');
       await tester.pumpAndSettle();
-      await tester.ensureVisible(find.byTooltip('빠른 추가'));
+      await tester.ensureVisible(find.byKey(const Key('quick-add-submit')));
       await tester.pumpAndSettle();
-      await tester.tap(find.byTooltip('빠른 추가'));
+      await tester.tap(find.byKey(const Key('quick-add-submit')));
       await tester.pumpAndSettle();
       expect(controller.savedTask?.title, '빠르게 기록한 할 일');
       expect(tester.takeException(), isNull);

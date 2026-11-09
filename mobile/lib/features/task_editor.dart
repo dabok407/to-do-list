@@ -6,7 +6,9 @@ import '../domain/task.dart';
 import '../domain/recurrence_preview.dart';
 import '../l10n/app_strings.dart';
 import 'persistent_time_picker.dart';
+import 'calendar_date_picker.dart';
 import 'equal_choice_row.dart';
+import 'popup_theme.dart';
 
 /// Match quick add while keeping the selected calendar date, even at midnight.
 DateTime defaultTaskDue(DateTime selectedDate, {DateTime? now}) {
@@ -101,8 +103,9 @@ class _TaskEditorState extends State<TaskEditor> {
 
   Future<void> pickDate(bool ending) async {
     FocusScope.of(context).unfocus();
-    final value = await showDatePicker(
+    final value = await showTodoniqDatePicker(
       context: context,
+      title: strings.t(ending ? '종료 날짜 선택' : '날짜 선택'),
       initialDate: ending ? end ?? due : due,
       firstDate: ending ? dayOf(due) : DateTime(2020),
       lastDate: DateTime(2100),
@@ -605,35 +608,42 @@ class _TaskEditorState extends State<TaskEditor> {
                     strings.t('미완료 재알림은 Pro 기능이에요. 기존 설정은 보관되며 구독 후 다시 적용됩니다.'),
                   ),
                 if (widget.premium) ...[
-                  DropdownButtonFormField<int>(
-                    isExpanded: true,
-                    itemHeight: null,
-                    key: const Key('overdue-interval'),
-                    initialValue: overdueDays,
-                    decoration: fieldDecoration('재알림 간격'),
-                    items: [
-                      DropdownMenuItem(
-                        value: 0,
-                        child: Text(strings.t('알리지 않음')),
+                  TodoniqMenuTheme(
+                    child: DropdownButtonFormField<int>(
+                      dropdownColor: TodoniqPopupTheme.surface,
+                      borderRadius: BorderRadius.circular(
+                        TodoniqPopupTheme.menuRadius,
                       ),
-                      DropdownMenuItem(
-                        value: 1,
-                        child: Text(strings.t('매일 한 번 (기본)')),
-                      ),
-                      DropdownMenuItem(
-                        value: 2,
-                        child: Text(strings.t('2일마다 한 번')),
-                      ),
-                      DropdownMenuItem(
-                        value: 3,
-                        child: Text(strings.t('3일마다 한 번')),
-                      ),
-                      DropdownMenuItem(
-                        value: 7,
-                        child: Text(strings.t('일주일마다 한 번')),
-                      ),
-                    ],
-                    onChanged: (v) => setState(() => overdueDays = v!),
+                      elevation: 3,
+                      isExpanded: true,
+                      itemHeight: null,
+                      key: const Key('overdue-interval'),
+                      initialValue: overdueDays,
+                      decoration: fieldDecoration('재알림 간격'),
+                      items: [
+                        DropdownMenuItem(
+                          value: 0,
+                          child: Text(strings.t('알리지 않음')),
+                        ),
+                        DropdownMenuItem(
+                          value: 1,
+                          child: Text(strings.t('매일 한 번 (기본)')),
+                        ),
+                        DropdownMenuItem(
+                          value: 2,
+                          child: Text(strings.t('2일마다 한 번')),
+                        ),
+                        DropdownMenuItem(
+                          value: 3,
+                          child: Text(strings.t('3일마다 한 번')),
+                        ),
+                        DropdownMenuItem(
+                          value: 7,
+                          child: Text(strings.t('일주일마다 한 번')),
+                        ),
+                      ],
+                      onChanged: (v) => setState(() => overdueDays = v!),
+                    ),
                   ),
                   if (overdueDays > 0) ...[
                     const SizedBox(height: 12),
@@ -704,32 +714,39 @@ class _TaskEditorState extends State<TaskEditor> {
             ),
             explanation(strings.t('기한이 지난 같은 일을 완료할 때까지 다시 알려요.')),
             const SizedBox(height: 16),
-            DropdownButtonFormField<RepeatUnit>(
-              key: const Key('editor-repeat'),
-              isExpanded: true,
-              itemHeight: null,
-              initialValue: repeat,
-              decoration: fieldDecoration('반복'),
-              items: RepeatUnit.values
-                  .map(
-                    (r) => DropdownMenuItem(
-                      value: r,
-                      child: Text(
-                        strings.t(
-                          [
-                            '한 번',
-                            '매일',
-                            '매주 · 요일 선택',
-                            '매월 같은 날짜',
-                            '매월 특정 번째 요일',
-                            '요일 자유 · 주 N회',
-                          ][r.index],
+            TodoniqMenuTheme(
+              child: DropdownButtonFormField<RepeatUnit>(
+                dropdownColor: TodoniqPopupTheme.surface,
+                borderRadius: BorderRadius.circular(
+                  TodoniqPopupTheme.menuRadius,
+                ),
+                elevation: 3,
+                key: const Key('editor-repeat'),
+                isExpanded: true,
+                itemHeight: null,
+                initialValue: repeat,
+                decoration: fieldDecoration('반복'),
+                items: RepeatUnit.values
+                    .map(
+                      (r) => DropdownMenuItem(
+                        value: r,
+                        child: Text(
+                          strings.t(
+                            [
+                              '한 번',
+                              '매일',
+                              '매주 · 요일 선택',
+                              '매월 같은 날짜',
+                              '매월 특정 번째 요일',
+                              '요일 자유 · 주 N회',
+                            ][r.index],
+                          ),
                         ),
                       ),
-                    ),
-                  )
-                  .toList(),
-              onChanged: (v) => setState(() => repeat = v!),
+                    )
+                    .toList(),
+                onChanged: (v) => setState(() => repeat = v!),
+              ),
             ),
             explanation(strings.t('반복을 설정하면 패턴대로 새로운 회차가 생겨요.')),
             if (repeat != RepeatUnit.none) ...[
@@ -765,23 +782,31 @@ class _TaskEditorState extends State<TaskEditor> {
               explanation(strings.t('간격 변경은 선택이에요. 예: 2주마다, 3개월마다.')),
               if (repeat == RepeatUnit.weeklyGoal) ...[
                 const SizedBox(height: 16),
-                DropdownButtonFormField<int>(
-                  isExpanded: true,
-                  itemHeight: null,
-                  initialValue: countPerWeek,
-                  decoration: fieldDecoration('일주일 목표'),
-                  items: List.generate(
-                    7,
-                    (i) => DropdownMenuItem(
-                      value: i + 1,
-                      child: Text(
-                        i == 0
-                            ? strings.t('주 1회')
-                            : strings.t('주 {count}회', args: {'count': i + 1}),
+                TodoniqMenuTheme(
+                  child: DropdownButtonFormField<int>(
+                    key: const Key('editor-weekly-goal'),
+                    dropdownColor: TodoniqPopupTheme.surface,
+                    borderRadius: BorderRadius.circular(
+                      TodoniqPopupTheme.menuRadius,
+                    ),
+                    elevation: 3,
+                    isExpanded: true,
+                    itemHeight: null,
+                    initialValue: countPerWeek,
+                    decoration: fieldDecoration('일주일 목표'),
+                    items: List.generate(
+                      7,
+                      (i) => DropdownMenuItem(
+                        value: i + 1,
+                        child: Text(
+                          i == 0
+                              ? strings.t('주 1회')
+                              : strings.t('주 {count}회', args: {'count': i + 1}),
+                        ),
                       ),
                     ),
+                    onChanged: (v) => setState(() => countPerWeek = v!),
                   ),
-                  onChanged: (v) => setState(() => countPerWeek = v!),
                 ),
                 const SizedBox(height: 12),
                 Text(
@@ -797,22 +822,30 @@ class _TaskEditorState extends State<TaskEditor> {
               ],
               if (repeat == RepeatUnit.monthlyWeekday) ...[
                 const SizedBox(height: 16),
-                DropdownButtonFormField<int>(
-                  isExpanded: true,
-                  itemHeight: null,
-                  initialValue: monthWeek,
-                  decoration: fieldDecoration('몇 번째 주'),
-                  items: [1, 2, 3, 4, -1]
-                      .map(
-                        (v) => DropdownMenuItem(
-                          value: v,
-                          child: Text(
-                            v == -1 ? strings.t('마지막') : strings.t('$v번째'),
+                TodoniqMenuTheme(
+                  child: DropdownButtonFormField<int>(
+                    key: const Key('editor-month-week'),
+                    dropdownColor: TodoniqPopupTheme.surface,
+                    borderRadius: BorderRadius.circular(
+                      TodoniqPopupTheme.menuRadius,
+                    ),
+                    elevation: 3,
+                    isExpanded: true,
+                    itemHeight: null,
+                    initialValue: monthWeek,
+                    decoration: fieldDecoration('몇 번째 주'),
+                    items: [1, 2, 3, 4, -1]
+                        .map(
+                          (v) => DropdownMenuItem(
+                            value: v,
+                            child: Text(
+                              v == -1 ? strings.t('마지막') : strings.t('$v번째'),
+                            ),
                           ),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (v) => setState(() => monthWeek = v!),
+                        )
+                        .toList(),
+                    onChanged: (v) => setState(() => monthWeek = v!),
+                  ),
                 ),
               ],
               const SizedBox(height: 16),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../domain/task_list_sections.dart';
 import '../l10n/app_strings.dart';
 import 'visual_tokens.dart';
+import 'popup_theme.dart';
 
 class TaskListSortControl extends StatelessWidget {
   final bool completed;
@@ -22,59 +23,62 @@ class TaskListSortControl extends StatelessWidget {
     final basis = strings.t(completed ? '완료일 기준' : '예정일 기준');
     String label(TaskListOrder value) =>
         strings.t(value == TaskListOrder.latest ? '최신순' : '오래된순');
-    final menu = Material(
-      color: Colors.white,
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(9),
-        side: const BorderSide(color: TaskVisuals.line),
-      ),
-      child: PopupMenuButton<TaskListOrder>(
-        key: Key('task-sort-menu-${completed ? 'completed' : 'upcoming'}'),
-        tooltip: strings.t('정렬 방식 선택'),
-        initialValue: order,
-        position: PopupMenuPosition.under,
-        onSelected: onChanged,
-        itemBuilder: (context) => [
-          for (final value in TaskListOrder.values)
-            PopupMenuItem(
-              key: Key('task-sort-option-${value.name}'),
-              value: value,
-              height: 48,
+    final menu = TodoniqMenuTheme(
+      child: Material(
+        color: Colors.white,
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(9),
+          side: const BorderSide(color: TaskVisuals.line),
+        ),
+        child: PopupMenuButton<TaskListOrder>(
+          clipBehavior: Clip.antiAlias,
+          key: Key('task-sort-menu-${completed ? 'completed' : 'upcoming'}'),
+          tooltip: strings.t('정렬 방식 선택'),
+          initialValue: order,
+          position: PopupMenuPosition.under,
+          onSelected: onChanged,
+          itemBuilder: (context) => [
+            for (final value in TaskListOrder.values)
+              PopupMenuItem(
+                key: Key('task-sort-option-${value.name}'),
+                value: value,
+                height: 48,
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.check_rounded,
+                      size: 18,
+                      color: order == value
+                          ? TaskVisuals.ink
+                          : Colors.transparent,
+                    ),
+                    const SizedBox(width: 9),
+                    Flexible(child: Text(label(value), style: _style)),
+                  ],
+                ),
+              ),
+          ],
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 44),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
               child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    Icons.check_rounded,
-                    size: 18,
-                    color: order == value
-                        ? TaskVisuals.ink
-                        : Colors.transparent,
+                  const Icon(Icons.swap_vert_rounded, size: 18),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      label(order),
+                      textAlign: TextAlign.center,
+                      style: _style,
+                    ),
                   ),
-                  const SizedBox(width: 9),
-                  Flexible(child: Text(label(value), style: _style)),
+                  const SizedBox(width: 6),
+                  const Icon(Icons.expand_more_rounded, size: 17),
                 ],
               ),
-            ),
-        ],
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 44),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.swap_vert_rounded, size: 18),
-                const SizedBox(width: 6),
-                Flexible(
-                  child: Text(
-                    label(order),
-                    textAlign: TextAlign.center,
-                    style: _style,
-                  ),
-                ),
-                const SizedBox(width: 6),
-                const Icon(Icons.expand_more_rounded, size: 17),
-              ],
             ),
           ),
         ),

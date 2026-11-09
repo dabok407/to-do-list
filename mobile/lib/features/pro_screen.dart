@@ -185,6 +185,7 @@ class _ProScreenState extends State<ProScreen> {
               onPressed: () => showDialog<void>(
                 context: context,
                 builder: (context) => AlertDialog(
+                  scrollable: true,
                   title: Text(strings.t('이용약관·개인정보')),
                   content: SingleChildScrollView(
                     child: Text(

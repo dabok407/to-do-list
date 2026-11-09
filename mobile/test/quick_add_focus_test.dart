@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoDatePicker;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hangeoreum/app/task_controller.dart';
@@ -159,7 +160,7 @@ void main() {
 
       // An invalid add returns focus to the same field instead of exposing a
       // second add action while the user is correcting the empty draft.
-      final arrow = find.byTooltip('빠른 추가');
+      final arrow = find.byKey(const Key('quick-add-submit'));
       await tester.ensureVisible(arrow);
       await tester.pumpAndSettle();
       await tester.tap(arrow);
@@ -184,8 +185,8 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(time);
       await tester.pumpAndSettle();
-      expect(find.byType(TimePickerDialog), findsOneWidget);
-      await tester.tap(find.text('취소'));
+      expect(find.byType(CupertinoDatePicker), findsOneWidget);
+      await tester.tap(find.byTooltip('취소'));
       await tester.pumpAndSettle();
       _expectFocused(tester, false);
       expect(_fab, findsOneWidget);

@@ -52,6 +52,13 @@ class AppStrings {
     '생각난 일 하나를 날짜와 함께 적어보세요.': 'Add a task and choose when to do it.',
     '예정된 할 일 보기': 'View upcoming tasks',
     '첫 할 일 추가': 'Add your first task',
+    '등록': 'Add',
+    '날짜 선택': 'Choose date',
+    '종료 날짜 선택': 'Choose end date',
+    '직접 입력': 'Type a date',
+    '달력으로 선택': 'Use calendar',
+    '이번 일정의 날짜와 내용만 변경해요.': 'Change only this occurrence.',
+    '이 일정부터 이후 반복에도 적용해요.': 'Apply changes to this and future occurrences.',
   };
 
   static AppStrings of(BuildContext context) {

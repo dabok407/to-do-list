@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -163,9 +164,9 @@ void main() {
     await tester.ensureVisible(find.text('10/10/2026'));
     await tester.tap(find.text('10/10/2026'));
     await tester.pumpAndSettle();
-    expect(find.byType(DatePickerDialog), findsOneWidget);
-    expect(find.text('Cancel'), findsOneWidget);
-    await tester.tap(find.text('Cancel'));
+    expect(find.byType(CalendarDatePicker), findsOneWidget);
+    expect(find.byTooltip('Cancel'), findsOneWidget);
+    await tester.tap(find.byTooltip('Cancel'));
     await tester.pumpAndSettle();
     final timeField = find.descendant(
       of: find.byKey(const Key('editor-time')),
@@ -174,9 +175,9 @@ void main() {
     await tester.ensureVisible(timeField);
     await tester.tap(timeField);
     await tester.pumpAndSettle();
-    expect(find.byType(TimePickerDialog), findsOneWidget);
-    expect(find.text('Cancel'), findsOneWidget);
-    await tester.tap(find.text('Cancel'));
+    expect(find.byType(CupertinoDatePicker), findsOneWidget);
+    expect(find.byTooltip('Cancel'), findsOneWidget);
+    await tester.tap(find.byTooltip('Cancel'));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
   });

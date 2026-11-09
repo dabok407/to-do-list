@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -199,12 +200,12 @@ void main() {
             await tester.pumpAndSettle();
             expect(
               key == 'editor-date'
-                  ? find.byType(DatePickerDialog)
-                  : find.byType(TimePickerDialog),
+                  ? find.byType(CalendarDatePicker)
+                  : find.byType(CupertinoDatePicker),
               findsOneWidget,
             );
             expect(tester.takeException(), isNull, reason: '$key dialog');
-            await tester.tap(find.text(cancel));
+            await tester.tap(find.byTooltip(cancel));
             await tester.pumpAndSettle();
           }
           await tester.ensureVisible(

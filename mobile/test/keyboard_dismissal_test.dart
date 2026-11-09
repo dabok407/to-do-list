@@ -1,5 +1,6 @@
 import 'dart:ui' show PointerDeviceKind;
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -213,28 +214,22 @@ void main() {
       await tester.pumpWidget(const SizedBox.shrink());
     }, variant: TargetPlatformVariant.only(platform));
 
-    testWidgets('${platform.name} 시간 입력 대화상자도 입력창 이동과 외부 터치 후 값을 유지한다', (
-      tester,
-    ) async {
+    testWidgets('${platform.name} 시간 휠을 열면 키보드가 닫히고 초안을 유지한다', (tester) async {
       await _app(tester);
       await _touch(tester, find.byKey(const Key('quick-add')));
+      final title = find.byKey(const Key('quick-add-title'));
+      await _type(tester, title, '시간 선택 전 입력한 초안');
       await _touch(tester, find.byKey(const Key('quick-add-time')));
-      final fields = find.byType(TextFormField);
-      await _type(tester, fields.at(0), '9');
-      await _touch(tester, fields.at(1));
-      expect(_input(tester, fields.at(0)).focusNode.hasFocus, isFalse);
-      expect(_input(tester, fields.at(1)).focusNode.hasFocus, isTrue);
-      expect(tester.testTextInput.isVisible, isTrue);
-      await tester.enterText(fields.at(1), '27');
-      await tester.pumpAndSettle();
-      await _touch(tester, find.text('시간 입력'));
-      expect(_input(tester, fields.at(1)).focusNode.hasFocus, isFalse);
       expect(tester.testTextInput.isVisible, isFalse);
-      expect(_input(tester, fields.at(0)).controller.text, '9');
-      expect(_input(tester, fields.at(1)).controller.text, '27');
-      await _touch(tester, fields.at(1));
+      final picker = tester.widget<CupertinoDatePicker>(
+        find.byKey(const Key('time-wheel-picker')),
+      );
+      picker.onDateTimeChanged(DateTime(2000, 1, 1, 9, 27));
       await _touch(tester, find.text('확인'));
-      expect(find.byType(TimePickerDialog), findsNothing);
+      expect(find.byType(CupertinoDatePicker), findsNothing);
+      expect(_input(tester, title).controller.text, '시간 선택 전 입력한 초안');
+      expect(_input(tester, title).focusNode.hasFocus, isFalse);
+      expect(tester.testTextInput.isVisible, isFalse);
       expect(
         find.descendant(
           of: find.byKey(const Key('quick-add-time')),

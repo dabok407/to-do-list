@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui' as ui;
 
+import 'package:flutter/cupertino.dart' show CupertinoDatePicker;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -137,11 +138,11 @@ Future<void> _add(WidgetTester tester, String title) async {
   // Otherwise its delayed scroll can invalidate the button position mid-tap.
   await tester.pumpAndSettle();
   await Scrollable.ensureVisible(
-    tester.element(find.byTooltip('빠른 추가')),
+    tester.element(find.byKey(const Key('quick-add-submit'))),
     alignment: .5,
   );
   await tester.pumpAndSettle();
-  await tester.tap(find.byTooltip('빠른 추가'));
+  await tester.tap(find.byKey(const Key('quick-add-submit')));
   await tester.pump(const Duration(milliseconds: 300));
   // The in-flight save indicator intentionally remains active while the user
   // decides whether a duplicate is allowed; wait for the dialog, not infinity.
@@ -158,28 +159,21 @@ Future<TimeOfDay> _chooseTime(
   await tester.pumpAndSettle();
   await tester.tap(time);
   await tester.pumpAndSettle();
-  final initial = tester
-      .widget<TimePickerDialog>(find.byType(TimePickerDialog))
-      .initialTime;
+  final picker = tester.widget<CupertinoDatePicker>(
+    find.byType(CupertinoDatePicker),
+  );
+  final initial = TimeOfDay.fromDateTime(picker.initialDateTime);
   if (value != null) {
-    if (find.byIcon(Icons.keyboard_outlined).evaluate().isNotEmpty) {
-      await tester.tap(find.byIcon(Icons.keyboard_outlined));
-      await tester.pumpAndSettle();
-    }
-    final uses12HourClock = find.text('오후').evaluate().isNotEmpty;
-    final hour = uses12HourClock
-        ? (value.hourOfPeriod == 0 ? 12 : value.hourOfPeriod)
-        : value.hour;
-    await tester.enterText(find.byType(TextFormField).at(0), '$hour');
-    await tester.enterText(find.byType(TextFormField).at(1), '${value.minute}');
-    if (uses12HourClock) {
-      await tester.tap(find.text(value.hour >= 12 ? '오후' : '오전'));
-    }
+    // Wheel gestures are covered by persistent_time_picker_test. This suite
+    // verifies the selected value's calendar date, confirmation and save path.
+    picker.onDateTimeChanged(DateTime(2000, 1, 1, value.hour, value.minute));
     await tester.pumpAndSettle();
   }
-  await tester.tap(find.text(accept ? '확인' : '취소'));
+  await tester.tap(
+    accept ? find.byKey(const Key('picker-confirm')) : find.byTooltip('취소'),
+  );
   await tester.pumpAndSettle();
-  expect(find.byType(TimePickerDialog), findsNothing);
+  expect(find.byType(CupertinoDatePicker), findsNothing);
   return initial;
 }
 
@@ -369,7 +363,8 @@ void main() {
     await tester.tap(find.text('주 보기'));
     await tester.pumpAndSettle();
     final chosen = calendarWeekStart(
-      DateTime.now(), controller.localeController.firstDayOfWeekIndex,
+      DateTime.now(),
+      controller.localeController.firstDayOfWeekIndex,
     ).add(const Duration(days: 1));
     await tester.tap(find.byKey(Key('calendar-date-${dayKey(chosen)}')));
     await tester.pumpAndSettle();
@@ -379,7 +374,7 @@ void main() {
   });
 
   testWidgets(
-    'arrow registers the selected calendar day and explicitly chosen time',
+    'register button saves the selected calendar day and explicitly chosen time',
     (tester) async {
       final controller = await _home(tester);
       final now = DateTime.now();
@@ -389,22 +384,9 @@ void main() {
       await tester.tap(date);
       await tester.pumpAndSettle();
       await _expand(tester);
-      final time = find.byKey(const Key('quick-add-time'));
-      await tester.ensureVisible(time);
-      await tester.tap(time);
-      await tester.pumpAndSettle();
-      await tester.tap(find.byIcon(Icons.keyboard_outlined));
-      await tester.pumpAndSettle();
-      final inputs = find.byType(TextFormField);
-      final uses12HourClock = find.text('오후').evaluate().isNotEmpty;
-      await tester.enterText(inputs.at(0), uses12HourClock ? '2' : '14');
-      await tester.enterText(inputs.at(1), '37');
-      if (uses12HourClock) await tester.tap(find.text('오후'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('확인'));
-      await tester.pumpAndSettle();
+      await _chooseTime(tester, value: const TimeOfDay(hour: 14, minute: 37));
       expect(
-        find.byType(TimePickerDialog),
+        find.byType(CupertinoDatePicker),
         findsNothing,
         reason: 'The accepted 2:37 PM / 14:37 time must close the picker before adding a task.',
       );
@@ -483,7 +465,7 @@ void main() {
             .text,
         '  filter clean ',
       );
-      await tester.tap(find.byTooltip('빠른 추가'));
+      await tester.tap(find.byKey(const Key('quick-add-submit')));
       await tester.pump(const Duration(milliseconds: 300));
       await tester.tap(find.text('그래도 등록'));
       await tester.pumpAndSettle();
@@ -506,13 +488,13 @@ void main() {
       await tester.enterText(field, '한 번만 등록');
       await tester.pumpAndSettle();
       await Scrollable.ensureVisible(
-        tester.element(find.byTooltip('빠른 추가')),
+        tester.element(find.byKey(const Key('quick-add-submit'))),
         alignment: .5,
       );
       await tester.pumpAndSettle();
-      await tester.tap(find.byTooltip('빠른 추가'));
+      await tester.tap(find.byKey(const Key('quick-add-submit')));
       // Exercise two deliveries before the disabled button is rendered.
-      await tester.tap(find.byTooltip('빠른 추가'));
+      await tester.tap(find.byKey(const Key('quick-add-submit')));
       await tester.pump();
       expect(controller.saved, isEmpty);
       controller.fixture.readGate!.complete();
@@ -538,7 +520,7 @@ void main() {
       '오류 후 다시 등록',
     );
     controller.fixture.readError = null;
-    await tester.tap(find.byTooltip('빠른 추가'));
+    await tester.tap(find.byKey(const Key('quick-add-submit')));
     await tester.pumpAndSettle();
     expect(controller.saved.single.title, '오류 후 다시 등록');
     await tester.pumpWidget(const SizedBox.shrink());
@@ -835,7 +817,7 @@ void main() {
               boundary,
               'expanded $cycle',
             );
-            await tester.tap(find.byTooltip('빠른 추가'));
+            await tester.tap(find.byKey(const Key('quick-add-submit')));
             await tester.pump();
             expect(find.text('할 일을 입력해주세요.'), findsOneWidget);
             await _expectCardBordersAtLayout(tester, boundary, 'error $cycle');

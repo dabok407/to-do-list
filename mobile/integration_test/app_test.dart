@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart' show CupertinoDatePicker;
 import 'package:flutter/foundation.dart' show debugPrintSynchronously;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -365,10 +366,7 @@ void main() {
       // source tooltip. Select the actual button, never an overlay copy.
       final quickSubmit = find.descendant(
         of: find.byKey(const Key('quick-add-title')),
-        matching: find.byWidgetPredicate(
-          (widget) =>
-              widget is IconButton && widget.tooltip == strings.t('빠른 추가'),
-        ),
+        matching: find.byKey(const Key('quick-add-submit')),
       );
       expect(quickSubmit, findsOneWidget);
       await Scrollable.ensureVisible(
@@ -378,7 +376,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(quickSubmit);
       await tester.pumpAndSettle();
-      expect(find.byType(TimePickerDialog), findsNothing);
+      expect(find.byType(CupertinoDatePicker), findsNothing);
       final quickOccurrence = controller.items.singleWhere(
         (item) => item.task.title == quickTitle,
       );

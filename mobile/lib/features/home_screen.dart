@@ -9,6 +9,8 @@ import '../domain/snooze_target.dart';
 import 'task_editor.dart';
 import 'pro_screen.dart';
 import 'persistent_time_picker.dart';
+import 'popup_choice_tile.dart';
+import 'popup_theme.dart';
 import 'equal_choice_row.dart';
 import 'feedback_snackbar.dart';
 import 'visual_tokens.dart';
@@ -294,6 +296,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           bool? choice;
           return StatefulBuilder(
             builder: (ctx, setChoice) => AlertDialog(
+              scrollable: true,
               title: Text(strings.t('어떤 일정을 수정할까요?')),
               content: RadioGroup<bool>(
                 groupValue: choice,
@@ -301,15 +304,18 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    RadioListTile<bool>(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(strings.t('이번 일정만')),
+                    PopupChoiceTile<bool>(
+                      title: strings.t('이번 일정만'),
+                      subtitle: strings.t('이번 일정의 날짜와 내용만 변경해요.'),
                       value: true,
+                      selected: choice == true,
                     ),
-                    RadioListTile<bool>(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(strings.t('이번부터 앞으로')),
+                    const SizedBox(height: 10),
+                    PopupChoiceTile<bool>(
+                      title: strings.t('이번부터 앞으로'),
+                      subtitle: strings.t('이 일정부터 이후 반복에도 적용해요.'),
                       value: false,
+                      selected: choice == false,
                     ),
                   ],
                 ),
@@ -629,6 +635,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                   final scope = await showDialog<String>(
                                     context: ctx,
                                     builder: (d) => AlertDialog(
+                                      scrollable: true,
                                       title: Text(strings.t('할 일을 삭제할까요?')),
                                       content: Column(
                                         mainAxisSize: MainAxisSize.min,
@@ -1469,37 +1476,40 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 crossAxisAlignment: WrapCrossAlignment.center,
                 spacing: 12,
                 children: [
-                  PopupMenuButton<int>(
-                    tooltip: strings.t('요약 기간'),
-                    initialValue: summary,
-                    onSelected: (value) => updateUi(() => summary = value),
-                    itemBuilder: (_) => List.generate(
-                      3,
-                      (i) => PopupMenuItem(
-                        value: i,
-                        child: Text(
-                          [
-                            strings.t('오늘'),
-                            strings.t('이번 주'),
-                            strings.t('이번 달'),
-                          ][i],
-                        ),
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
+                  TodoniqMenuTheme(
+                    child: PopupMenuButton<int>(
+                      clipBehavior: Clip.antiAlias,
+                      tooltip: strings.t('요약 기간'),
+                      initialValue: summary,
+                      onSelected: (value) => updateUi(() => summary = value),
+                      itemBuilder: (_) => List.generate(
+                        3,
+                        (i) => PopupMenuItem(
+                          value: i,
+                          child: Text(
                             [
                               strings.t('오늘'),
                               strings.t('이번 주'),
                               strings.t('이번 달'),
-                            ][summary],
+                            ][i],
                           ),
-                          const Icon(Icons.expand_more, size: 18),
-                        ],
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              [
+                                strings.t('오늘'),
+                                strings.t('이번 주'),
+                                strings.t('이번 달'),
+                              ][summary],
+                            ),
+                            const Icon(Icons.expand_more, size: 18),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -1664,6 +1674,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         final confirmed = await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
+            scrollable: true,
             title: Text(strings.t('중복된 내용입니다.')),
             content: Text(strings.t('같은 내용의 할 일이 있어요. 그래도 등록하시겠습니까?')),
             actions: [
@@ -1780,10 +1791,24 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           hintText: strings.t('생각났을 때, 할 일 하나'),
           errorText: quickTitleError,
           counterText: '',
-          suffixIcon: IconButton(
-            tooltip: strings.t('빠른 추가'),
-            onPressed: busy ? null : addQuickTask,
-            icon: const Icon(Icons.arrow_upward),
+          suffixIcon: Padding(
+            padding: const EdgeInsets.all(6),
+            child: FilledButton(
+              key: const Key('quick-add-submit'),
+              onPressed: busy ? null : addQuickTask,
+              style: FilledButton.styleFrom(
+                minimumSize: const Size(64, 48),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(strings.t('등록')),
+            ),
           ),
         ),
       ),
